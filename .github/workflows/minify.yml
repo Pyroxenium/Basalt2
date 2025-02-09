@@ -29,14 +29,14 @@ jobs:
         sudo apt-get install -y luarocks
 
     - name: Install Lua minifier
-      run: luarocks install luamin
+      run: luarocks install --local luamin
 
     - name: Minify Lua files
       run: |
         mkdir -p minified
         echo "local project = {}" > minified/project.lua
         for file in $(find . -name '*.lua'); do
-          minified_content=$(luamin -f $file)
+          minified_content=$(~/.luarocks/bin/luamin -f $file)
           filename=$(basename $file)
           echo "project[\"$filename\"] = function(...) $minified_content end" >> minified/project.lua
         done
