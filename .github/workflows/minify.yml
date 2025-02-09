@@ -1,0 +1,47 @@
+name: Minify Lua Code
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Lua
+      uses: leafo/gh-actions-lua@v8
+
+    - name: Install Lua minifier
+      run: luarocks install luamin
+
+    - name: Minify Lua files
+      run: |
+        mkdir -p minified
+        echo "local project = {}" > minified/project.lua
+        for file in $(find . -name '*.lua'); do
+          minified_content=$(luamin -f $file)
+          filename=$(basename $file)
+          echo "project[\"$filename\"] = function(...) $minified_content end" >> minified/project.lua
+        done
+
+    - name: Commit minified files
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add minified/project.lua
+        git commit -m 'Minify Lua files into a single project.lua'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
