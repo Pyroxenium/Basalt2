@@ -1,4 +1,4 @@
-project = 'Basalt2'
+project = 'Basalt 2'
 title = 'Basalt Documentation'
 description = 'A UI Framework for ComputerCraft'
 file = 'src'           -- Einzelner String statt Table
@@ -6,3 +6,6 @@ dir = 'out'           -- Ausgabeverzeichnis
 format = 'markdown'
 ext = '.md'           -- Explizite Dateierweiterung
 all = true
+not_luadoc = true
+style = true
+template = true
