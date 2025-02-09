@@ -48,6 +48,7 @@ jobs:
         fi
 
         echo "Minifying project.lua"
+        luamin --help
         luamin -f release/project.lua
 
         echo "Verifying project.min.lua"
