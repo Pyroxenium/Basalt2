@@ -1,3 +1,4 @@
+
 LUA= $(shell echo `which lua`)
 LUA_BINDIR= $(shell echo `dirname $(LUA)`)
 LUA_PREFIX= $(shell echo `dirname $(LUA_BINDIR)`)
@@ -30,10 +31,10 @@ uninstall:
 
 test: test-basic test-example test-md test-tables
 
-RUN=&& lua $(_REPODIR)/ldoc.lua . && diff -r docs cdocs && echo ok
+RUN=&& lua $(_REPODIR)/ldoc.lua . && diff -r doc cdocs && echo ok
 
 test-prep:
-	find -type d -name docs -execdir rsync -av --del {}/ cdocs/ \;
+	find -type d -name doc -execdir rsync -av --del {}/ cdocs/ \;
 
 test-basic:
 	cd tests $(RUN)
@@ -50,9 +51,9 @@ test-tables:
 test-clean: clean-basic clean-example clean-md clean-tables
 
 doc-site:
-	cd $(_REPODIR)/docs && lua $(_REPODIR)/ldoc.lua .
+	cd $(_REPODIR)/doc && lua $(_REPODIR)/ldoc.lua .
 
-CLEAN=&& lua $(_REPODIR)/ldoc.lua . && rd /S /Q cdocs && cp -rf docs cdocs
+CLEAN=&& lua $(_REPODIR)/ldoc.lua . && rd /S /Q cdocs && cp -rf doc cdocs
 
 clean-basic:
 	cd tests $(CLEAN)

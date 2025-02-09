@@ -1,3 +1,4 @@
+# Based on https://gist.github.com/domenic/ec8b0fc8ab45f39403dd
 name: Build Docs
 on:
   pull_request:
@@ -19,13 +20,13 @@ jobs:
         luaVersion: 5.4
     - name: Setup Lua Rocks
       uses: leafo/gh-actions-luarocks@v4
-    - name: Install LDoc
+    - name: Setup dependencies
       run: luarocks install ldoc
     - name: Build docs
       run: make doc-site
     - name: Deploy
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        publish_dir: ./out
