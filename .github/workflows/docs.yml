@@ -42,7 +42,7 @@ jobs:
       run: |
         # Erstelle config.ld wenn nicht vorhanden
         if [ ! -f "config.ld" ]; then
-          echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; file="src"; all=true; template=true' > config.ld
+          echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; file="src"; all=true; > config.ld
         fi
         
         echo "LDoc Konfiguration:"
