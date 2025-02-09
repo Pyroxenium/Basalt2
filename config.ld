@@ -1,10 +1,13 @@
-project = 'Basalt2'
-title = 'Basalt2 Documentation'
-description = 'A powerful UI Framework for ComputerCraft'
-format = 'markdown'
-dir = 'docs'
-file = {'src'}
-style = '!pale'
-sort = true
-all = true
-topics = {'README.md'}
+project = "Basalt 2"
+title = "Basalt documentation"
+description = "A Basalt UI Framework Documentation"
+format = "discount"
+backtick_references = false
+file = "ldoc.lua"
+dir = "docs"
+readme = "manual.md"
+style = "!new"
+kind_names = {
+   topic = "Manual",
+   script = "Programs"
+}
