@@ -81,7 +81,7 @@ end
 --- Schedules a function to be updated
 --- @function scheduleUpdate
 --- @param func function The function to schedule
---- @return number The schedule ID
+--- @return number Id The schedule ID
 --- @usage local id = basalt.scheduleUpdate(myFunction)
 function basalt.scheduleUpdate(func)
     table.insert(basalt._schedule, func)
@@ -89,9 +89,9 @@ function basalt.scheduleUpdate(func)
 end
 
 --- Removes a scheduled update
--- @function removeSchedule
--- @param id number The schedule ID to remove
--- @usage basalt.removeSchedule(scheduleId)
+--- @function removeSchedule
+--- @param id number The schedule ID to remove
+--- @usage basalt.removeSchedule(scheduleId)
 function basalt.removeSchedule(id)
     basalt._schedule[id] = nil
 end
