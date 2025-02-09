@@ -37,7 +37,11 @@ jobs:
         echo "Minifying Lua files"
         for file in $(find . -name '*.lua'); do
           echo "Minifying $file"
-          minified_content=$(luamin -f $file)
+          minified_content=$(luamin -f $file 2>&1)
+          if [ $? -ne 0 ]; then
+            echo "Error minifying $file: $minified_content"
+            exit 1
+          fi
           filename=$(basename $file)
           echo "Adding $filename to project.lua"
           echo "project[\"$filename\"] = function(...) $minified_content end" >> release/project.lua
