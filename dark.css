@@ -1,0 +1,68 @@
+body { 
+    color: #c9d1d9;
+    background-color: #0d1117;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+
+#container {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+}
+
+#navigation {
+    background-color: #161b22;
+    border-right: 1px solid #30363d;
+}
+
+#navigation h1, #navigation h2 {
+    color: #c9d1d9;
+    border-bottom: 1px solid #30363d;
+}
+
+#navigation ul a {
+    color: #58a6ff;
+}
+
+#content {
+    background-color: #161b22;
+    color: #c9d1d9;
+}
+
+a:link { color: #58a6ff; }
+a:visited { color: #58a6ff; }
+a:hover { color: #1f6feb; }
+
+h1, h2, h3, h4 { color: #c9d1d9; }
+
+pre, code {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}
+
+table {
+    border: 1px solid #30363d;
+}
+
+th {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+}
+
+td {
+    border: 1px solid #30363d;
+}
+
+tr:nth-child(odd) {
+    background-color: #0d1117;
+}
+
+.function {
+    border-left: 3px solid #238636;
+    background-color: #0d1117;
+}
+
+.type {
+    border-left: 3px solid #1f6feb;
+    background-color: #0d1117;
+}
