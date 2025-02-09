@@ -23,48 +23,51 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
 
     - name: Install Lua minifier
-      run: npm install -g luamin
+      run: |
+        npm install luamin
+        echo "Testing luamin installation:"
+        npx luamin --version || echo "luamin version check failed"
 
     - name: Combine and Minify Lua files
       run: |
+        set -x  # Enable debug output
+        
         echo "Creating release directory"
         mkdir -p release
-        echo "Creating project.lua file"
-        echo "local project = {}" > release/project.lua
-        for file in $(find src -name '*.lua'); do
-          echo "Adding $file to project.lua"
-          cat $file >> release/project.lua
-        done
-
-        echo "Verifying project.lua"
-        if [ -f release/project.lua ]; then
-          echo "project.lua exists"
+        
+        echo "Creating and populating project.lua"
+        {
+          echo "local project = {}"
+          find src -name '*.lua' -exec cat {} \;
+        } > release/project.lua
+        
+        echo "Content of project.lua:"
+        cat release/project.lua
+        
+        echo "Attempting minification..."
+        if npx luamin -f release/project.lua > release/project.min.lua; then
+          echo "Minification successful"
+          echo "Minified content size: $(wc -c < release/project.min.lua) bytes"
         else
-          echo "Error: release/project.lua not found"
-          exit 1
-        fi
-
-        echo "Minifying project.lua"
-        minified_content=$(luamin -c "$(cat release/project.lua)")
-        echo "$minified_content" > release/project.min.lua
-
-        echo "Verifying project.min.lua"
-        if [ -f release/project.min.lua ]; then
-          echo "project.min.lua exists"
-        else
-          echo "Error: release/project.min.lua not found"
+          echo "Minification failed"
           exit 1
         fi
 
     - name: Commit minified Lua file
+      if: success()
       run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add release/project.min.lua
-        git commit -m 'Minify Lua files into a single project.min.lua'
-        git push
+        if [ -s release/project.min.lua ]; then
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add release/project.min.lua
+          git commit -m 'Minify Lua files into a single project.min.lua'
+          git push
+        else
+          echo "Error: project.min.lua is empty or doesn't exist"
+          exit 1
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
