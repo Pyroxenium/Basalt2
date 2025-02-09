@@ -34,7 +34,7 @@ jobs:
         mkdir -p release
         echo "Creating project.lua file"
         echo "local project = {}" > release/project.lua
-        for file in $(find . -name '*.lua'); do
+        for file in $(find src -name '*.lua'); do
           echo "Adding $file to project.lua"
           cat $file >> release/project.lua
         done
