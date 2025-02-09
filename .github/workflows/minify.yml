@@ -20,13 +20,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Lua
-      uses: leafo/gh-actions-lua@v8
-
-    - name: Install Luarocks
+    - name: Install Lua 5.3
       run: |
         sudo apt-get update
-        sudo apt-get install -y luarocks
+        sudo apt-get install -y lua5.3 luarocks
 
     - name: Install Lua minifier
       run: luarocks install --local luamin
