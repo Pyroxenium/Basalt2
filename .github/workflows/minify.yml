@@ -28,32 +28,28 @@ jobs:
     - name: Install Lua minifier
       run: npm install -g luamin
 
-    - name: Minify Lua files
+    - name: Combine Lua files
       run: |
         echo "Creating release directory"
         mkdir -p release
         echo "Creating project.lua file"
         echo "local project = {}" > release/project.lua
-        echo "Minifying Lua files"
         for file in $(find . -name '*.lua'); do
-          echo "Minifying $file"
-          luamin_output=$(luamin -f $file 2>&1)
-          if [ $? -ne 0 ]; then
-            echo "Error minifying $file: $luamin_output"
-            exit 1
-          fi
-          echo "$luamin_output"
-          filename=$(basename $file)
-          echo "Adding $filename to project.lua"
-          echo "project[\"$filename\"] = function(...) $luamin_output end" >> release/project.lua
+          echo "Adding $file to project.lua"
+          cat $file >> release/project.lua
         done
 
-    - name: Commit minified files
+    - name: Minify combined Lua file
+      run: |
+        echo "Minifying project.lua"
+        luamin -f release/project.lua -o release/project.min.lua
+
+    - name: Commit minified file
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add release/project.lua
-        git commit -m 'Minify Lua files into a single project.lua'
+        git add release/project.min.lua
+        git commit -m 'Minify Lua files into a single project.min.lua'
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
