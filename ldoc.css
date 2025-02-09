@@ -145,7 +145,7 @@ table.index td { text-align: left; vertical-align: top; }
 #product {
     text-align: center;
     border-bottom: 1px solid #cccccc;
-    background-color: #ffffff;
+    background-color: #3a3a3a;
 }
 
 #product big {
@@ -153,7 +153,7 @@ table.index td { text-align: left; vertical-align: top; }
 }
 
 #main {
-    background-color: #f0f0ff;
+    background-color: #131313;
     border-left: 2px solid #cccccc;
 }
 
