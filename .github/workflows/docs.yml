@@ -1,0 +1,64 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - '**.lua'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - '**.lua'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Lua and LDoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.3 luarocks
+        sudo luarocks install ldoc
+        
+    - name: Generate Documentation
+      run: |
+        # Erstelle config.ld wenn nicht vorhanden
+        if [ ! -f "config.ld" ]; then
+          cat > config.ld << 'EOL'
+          project = 'Basalt2'
+          title = 'Basalt2 Documentation'
+          description = 'A powerful UI Framework for ComputerCraft'
+          dir = 'docs'
+          style = '!pale'
+          format = 'markdown'
+          topics = {'README.md'}
+          EOL
+        fi
+        
+        # Generiere Dokumentation
+        ldoc .
+        
+        # Prüfe ob Docs generiert wurden
+        if [ ! -d "docs" ]; then
+          echo "Documentation generation failed"
+          exit 1
+        fi
+
+    - name: Commit documentation
+      if: success()
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add docs/
+        git commit -m 'Update documentation'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

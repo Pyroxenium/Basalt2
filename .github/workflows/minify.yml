@@ -83,7 +83,7 @@ jobs:
         
         table.insert(output, 'return project["main.lua"]')
         
-        local out = io.open("release/project.min.lua", "w")
+        local out = io.open("release/basalt.lua", "w")
         out:write(table.concat(output))
         out:close()
         EOL
