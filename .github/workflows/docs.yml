@@ -1,65 +1,30 @@
-name: Generate Documentation
-
+name: Build Docs
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - '**.lua'
   pull_request:
     branches:
-      - main
-    paths:
-      - 'src/**'
-      - '**.lua'
-
+    - master
+  push:
+    branches:
+    - master
 jobs:
-  docs:
+  build:
+    name: Build docs
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Install Lua and LDoc
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y lua5.3 \
-                              lua5.3-dev \
-                              liblua5.3-dev \
-                              luarocks \
-                              build-essential \
-                              libreadline-dev
-        
-        sudo luarocks --lua-version=5.3 install ldoc
-
-        ldoc --version || exit 1
-        
-    - name: Generate Documentation
-      run: |
-        echo "Checking config.ld location:"
-        pwd
-        ls -la config.ld || echo "config.ld not found in current directory"
-        
-        echo "Available Lua-Files:"
-        find src -name "*.lua" -type f
-        
-        echo "Running LDoc with explicit config path..."
-        ldoc . -c config.ld --verbose
-        
-        if [ ! -d "docs" ]; then
-          echo "Documentation generation failed"
-          exit 1
-        fi
-
-    - name: Commit documentation
-      if: success()
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add docs/
-        git commit -m 'Update documentation'
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v8
+      with:
+        luaVersion: 5.4
+    - name: Setup Lua Rocks
+      uses: leafo/gh-actions-luarocks@v4
+    - name: Setup dependencies
+      run: luarocks install --only-deps ldoc-dev-1.rockspec
+    - name: Build docs
+      run: make doc-site
+    - name: Deploy
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
