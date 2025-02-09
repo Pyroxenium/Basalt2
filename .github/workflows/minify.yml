@@ -20,6 +20,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Install Lua
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.3
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
@@ -35,13 +40,17 @@ jobs:
       run: |
         mkdir -p release
         
-        echo "Testing main.lua minification only..."
-        if npx luamin -f src/main.lua > release/main.min.lua; then
-          echo "Main.lua minification successful"
+        echo "Checking Lua syntax first..."
+        if lua -e "loadfile('src/main.lua')" ; then
+          echo "Lua syntax is valid, proceeding with minification..."
+          if npx luamin -f src/main.lua > release/main.min.lua; then
+            echo "Main.lua minification successful"
+          else
+            echo "Minification failed"
+            exit 1
+          fi
         else
-          echo "Lua syntax check failed. Trying to identify the error:"
-          # Versuche den Lua-Code zu parsen um Syntax-Fehler zu finden
-          luac -p src/main.lua || echo "Lua syntax error detected"
+          echo "Lua syntax error detected in main.lua"
           exit 1
         fi
 
