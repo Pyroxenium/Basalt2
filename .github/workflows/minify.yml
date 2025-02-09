@@ -30,19 +30,18 @@ jobs:
 
     - name: Minify Lua files
       run: |
-        mkdir minified || true
-        echo "local project = {}" > minified/project.lua
+        echo "local project = {}" > release/project.lua
         for file in $(find . -name '*.lua'); do
           minified_content=$(luamin -f $file)
           filename=$(basename $file)
-          echo "project[\"$filename\"] = function(...) $minified_content end" >> minified/project.lua
+          echo "project[\"$filename\"] = function(...) $minified_content end" >> release/project.lua
         done
 
     - name: Commit minified files
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add minified/project.lua
+        git add release/project.lua
         git commit -m 'Minify Lua files into a single project.lua'
         git push
       env:
