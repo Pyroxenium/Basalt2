@@ -42,11 +42,17 @@ jobs:
       run: |
         # Erstelle config.ld wenn nicht vorhanden
         if [ ! -f "config.ld" ]; then
-          echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; topics={"README.md"}' > config.ld
+          echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; file="src"; examples={"examples"}; all=true; template=true' > config.ld
         fi
         
+        echo "LDoc Konfiguration:"
+        cat config.ld
+        
+        echo "Verfügbare Lua-Dateien:"
+        find src -name "*.lua" -type f
+        
         # Generiere Dokumentation
-        ldoc .
+        ldoc . --verbose
         
         # Prüfe ob Docs generiert wurden
         if [ ! -d "docs" ]; then
