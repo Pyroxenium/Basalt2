@@ -28,7 +28,7 @@ jobs:
     - name: Install Lua minifier
       run: npm install -g luamin
 
-    - name: Combine Lua files
+    - name: Combine and Minify Lua files
       run: |
         echo "Creating release directory"
         mkdir -p release
@@ -38,41 +38,13 @@ jobs:
           echo "Adding $file to project.lua"
           cat $file >> release/project.lua
         done
-        echo "Combined Lua files:"
-        cat release/project.lua
 
-    - name: Verify combined Lua file
-      run: |
-        echo "Verifying project.lua"
-        if [ -f release/project.lua ]; then
-          echo "project.lua exists"
-          cat release/project.lua
-        else
-          echo "Error: release/project.lua not found"
-          exit 1
-        fi
-
-    - name: Commit combined Lua file
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add release/project.lua
-        git commit -m 'Combine Lua files into a single project.lua'
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Minify combined Lua file
-      run: |
         echo "Minifying project.lua"
         luamin -f release/project.lua -o release/project.min.lua
 
-    - name: Verify minified Lua file
-      run: |
         echo "Verifying project.min.lua"
         if [ -f release/project.min.lua ]; then
           echo "project.min.lua exists"
-          cat release/project.min.lua
         else
           echo "Error: release/project.min.lua not found"
           exit 1
