@@ -30,10 +30,16 @@ jobs:
 
     - name: Minify Lua files
       run: |
+        echo "Creating release directory"
+        mkdir -p release
+        echo "Creating project.lua file"
         echo "local project = {}" > release/project.lua
+        echo "Minifying Lua files"
         for file in $(find . -name '*.lua'); do
+          echo "Minifying $file"
           minified_content=$(luamin -f $file)
           filename=$(basename $file)
+          echo "Adding $filename to project.lua"
           echo "project[\"$filename\"] = function(...) $minified_content end" >> release/project.lua
         done
 
