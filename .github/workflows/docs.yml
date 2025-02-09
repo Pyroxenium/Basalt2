@@ -1,45 +1,28 @@
 name: Build Docs
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
-
+    branches:
+    - main
+  push:
+    branches:
+    - main
 jobs:
   build:
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
         luaVersion: 5.4
-
-    - name: Setup LuaRocks
+    - name: Setup Lua Rocks
       uses: leafo/gh-actions-luarocks@v4
-
     - name: Install LDoc
-      run: |
-        luarocks install ldoc
-        ldoc --help
-
-    - name: Debug Info
-      run: |
-        echo "Current directory:"
-        pwd
-        echo "Files in src:"
-        find src -type f -name "*.lua"
-        echo "Config file:"
-        cat config.ld
-
-    - name: Generate Docs
-      run: |
-        rm -rf docs
-        ldoc . --verbose --debug
-        echo "Generated files:"
-        find docs -type f
-
+      run: luarocks install ldoc
+    - name: Build docs
+      run: make doc-site
     - name: Deploy
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
