@@ -32,28 +32,53 @@ jobs:
         echo "Creating minification script..."
         cat > minify_script.lua << 'EOL'
         local minify = loadfile("minify.lua")()
-        local f = io.open("src/main.lua", "r")
-        local content = f:read("*all")
-        f:close()
+        local lfs = require("lfs")
         
-        local success, minified = minify(content)
-        
-        if not success then
-          print("Minification failed")
-          print(minified)
-          return
+        local files = {}
+        for file in lfs.dir("src") do
+          if file:match("%.lua$") then
+            table.insert(files, file)
+          end
         end
-
-        local out = io.open("release/main.min.lua", "w")
-        out:write(minified)
+        
+        local output = {
+          'local minified = true\n',
+          'local project = {}\n'
+        }
+        
+        for _, file in ipairs(files) do
+          local f = io.open("src/" .. file, "r")
+          local content = f:read("*all")
+          f:close()
+          
+          local success, minified = minify(content)
+          if not success then
+            print("Failed to minify " .. file)
+            print(minified)
+            os.exit(1)
+          end
+          
+          table.insert(output, string.format(
+            'project["%s"] = function(...) %s end\n',
+            file, minified
+          ))
+        end
+        
+        table.insert(output, 'return project["main.lua"]')
+        
+        local out = io.open("release/project.min.lua", "w")
+        out:write(table.concat(output))
         out:close()
         EOL
+        
+        echo "Installing LuaFileSystem..."
+        sudo apt-get install -y lua-filesystem
         
         echo "Running minification..."
         if lua minify_script.lua; then
           echo "Minification successful"
           echo "Minified content:"
-          cat release/main.min.lua
+          cat release/project.min.lua
         else
           echo "Minification failed"
           exit 1
@@ -62,14 +87,14 @@ jobs:
     - name: Commit minified Lua file
       if: success()
       run: |
-        if [ -s release/main.min.lua ]; then
+        if [ -s release/project.min.lua ]; then
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add release/main.min.lua
-          git commit -m 'Minify main.lua'
+          git add release/project.min.lua
+          git commit -m 'Minify all Lua files into project bundle'
           git push
         else
-          echo "Error: main.min.lua is empty or doesn't exist"
+          echo "Error: project.min.lua is empty or doesn't exist"
           exit 1
         fi
       env:
