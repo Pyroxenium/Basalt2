@@ -42,15 +42,7 @@ jobs:
       run: |
         # Erstelle config.ld wenn nicht vorhanden
         if [ ! -f "config.ld" ]; then
-          cat > config.ld << 'EOL'
-          project = 'Basalt2'
-          title = 'Basalt2 Documentation'
-          description = 'A powerful UI Framework for ComputerCraft'
-          dir = 'docs'
-          style = '!pale'
-          format = 'markdown'
-          topics = {'README.md'}
-          EOL
+          echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; topics={"README.md"}' > config.ld
         fi
         
         # Generiere Dokumentation
