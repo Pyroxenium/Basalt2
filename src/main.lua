@@ -2,11 +2,6 @@
 -- This is the main entry point for the Basalt UI Framework.
 -- It provides functions for creating and managing UI elements and handling events.
 -- @module basalt
--- @author NyoriE
--- @license MIT
--- @copyright 2025
--- @release 2.0
--- @see elementManager
 -- @usage
 -- local basalt = require("basalt")
 -- local mainFrame = basalt.createFrame()
@@ -35,16 +30,11 @@ basalt.LOGGER = require("log")
 local mainFrame = nil
 local updaterActive = false
 
---- Creates a new UI element
--- Creates and returns a new UI element of the specified type
--- @function create
--- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
--- @param[opt] id string Optional unique identifier for the element
--- @treturn table The created element instance
--- @see elementManager.getElement
--- @usage
--- local button = basalt.create("Button", "myButton")
--- button:setPosition(5, 5)
+--- Creates and returns a new UI element of the specified type
+--- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
+--- @param id? string Optional unique identifier for the element
+--- @return table element The created element instance
+--- @usage local button = basalt.create("Button")
 function basalt.create(type, id)
     if(id==nil)then id = elementManager.generateId() end
     local element = elementManager.getElement(type).new(id, basalt)
@@ -56,9 +46,8 @@ function basalt.create(type, id)
 end
 
 --- Creates and returns a new frame
--- @function createFrame
--- @return table The created frame instance
--- @usage local mainFrame = basalt.createFrame()
+--- @return table BaseFrame The created frame instance
+--- @usage local mainFrame = basalt.createFrame()
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
     mainFrame = frame
