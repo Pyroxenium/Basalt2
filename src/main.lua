@@ -55,15 +55,15 @@ function basalt.createFrame()
 end
 
 --- Returns the element manager instance
---- @return table ElementManager The element manager
---- @usage local manager = basalt.getElementManager()
+-- @return table ElementManager The element manager
+-- @usage local manager = basalt.getElementManager()
 function basalt.getElementManager()
     return elementManager
 end
 
 --- Gets or creates the main frame
---- @return BaseFrame table The main frame instance
---- @usage local frame = basalt.getMainFrame()
+-- @return BaseFrame table The main frame instance
+-- @usage local frame = basalt.getMainFrame()
 function basalt.getMainFrame()
     if(mainFrame == nil)then
         mainFrame = basalt.createFrame()
@@ -72,32 +72,31 @@ function basalt.getMainFrame()
 end
 
 --- Sets the active frame
---- @param frame table The frame to set as active
---- @usage basalt.setActiveFrame(myFrame)
+-- @param frame table The frame to set as active
+-- @usage basalt.setActiveFrame(myFrame)
 function basalt.setActiveFrame(frame)
     mainFrame = frame
 end
 
 --- Schedules a function to be updated
---- @function scheduleUpdate
---- @param func function The function to schedule
---- @return number Id The schedule ID
---- @usage local id = basalt.scheduleUpdate(myFunction)
+-- @param func function The function to schedule
+-- @return number Id The schedule ID
+-- @usage local id = basalt.scheduleUpdate(myFunction)
 function basalt.scheduleUpdate(func)
     table.insert(basalt._schedule, func)
     return #basalt._schedule
 end
 
 --- Removes a scheduled update
---- @function removeSchedule
---- @param id number The schedule ID to remove
---- @usage basalt.removeSchedule(scheduleId)
+-- @function removeSchedule
+-- @param id number The schedule ID to remove
+-- @usage basalt.removeSchedule(scheduleId)
 function basalt.removeSchedule(id)
     basalt._schedule[id] = nil
 end
 
 --- Internal event handler
---- @local
+-- @local
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
 
@@ -121,7 +120,7 @@ local function updateEvent(event, ...)
 end
 
 --- Internal render function
---- @local
+-- @local
 local function renderFrames()
     if(mainFrame)then
         mainFrame:render()
@@ -129,7 +128,7 @@ local function renderFrames()
 end
 
 --- Updates all scheduled functions
---- @usage basalt.update()
+-- @usage basalt.update()
 function basalt.update()
     for k,v in pairs(basalt._schedule) do
         if type(v)=="function" then
@@ -139,7 +138,7 @@ function basalt.update()
 end
 
 --- Stops the Basalt runtime
---- @usage basalt.stop()
+-- @usage basalt.stop()
 function basalt.stop()
     term.clear()
     term.setCursorPos(1,1)
@@ -147,9 +146,9 @@ function basalt.stop()
 end
 
 --- Starts the Basalt runtime
---- @param isActive boolean Whether to start active (default: true)
---- @usage basalt.run()
---- @usage basalt.run(false)
+-- @param isActive boolean Whether to start active (default: true)
+-- @usage basalt.run()
+-- @usage basalt.run(false)
 function basalt.run(isActive)
     updaterActive = isActive
     if(isActive==nil)then updaterActive = true end
