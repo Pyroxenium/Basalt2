@@ -48,11 +48,11 @@ jobs:
         fi
 
         echo "Minifying project.lua"
-        luamin --help
-        luamin -f release/project.lua
+        minified_content=$(luamin -c "$(cat release/project.lua)")
+        echo "$minified_content" > release/project.min.lua
 
         echo "Verifying project.min.lua"
-        if [ -f release.project.min.lua ]; then
+        if [ -f release/project.min.lua ]; then
           echo "project.min.lua exists"
         else
           echo "Error: release/project.min.lua not found"
