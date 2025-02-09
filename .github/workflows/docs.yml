@@ -23,27 +23,10 @@ jobs:
     - name: Setup dependencies
       run: luarocks install ldoc
     - name: Build docs
-      run: |
-        rm -rf out
-        mkdir -p out
-        
-        echo "Running LDoc..."
-        ldoc . --dir out --ext md --verbose
-        
-        echo "Moving generated markdown files..."
-        find . -maxdepth 1 -type f -name "*.md" ! -path "./out/*" -exec mv {} out/ \;
-        
-        echo "Final output directory contents:"
-        ls -la out/
-        
-        if [ -z "$(ls -A out/)" ]; then
-          echo "Error: No documentation files were generated!"
-          exit 1
+      run: make doc-site
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./out
-        force_orphan: true  # Start with a fresh branch each time
-        commit_message: "docs: update documentation [skip ci]"
