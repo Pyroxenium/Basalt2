@@ -32,29 +32,24 @@ jobs:
                               build-essential \
                               libreadline-dev
         
-        # Konfiguriere LuaRocks für Lua 5.3
         sudo luarocks --lua-version=5.3 install ldoc
 
-        # Verifiziere Installation
         ldoc --version || exit 1
         
     - name: Generate Documentation
       run: |
-        # Erstelle config.ld wenn nicht vorhanden
         if [ ! -f "config.ld" ]; then
           echo 'project="Basalt2"; title="Basalt2 Documentation"; description="A powerful UI Framework for ComputerCraft"; dir="docs"; style="!pale"; format="markdown"; file="src"; all=true; template=true' > config.ld
         fi
         
-        echo "LDoc Konfiguration:"
+        echo "LDoc Configuration:"
         cat config.ld
         
-        echo "Verfügbare Lua-Dateien:"
+        echo "Available Lua-Files:"
         find src -name "*.lua" -type f
         
-        # Generiere Dokumentation
         ldoc . --verbose
         
-        # Prüfe ob Docs generiert wurden
         if [ ! -d "docs" ]; then
           echo "Documentation generation failed"
           exit 1
