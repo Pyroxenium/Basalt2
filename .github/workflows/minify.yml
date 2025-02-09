@@ -104,14 +104,14 @@ jobs:
     - name: Commit minified Lua file
       if: success()
       run: |
-        if [ -s release/project.min.lua ]; then
+        if [ -s release/basalt.lua ]; then
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add release/project.min.lua
+          git add release/basalt.lua
           git commit -m 'Minify all Lua files into project bundle'
           git push
         else
-          echo "Error: project.min.lua is empty or doesn't exist"
+          echo "Error: basalt.lua is empty or doesn't exist"
           exit 1
         fi
       env:

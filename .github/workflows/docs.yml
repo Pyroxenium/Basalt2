@@ -25,8 +25,18 @@ jobs:
     - name: Install Lua and LDoc
       run: |
         sudo apt-get update
-        sudo apt-get install -y lua5.3 luarocks
-        sudo luarocks install ldoc
+        sudo apt-get install -y lua5.3 \
+                              lua5.3-dev \
+                              liblua5.3-dev \
+                              luarocks \
+                              build-essential \
+                              libreadline-dev
+        
+        # Konfiguriere LuaRocks für Lua 5.3
+        sudo luarocks --lua-version=5.3 install ldoc
+
+        # Verifiziere Installation
+        ldoc --version || exit 1
         
     - name: Generate Documentation
       run: |
