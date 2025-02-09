@@ -24,24 +24,24 @@ jobs:
       run: luarocks install ldoc
     - name: Build docs
       run: |
-        echo "Current directory contents:"
-        ls -la
-        
-        echo "Creating output directory..."
+        rm -rf out
         mkdir -p out
         
         echo "Running LDoc..."
-        ldoc -c $(pwd)/config.ld $(pwd)/src --verbose --ext md
+        ldoc . --dir out --ext md --verbose
         
-        echo "Output directory contents:"
+        echo "Looking for generated files..."
+        find . -type f -name "*.md"
+        
+        echo "Moving any files to out directory..."
+        find . -type f -name "*.md" -not -path "./out/*" -exec mv {} out/ \;
+        
+        echo "Final output directory contents:"
         ls -la out/
         
-        # Fail if no files were generated
         if [ -z "$(ls -A out/)" ]; then
           echo "Error: No documentation files were generated!"
           exit 1
-        fi
-
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3

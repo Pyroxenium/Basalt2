@@ -1,7 +1,11 @@
 project = 'Basalt2'
 title = 'Basalt Documentation'
 description = 'A UI Framework for ComputerCraft'
-file = {'src'}
+file = 'src'
 dir = 'out'
+one = true
 format = 'markdown'
+ext = '.md'
 all = true
+merge = true
+output = 'out'
