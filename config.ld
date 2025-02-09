@@ -1,19 +1,9 @@
-project = "Basalt2"
-
-title = "Basalt2 Documentation"
-
-description = "A powerful UI Framework for ComputerCraft"
-
-dir = "docs"
-
-style = "!pale"
-
-format = "markdown"
-
-file = "src"
-
-all = true
-
-template = true
-
-pretty = true
+project="Basalt2"; 
+title="Basalt2 Documentation"; 
+description="A powerful UI Framework for ComputerCraft"; 
+dir="docs"; 
+style="!pale"; 
+format="markdown"; 
+file="src"; 
+all=true; 
+template=true
