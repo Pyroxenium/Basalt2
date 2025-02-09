@@ -30,15 +30,6 @@ jobs:
         echo "Running LDoc..."
         ldoc . --dir out --ext md --verbose
         
-        echo "Looking for generated files..."
-        find . -maxdepth 1 -type f -name "*.md"
-        
-        echo "Moving relevant files to out directory..."
-        find . -maxdepth 1 -type f -name "*.md" -exec mv {} out/ \;
-        
-        # Cleanup - remove LDoc test files
-        rm -f out/one.md out/two.md out/opt.md
-        
         echo "Final output directory contents:"
         ls -la out/
         
