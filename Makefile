@@ -49,20 +49,10 @@ test-tables:
 
 test-clean: clean-basic clean-example clean-md clean-tables
 
+.PHONY: doc-site clean
+
 doc-site:
-	mkdir -p out
-	ldoc -c config.ld src
+	ldoc .
 
-CLEAN=&& lua $(_REPODIR)/ldoc.lua . && rd /S /Q cdocs && cp -rf doc cdocs
-
-clean-basic:
-	cd tests $(CLEAN)
-
-clean-example:
-	cd tests && cd example $(CLEAN)
-
-clean-md:
-	cd tests && cd md-test $(CLEAN)
-
-clean-tables:
-	cd tests && cd simple $(CLEAN)
+clean:
+	rm -rf out
