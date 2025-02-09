@@ -2,10 +2,10 @@ name: Build Docs
 on:
   pull_request:
     branches:
-    - master
+    - main
   push:
     branches:
-    - master
+    - main
 jobs:
   build:
     name: Build docs
@@ -16,15 +16,16 @@ jobs:
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
-        luaVersion: 5.4
+        luaVersion: 5.3
     - name: Setup Lua Rocks
       uses: leafo/gh-actions-luarocks@v4
-    - name: Setup dependencies
-      run: luarocks install --only-deps ldoc-dev-1.rockspec
+    - name: Install LDoc
+      run: luarocks install ldoc
     - name: Build docs
       run: make doc-site
     - name: Deploy
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
