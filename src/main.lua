@@ -1,15 +1,30 @@
---- Basalt UI Framework main module
+--- Basalt UI Framework main module.
+-- This is the main entry point for the Basalt UI Framework.
+-- It provides functions for creating and managing UI elements and handling events.
 -- @module basalt
 -- @author NyoriE
 -- @license MIT
 -- @copyright 2025
+-- @release 2.0
+-- @see elementManager
+-- @usage
+-- local basalt = require("basalt")
+-- local mainFrame = basalt.createFrame()
+-- mainFrame:show()
+-- basalt.run()
 
 local elementManager = require("elementManager")
 local expect = require("libraries/expect")
 local errorManager = require("errorManager")
 
 --- The main Basalt instance
+-- Contains all core functionality and management functions
 -- @type Basalt
+-- @field traceback boolean Enable/disable error tracing
+-- @field _events table Internal events storage
+-- @field _schedule table Internal schedule storage
+-- @field _plugins table Plugins storage
+-- @field LOGGER table Logging instance
 local basalt = {}
 basalt.traceback = true
 basalt._events = {}
@@ -21,11 +36,15 @@ local mainFrame = nil
 local updaterActive = false
 
 --- Creates a new UI element
+-- Creates and returns a new UI element of the specified type
 -- @function create
--- @param type string The type of element to create (e.g. "BaseFrame")
--- @param[opt] id string Optional ID for the element
--- @return table The created element instance
--- @usage local button = basalt.create("Button", "myButton")
+-- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
+-- @param[opt] id string Optional unique identifier for the element
+-- @treturn table The created element instance
+-- @see elementManager.getElement
+-- @usage
+-- local button = basalt.create("Button", "myButton")
+-- button:setPosition(5, 5)
 function basalt.create(type, id)
     if(id==nil)then id = elementManager.generateId() end
     local element = elementManager.getElement(type).new(id, basalt)

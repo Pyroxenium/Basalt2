@@ -10,9 +10,5 @@ not_luadoc = true
 all = true
 no_space_before_args = true
 wrap = true
-custom_tags = {
-    {'event', 'Events'},
-    {'param', 'Parameters'},
-    {'return', 'Returns'},
-    {'usage', 'Usage'}
-}
+package = 'basalt'
+merge = true
