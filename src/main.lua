@@ -55,17 +55,15 @@ function basalt.createFrame()
 end
 
 --- Returns the element manager instance
--- @function getElementManager
--- @return table The element manager
--- @usage local manager = basalt.getElementManager()
+--- @return table ElementManager The element manager
+--- @usage local manager = basalt.getElementManager()
 function basalt.getElementManager()
     return elementManager
 end
 
 --- Gets or creates the main frame
--- @function getMainFrame
--- @return table The main frame instance
--- @usage local frame = basalt.getMainFrame()
+--- @return BaseFrame table The main frame instance
+--- @usage local frame = basalt.getMainFrame()
 function basalt.getMainFrame()
     if(mainFrame == nil)then
         mainFrame = basalt.createFrame()
@@ -74,20 +72,17 @@ function basalt.getMainFrame()
 end
 
 --- Sets the active frame
--- @function setActiveFrame
--- @param frame table The frame to set as active
--- @return boolean Always returns false
--- @usage basalt.setActiveFrame(myFrame)
+--- @param frame table The frame to set as active
+--- @usage basalt.setActiveFrame(myFrame)
 function basalt.setActiveFrame(frame)
     mainFrame = frame
-    return false
 end
 
 --- Schedules a function to be updated
--- @function scheduleUpdate
--- @param func function The function to schedule
--- @return number The schedule ID
--- @usage local id = basalt.scheduleUpdate(myFunction)
+--- @function scheduleUpdate
+--- @param func function The function to schedule
+--- @return number The schedule ID
+--- @usage local id = basalt.scheduleUpdate(myFunction)
 function basalt.scheduleUpdate(func)
     table.insert(basalt._schedule, func)
     return #basalt._schedule
