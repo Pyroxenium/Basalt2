@@ -42,6 +42,7 @@ jobs:
             echo "Error minifying $file: $minified_content"
             exit 1
           fi
+          echo "$minified_content"
           filename=$(basename $file)
           echo "Adding $filename to project.lua"
           echo "project[\"$filename\"] = function(...) $minified_content end" >> release/project.lua
