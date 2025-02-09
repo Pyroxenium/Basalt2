@@ -41,13 +41,30 @@ jobs:
         echo "Combined Lua files:"
         cat release/project.lua
 
+    - name: Verify combined Lua file
+      run: |
+        echo "Verifying project.lua"
+        if [ -f release/project.lua ]; then
+          echo "project.lua exists"
+          cat release/project.lua
+        else
+          echo "Error: release/project.lua not found"
+          exit 1
+        fi
+
     - name: Minify combined Lua file
       run: |
         echo "Minifying project.lua"
-        if [ -f release/project.lua ]; then
-          luamin -f release/project.lua -o release/project.min.lua
+        luamin -f release/project.lua -o release/project.min.lua
+
+    - name: Verify minified Lua file
+      run: |
+        echo "Verifying project.min.lua"
+        if [ -f release/project.min.lua ]; then
+          echo "project.min.lua exists"
+          cat release/project.min.lua
         else
-          echo "Error: release/project.lua not found"
+          echo "Error: release/project.min.lua not found"
           exit 1
         fi
 
