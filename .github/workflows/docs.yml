@@ -38,10 +38,15 @@ jobs:
         
     - name: Generate Documentation
       run: |
+        echo "Checking config.ld location:"
+        pwd
+        ls -la config.ld || echo "config.ld not found in current directory"
+        
         echo "Available Lua-Files:"
         find src -name "*.lua" -type f
         
-        ldoc . --verbose
+        echo "Running LDoc with explicit config path..."
+        ldoc . -c config.ld --verbose
         
         if [ ! -d "docs" ]; then
           echo "Documentation generation failed"
