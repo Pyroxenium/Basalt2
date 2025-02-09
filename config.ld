@@ -3,7 +3,6 @@ title = 'Basalt Documentation'
 description = 'A UI Framework for ComputerCraft'
 file = 'src'           -- Einzelner String statt Table
 dir = 'out'           -- Ausgabeverzeichnis
-one = true            -- Eine Datei pro Modul
 format = 'markdown'
 ext = '.md'           -- Explizite Dateierweiterung
 all = true
