@@ -99,7 +99,7 @@ a:visited { font-weight: bold; color: #b366ff; text-decoration: none; }
 a:link:hover { text-decoration: underline; }
 
 hr {
-    color: #333333;
+    color: #c9c9c9;
     background: #444444;
     height: 1px;
 }
@@ -205,7 +205,7 @@ table.index td { text-align: left; vertical-align: top; }
     clear: both;
     padding: 5px;
     border-top: 2px solid #cccccc;
-    background-color: #ffffff;
+    background-color: #202020;
 }
 
 @media print {
@@ -215,19 +215,19 @@ table.index td { text-align: left; vertical-align: top; }
     a { font-weight: bold; color: #004080; text-decoration: underline; }
 
     #main {
-        background-color: #ffffff;
+        background-color: #1d1a1a;
         border-left: 0px;
     }
 
     #container {
         margin-left: 2%;
         margin-right: 2%;
-        background-color: #ffffff;
+        background-color: #1b1a1a;
     }
 
     #content {
         padding: 1em;
-        background-color: #ffffff;
+        background-color: #1d1a1a;
     }
 
     #navigation {
