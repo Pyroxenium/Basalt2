@@ -186,6 +186,5 @@ function basalt.run(isActive)
         end
     end
 end
-basalt.autoUpdate = basalt.run
 
 return basalt
