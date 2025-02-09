@@ -23,6 +23,11 @@ jobs:
     - name: Set up Lua
       uses: leafo/gh-actions-lua@v8
 
+    - name: Install Luarocks
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y luarocks
+
     - name: Install Lua minifier
       run: luarocks install luamin
 
