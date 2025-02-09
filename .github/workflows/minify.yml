@@ -35,32 +35,49 @@ jobs:
         local lfs = require("lfs")
         
         local files = {}
-        for file in lfs.dir("src") do
-          if file:match("%.lua$") then
-            table.insert(files, file)
+        
+        local function scanDir(dir, baseDir)
+          baseDir = baseDir or ""
+          for file in lfs.dir(dir) do
+            if file ~= "." and file ~= ".." then
+              local fullPath = dir .. "/" .. file
+              local attr = lfs.attributes(fullPath)
+              if attr.mode == "directory" then
+                scanDir(fullPath, baseDir .. file .. "/")
+              elseif file:match("%.lua$") then
+                table.insert(files, {
+                  path = baseDir .. file,
+                  fullPath = fullPath
+                })
+              end
+            end
           end
         end
         
+        scanDir("src")
+        
         local output = {
           'local minified = true\n',
-          'local project = {}\n'
+          'local project = {}\n',
+          'local baseRequire = require\n',
+          'require = function(path) return project[path] or baseRequire(path) end\n'
         }
         
         for _, file in ipairs(files) do
-          local f = io.open("src/" .. file, "r")
+          local f = io.open(file.fullPath, "r")
           local content = f:read("*all")
           f:close()
           
           local success, minified = minify(content)
           if not success then
-            print("Failed to minify " .. file)
+            print("Failed to minify " .. file.path)
             print(minified)
             os.exit(1)
           end
           
           table.insert(output, string.format(
             'project["%s"] = function(...) %s end\n',
-            file, minified
+            file.path, minified
           ))
         end
         
@@ -77,8 +94,8 @@ jobs:
         echo "Running minification..."
         if lua minify_script.lua; then
           echo "Minification successful"
-          echo "Minified content:"
-          cat release/project.min.lua
+          echo "Files processed:"
+          find src -name "*.lua" | sed 's|^src/||'
         else
           echo "Minification failed"
           exit 1
