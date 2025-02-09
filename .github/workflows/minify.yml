@@ -20,20 +20,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Lua 5.3
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y lua5.3 luarocks
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
     - name: Install Lua minifier
-      run: luarocks install --local luamin
+      run: npm install -g luamin
 
     - name: Minify Lua files
       run: |
         mkdir -p minified
         echo "local project = {}" > minified/project.lua
         for file in $(find . -name '*.lua'); do
-          minified_content=$(~/.luarocks/bin/luamin -f $file)
+          minified_content=$(luamin -f $file)
           filename=$(basename $file)
           echo "project[\"$filename\"] = function(...) $minified_content end" >> minified/project.lua
         done
