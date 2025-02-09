@@ -43,10 +43,22 @@ jobs:
         echo "Checking Lua syntax first..."
         if lua -e "loadfile('src/main.lua')" ; then
           echo "Lua syntax is valid, proceeding with minification..."
-          if npx luamin -f src/main.lua > release/main.min.lua; then
+          
+          echo "Content of main.lua:"
+          cat src/main.lua
+          
+          echo "Attempting minification with direct input..."
+          # Versuche direkten Input statt Datei
+          lua_content=$(cat src/main.lua)
+          if echo "$lua_content" | npx luamin > release/main.min.lua; then
             echo "Main.lua minification successful"
+            echo "Minified content:"
+            cat release/main.min.lua
           else
-            echo "Minification failed"
+            echo "Minification failed. Error code: $?"
+            echo "luamin path: $(which npx luamin)"
+            echo "node version: $(node -v)"
+            echo "npx version: $(npx -v)"
             exit 1
           fi
         else
