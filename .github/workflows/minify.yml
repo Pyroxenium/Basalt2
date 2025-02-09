@@ -30,7 +30,7 @@ jobs:
 
     - name: Minify Lua files
       run: |
-        mkdir -p minified
+        mkdir minified || true
         echo "local project = {}" > minified/project.lua
         for file in $(find . -name '*.lua'); do
           minified_content=$(luamin -f $file)
