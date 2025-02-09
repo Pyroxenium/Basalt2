@@ -52,6 +52,16 @@ jobs:
           exit 1
         fi
 
+    - name: Commit combined Lua file
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add release/project.lua
+        git commit -m 'Combine Lua files into a single project.lua'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Minify combined Lua file
       run: |
         echo "Minifying project.lua"
@@ -68,7 +78,7 @@ jobs:
           exit 1
         fi
 
-    - name: Commit minified file
+    - name: Commit minified Lua file
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
