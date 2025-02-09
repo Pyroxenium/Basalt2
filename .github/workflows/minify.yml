@@ -36,8 +36,14 @@ jobs:
         local content = f:read("*all")
         f:close()
         
-        local minified = minify(content)
+        local success, minified = minify(content)
         
+        if not success then
+          print("Minification failed")
+          print(minified)
+          return
+        end
+
         local out = io.open("release/main.min.lua", "w")
         out:write(minified)
         out:close()
