@@ -30,8 +30,8 @@ jobs:
         echo "Running LDoc..."
         ldoc . --dir out --ext md --verbose
         
-        echo "Moving markdown files..."
-        mv basalt.md manual.md README.md out/ 2>/dev/null || true
+        echo "Moving generated markdown files..."
+        find . -maxdepth 1 -type f -name "*.md" ! -path "./out/*" -exec mv {} out/ \;
         
         echo "Final output directory contents:"
         ls -la out/
@@ -39,7 +39,6 @@ jobs:
         if [ -z "$(ls -A out/)" ]; then
           echo "Error: No documentation files were generated!"
           exit 1
-        fi
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3
