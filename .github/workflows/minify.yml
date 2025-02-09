@@ -39,11 +39,19 @@ jobs:
           cat $file >> release/project.lua
         done
 
+        echo "Verifying project.lua"
+        if [ -f release/project.lua ]; then
+          echo "project.lua exists"
+        else
+          echo "Error: release/project.lua not found"
+          exit 1
+        fi
+
         echo "Minifying project.lua"
-        luamin -f release/project.lua -o release/project.min.lua
+        luamin -f release/project.lua
 
         echo "Verifying project.min.lua"
-        if [ -f release/project.min.lua ]; then
+        if [ -f release.project.min.lua ]; then
           echo "project.min.lua exists"
         else
           echo "Error: release/project.min.lua not found"
