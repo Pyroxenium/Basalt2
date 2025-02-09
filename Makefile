@@ -1,4 +1,3 @@
-
 LUA= $(shell echo `which lua`)
 LUA_BINDIR= $(shell echo `dirname $(LUA)`)
 LUA_PREFIX= $(shell echo `dirname $(LUA_BINDIR)`)
@@ -51,7 +50,8 @@ test-tables:
 test-clean: clean-basic clean-example clean-md clean-tables
 
 doc-site:
-	cd $(_REPODIR)/doc && lua $(_REPODIR)/ldoc.lua .
+	mkdir -p out
+	ldoc -c config.ld src
 
 CLEAN=&& lua $(_REPODIR)/ldoc.lua . && rd /S /Q cdocs && cp -rf doc cdocs
 
