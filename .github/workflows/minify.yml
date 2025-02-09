@@ -38,11 +38,18 @@ jobs:
           echo "Adding $file to project.lua"
           cat $file >> release/project.lua
         done
+        echo "Combined Lua files:"
+        cat release/project.lua
 
     - name: Minify combined Lua file
       run: |
         echo "Minifying project.lua"
-        luamin -f release/project.lua -o release/project.min.lua
+        if [ -f release/project.lua ]; then
+          luamin -f release/project.lua -o release/project.min.lua
+        else
+          echo "Error: release/project.lua not found"
+          exit 1
+        fi
 
     - name: Commit minified file
       run: |
