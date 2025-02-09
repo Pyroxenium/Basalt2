@@ -1,10 +1,13 @@
 project = "Basalt 2"
-title = "Basalt documentation"
+title = "Basalt Documentation"
 description = "A Basalt UI Framework Documentation"
 format = "markdown"
 dir = "docs"
 file = "src"
-style = "!new"
+one = true           -- Eine Datei pro Modul
+not_luadoc = true    -- Modernere Dokumentationsformat
+merge = true         -- Zusammengehörige Dokumentation zusammenführen
+plain = true         -- Keine HTML-Formatierung
 sort = true
 all = true
 backtick_references = false
