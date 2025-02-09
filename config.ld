@@ -27,22 +27,3 @@ template = true
 
 -- Quellcode in der Dokumentation anzeigen
 pretty = true
-
--- Zusätzliche README-Dateien einbinden
-topics = {"README.md"}
-
--- Eigene Sections für die Dokumentation definieren
-sections = {
-    "Classes",
-    "Methods",
-    "Events"
-}
-
--- Ignoriere bestimmte Dateien/Ordner
-ignore = {
-    "src/tests",
-    "src/examples"
-}
-
--- Custom Tags definieren
-new_type("event", "Events", false, "param")
