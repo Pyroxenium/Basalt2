@@ -13,19 +13,34 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
     - name: Setup Lua
       uses: leafo/gh-actions-lua@v8
       with:
         luaVersion: 5.4
+
     - name: Setup Lua Rocks
       uses: leafo/gh-actions-luarocks@v4
+
     - name: Install LDoc
       run: luarocks install ldoc
+
+    - name: Create docs directory
+      run: mkdir -p docs
+
     - name: Build docs
-      run: make doc-site
+      run: |
+        ldoc .
+        ls -la docs || echo "Docs directory is empty"
+        if [ ! -d "docs" ] || [ -z "$(ls -A docs)" ]; then
+          echo "Documentation generation failed or produced no files"
+          exit 1
+        fi
+
     - name: Deploy
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs
+        force_orphan: true
