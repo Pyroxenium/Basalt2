@@ -5,7 +5,6 @@ format = "markdown"
 dir = "docs"
 file = "src"
 style = "!new"
-template = true
 sort = true
 all = true
 backtick_references = false
