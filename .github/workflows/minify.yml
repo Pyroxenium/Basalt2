@@ -33,40 +33,29 @@ jobs:
 
     - name: Combine and Minify Lua files
       run: |
-        set -x  # Enable debug output
-        
-        echo "Creating release directory"
         mkdir -p release
         
-        echo "Creating and populating project.lua"
-        {
-          echo "local project = {}"
-          find src -name '*.lua' -exec cat {} \;
-        } > release/project.lua
-        
-        echo "Content of project.lua:"
-        cat release/project.lua
-        
-        echo "Attempting minification..."
-        if npx luamin -f release/project.lua > release/project.min.lua; then
-          echo "Minification successful"
-          echo "Minified content size: $(wc -c < release/project.min.lua) bytes"
+        echo "Testing main.lua minification only..."
+        if npx luamin -f src/main.lua > release/main.min.lua; then
+          echo "Main.lua minification successful"
         else
-          echo "Minification failed"
+          echo "Lua syntax check failed. Trying to identify the error:"
+          # Versuche den Lua-Code zu parsen um Syntax-Fehler zu finden
+          luac -p src/main.lua || echo "Lua syntax error detected"
           exit 1
         fi
 
     - name: Commit minified Lua file
       if: success()
       run: |
-        if [ -s release/project.min.lua ]; then
+        if [ -s release/main.min.lua ]; then
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add release/project.min.lua
-          git commit -m 'Minify Lua files into a single project.min.lua'
+          git add release/main.min.lua
+          git commit -m 'Minify main.lua'
           git push
         else
-          echo "Error: project.min.lua is empty or doesn't exist"
+          echo "Error: main.min.lua is empty or doesn't exist"
           exit 1
         fi
       env:
