@@ -24,7 +24,7 @@ jobs:
 
       - name: Generate LuaLS definitions
         run: |
-          lua annotationParser.lua src/elements src/LuaLS.lua
+          lua tools/annotationParser.lua src/elements src/LuaLS.lua
 
       - name: Commit changes
         if: github.event_name == 'push'

@@ -1,12 +1,11 @@
 local function parseProperty(line)
-    -- Matches: ---@property name type default description
+
     local name, type, default, description = line:match("%-%-%-@property%s+(%w+)%s+(%w+)%s+(.-)%s+(.*)")
-    
+
     if name and type then
-        -- Generate field annotation
+
         local fieldDef = string.format("---@field %s %s\n", name, type)
-        
-        -- Generate getter annotation and function
+
         local getterDoc = string.format([[
 --- Gets the %s
 ---@generic T: %s
@@ -20,7 +19,6 @@ function VisualElement:get%s()
 end
 ]], name:sub(1,1):upper() .. name:sub(2), name)
 
-        -- Generate setter annotation and function
         local setterDoc = string.format([[
 --- Sets the %s
 ---@generic T: %s
@@ -96,7 +94,7 @@ local function collectAllClassNames(folder)
             if f then
                 local content = f:read("*a")
                 f:close()
-                
+
                 local className = findClassName(content)
                 if className and className ~= "BaseFrame" then
                     table.insert(classes, className)
@@ -184,8 +182,7 @@ end
 local function parseFolder(folder, destinationFile)
     local allClasses = collectAllClassNames(folder)
     local allContent = {}
-    
-    -- Get list of files
+
     for file in io.popen('ls "' .. folder .. '"'):lines() do
         if file:match("%.lua$") then
             local f = io.open(folder .. "/" .. file, "r")
@@ -206,7 +203,6 @@ local function parseFolder(folder, destinationFile)
         end
     end
 
-    -- Write output file
     local f = io.open(destinationFile, "w")
     if f then
         f:write(table.concat(allContent, "\n\n"))

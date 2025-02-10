@@ -31,7 +31,7 @@ jobs:
         
         echo "Creating minification script..."
         cat > minify_script.lua << 'EOL'
-        local minify = loadfile("minify.lua")()
+        local minify = loadfile("tools/minify.lua")()
         local lfs = require("lfs")
         
         local files = {}
