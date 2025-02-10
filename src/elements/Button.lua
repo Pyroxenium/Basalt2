@@ -1,10 +1,13 @@
 local VisualElement = require("elements/VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
 
+---@class Button : VisualElement
 local Button = setmetatable({}, VisualElement)
 Button.__index = Button
 
 Button.defineProperty(Button, "text", {default = "Button", type = "string"})
+
+---@event mouse_click The event that is triggered when the button is clicked
 Button.listenTo(Button, "mouse_click")
 
 ---@diagnostic disable-next-line: duplicate-set-field

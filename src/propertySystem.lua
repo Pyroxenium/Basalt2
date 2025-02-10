@@ -1,6 +1,7 @@
 local deepCopy = require("libraries/utils").deepCopy
 local expect = require("libraries/expect")
 
+--- @class PropertySystem
 local PropertySystem = {}
 PropertySystem.__index = PropertySystem
 

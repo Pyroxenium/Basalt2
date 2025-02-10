@@ -4,6 +4,7 @@ local expect = require("libraries/expect")
 
 local max = math.max
 
+---@class Container : VisualElement
 local Container = setmetatable({}, VisualElement)
 Container.__index = Container
 

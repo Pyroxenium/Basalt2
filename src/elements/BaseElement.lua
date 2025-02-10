@@ -1,7 +1,7 @@
 local PropertySystem = require("propertySystem")
 
 --- The base class for all UI elements in Basalt
--- @module BaseElement
+--- @class BaseElement : PropertySystem
 local BaseElement = setmetatable({}, PropertySystem)
 BaseElement.__index = BaseElement
 BaseElement._events = {}

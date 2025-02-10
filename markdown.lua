@@ -4,6 +4,7 @@ local markdown = {
 
 local commentTypes = {
     "module",
+    "class",
     "param",
     "return",
     "usage",
@@ -79,7 +80,11 @@ function markdown.parse(content)
                     if(commentType == "module")then
                         currentBlock.usageIsActive = false
                         currentBlock.type = "module"
-                        currentBlock.moduleName = value
+                        currentBlock.moduleName = value:match("([^%s]+)")
+                    elseif(commentType == "class")then
+                        currentBlock.usageIsActive = false
+                        currentBlock.type = "class"
+                        currentBlock.className = value
                     end
                     if(commentType == "usage")then
                         currentBlock.usage = currentBlock.usage or {}
@@ -205,7 +210,7 @@ local function markdownEvents()
     end
     local output = "\n## Events\n\n"
     for _, block in pairs(markdown.blocks) do
-        if block.type == "module" then
+        if block.type == "module" or block.type == "class" then
             if(block.event~=nil)then
                 for _, line in pairs(block.event) do
                     output = output .. "* " .. line .. "\n"
@@ -216,7 +221,7 @@ local function markdownEvents()
     return output
 end
 
-local function markdownModuleFunctions()
+local function markdownModuleOrClassFunctions()
     if(#markdown.blocks<=0)then
         return ""
     end
@@ -260,7 +265,32 @@ local function markdownModule(block)
 
     output = output .. markdownProperties()
     output = output .. markdownEvents()
-    output = output .. markdownModuleFunctions(block)
+    output = output .. markdownModuleOrClassFunctions(block)
+    output = output .. "\n"
+    return output
+end
+
+local function markdownClass(block)
+    local output = "# ".. block.className.."\n"
+    if(block.usage~=nil)then
+        if(#block.usage > 0)then
+            for k,v in pairs(block.usage) do
+                local _output = "\n### Usage\n ```lua\n"
+                for _, line in pairs(v.content) do
+                    _output = _output .. line .. "\n"
+                end
+                _output = _output .. "```\n"
+                table.insert(block.desc, v.line, _output)
+            end
+        end
+    end
+    for _, line in pairs(block.desc) do
+        output = output .. line .. "\n"
+    end
+
+    output = output .. markdownProperties()
+    output = output .. markdownEvents()
+    output = output .. markdownModuleOrClassFunctions(block)
     output = output .. "\n"
     return output
 end
@@ -276,6 +306,8 @@ function markdown.makeMarkdown()
             end
         elseif block.type == "module" then
             output = output .. markdownModule(block)
+        elseif block.type == "class" then
+            output = output .. markdownClass(block)
         end
     end
 

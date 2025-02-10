@@ -1,10 +1,17 @@
 local BaseElement = require("elements/BaseElement")
+
+---@alias color number
+
+---@class VisualElement : BaseElement
 local VisualElement = setmetatable({}, BaseElement)
 VisualElement.__index = VisualElement
 local tHex = require("libraries/colorHex")
 
+---@property x number 1 x position of the element
 BaseElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
+---@property y number 1 y position of the element
 BaseElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true})
+---@property z number 1 z position of the element
 BaseElement.defineProperty(VisualElement, "z", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
     self.basalt.LOGGER.debug("Setting z to " .. value)
     if self.parent then
@@ -12,13 +19,22 @@ BaseElement.defineProperty(VisualElement, "z", {default = 1, type = "number", ca
     end
     return value
 end})
+---@property width number 1 width of the element
 BaseElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
+---@property height number 1 height of the element
 BaseElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
+---@property background color black background color of the element
 BaseElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
+---@property foreground color white foreground color of the element
 BaseElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
+---@property clicked boolean false element is currently clicked
 BaseElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
 
----@diagnostic disable-next-line: duplicate-set-field
+--- Creates a new VisualElement instance
+--- @param id string The unique identifier for this element
+--- @param basalt table The basalt instance
+--- @return VisualElement object The newly created VisualElement instance
+--- @usage local element = VisualElement.new("myId", basalt)
 function VisualElement.new(id, basalt)
     local self = setmetatable({}, VisualElement):__init()
     self:init(id, basalt)
@@ -26,18 +42,35 @@ function VisualElement.new(id, basalt)
     return self
 end
 
+--- Draws a text character/fg/bg at the specified position with a certain size, used in the rendering system
+--- @param x number The x position to draw
+--- @param y number The y position to draw
+--- @param width number The width of the element
+--- @param height number The height of the element
+--- @param text string The text char to draw
+--- @param fg color The foreground color
+--- @param bg color The background color
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
     self.parent:multiBlit(x, y, width, height, text, fg, bg)
 end
 
+--- Draws a text character at the specified position, used in the rendering system
+--- @param x number The x position to draw
+--- @param y number The y position to draw
+--- @param text string The text char to draw
+--- @param fg color The foreground color
 function VisualElement:textFg(x, y, text, fg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
     self.parent:textFg(x, y, text, fg)
 end
 
+--- Checks if the specified coordinates are within the bounds of the element
+--- @param x number The x position to check
+--- @param y number The y position to check
+--- @return boolean isInBounds Whether the coordinates are within the bounds of the element
 function VisualElement:isInBounds(x, y)
     local xPos, yPos = self.get("x"), self.get("y")
     local width, height = self.get("width"), self.get("height")
@@ -46,6 +79,11 @@ function VisualElement:isInBounds(x, y)
            y >= yPos and y <= yPos + height - 1
 end
 
+--- Handles a mouse click event
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean clicked Whether the element was clicked
 function VisualElement:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
         self.set("clicked", true)
@@ -74,8 +112,8 @@ function VisualElement:handleEvent(event, ...)
 end
 
 --- Returns the absolute position of the element or the given coordinates.
----@param x? number -- x position
----@param y? number -- y position
+---@param x? number x position
+---@param y? number y position
 function VisualElement:getAbsolutePosition(x, y)
     if (x == nil) or (y == nil) then
         x, y = self.get("x"), self.get("y")
@@ -93,8 +131,8 @@ function VisualElement:getAbsolutePosition(x, y)
 end
 
 --- Returns the relative position of the element or the given coordinates.
----@param x? number -- x position
----@param y? number -- y position
+---@param x? number x position
+---@param y? number y position
 ---@return number, number
 function VisualElement:getRelativePosition(x, y)
     if (x == nil) or (y == nil) then

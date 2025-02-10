@@ -133,7 +133,7 @@ function basalt.stop()
 end
 
 --- Starts the Basalt runtime
---- @param isActive boolean Whether to start active (default: true)
+--- @param isActive? boolean Whether to start active (default: true)
 --- @usage basalt.run()
 --- @usage basalt.run(false)
 function basalt.run(isActive)

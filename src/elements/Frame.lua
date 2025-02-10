@@ -1,9 +1,9 @@
 local Container = require("elements/Container")
 
+---@class Frame : Container
 local Frame = setmetatable({}, Container)
 Frame.__index = Frame
 
----@diagnostic disable-next-line: duplicate-set-field
 function Frame.new(id, basalt)
     local self = setmetatable({}, Frame):__init()
     self:init(id, basalt)

@@ -1,6 +1,7 @@
 local Container = require("elements/Container")
 local Render = require("render")
 
+---@class BaseFrame : Container
 local BaseFrame = setmetatable({}, Container)
 BaseFrame.__index = BaseFrame
 
