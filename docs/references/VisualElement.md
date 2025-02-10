@@ -21,7 +21,7 @@
 |[VisualElement.new](#VisualElement.new)|VisualElement|
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|-|
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number,|
-|[VisualElement:handleEvent](#VisualElement:handleEvent)|-|
+|[VisualElement:handleEvent](#VisualElement:handleEvent)|boolean?|
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|
 |[VisualElement:mouse_release](#VisualElement:mouse_release)|-|
@@ -62,7 +62,15 @@ Returns the relative position of the element or the given coordinates.
 ### Returns
 * `nil` `nil` nil
 
-## VisualElement:handleEvent()
+## VisualElement:handleEvent(event)
+Handles all events
+@vararg any The arguments for the event
+
+### Parameters
+* `event` `string` The event to handle
+
+### Returns
+* `boolean?` `handled` Whether the event was handled
 
 ## VisualElement:isInBounds(x, y)
 Checks if the specified coordinates are within the bounds of the element
