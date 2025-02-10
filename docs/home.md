@@ -12,7 +12,7 @@ Basalt is an easy-to-understand UI framework designed to improve user interactio
 - Support for multiple screen resolutions and aspect ratios.
 - Extensive documentation and examples to help users get started quickly.
 
-If you want to learn more about basalt, check out our [Guides](/guides/getting-started) page. To learn more about Basalt's API you can also check out the [References](/references/main) page.
+If you want to learn more about basalt, check out our Guides page. To learn more about Basalt's API you can also check out the [References](/references/main) page.
 
 ## Quick Demo
 
