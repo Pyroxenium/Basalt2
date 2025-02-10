@@ -5,6 +5,7 @@ local getCenteredPosition = require("libraries/utils").getCenteredPosition
 local Button = setmetatable({}, VisualElement)
 Button.__index = Button
 
+---@property text string Button Button text
 Button.defineProperty(Button, "text", {default = "Button", type = "string"})
 
 ---@event mouse_click The event that is triggered when the button is clicked
