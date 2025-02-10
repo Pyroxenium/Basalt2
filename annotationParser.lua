@@ -90,16 +90,13 @@ end
 
 local function collectAllClassNames(folder)
     local classes = {}
-    local files = fs.list(folder)
-
-    for _, filename in ipairs(files) do
-        if filename:match("%.lua$") then
-            local path = fs.combine(folder, filename)
-            local f = fs.open(path, "r")
+    for file in io.popen('ls "' .. folder .. '"'):lines() do
+        if file:match("%.lua$") then
+            local f = io.open(folder .. "/" .. file, "r")
             if f then
-                local content = f.readAll()
-                f.close()
-
+                local content = f:read("*a")
+                f:close()
+                
                 local className = findClassName(content)
                 if className and className ~= "BaseFrame" then
                     table.insert(classes, className)
@@ -187,23 +184,21 @@ end
 local function parseFolder(folder, destinationFile)
     local allClasses = collectAllClassNames(folder)
     local allContent = {}
-
-    local files = fs.list(folder)
-
-    for _, filename in ipairs(files) do
-        if filename:match("%.lua$") then
-            local path = fs.combine(folder, filename)
-            local f = fs.open(path, "r")
+    
+    -- Get list of files
+    for file in io.popen('ls "' .. folder .. '"'):lines() do
+        if file:match("%.lua$") then
+            local f = io.open(folder .. "/" .. file, "r")
             if f then
-                local content = f.readAll()
-                f.close()
+                local content = f:read("*a")
+                f:close()
 
                 local className = findClassName(content)
                 if className then
                     local properties = parseProperties(content)
                     local events = parseEvents(content)
                     local classContent = generateClassContent(className, properties, events, allClasses)
-                    if classContent then  -- Only add if content was generated
+                    if classContent then
                         table.insert(allContent, classContent)
                     end
                 end
@@ -211,10 +206,11 @@ local function parseFolder(folder, destinationFile)
         end
     end
 
-    local f = fs.open(destinationFile, "w")
+    -- Write output file
+    local f = io.open(destinationFile, "w")
     if f then
-        f.write(table.concat(allContent, "\n\n"))
-        f.close()
+        f:write(table.concat(allContent, "\n\n"))
+        f:close()
     end
 end
 
