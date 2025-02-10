@@ -37,7 +37,7 @@ export default defineConfig({
 
   themeConfig: {
     editLink: {
-      pattern: 'https://github.com/Pyroxenium/Basalt/tree/master/docs/:path'
+      pattern: 'https://github.com/Pyroxenium/Basalt2/tree/gh-pages/docs/:path'
     },
     search: {
       provider: 'local'
@@ -46,11 +46,10 @@ export default defineConfig({
     outline: 2,
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024 Robert Jelic'
+      copyright: 'Copyright © 2025 Robert Jelic'
     },
     nav: [
       { text: 'Home', link: '/home' },
-      { text: 'Guides', link: '/guides/getting-started' },
       { text: 'References', link: '/references/main' },
     ],
 
@@ -61,13 +60,7 @@ export default defineConfig({
 
     sidebar: {
       '/guides/': [
-        {
-          text: 'Getting Started',link: 'guides/getting-started',
-          items: [
-            { text: 'Download', link: '/guides/download' },
-            { text: 'Properties', link: '/guides/properties' },
-          ]
-        }
+
       ],
 
       '/references/':[
@@ -75,51 +68,11 @@ export default defineConfig({
           text: 'References', link: 'references/main',
           items: [
             {text: 'Basalt', link: 'references/basalt'},
-            {text: 'Element', link: 'references/element',
-            items: [
-              {text: 'VisualElement', link: 'references/visualelement',    
-              items: [
-                {text: 'Container', link: 'references/container',
-                items: [
-                  {text: 'Baseframe', link: 'references/baseframe'},
-                  {text: 'Frame', link: 'references/frame'},
-                  {text: 'Monitor', link: 'references/monitor'},
-                  {text: 'BigMonitor', link: 'references/bigmonitor'},
-                ]},
-                {text: 'Button', link: 'references/button'},
-                {text: 'Checkbox', link: 'references/checkbox'},
-                {text: 'Input', link: 'references/input'},
-                {text: 'Label', link: 'references/label'},
-                {text: 'List', link: 'references/list',
-                items: [
-                  {text: 'Dropdown', link: 'references/dropdown'},
-                  {text: 'Menubar', link: 'references/menubar'},
-                ]},
-                {text: 'Program', link: 'references/program'},
-                {text: 'Progressbar', link: 'references/progressbar'},
-                {text: 'Slider', link: 'references/slider'},
-                {text: 'Textfield', link: 'references/textfield'},
-              ]
-              },
-              
+            {text: 'Frame', link: 'references/frame'},              
             ]
-            },
-            {text: 'Extensions', link: 'references/extensions',
-            items: [
-              {text: 'Dynamic Values', link: 'references/dynamicvalues'},
-              {text: 'Template', link: 'references/template'},
-              {text: 'Animations', link: 'references/animations'},
-              {text: 'Borders', link: 'references/borders'},
-              {text: 'Better Backgrounds', link: 'references/betterbackgrounds'},
-              {text: 'Shadows', link: 'references/shadows'},
-              {text: 'Debug', link: 'references/debug'},
-              {text: 'XML', link: 'references/xml'},
-            ]
-            },
-        ]
-        },
-      ],
-      },
+        }
+      ]
+    },
 
 
     socialLinks: [

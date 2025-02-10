@@ -20,6 +20,6 @@ If you want to learn more about basalt, check out our [Guides](/guides/getting-s
 
 ## Questions & Bugs
 
-Bugs can be reported here: [Github](https://github.com/Pyroxenium/Basalt/issues) or in our [discord](https://discord.gg/yNNnmBVBpE).
+Bugs can be reported here: [Github](https://github.com/Pyroxenium/Basalt2/issues) or in our [discord](https://discord.gg/yNNnmBVBpE).
 
-If you have questions about Basalt or how to make use of it, feel free to create a new discussion on [Basalt's Discussion Board (Github)](https://github.com/Pyroxenium/Basalt/discussions), or ask in our [discord](https://discord.gg/yNNnmBVBpE).
+If you have questions about Basalt or how to make use of it, feel free to create a new discussion on [Basalt's Discussion Board (Github)](https://github.com/Pyroxenium/Basalt2/discussions), or ask in our [discord](https://discord.gg/yNNnmBVBpE).
