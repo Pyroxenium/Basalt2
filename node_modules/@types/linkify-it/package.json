@@ -1,0 +1,39 @@
+{
+    "name": "@types/linkify-it",
+    "version": "3.0.3",
+    "description": "TypeScript definitions for linkify-it",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/linkify-it",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Lindsey Smith",
+            "url": "https://github.com/praxxis",
+            "githubUsername": "praxxis"
+        },
+        {
+            "name": "Robert Coie",
+            "url": "https://github.com/rapropos/typed-linkify-it"
+        },
+        {
+            "name": "Alex Plumb",
+            "url": "https://github.com/alexplumb",
+            "githubUsername": "alexplumb"
+        },
+        {
+            "name": "Rafa Gares",
+            "url": "https://github.com/ragafus",
+            "githubUsername": "ragafus"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/linkify-it"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "50331508a8edd85ad891cfeec0d89dba4c9574d76aa41d88354115cc46ea3faf",
+    "typeScriptVersion": "4.3"
+}
