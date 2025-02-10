@@ -1,25 +1,12 @@
---- Basalt UI Framework main module.
--- This is the main entry point for the Basalt UI Framework.
--- It provides functions for creating and managing UI elements and handling events.
--- @module basalt
--- @usage
--- local basalt = require("basalt")
--- local mainFrame = basalt.createFrame()
--- mainFrame:show()
--- basalt.run()
-
 local elementManager = require("elementManager")
-local expect = require("libraries/expect")
 local errorManager = require("errorManager")
 
---- The main Basalt instance
--- Contains all core functionality and management functions
--- @type Basalt
--- @field traceback boolean Enable/disable error tracing
--- @field _events table Internal events storage
--- @field _schedule table Internal schedule storage
--- @field _plugins table Plugins storage
--- @field LOGGER table Logging instance
+--- This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
+---
+--- Before you can access Basalt, you need to add the following code on top of your file:
+--- @usage local basalt = require("basalt")
+--- What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
+-- @module Basalt
 local basalt = {}
 basalt.traceback = true
 basalt._events = {}
@@ -31,6 +18,7 @@ local mainFrame = nil
 local updaterActive = false
 
 --- Creates and returns a new UI element of the specified type
+--- @shortDescription Creates a new UI element
 --- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
 --- @param id? string Optional unique identifier for the element
 --- @return table element The created element instance
@@ -96,8 +84,7 @@ function basalt.removeSchedule(id)
     basalt._schedule[id] = nil
 end
 
---- Internal event handler
---- @local
+--- @local Internal event handler
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
 
@@ -120,8 +107,7 @@ local function updateEvent(event, ...)
     end
 end
 
---- Internal render function
---- @local
+--- @local Internal render function
 local function renderFrames()
     if(mainFrame)then
         mainFrame:render()

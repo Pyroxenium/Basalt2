@@ -1,4 +1,3 @@
-# Based on https://gist.github.com/domenic/ec8b0fc8ab45f39403dd
 name: Build Docs
 on:
   pull_request:
@@ -18,15 +17,17 @@ jobs:
       uses: leafo/gh-actions-lua@v8
       with:
         luaVersion: 5.4
-    - name: Setup Lua Rocks
-      uses: leafo/gh-actions-luarocks@v4
-    - name: Setup dependencies
-      run: luarocks install ldoc
-    - name: Build docs
-      run: make doc-site
+    - name: Create docs directory
+      run: mkdir -p docs/references
+    - name: Process markdown files
+      run: |
+        find src -type f -name "*.lua" | while read file; do
+          filename=$(basename "$file")
+          lua markdown.lua "$file" "docs/references/${filename%.lua}.md"
+        done
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./out
+        publish_dir: ./docs/references
