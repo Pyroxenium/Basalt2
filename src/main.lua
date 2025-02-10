@@ -17,7 +17,7 @@ basalt.LOGGER = require("log")
 local mainFrame = nil
 local updaterActive = false
 
---- Creates and returns a new UI element of the specified type!
+--- Creates and returns a new UI element of the specified type
 --- @shortDescription Creates a new UI element
 --- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
 --- @param id? string Optional unique identifier for the element

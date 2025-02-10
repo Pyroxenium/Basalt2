@@ -21,8 +21,16 @@ jobs:
       uses: leafo/gh-actions-lua@v8
       with:
         luaVersion: 5.4
-    - name: Create docs directory
-      run: mkdir -p build_docs/docs/references
+    - name: Checkout existing docs
+      uses: actions/checkout@v3
+      with:
+        ref: gh-pages
+        path: build_docs
+    - name: Prepare references directory
+      run: |
+        mkdir -p build_docs/docs
+        rm -rf build_docs/docs/references
+        mkdir -p build_docs/docs/references
     - name: Process markdown files
       run: |
         find src -type f -name "*.lua" | while read file; do
