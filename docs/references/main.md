@@ -26,7 +26,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.update](#basalt.update)|-|
 
 ## basalt.create(type, id?)
-Creates and returns a new UI element of the specified type
+Creates and returns a new UI element of the specified type!
 
 ### Parameters
 * `type` `string` The type of element to create (e.g. "Button", "Label", "BaseFrame")
