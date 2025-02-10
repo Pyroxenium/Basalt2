@@ -44,7 +44,7 @@ jobs:
               local attr = lfs.attributes(fullPath)
               if attr.mode == "directory" then
                 scanDir(fullPath, baseDir .. file .. "/")
-              elseif file:match("%.lua$") then
+              elseif file:match("%.lua$") and file ~= "LuaLS.lua" then
                 table.insert(files, {
                   path = baseDir .. file,
                   fullPath = fullPath

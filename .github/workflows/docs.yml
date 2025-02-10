@@ -35,7 +35,9 @@ jobs:
       run: |
         find src -type f -name "*.lua" | while read file; do
           filename=$(basename "$file")
-          lua tools/markdown.lua "$file" "build_docs/docs/references/${filename%.lua}.md"
+          if [ "$filename" != "LuaLS.lua" ]; then
+            lua tools/markdown.lua "$file" "build_docs/docs/references/${filename%.lua}.md"
+          fi
         done
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
