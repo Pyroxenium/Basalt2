@@ -102,7 +102,12 @@ Draws a text character/fg/bg at the specified position with a certain size, used
 * `bg` `color` The background color
 
 ## VisualElement:render()
-@diagnostic disable-next-line: duplicate-set-field
+Renders the element
+
+### Usage
+ ```lua
+element:render()
+```
 
 ## VisualElement:textFg(x, y, text, fg)
 Draws a text character at the specified position, used in the rendering system
