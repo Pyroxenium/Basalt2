@@ -3,10 +3,10 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Basalt",
-  description: "A CC:Tweaked UI Framework",
+  description: "A UI Framework made for CC:Tweaked",
   lang: 'en-US',
   lastUpdated: true,
-  base: "/basalt-docs/",
+  base: "/Basalt2/",
 
   head: [
     //[
@@ -76,7 +76,7 @@ export default defineConfig({
 
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Pyroxenium/Basalt' }
+      { icon: 'github', link: 'https://github.com/Pyroxenium/Basalt2' }
     ]
   }
 })
