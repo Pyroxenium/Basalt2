@@ -21,6 +21,7 @@ jobs:
       run: mkdir -p docs/references
     - name: Process markdown files
       run: |
+        mkdir -p docs
         find src -type f -name "*.lua" | while read file; do
           filename=$(basename "$file")
           lua markdown.lua "$file" "docs/references/${filename%.lua}.md"
@@ -30,4 +31,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/references
+        publish_dir: ./docs
