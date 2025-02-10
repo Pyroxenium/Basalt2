@@ -1,0 +1,40 @@
+name: Generate Changelog
+
+on:
+  push:
+    tags:
+      - 'v*'
+    paths:
+      - 'src/**'
+  pull_request:
+    paths:
+      - 'src/**'
+    branches:
+      - main
+
+jobs:
+  changelog:
+    # Skip job if no changes in src/
+    if: contains(github.event.head_commit.modified, 'src/') || contains(github.event.head_commit.added, 'src/') || contains(github.event.head_commit.removed, 'src/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          body_path: CHANGELOG.md
+          files: |
+            CHANGELOG.md
+            release/basalt.lua
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
