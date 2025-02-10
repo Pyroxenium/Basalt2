@@ -26,16 +26,16 @@ jobs:
       with:
         ref: gh-pages
         path: build_docs
-    - name: Prepare references directory
+    - name: Prepare content directory
       run: |
         mkdir -p build_docs/docs
-        rm -rf build_docs/docs/references
-        mkdir -p build_docs/docs/references
+        rm -rf build_docs/docs/content
+        mkdir -p build_docs/docs/content
     - name: Process markdown files
       run: |
         find src -type f -name "*.lua" | while read file; do
           filename=$(basename "$file")
-          lua markdown.lua "$file" "build_docs/docs/references/${filename%.lua}.md"
+          lua markdown.lua "$file" "build_docs/docs/content/${filename%.lua}.md"
         done
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
