@@ -105,6 +105,10 @@ function VisualElement:mouse_release()
     self.set("clicked", false)
 end
 
+--- Handles all events
+--- @param event string The event to handle
+--- @vararg any The arguments for the event
+--- @return boolean? handled Whether the event was handled
 function VisualElement:handleEvent(event, ...)
     if(self[event])then
         return self[event](self, ...)

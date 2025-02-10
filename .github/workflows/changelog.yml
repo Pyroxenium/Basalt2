@@ -2,11 +2,6 @@ name: Generate Changelog
 
 on:
   push:
-    tags:
-      - 'v*'
-    paths:
-      - 'src/**'
-  pull_request:
     paths:
       - 'src/**'
     branches:
@@ -14,8 +9,6 @@ on:
 
 jobs:
   changelog:
-    # Skip job if no changes in src/
-    if: contains(github.event.head_commit.modified, 'src/') || contains(github.event.head_commit.added, 'src/') || contains(github.event.head_commit.removed, 'src/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -28,13 +21,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          body_path: CHANGELOG.md
-          files: |
-            CHANGELOG.md
-            release/basalt.lua
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit updated changelog
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CHANGELOG.md
+          git commit -m "Update changelog" || true
+          git push
