@@ -26,7 +26,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.update](#basalt.update)|-|
 
 ## basalt.create(type, id?)
-Creates and returns a new UI element of the specified type
+Creates and returns a new UI element of the specified type.
 
 ### Parameters
 * `type` `string` The type of element to create (e.g. "Button", "Label", "BaseFrame")
@@ -84,11 +84,11 @@ Removes a scheduled update
 basalt.removeSchedule(scheduleId)
 ```
 
-## basalt.run(isActive)
+## basalt.run(isActive?)
 Starts the Basalt runtime
 
 ### Parameters
-* `isActive` `boolean` Whether to start active (default: true)
+* `isActive` *(optional)* `boolean` Whether to start active (default: true)
 
 ### Usage
  ```lua

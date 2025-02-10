@@ -1,3 +1,10 @@
+# Frame : Container
+
+## Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|[Frame.new](#Frame.new)|-|
+
 ## Frame.new()
-@diagnostic disable-next-line: duplicate-set-field
 

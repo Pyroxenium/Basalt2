@@ -1,4 +1,4 @@
-# BaseElement
+# BaseElement : PropertySystem
 The base class for all UI elements in Basalt
 
 ## Properties
