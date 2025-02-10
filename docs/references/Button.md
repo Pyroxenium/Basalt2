@@ -1,5 +1,11 @@
 # Button : VisualElement
 
+## Properties
+
+|Property|Type|Default|Description|
+|---|---|---|---|
+|text|string|Button|Button text
+
 ## Functions
 
 |Method|Returns|Description|
