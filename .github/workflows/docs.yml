@@ -18,20 +18,16 @@ jobs:
       with:
         luaVersion: 5.4
     - name: Create docs directory
-      run: mkdir -p temp_docs
+      run: mkdir -p build_docs/docs/references
     - name: Process markdown files
       run: |
         find src -type f -name "*.lua" | while read file; do
           filename=$(basename "$file")
-          lua markdown.lua "$file" "temp_docs/${filename%.lua}.md"
+          lua markdown.lua "$file" "build_docs/docs/references/${filename%.lua}.md"
         done
-    - name: Setup final structure
-      run: |
-        mkdir -p docs
-        mv temp_docs docs/references
     - name: Deploy
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        publish_dir: ./build_docs
