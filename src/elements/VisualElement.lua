@@ -152,7 +152,8 @@ function VisualElement:getRelativePosition(x, y)
 end
 
 
----@diagnostic disable-next-line: duplicate-set-field
+--- Renders the element
+--- @usage element:render()
 function VisualElement:render()
     local width, height = self.get("width"), self.get("height")
     self:multiBlit(1, 1, width, height, " ", tHex[self.get("foreground")], tHex[self.get("background")])

@@ -1,39 +1,58 @@
 name: Create Release
 
 on:
-  push:
-    paths:
-      - 'version'
+  workflow_run:
+    workflows: ["Minify Lua Code"]
+    types:
+      - completed
     branches:
       - main
 
 jobs:
-  build:
+  release:
+    if: |
+      github.event.workflow_run.conclusion == 'success' && 
+      contains(github.event.workflow_run.head_commit.modified, 'version')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
       - name: Get Version
         id: version
         run: echo "version=$(cat version)" >> $GITHUB_OUTPUT
       
+      - name: Check if version file changed
+        run: |
+          git fetch origin ${{ github.event.workflow_run.head_branch }}
+          if ! git diff --quiet origin/${{ github.event.workflow_run.head_branch }}^1 origin/${{ github.event.workflow_run.head_branch }} -- version; then
+            echo "Version file was changed"
+          else
+            echo "Version file was not changed"
+            exit 1
+          
+      # Add version check
+      - name: Check if version exists
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "::error::Version v${{ steps.version.outputs.version }} already exists"
+            exit 1
+          fi
+      
+      - name: Generate changelog
+        id: changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          release_name: Release v${{ steps.version.outputs.version }}
-          draft: false
-          prerelease: false
-      
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+          body_path: CHANGELOG.md
+          files: |
+            CHANGELOG.md
+            release/basalt.lua
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/basalt.lua
-          asset_name: basalt.lua
-          asset_content_type: application/x-lua
