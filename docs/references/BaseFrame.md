@@ -1,21 +1,31 @@
 # BaseFrame : Container
 
+## Properties
+
+|Property|Type|Default|Description|
+|---|---|---|---|
+|text|term|term|nil text
+
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
 |[BaseFrame.new](#BaseFrame.new)|-|
+|[BaseFrame:init](#BaseFrame:init)|-|
 |[BaseFrame:multiBlit](#BaseFrame:multiBlit)|-|
 |[BaseFrame:render](#BaseFrame:render)|-|
+|[BaseFrame:setCursor](#BaseFrame:setCursor)|-|
 |[BaseFrame:textFg](#BaseFrame:textFg)|-|
 
 ## BaseFrame.new()
-@diagnostic disable-next-line: duplicate-set-field
+
+## BaseFrame:init()
 
 ## BaseFrame:multiBlit()
 
 ## BaseFrame:render()
-@diagnostic disable-next-line: duplicate-set-field
+
+## BaseFrame:setCursor()
 
 ## BaseFrame:textFg()
 

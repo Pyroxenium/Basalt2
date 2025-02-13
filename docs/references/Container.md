@@ -6,7 +6,14 @@
 |---|---|---|
 |[Container.new](#Container.new)|-|
 |[Container:addChild](#Container:addChild)|-|
+|[Container:char](#Container:char)|-|
+|[Container:getChild](#Container:getChild)|-|
 |[Container:handleEvent](#Container:handleEvent)|-|
+|[Container:init](#Container:init)|-|
+|[Container:isChildVisible](#Container:isChildVisible)|-|
+|[Container:key](#Container:key)|-|
+|[Container:key_up](#Container:key_up)|-|
+|[Container:mouse_click](#Container:mouse_click)|-|
 |[Container:multiBlit](#Container:multiBlit)|-|
 |[Container:registerChildEvent](#Container:registerChildEvent)|-|
 |[Container:registerChildrenEvents](#Container:registerChildrenEvents)|-|
@@ -19,11 +26,24 @@
 |[Container:unregisterChildEvent](#Container:unregisterChildEvent)|-|
 
 ## Container.new()
-@diagnostic disable-next-line: duplicate-set-field
 
 ## Container:addChild()
 
+## Container:char()
+
+## Container:getChild()
+
 ## Container:handleEvent()
+
+## Container:init()
+
+## Container:isChildVisible()
+
+## Container:key()
+
+## Container:key_up()
+
+## Container:mouse_click()
 
 ## Container:multiBlit()
 
@@ -36,7 +56,6 @@
 ## Container:removeChildrenEvents()
 
 ## Container:render()
-@diagnostic disable-next-line: duplicate-set-field
 
 ## Container:sortChildren()
 

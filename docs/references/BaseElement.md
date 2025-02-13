@@ -6,6 +6,8 @@ The base class for all UI elements in Basalt
 |Property|Type|Default|Description|
 |---|---|---|---|
 |type|string|BaseElement|The type identifier of the element
+|id|string|BaseElement|The unique identifier for the element
+|name|string|BaseElement|The name of the element
 |eventCallbacks|table|{}|Table containing all registered event callbacks
 
 ## Functions
@@ -14,8 +16,11 @@ The base class for all UI elements in Basalt
 |---|---|---|
 |[BaseElement.listenTo](#BaseElement.listenTo)|-|
 |[BaseElement.new](#BaseElement.new)|table|
+|[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|
+|[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|
 |[BaseElement:init](#BaseElement:init)|table|
+|[BaseElement:isType](#BaseElement:isType)|boolean|
 |[BaseElement:listenEvent](#BaseElement:listenEvent)|table|
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|
 |[BaseElement:updateRender](#BaseElement:updateRender)|-|
@@ -32,11 +37,11 @@ Registers an event that this class can listen to
 BaseElement.listenTo(MyClass, "mouse_click")
 ```
 
-## BaseElement.new(id, basalt)
+## BaseElement.new(props, basalt)
 Creates a new BaseElement instance
 
 ### Parameters
-* `id` `string` The unique identifier for this element
+* `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
 ### Returns
@@ -46,6 +51,16 @@ Creates a new BaseElement instance
  ```lua
 local element = BaseElement.new("myId", basalt)
 ```
+
+## BaseElement:dispatchEvent(event)
+Handles all events
+@vararg any The arguments for the event
+
+### Parameters
+* `event` `string` The event to handle
+
+### Returns
+* `boolean?` `handled` Whether the event was handled
 
 ## BaseElement:fireEvent(event, ...)
 Triggers an event and calls all registered callbacks
@@ -62,15 +77,34 @@ Triggers an event and calls all registered callbacks
 element:fireEvent("mouse_click", 1, 2)
 ```
 
-## BaseElement:init(id, basalt)
+## BaseElement:handleEvent(event)
+The default event handler for all events
+@vararg any The arguments for the event
+
+### Parameters
+* `event` `string` The event to handle
+
+### Returns
+* `boolean?` `handled` Whether the event was handled
+
+## BaseElement:init(props, basalt)
 Initializes the BaseElement instance
 
 ### Parameters
-* `id` `string` The unique identifier for this element
+* `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
 ### Returns
 * `table` `self` The initialized instance
+
+## BaseElement:isType(type)
+Checks if the element is a specific type
+
+### Parameters
+* `type` `string` The type to check for
+
+### Returns
+* `boolean` `Whether` the element is of the specified type
 
 ## BaseElement:listenEvent(eventName, enable?)
 Enables or disables event listening for a specific event

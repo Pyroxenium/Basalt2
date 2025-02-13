@@ -12,29 +12,34 @@
 |height|number|1|height of the element
 |background|color|black|background color of the element
 |foreground|color|white|foreground color of the element
-|clicked|boolean|false|element is currently clicked
+|clicked|boole|an|false element is currently clicked
+|backgroundEnabled|boolean|true|whether the background is enabled
+|focused|boolean|false|whether the element is focused
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement.new](#VisualElement.new)|VisualElement|
+|[VisualElement:blur](#VisualElement:blur)|-|
+|[VisualElement:focus](#VisualElement:focus)|-|
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|-|
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number,|
-|[VisualElement:handleEvent](#VisualElement:handleEvent)|boolean?|
+|[VisualElement:init](#VisualElement:init)|-|
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|
 |[VisualElement:mouse_release](#VisualElement:mouse_release)|-|
 |[VisualElement:mouse_up](#VisualElement:mouse_up)|-|
 |[VisualElement:multiBlit](#VisualElement:multiBlit)|-|
 |[VisualElement:render](#VisualElement:render)|-|
+|[VisualElement:setCursor](#VisualElement:setCursor)|-|
 |[VisualElement:textFg](#VisualElement:textFg)|-|
 
-## VisualElement.new(id, basalt)
+## VisualElement.new(props, basalt)
 Creates a new VisualElement instance
 
 ### Parameters
-* `id` `string` The unique identifier for this element
+* `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
 ### Returns
@@ -44,6 +49,10 @@ Creates a new VisualElement instance
  ```lua
 local element = VisualElement.new("myId", basalt)
 ```
+
+## VisualElement:blur()
+
+## VisualElement:focus()
 
 ## VisualElement:getAbsolutePosition(x?, y?)
 Returns the absolute position of the element or the given coordinates.
@@ -62,15 +71,7 @@ Returns the relative position of the element or the given coordinates.
 ### Returns
 * `nil` `nil` nil
 
-## VisualElement:handleEvent(event)
-Handles all events
-@vararg any The arguments for the event
-
-### Parameters
-* `event` `string` The event to handle
-
-### Returns
-* `boolean?` `handled` Whether the event was handled
+## VisualElement:init()
 
 ## VisualElement:isInBounds(x, y)
 Checks if the specified coordinates are within the bounds of the element
@@ -116,6 +117,8 @@ Renders the element
  ```lua
 element:render()
 ```
+
+## VisualElement:setCursor()
 
 ## VisualElement:textFg(x, y, text, fg)
 Draws a text character at the specified position, used in the rendering system

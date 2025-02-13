@@ -2,3 +2,7 @@
 
 ## utils.getCenteredPosition()
 
+## utils.split()
+
+## utils.uuid()
+
