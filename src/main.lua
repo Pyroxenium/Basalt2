@@ -1,5 +1,9 @@
+local benchmark = require("benchmark")
+benchmark.start("Basalt Initialization")
 local elementManager = require("elementManager")
 local errorManager = require("errorManager")
+local propertySystem = require("propertySystem")
+
 
 --- This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
 ---
@@ -13,24 +17,65 @@ basalt._events = {}
 basalt._schedule = {}
 basalt._plugins = {}
 basalt.LOGGER = require("log")
+basalt.path = fs.getDir(select(2, ...))
 
 local mainFrame = nil
 local updaterActive = false
+local _type = type
+
+local lazyElements = {}
+local lazyElementCount = 10
+local lazyElementsTimer = 0
+local isLazyElementsTimerActive = false
+
+local function queueLazyElements()
+    if(isLazyElementsTimerActive)then return end
+    lazyElementsTimer = os.startTimer(0.2)
+    isLazyElementsTimerActive = true
+end
+
+local function loadLazyElements(count)
+    for _=1,count do
+        local blueprint = lazyElements[1]
+        if(blueprint)then
+            blueprint:create()
+        end
+        table.remove(lazyElements, 1)
+    end
+end
+
+local function lazyElementsEventHandler(event, timerId)
+    if(event=="timer")then
+        if(timerId==lazyElementsTimer)then
+            loadLazyElements(lazyElementCount)
+            isLazyElementsTimerActive = false
+            lazyElementsTimer = 0
+            if(#lazyElements>0)then
+                queueLazyElements()
+            end
+            return true
+        end
+    end
+end
 
 --- Creates and returns a new UI element of the specified type.
 --- @shortDescription Creates a new UI element
 --- @param type string The type of element to create (e.g. "Button", "Label", "BaseFrame")
---- @param id? string Optional unique identifier for the element
+--- @param properties? string|table Optional name for the element or a table with properties to initialize the element with
 --- @return table element The created element instance
 --- @usage local button = basalt.create("Button")
-function basalt.create(type, id)
-    if(id==nil)then id = elementManager.generateId() end
-    local element = elementManager.getElement(type).new(id, basalt)
-    local ok, result = pcall(require, "main")
-    if not ok then
-        errorManager(false, result)
+function basalt.create(type, properties, lazyLoading, parent)
+    if(_type(properties)=="string")then properties = {name=properties} end
+    if(properties == nil)then properties = {name = type} end
+    local elementClass = elementManager.getElement(type)
+    if(lazyLoading)then
+        local blueprint = propertySystem.blueprint(elementClass, properties, basalt, parent)
+        table.insert(lazyElements, blueprint)
+        queueLazyElements()
+        return blueprint
+    else
+        return elementClass.new(properties, basalt)
     end
-    return element
 end
 
 --- Creates and returns a new frame
@@ -87,18 +132,11 @@ end
 --- @local Internal event handler
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
+    if lazyElementsEventHandler(event, ...) then return end
 
-    if event:find("mouse") then
-        if mainFrame then
-            mainFrame:handleEvent(event, ...)
-        end
-    end
-
-    if event:find("key") then
-        if mainFrame then
-            mainFrame:handleEvent(event, ...)
-        end
-    end
+   if(mainFrame:dispatchEvent(event, ...))then
+        return
+   end
 
     if basalt._events[event] then
         for _, callback in ipairs(basalt._events[event]) do
@@ -137,12 +175,14 @@ end
 --- @usage basalt.run()
 --- @usage basalt.run(false)
 function basalt.run(isActive)
+    benchmark.stop("Basalt Initialization")
     updaterActive = isActive
     if(isActive==nil)then updaterActive = true end
     local function f()
         renderFrames()
         while updaterActive do
             updateEvent(os.pullEventRaw())
+            renderFrames()
         end
     end
     while updaterActive do

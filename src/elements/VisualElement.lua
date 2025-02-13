@@ -1,4 +1,5 @@
-local BaseElement = require("elements/BaseElement")
+local elementManager = require("elementManager")
+local BaseElement = elementManager.getElement("BaseElement")
 
 ---@alias color number
 
@@ -8,38 +9,68 @@ VisualElement.__index = VisualElement
 local tHex = require("libraries/colorHex")
 
 ---@property x number 1 x position of the element
-BaseElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
 ---@property y number 1 y position of the element
-BaseElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true})
 ---@property z number 1 z position of the element
-BaseElement.defineProperty(VisualElement, "z", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
-    self.basalt.LOGGER.debug("Setting z to " .. value)
+VisualElement.defineProperty(VisualElement, "z", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
     if self.parent then
         self.parent:sortChildren()
     end
     return value
 end})
+
 ---@property width number 1 width of the element
-BaseElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
 ---@property height number 1 height of the element
-BaseElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
 ---@property background color black background color of the element
-BaseElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
 ---@property foreground color white foreground color of the element
-BaseElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
----@property clicked boolean false element is currently clicked
-BaseElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
+VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
+---@property clicked boole an false element is currently clicked
+VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
+---@property backgroundEnabled boolean true whether the background is enabled
+VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
+---@property focused boolean false whether the element is focused
+VisualElement.defineProperty(VisualElement, "focused", {default = false, type = "boolean", setter = function(self, value, internal)
+    local curValue = self.get("focused")
+    if value == curValue then return value end
+
+    if value then
+        self:focus()
+    else
+        self:blur()
+    end
+
+    if not internal and self.parent then
+        if value then
+            self.parent:setFocusedChild(self)
+        else
+            self.parent:setFocusedChild(nil)
+        end
+    end
+    return value
+end})
+
+VisualElement.listenTo(VisualElement, "focus")
+VisualElement.listenTo(VisualElement, "blur")
 
 --- Creates a new VisualElement instance
---- @param id string The unique identifier for this element
+--- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return VisualElement object The newly created VisualElement instance
 --- @usage local element = VisualElement.new("myId", basalt)
-function VisualElement.new(id, basalt)
+function VisualElement.new(props, basalt)
     local self = setmetatable({}, VisualElement):__init()
-    self:init(id, basalt)
+    self:init(props, basalt)
     self.set("type", "VisualElement")
     return self
+end
+
+function VisualElement:init(props, basalt)
+    BaseElement.init(self, props, basalt)
+    self.set("type", "VisualElement")
 end
 
 --- Draws a text character/fg/bg at the specified position with a certain size, used in the rendering system
@@ -87,9 +118,10 @@ end
 function VisualElement:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
         self.set("clicked", true)
-        self:fireEvent("mouse_click", button, x, y)
+        self:fireEvent("mouse_click", button, self:getRelativePosition(x, y))
         return true
     end
+    return false
 end
 
 function VisualElement:mouse_up(button, x, y)
@@ -98,40 +130,43 @@ function VisualElement:mouse_up(button, x, y)
         self:fireEvent("mouse_up", button, x, y)
         return true
     end
-    self:fireEvent("mouse_release", button, x, y)
+    self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
 end
 
 function VisualElement:mouse_release()
     self.set("clicked", false)
 end
 
---- Handles all events
---- @param event string The event to handle
---- @vararg any The arguments for the event
---- @return boolean? handled Whether the event was handled
-function VisualElement:handleEvent(event, ...)
-    if(self[event])then
-        return self[event](self, ...)
-    end
+function VisualElement:focus()
+    self:fireEvent("focus")
+end
+
+function VisualElement:blur()
+    self:fireEvent("blur")
+    self:setCursor(1,1, false)
 end
 
 --- Returns the absolute position of the element or the given coordinates.
 ---@param x? number x position
 ---@param y? number y position
 function VisualElement:getAbsolutePosition(x, y)
-    if (x == nil) or (y == nil) then
-        x, y = self.get("x"), self.get("y")
+    local xPos, yPos = self.get("x"), self.get("y")
+    if(x ~= nil) then
+        xPos = xPos + x - 1
+    end
+    if(y ~= nil) then
+        yPos = yPos + y - 1
     end
 
     local parent = self.parent
     while parent do
         local px, py = parent.get("x"), parent.get("y")
-        x = x + px - 1
-        y = y + py - 1
+        xPos = xPos + px - 1
+        yPos = yPos + py - 1
         parent = parent.parent
     end
 
-    return x, y
+    return xPos, yPos
 end
 
 --- Returns the relative position of the element or the given coordinates.
@@ -155,10 +190,19 @@ function VisualElement:getRelativePosition(x, y)
            y - (elementY - 1) - (parentY - 1)
 end
 
+function VisualElement:setCursor(x, y, blink)
+    if self.parent then
+        local absX, absY = self:getAbsolutePosition(x, y)
+        return self.parent:setCursor(absX, absY, blink)
+    end
+end
 
 --- Renders the element
 --- @usage element:render()
 function VisualElement:render()
+    if(not self.get("backgroundEnabled"))then
+        return
+    end
     local width, height = self.get("width"), self.get("height")
     self:multiBlit(1, 1, width, height, " ", tHex[self.get("foreground")], tHex[self.get("background")])
 end

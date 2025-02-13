@@ -95,7 +95,7 @@ function errorHandler.error(errMsg)
             file.close()
         end
     end
-    
+
     term.setBackgroundColor(colors.black)
     LOGGER.error(errMsg)
     error()

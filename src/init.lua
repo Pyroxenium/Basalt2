@@ -1,7 +1,5 @@
-
 local args = {...}
-
-local basaltPath = args[1] or "basalt"
+local basaltPath = fs.getDir(args[2])
 
 local defaultPath = package.path
 local format = "path;/path/?.lua;/path/?/init.lua;"
@@ -18,6 +16,7 @@ end
 -- Use xpcall with error handler
 local ok, result = pcall(require, "main")
 
+package.path = defaultPath
 if not ok then
     errorHandler(result)
 else

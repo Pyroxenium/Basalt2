@@ -1,11 +1,14 @@
 local deepCopy = require("libraries/utils").deepCopy
 local expect = require("libraries/expect")
+local errorManager = require("errorManager")
+local log = require("log")
 
 --- @class PropertySystem
 local PropertySystem = {}
 PropertySystem.__index = PropertySystem
 
 PropertySystem._properties = {}
+local blueprintTemplates = {}
 
 function PropertySystem.defineProperty(class, name, config)
     if not rawget(class, '_properties') then
@@ -22,43 +25,162 @@ function PropertySystem.defineProperty(class, name, config)
 
     local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
 
-    class["get" .. capitalizedName] = function(self)
+    class["get" .. capitalizedName] = function(self, ...)
         expect(1, self, "element")
         local value = self._values[name]
-        return config.getter and config.getter(value) or value
+        return config.getter and config.getter(self, value, ...) or value
     end
 
-    class["set" .. capitalizedName] = function(self, value)
+    class["set" .. capitalizedName] = function(self, value, ...)
         expect(1, self, "element")
         expect(2, value, config.type)
         if config.setter then
-            value = config.setter(self, value)
+            value = config.setter(self, value, ...)
         end
-
         self:_updateProperty(name, value)
         return self
     end
+end
+
+--- Creates a blueprint of an element class with all its properties
+--- @param elementClass table The element class to create a blueprint from
+--- @return table blueprint A table containing all property definitions
+function PropertySystem.blueprint(elementClass, properties, basalt, parent)
+    if not blueprintTemplates[elementClass] then
+        local template = {
+            basalt = basalt,
+            __isBlueprint = true,
+            _values = properties or {},
+            _events = {},
+            render = function() end,
+            dispatchEvent = function() end,
+            init = function() end,
+        }
+
+        template.loaded = function(self, callback)
+            self.loadedCallback = callback
+            return template
+        end
+
+        template.create = function(self)
+            local element = elementClass.new({}, basalt)
+            for name, value in pairs(self._values) do
+                element._values[name] = value
+            end
+            for name, callbacks in pairs(self._events) do
+                for _, callback in ipairs(callbacks) do
+                    element[name](element, callback)
+                end
+            end
+            if(parent~=nil)then
+                parent:addChild(element)
+            end
+            element:updateRender()
+            self.loadedCallback(element)
+            return element
+        end
+
+        local currentClass = elementClass
+        while currentClass do
+            if rawget(currentClass, '_properties') then
+                for name, config in pairs(currentClass._properties) do
+                    if type(config.default) == "table" then
+                        template._values[name] = deepCopy(config.default)
+                    else
+                        template._values[name] = config.default
+                    end
+                end
+            end
+            currentClass = getmetatable(currentClass) and rawget(getmetatable(currentClass), '__index')
+        end
+
+        blueprintTemplates[elementClass] = template
+    end
+
+    local blueprint = {
+        _values = {},
+        _events = {},
+        loadedCallback = function() end,
+    }
+
+    blueprint.get = function(name)
+        return blueprint._values[name]
+    end
+    blueprint.set = function(name, value)
+        blueprint._values[name] = value
+        return blueprint
+    end
+
+    setmetatable(blueprint, {
+        __index = function(self, k)
+            if k:match("^on%u") then
+                return function(_, callback)
+                    self._events[k] = self._events[k] or {}
+                    table.insert(self._events[k], callback)
+                    return self
+                end
+            end
+            if k:match("^get%u") then
+                local propName = k:sub(4,4):lower() .. k:sub(5)
+                return function()
+                    return self._values[propName]
+                end
+            end
+            if k:match("^set%u") then
+                local propName = k:sub(4,4):lower() .. k:sub(5)
+                return function(_, value)
+                    self._values[propName] = value
+                    return self
+                end
+            end
+            return blueprintTemplates[elementClass][k]
+        end
+    })
+
+    return blueprint
+end
+
+function PropertySystem.createFromBlueprint(elementClass, blueprint, basalt)
+    local element = elementClass.new({}, basalt)
+    for name, value in pairs(blueprint._values) do
+        if type(value) == "table" then
+            element._values[name] = deepCopy(value)
+        else
+            element._values[name] = value
+        end
+    end
+
+    return element
 end
 
 function PropertySystem:__init()
     self._values = {}
     self._observers = {}
 
-    self.set = function(name, value)
+    self.set = function(name, value, ...)
         local oldValue = self._values[name]
-        self._values[name] = value
-        if(self._properties[name].setter) then
-            value = self._properties[name].setter(self, value)
-        end
-        if oldValue ~= value and self._observers[name] then
-            for _, callback in ipairs(self._observers[name]) do
-                callback(self, value, oldValue)
+        local config = self._properties[name]
+        if(config~=nil)then
+            if(config.setter) then
+                value = config.setter(self, value, ...)
+            end
+            if config.canTriggerRender then
+                self:updateRender()
+            end
+            self._values[name] = value
+            if oldValue ~= value and self._observers[name] then
+                for _, callback in ipairs(self._observers[name]) do
+                    callback(self, value, oldValue)
+                end
             end
         end
     end
 
-    self.get = function(name)
-        return self._values[name]
+    self.get = function(name, ...)
+        local value = self._values[name]
+        local config = self._properties[name]
+        if(config==nil)then errorManager.error("Property not found: "..name) return end
+        return config.getter and config.getter(self, value, ...) or value
     end
 
     local properties = {}
@@ -137,6 +259,27 @@ function PropertySystem:observe(name, callback)
     self._observers[name] = self._observers[name] or {}
     table.insert(self._observers[name], callback)
     return self
+end
+
+function PropertySystem:instanceProperty(name, config)
+    PropertySystem.defineProperty(self, name, config)
+    self._values[name] = config.default
+    return self
+end
+
+function PropertySystem:removeProperty(name)
+    self._values[name] = nil
+    self._properties[name] = nil
+    self._observers[name] = nil
+
+    local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
+    self["get" .. capitalizedName] = nil
+    self["set" .. capitalizedName] = nil
+    return self
+end
+
+function PropertySystem:getPropertyConfig(name)
+    return self._properties[name]
 end
 
 return PropertySystem

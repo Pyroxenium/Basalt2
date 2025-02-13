@@ -1,10 +1,14 @@
 local args = table.pack(...)
 local dir = fs.getDir(args[2] or "basalt")
+local subDir = args[1]
 if(dir==nil)then
     error("Unable to find directory "..args[2].." please report this bug to our discord.")
 end
 
 local log = require("log")
+local defaultPath = package.path
+local format = "path;/path/?.lua;/path/?/init.lua;"
+local main = format:gsub("path", dir)
 
 local ElementManager = {}
 ElementManager._elements = {}
@@ -27,55 +31,19 @@ if fs.exists(elementsDirectory) then
     end
 end
 
-function ElementManager.extendMethod(element, methodName, newMethod, originalMethod)
-    if not originalMethod then
-        element[methodName] = newMethod
-        return
-    end
-    element[methodName] = function(self, ...)
-        if newMethod.before then
-            newMethod.before(self, ...)
-        end
-
-        local results
-        if newMethod.override then
-            results = {newMethod.override(self, originalMethod, ...)}
-        else
-            results = {originalMethod(self, ...)}
-        end
-
-        if newMethod.after then
-            newMethod.after(self, ...)
-        end
-
-        return table.unpack(results)
-    end
-end
-
-function ElementManager.loadPlugin(name)
-    local plugin = require("plugins/"..name)
-
-    -- Apply plugin to each targeted element
-    for elementName, pluginData in pairs(plugin) do
-        local element = ElementManager._elements[elementName]
-        if element then
-            -- Register properties
-            if pluginData.properties then
-                element.class.initialize(elementName.."Plugin")
-                for propName, config in pairs(pluginData.properties) do
-                    element.class.registerProperty(propName, config)
-                end
-            end
-
-            -- Register/extend methods
-            if pluginData.methods then
-                for methodName, methodData in pairs(pluginData.methods) do
-                    ElementManager.extendMethod(
-                        element.class,
-                        methodName,
-                        methodData,
-                        element.class[methodName]
-                    )
+log.info("Loading plugins from "..pluginsDirectory)
+if fs.exists(pluginsDirectory) then
+    for _, file in ipairs(fs.list(pluginsDirectory)) do
+        local name = file:match("(.+).lua")
+        if name then
+            log.debug("Found plugin: "..name)
+            local plugin = require(fs.combine("plugins", name))
+            if type(plugin) == "table" then
+                for k,v in pairs(plugin) do
+                    if(ElementManager._plugins[k]==nil)then
+                        ElementManager._plugins[k] = {}
+                    end
+                    table.insert(ElementManager._plugins[k], v)
                 end
             end
         end
@@ -84,7 +52,9 @@ end
 
 function ElementManager.loadElement(name)
     if not ElementManager._elements[name].loaded then
-        local element = require("elements/"..name)
+        package.path = main.."rom/?"
+        local element = require(fs.combine("elements", name))
+        package.path = defaultPath
         ElementManager._elements[name] = {
             class = element,
             plugins = element.plugins,
@@ -92,20 +62,44 @@ function ElementManager.loadElement(name)
         }
         log.debug("Loaded element: "..name)
 
-        -- Load element's required plugins
-        if element.requires then
-            for pluginName, _ in pairs(element.requires) do
-                --ElementManager.loadPlugin(pluginName)
+        if(ElementManager._plugins[name]~=nil)then
+            for _, plugin in pairs(ElementManager._plugins[name]) do
+                if(plugin.setup)then
+                    plugin.setup(element)
+                end
+
+                if(plugin.hooks)then
+                    for methodName, hooks in pairs(plugin.hooks) do
+                        local original = element[methodName]
+                        if(type(original)~="function")then
+                            error("Element "..name.." does not have a method "..methodName)
+                        end
+                        if(type(hooks)=="function")then
+                            element[methodName] = function(self, ...)
+                                original(self, ...)
+                                return hooks(self, ...)
+                            end
+                        elseif(type(hooks)=="table")then
+                            element[methodName] = function(self, ...)
+                                if hooks.pre then hooks.pre(self, ...) end
+                                local result = original(self, ...)
+                                if hooks.post then hooks.post(self, ...) end
+                                return result
+                            end
+                        end
+                    end
+                end
+
+                for funcName, func in pairs(plugin) do
+                    if funcName ~= "setup" and funcName ~= "hooks" then
+                        element[funcName] = function(self, ...)
+                            return func(self, ...)
+                        end
+                    end
+                end
             end
         end
     end
-end
-
-function ElementManager.registerPlugin(name, plugin)
-    if not plugin.provides then
-        error("Plugin must specify what it provides")
-    end
-    ElementManager._plugins[name] = plugin
 end
 
 function ElementManager.getElement(name)
@@ -117,13 +111,6 @@ end
 
 function ElementManager.getElementList()
     return ElementManager._elements
-end
-
-function ElementManager.generateId()
-    return string.format('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-    math.random(0, 0xffff), math.random(0, 0xffff), math.random(0, 0xffff),
-    math.random(0, 0x0fff) + 0x4000, math.random(0, 0x3fff) + 0x8000,
-    math.random(0, 0xffff), math.random(0, 0xffff), math.random(0, 0xffff))
 end
 
 return ElementManager
