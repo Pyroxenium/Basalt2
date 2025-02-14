@@ -53,6 +53,67 @@ function Button:onMouseClick(callback)
 end
 
 
+---@class Checkbox
+---@field checked boolean
+---@field text string
+---@field symbol string
+local Checkbox = {}
+
+--- Gets the checkbox is checked
+---@generic Element: Checkbox
+---@param self Element
+---@return boolean
+function Checkbox:getChecked()
+    return self.checked
+end
+
+--- Sets the checkbox is checked
+---@generic Element: Checkbox
+---@param self Element
+---@param checked boolean
+---@return Element
+function Checkbox:setChecked(checked)
+    self.checked = checked
+    return self
+end
+
+--- Gets the text
+---@generic Element: Checkbox
+---@param self Element
+---@return string
+function Checkbox:getText()
+    return self.text
+end
+
+--- Sets the text
+---@generic Element: Checkbox
+---@param self Element
+---@param text string
+---@return Element
+function Checkbox:setText(text)
+    self.text = text
+    return self
+end
+
+--- Gets the symbol
+---@generic Element: Checkbox
+---@param self Element
+---@return string
+function Checkbox:getSymbol()
+    return self.symbol
+end
+
+--- Sets the symbol
+---@generic Element: Checkbox
+---@param self Element
+---@param symbol string
+---@return Element
+function Checkbox:setSymbol(symbol)
+    self.symbol = symbol
+    return self
+end
+
+
 ---@class Container
 local Container = {}
 
@@ -61,6 +122,14 @@ local Container = {}
 ---@param self Element
 ---@return Button
 function Container:addButton()
+    return self
+end
+
+--- Adds a new Checkbox to the container
+---@generic Element: Container
+---@param self Element
+---@return Checkbox
+function Container:addCheckbox()
     return self
 end
 
@@ -101,6 +170,38 @@ end
 ---@param self Element
 ---@return Label
 function Container:addLabel()
+    return self
+end
+
+--- Adds a new List to the container
+---@generic Element: Container
+---@param self Element
+---@return List
+function Container:addList()
+    return self
+end
+
+--- Adds a new Program to the container
+---@generic Element: Container
+---@param self Element
+---@return Program
+function Container:addProgram()
+    return self
+end
+
+--- Adds a new ProgressBar to the container
+---@generic Element: Container
+---@param self Element
+---@return ProgressBar
+function Container:addProgressBar()
+    return self
+end
+
+--- Adds a new Slider to the container
+---@generic Element: Container
+---@param self Element
+---@return Slider
+function Container:addSlider()
     return self
 end
 
@@ -155,7 +256,7 @@ function Input:setCursorPos(cursorPos)
     return self
 end
 
---- Gets the - offset für Text-Viewport
+--- Gets the - offset of view
 ---@generic Element: Input
 ---@param self Element
 ---@return number
@@ -163,7 +264,7 @@ function Input:getViewOffset()
     return self.viewOffset
 end
 
---- Sets the - offset für Text-Viewport
+--- Sets the - offset of view
 ---@generic Element: Input
 ---@param self Element
 ---@param viewOffset number
@@ -193,6 +294,265 @@ end
 ---@return Element
 function Label:setText(text)
     self.text = text
+    return self
+end
+
+
+---@class List
+---@field items table
+---@field selectedIndex number
+---@field selectable boolean
+---@field offset number
+---@field selectedColor color
+local List = {}
+
+--- Gets the of items to display
+---@generic Element: List
+---@param self Element
+---@return table
+function List:getItems()
+    return self.items
+end
+
+--- Sets the of items to display
+---@generic Element: List
+---@param self Element
+---@param items table
+---@return Element
+function List:setItems(items)
+    self.items = items
+    return self
+end
+
+--- Gets the selected item index
+---@generic Element: List
+---@param self Element
+---@return number
+function List:getSelectedIndex()
+    return self.selectedIndex
+end
+
+--- Sets the selected item index
+---@generic Element: List
+---@param self Element
+---@param selectedIndex number
+---@return Element
+function List:setSelectedIndex(selectedIndex)
+    self.selectedIndex = selectedIndex
+    return self
+end
+
+--- Gets the items can be selected
+---@generic Element: List
+---@param self Element
+---@return boolean
+function List:getSelectable()
+    return self.selectable
+end
+
+--- Sets the items can be selected
+---@generic Element: List
+---@param self Element
+---@param selectable boolean
+---@return Element
+function List:setSelectable(selectable)
+    self.selectable = selectable
+    return self
+end
+
+--- Gets the offset
+---@generic Element: List
+---@param self Element
+---@return number
+function List:getOffset()
+    return self.offset
+end
+
+--- Sets the offset
+---@generic Element: List
+---@param self Element
+---@param offset number
+---@return Element
+function List:setOffset(offset)
+    self.offset = offset
+    return self
+end
+
+--- Gets the for selected item
+---@generic Element: List
+---@param self Element
+---@return color
+function List:getSelectedColor()
+    return self.selectedColor
+end
+
+--- Sets the for selected item
+---@generic Element: List
+---@param self Element
+---@param selectedColor color
+---@return Element
+function List:setSelectedColor(selectedColor)
+    self.selectedColor = selectedColor
+    return self
+end
+
+
+---@class ProgressBar
+---@field progress number
+---@field showPercentage boolean
+---@field progressColor color
+local ProgressBar = {}
+
+--- Gets the progress (0-100)
+---@generic Element: ProgressBar
+---@param self Element
+---@return number
+function ProgressBar:getProgress()
+    return self.progress
+end
+
+--- Sets the progress (0-100)
+---@generic Element: ProgressBar
+---@param self Element
+---@param progress number
+---@return Element
+function ProgressBar:setProgress(progress)
+    self.progress = progress
+    return self
+end
+
+--- Gets the percentage text
+---@generic Element: ProgressBar
+---@param self Element
+---@return boolean
+function ProgressBar:getShowPercentage()
+    return self.showPercentage
+end
+
+--- Sets the percentage text
+---@generic Element: ProgressBar
+---@param self Element
+---@param showPercentage boolean
+---@return Element
+function ProgressBar:setShowPercentage(showPercentage)
+    self.showPercentage = showPercentage
+    return self
+end
+
+--- Gets the bar color
+---@generic Element: ProgressBar
+---@param self Element
+---@return color
+function ProgressBar:getProgressColor()
+    return self.progressColor
+end
+
+--- Sets the bar color
+---@generic Element: ProgressBar
+---@param self Element
+---@param progressColor color
+---@return Element
+function ProgressBar:setProgressColor(progressColor)
+    self.progressColor = progressColor
+    return self
+end
+
+
+---@class Slider
+---@field step number
+---@field max number
+---@field horizontal boolean
+---@field barColor color
+---@field sliderColor color
+local Slider = {}
+
+--- Gets the Current step position (1 to width/height)
+---@generic Element: Slider
+---@param self Element
+---@return number
+function Slider:getStep()
+    return self.step
+end
+
+--- Sets the Current step position (1 to width/height)
+---@generic Element: Slider
+---@param self Element
+---@param step number
+---@return Element
+function Slider:setStep(step)
+    self.step = step
+    return self
+end
+
+--- Gets the Maximum value for value conversion
+---@generic Element: Slider
+---@param self Element
+---@return number
+function Slider:getMax()
+    return self.max
+end
+
+--- Sets the Maximum value for value conversion
+---@generic Element: Slider
+---@param self Element
+---@param max number
+---@return Element
+function Slider:setMax(max)
+    self.max = max
+    return self
+end
+
+--- Gets the Whether the slider is horizontal
+---@generic Element: Slider
+---@param self Element
+---@return boolean
+function Slider:getHorizontal()
+    return self.horizontal
+end
+
+--- Sets the Whether the slider is horizontal
+---@generic Element: Slider
+---@param self Element
+---@param horizontal boolean
+---@return Element
+function Slider:setHorizontal(horizontal)
+    self.horizontal = horizontal
+    return self
+end
+
+--- Gets the Colors for the slider bar
+---@generic Element: Slider
+---@param self Element
+---@return color
+function Slider:getBarColor()
+    return self.barColor
+end
+
+--- Sets the Colors for the slider bar
+---@generic Element: Slider
+---@param self Element
+---@param barColor color
+---@return Element
+function Slider:setBarColor(barColor)
+    self.barColor = barColor
+    return self
+end
+
+--- Gets the color of the slider handle
+---@generic Element: Slider
+---@param self Element
+---@return color
+function Slider:getSliderColor()
+    return self.sliderColor
+end
+
+--- Sets the color of the slider handle
+---@generic Element: Slider
+---@param self Element
+---@param sliderColor color
+---@return Element
+function Slider:setSliderColor(sliderColor)
+    self.sliderColor = sliderColor
     return self
 end
 
