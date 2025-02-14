@@ -6,6 +6,7 @@
 |---|---|---|
 |[Container.new](#Container.new)|-|
 |[Container:addChild](#Container:addChild)|-|
+|[Container:blit](#Container:blit)|-|
 |[Container:char](#Container:char)|-|
 |[Container:getChild](#Container:getChild)|-|
 |[Container:handleEvent](#Container:handleEvent)|-|
@@ -28,6 +29,8 @@
 ## Container.new()
 
 ## Container:addChild()
+
+## Container:blit()
 
 ## Container:char()
 

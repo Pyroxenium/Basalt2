@@ -14,11 +14,11 @@
 |[Label:init](#Label:init)|-|
 |[Label:render](#Label:render)|-|
 
-## Label.new(name, basalt)
+## Label.new(props, basalt)
 Creates a new Label instance
 
 ### Parameters
-* `name` `table` The properties to initialize the element with
+* `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
 ### Returns

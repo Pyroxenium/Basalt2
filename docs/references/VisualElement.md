@@ -21,6 +21,7 @@
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement.new](#VisualElement.new)|VisualElement|
+|[VisualElement:blit](#VisualElement:blit)|-|
 |[VisualElement:blur](#VisualElement:blur)|-|
 |[VisualElement:focus](#VisualElement:focus)|-|
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|-|
@@ -33,6 +34,7 @@
 |[VisualElement:multiBlit](#VisualElement:multiBlit)|-|
 |[VisualElement:render](#VisualElement:render)|-|
 |[VisualElement:setCursor](#VisualElement:setCursor)|-|
+|[VisualElement:textBg](#VisualElement:textBg)|-|
 |[VisualElement:textFg](#VisualElement:textFg)|-|
 
 ## VisualElement.new(props, basalt)
@@ -49,6 +51,8 @@ Creates a new VisualElement instance
  ```lua
 local element = VisualElement.new("myId", basalt)
 ```
+
+## VisualElement:blit()
 
 ## VisualElement:blur()
 
@@ -119,6 +123,8 @@ element:render()
 ```
 
 ## VisualElement:setCursor()
+
+## VisualElement:textBg()
 
 ## VisualElement:textFg(x, y, text, fg)
 Draws a text character at the specified position, used in the rendering system

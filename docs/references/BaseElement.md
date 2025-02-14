@@ -16,8 +16,10 @@ The base class for all UI elements in Basalt
 |---|---|---|
 |[BaseElement.listenTo](#BaseElement.listenTo)|-|
 |[BaseElement.new](#BaseElement.new)|table|
+|[BaseElement:destroy](#BaseElement:destroy)|-|
 |[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|
+|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|-|
 |[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|
 |[BaseElement:init](#BaseElement:init)|table|
 |[BaseElement:isType](#BaseElement:isType)|boolean|
@@ -52,6 +54,8 @@ Creates a new BaseElement instance
 local element = BaseElement.new("myId", basalt)
 ```
 
+## BaseElement:destroy()
+
 ## BaseElement:dispatchEvent(event)
 Handles all events
 @vararg any The arguments for the event
@@ -76,6 +80,8 @@ Triggers an event and calls all registered callbacks
  ```lua
 element:fireEvent("mouse_click", 1, 2)
 ```
+
+## BaseElement:getBaseFrame()
 
 ## BaseElement:handleEvent(event)
 The default event handler for all events

@@ -4,6 +4,7 @@
 
 |Method|Returns|Description|
 |---|---|---|
+|[PropertySystem.addSetterHook](#PropertySystem.addSetterHook)|-|
 |[PropertySystem.blueprint](#PropertySystem.blueprint)|table|
 |[PropertySystem.createFromBlueprint](#PropertySystem.createFromBlueprint)|-|
 |[PropertySystem.defineProperty](#PropertySystem.defineProperty)|-|
@@ -12,7 +13,11 @@
 |[PropertySystem:getPropertyConfig](#PropertySystem:getPropertyConfig)|-|
 |[PropertySystem:instanceProperty](#PropertySystem:instanceProperty)|-|
 |[PropertySystem:observe](#PropertySystem:observe)|-|
+|[PropertySystem:removeAllObservers](#PropertySystem:removeAllObservers)|-|
+|[PropertySystem:removeObserver](#PropertySystem:removeObserver)|-|
 |[PropertySystem:removeProperty](#PropertySystem:removeProperty)|-|
+
+## PropertySystem.addSetterHook()
 
 ## PropertySystem.blueprint(elementClass)
 Creates a blueprint of an element class with all its properties
@@ -36,6 +41,10 @@ Creates a blueprint of an element class with all its properties
 ## PropertySystem:instanceProperty()
 
 ## PropertySystem:observe()
+
+## PropertySystem:removeAllObservers()
+
+## PropertySystem:removeObserver()
 
 ## PropertySystem:removeProperty()
 

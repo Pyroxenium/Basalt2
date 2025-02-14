@@ -6,6 +6,8 @@
 
 ## Render:blit()
 
+## Render:blit()
+
 ## Render:clear()
 
 ## Render:clearArea()
@@ -19,13 +21,14 @@
 ## Render:multiBlit()
 
 ## Render:rectOverlaps()
-Hilfsfunktionen für Rectangle-Management
 
 ## Render:render()
 
 ## Render:setCursor()
 
 ## Render:text()
+
+## Render:textBg()
 
 ## Render:textFg()
 

@@ -6,7 +6,7 @@
 |---|---|---|---|
 |text|string|Input|- text to be displayed
 |cursorPos|number|Input|- current cursor position
-|viewOffset|number|Input|- offset für Text-Viewport
+|viewOffset|number|Input|- offset of view
 
 ## Functions
 
@@ -18,14 +18,16 @@
 |[Input:focus](#Input:focus)|-|
 |[Input:init](#Input:init)|-|
 |[Input:key](#Input:key)|-|
+|[Input:mouse_click](#Input:mouse_click)|-|
 |[Input:render](#Input:render)|-|
 |[Input:updateViewport](#Input:updateViewport)|-|
 
-## Input.new(id, basalt)
+Neue Properties
+## Input.new(props, basalt)
 Creates a new Input instance
 
 ### Parameters
-* `id` `string` The unique identifier for this element
+* `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
 ### Returns
@@ -45,6 +47,8 @@ local element = Input.new("myId", basalt)
 ## Input:init()
 
 ## Input:key()
+
+## Input:mouse_click()
 
 ## Input:render()
 
