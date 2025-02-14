@@ -40,6 +40,14 @@ function BaseFrame:textFg(x, y, text, fg)
     self._render:textFg(x, y, text, fg)
 end
 
+function BaseFrame:textBg(x, y, text, bg)
+    self._render:textBg(x, y, text, bg)
+end
+
+function BaseFrame:blit(x, y, text, fg, bg)
+    self._render:blit(x, y, text, fg, bg)
+end
+
 function BaseFrame:setCursor(x, y, blink)
     local term = self.get("term")
     self._render:setCursor(x, y, blink)

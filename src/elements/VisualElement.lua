@@ -1,12 +1,12 @@
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
+local tHex = require("libraries/colorHex")
 
 ---@alias color number
 
 ---@class VisualElement : BaseElement
 local VisualElement = setmetatable({}, BaseElement)
 VisualElement.__index = VisualElement
-local tHex = require("libraries/colorHex")
 
 ---@property x number 1 x position of the element
 VisualElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
@@ -56,6 +56,8 @@ end})
 VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
 
+local max, min = math.max, math.min
+
 --- Creates a new VisualElement instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
@@ -96,6 +98,18 @@ function VisualElement:textFg(x, y, text, fg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
     self.parent:textFg(x, y, text, fg)
+end
+
+function VisualElement:textBg(x, y, text, bg)
+    x = x + self.get("x") - 1
+    y = y + self.get("y") - 1
+    self.parent:textBg(x, y, text, bg)
+end
+
+function VisualElement:blit(x, y, text, fg, bg)
+    x = x + self.get("x") - 1
+    y = y + self.get("y") - 1
+    self.parent:blit(x, y, text, fg, bg)
 end
 
 --- Checks if the specified coordinates are within the bounds of the element
@@ -193,6 +207,7 @@ end
 function VisualElement:setCursor(x, y, blink)
     if self.parent then
         local absX, absY = self:getAbsolutePosition(x, y)
+        absX = max(self.get("x"), min(absX, self.get("width") + self.get("x") - 1))
         return self.parent:setCursor(absX, absY, blink)
     end
 end

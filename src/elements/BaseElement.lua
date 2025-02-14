@@ -167,6 +167,17 @@ function BaseElement:handleEvent(event, ...)
     return true
 end
 
+function BaseElement:getBaseFrame()
+    if self.parent then
+        return self.parent:getBaseFrame()
+    end
+    return self
+end
+
+function BaseElement:destroy()
+
+end
+
 --- Requests a render update for this element
 --- @usage element:updateRender()
 function BaseElement:updateRender()

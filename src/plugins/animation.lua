@@ -312,6 +312,7 @@ function VisualElement.hooks.dispatchEvent(self, event, ...)
 end
 
 function VisualElement.setup(element)
+    VisualElementBaseDispatchEvent = element.dispatchEvent
     element.defineProperty(element, "animation", {default = nil, type = "table"})
     element.listenTo(element, "timer")
 end

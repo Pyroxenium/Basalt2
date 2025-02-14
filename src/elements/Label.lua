@@ -12,7 +12,7 @@ Label.defineProperty(Label, "text", {default = "Label", type = "string", setter 
 end})
 
 --- Creates a new Label instance
---- @param name table The properties to initialize the element with
+--- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Label object The newly created Label instance
 --- @usage local element = Label.new("myId", basalt)

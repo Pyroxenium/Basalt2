@@ -305,6 +305,25 @@ function Container:textFg(x, y, text, fg)
     VisualElement.textFg(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1), fg)
 end
 
+function Container:blit(x, y, text, fg, bg)
+    local w, h = self.get("width"), self.get("height")
+
+    if y < 1 or y > h then return end
+
+    local textStart = x < 1 and (2 - x) or 1
+    local textLen = math.min(#text - textStart + 1, w - math.max(1, x) + 1)
+    local fgLen = math.min(#fg - textStart + 1, w - math.max(1, x) + 1)
+    local bgLen = math.min(#bg - textStart + 1, w - math.max(1, x) + 1)
+
+    if textLen <= 0 then return end
+
+    local finalText = text:sub(textStart, textStart + textLen - 1)
+    local finalFg = fg:sub(textStart, textStart + fgLen - 1)
+    local finalBg = bg:sub(textStart, textStart + bgLen - 1)
+
+    VisualElement.blit(self, math.max(1, x), math.max(1, y), finalText, finalFg, finalBg)
+end
+
 function Container:render()
     VisualElement.render(self)
     if not self.get("childrenSorted")then

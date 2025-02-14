@@ -13,7 +13,6 @@ local function errorHandler(err)
     errorManager.error(err)
 end
 
--- Use xpcall with error handler
 local ok, result = pcall(require, "main")
 
 package.path = defaultPath

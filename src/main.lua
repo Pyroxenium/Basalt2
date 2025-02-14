@@ -28,6 +28,7 @@ local lazyElementCount = 10
 local lazyElementsTimer = 0
 local isLazyElementsTimerActive = false
 
+
 local function queueLazyElements()
     if(isLazyElementsTimerActive)then return end
     lazyElementsTimer = os.startTimer(0.2)
@@ -134,9 +135,11 @@ local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
     if lazyElementsEventHandler(event, ...) then return end
 
-   if(mainFrame:dispatchEvent(event, ...))then
-        return
-   end
+    if(mainFrame)then
+        if(mainFrame:dispatchEvent(event, ...))then
+            return
+        end
+    end
 
     if basalt._events[event] then
         for _, callback in ipairs(basalt._events[event]) do

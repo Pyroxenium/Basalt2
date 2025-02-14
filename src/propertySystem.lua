@@ -10,6 +10,12 @@ PropertySystem.__index = PropertySystem
 PropertySystem._properties = {}
 local blueprintTemplates = {}
 
+PropertySystem._setterHooks = {}
+
+function PropertySystem.addSetterHook(hook)
+    table.insert(PropertySystem._setterHooks, hook)
+end
+
 function PropertySystem.defineProperty(class, name, config)
     if not rawget(class, '_properties') then
         class._properties = {}
@@ -28,15 +34,32 @@ function PropertySystem.defineProperty(class, name, config)
     class["get" .. capitalizedName] = function(self, ...)
         expect(1, self, "element")
         local value = self._values[name]
+        if type(value) == "function" and config.type ~= "function" then
+            value = value(self)
+        end
         return config.getter and config.getter(self, value, ...) or value
     end
 
     class["set" .. capitalizedName] = function(self, value, ...)
         expect(1, self, "element")
-        expect(2, value, config.type)
+        
+        -- Setter Hooks ausführen
+        for _, hook in ipairs(PropertySystem._setterHooks) do
+            local newValue = hook(self, name, value, config)
+            if newValue ~= nil then
+                value = newValue
+            end
+        end
+
+        -- Type checking: Entweder korrekter Typ ODER Function
+        if type(value) ~= "function" then
+            expect(2, value, config.type)
+        end
+
         if config.setter then
             value = config.setter(self, value, ...)
         end
+        
         self:_updateProperty(name, value)
         return self
     end
@@ -104,7 +127,12 @@ function PropertySystem.blueprint(elementClass, properties, basalt, parent)
     }
 
     blueprint.get = function(name)
-        return blueprint._values[name]
+        local value = blueprint._values[name]
+        local config = elementClass._properties[name]
+        if type(value) == "function" and config.type ~= "function" then
+            value = value(blueprint)
+        end
+        return value
     end
     blueprint.set = function(name, value)
         blueprint._values[name] = value
@@ -180,6 +208,9 @@ function PropertySystem:__init()
         local value = self._values[name]
         local config = self._properties[name]
         if(config==nil)then errorManager.error("Property not found: "..name) return end
+        if type(value) == "function" and config.type ~= "function" then
+            value = value(self)
+        end
         return config.getter and config.getter(self, value, ...) or value
     end
 
@@ -203,8 +234,13 @@ function PropertySystem:__init()
     local originalIndex = originalMT.__index
     setmetatable(self, {
         __index = function(t, k)
-            if self._properties[k] then
-                return self._values[k]
+            local config = self._properties[k]
+            if config then
+                local value = self._values[k]
+                if type(value) == "function" and config.type ~= "function" then
+                    value = value(self)
+                end
+                return value
             end
             if type(originalIndex) == "function" then
                 return originalIndex(t, k)
@@ -242,14 +278,22 @@ end
 
 function PropertySystem:_updateProperty(name, value)
     local oldValue = self._values[name]
-    if oldValue ~= value then
-        self._values[name] = value
+    -- Wenn der alte Wert eine Funktion ist, müssen wir den tatsächlichen Wert holen
+    if type(oldValue) == "function" then
+        oldValue = oldValue(self)
+    end
+    
+    self._values[name] = value
+    -- Wenn der neue Wert eine Funktion ist, evaluieren für Observer
+    local newValue = type(value) == "function" and value(self) or value
+    
+    if oldValue ~= newValue then
         if self._properties[name].canTriggerRender then
             self:updateRender()
         end
         if self._observers[name] then
             for _, callback in ipairs(self._observers[name]) do
-                callback(self, value, oldValue)
+                callback(self, newValue, oldValue)
             end
         end
     end
@@ -258,6 +302,30 @@ end
 function PropertySystem:observe(name, callback)
     self._observers[name] = self._observers[name] or {}
     table.insert(self._observers[name], callback)
+    return self
+end
+
+function PropertySystem:removeObserver(name, callback)
+    if self._observers[name] then
+        for i, cb in ipairs(self._observers[name]) do
+            if cb == callback then
+                table.remove(self._observers[name], i)
+                if #self._observers[name] == 0 then
+                    self._observers[name] = nil
+                end
+                break
+            end
+        end
+    end
+    return self
+end
+
+function PropertySystem:removeAllObservers(name)
+    if name then
+        self._observers[name] = nil
+    else
+        self._observers = {}
+    end
     return self
 end
 

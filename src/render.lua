@@ -80,6 +80,17 @@ function Render:textFg(x, y, text, fg)
     return self
 end
 
+function Render:textBg(x, y, text, bg)
+    if y < 1 or y > self.height then return self end
+    bg = colorChars[bg] or "f"
+
+    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
+    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg:rep(#text) .. self.buffer.bg[y]:sub(x+#text)
+    self:addDirtyRect(x, y, #text, 1)
+
+    return self
+end
+
 function Render:text(x, y, text)
     if y < 1 or y > self.height then return self end
 
@@ -103,6 +114,20 @@ function Render:bg(x, y, bg)
 
     self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg)
     self:addDirtyRect(x, y, #bg, 1)
+
+    return self
+end
+
+function Render:blit(x, y, text, fg, bg)
+    if y < 1 or y > self.height then return self end
+    if(#text ~= #fg or #text ~= #bg)then
+        error("Text, fg, and bg must be the same length")
+    end
+
+    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
+    self.buffer.fg[y] = self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg)
+    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg)
+    self:addDirtyRect(x, y, #text, 1)
 
     return self
 end
@@ -153,7 +178,7 @@ function Render:render()
 
     benchmark.update("render")
     self.buffer.dirtyRects = {}
-    
+
     if self.blink then
         self.terminal.setCursorPos(self.xCursor, self.yCursor)
         self.terminal.setCursorBlink(true)
@@ -165,9 +190,8 @@ function Render:render()
     return self
 end
 
--- Hilfsfunktionen für Rectangle-Management
 function Render:rectOverlaps(r1, r2)
-    return not (r1.x + r1.width <= r2.x or 
+    return not (r1.x + r1.width <= r2.x or
                r2.x + r2.width <= r1.x or
                r1.y + r1.height <= r2.y or
                r2.y + r2.height <= r1.y)

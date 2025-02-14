@@ -12,6 +12,9 @@ local function coloredPrint(message, color)
 end
 
 function errorHandler.error(errMsg)
+    if errorHandler.errorHandled then
+        error()
+    end
     term.setBackgroundColor(colors.black)
 
     term.clear()
@@ -98,6 +101,7 @@ function errorHandler.error(errMsg)
 
     term.setBackgroundColor(colors.black)
     LOGGER.error(errMsg)
+    errorHandler.errorHandled = true
     error()
 end
 

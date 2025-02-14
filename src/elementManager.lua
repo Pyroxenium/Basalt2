@@ -76,8 +76,9 @@ function ElementManager.loadElement(name)
                         end
                         if(type(hooks)=="function")then
                             element[methodName] = function(self, ...)
-                                original(self, ...)
-                                return hooks(self, ...)
+                                local result = original(self, ...)
+                                local hookResult = hooks(self, ...)
+                                return hookResult == nil and result or hookResult
                             end
                         elseif(type(hooks)=="table")then
                             element[methodName] = function(self, ...)
