@@ -44,9 +44,9 @@ function Container:isChildVisible(child)
     local childW, childH = child.get("width"), child.get("height")
     local containerW, containerH = self.get("width"), self.get("height")
 
-    return childX <= containerW and 
-           childY <= containerH and 
-           childX + childW > 0 and 
+    return childX <= containerW and
+           childY <= containerH and
+           childX + childW > 0 and
            childY + childH > 0
 end
 
@@ -94,7 +94,7 @@ local function sortAndFilterChildren(self, children)
     local visibleChildren = {}
     
     for _, child in ipairs(children) do
-        if self:isChildVisible(child) then
+        if self:isChildVisible(child) and child.get("visible") then
             table.insert(visibleChildren, child)
         end
     end
@@ -103,7 +103,6 @@ local function sortAndFilterChildren(self, children)
         local current = visibleChildren[i]
         local currentZ = current.get("z")
         local j = i - 1
-
         while j > 0 do
             local compare = visibleChildren[j].get("z")
             if compare > currentZ then
@@ -117,6 +116,15 @@ local function sortAndFilterChildren(self, children)
     end
 
     return visibleChildren
+end
+
+function Container:clear()
+    self.set("children", {})
+    self.set("childrenEvents", {})
+    self.set("visibleChildren", {})
+    self.set("visibleChildrenEvents", {})
+    self.set("childrenSorted", true)
+    self.set("childrenEventsSorted", true)
 end
 
 function Container:sortChildren()
@@ -234,7 +242,7 @@ local function callChildrenEvents(self, visibleOnly, event, ...)
         for i = #events, 1, -1 do
             local child = events[i]
             if(child:dispatchEvent(event, ...))then
-                return true, child
+                    return true, child
             end
         end
     end
@@ -242,11 +250,11 @@ local function callChildrenEvents(self, visibleOnly, event, ...)
 end
 
 function Container:handleEvent(event, ...)
-    if(VisualElement.handleEvent(self, event, ...))then
-        local args = convertMousePosition(self, event, ...)
-        return callChildrenEvents(self, false, event, table.unpack(args))
-    end
+    VisualElement.handleEvent(self, event, ...)
+    local args = convertMousePosition(self, event, ...)
+    return callChildrenEvents(self, false, event, table.unpack(args))
 end
+
 
 function Container:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
@@ -257,6 +265,16 @@ function Container:mouse_click(button, x, y)
             return true
         end
         self.set("focusedChild", nil)
+    end
+end
+
+function Container:mouse_up(button, x, y)
+    if VisualElement.mouse_up(self, button, x, y) then
+        local args = convertMousePosition(self, "mouse_up", button, x, y)
+        local success, child = callChildrenEvents(self, true, "mouse_up", table.unpack(args))
+        if(success)then
+            return true
+        end
     end
 end
 

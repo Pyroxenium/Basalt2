@@ -7,6 +7,7 @@ Label.__index = Label
 
 ---@property text string Label Label text to be displayed
 Label.defineProperty(Label, "text", {default = "Label", type = "string", setter = function(self, value)
+    if(type(value)=="function")then value = value() end
     self.set("width", #value)
     return value
 end})
@@ -18,9 +19,10 @@ end})
 --- @usage local element = Label.new("myId", basalt)
 function Label.new(props, basalt)
     local self = setmetatable({}, Label):__init()
-    self:init(props, basalt)
     self.set("z", 3)
+    self.set("foreground", colors.black)
     self.set("backgroundEnabled", false)
+    self:init(props, basalt)
     return self
 end
 

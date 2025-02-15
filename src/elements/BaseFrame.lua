@@ -21,9 +21,9 @@ end})
 
 function BaseFrame.new(props, basalt)
     local self = setmetatable({}, BaseFrame):__init()
-    self:init(props, basalt)
     self.set("term", term.current())
-    self.set("background", colors.red)
+    self.set("background", colors.lightGray)
+    self:init(props, basalt)
     return self
 end
 

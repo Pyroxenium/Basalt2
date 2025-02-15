@@ -51,7 +51,7 @@ function Render:multiBlit(x, y, width, height, text, fg, bg)
     if(#text ~= #fg or #text ~= #bg)then
         error("Text, fg, and bg must be the same length")
     end
-    
+
     text = text:rep(width)
     fg = fg:rep(width)
     bg = bg:rep(width)
@@ -144,8 +144,6 @@ function Render:clear(bg)
 end
 
 function Render:render()
-    local benchmark = require("benchmark")
-    benchmark.start("render")
 
     local mergedRects = {}
     for _, rect in ipairs(self.buffer.dirtyRects) do
@@ -162,7 +160,6 @@ function Render:render()
         end
     end
 
-    -- Nur die Dirty Rectangles rendern
     for _, rect in ipairs(mergedRects) do
         for y = rect.y, rect.y + rect.height - 1 do
             if y >= 1 and y <= self.height then
@@ -176,7 +173,6 @@ function Render:render()
         end
     end
 
-    benchmark.update("render")
     self.buffer.dirtyRects = {}
 
     if self.blink then
@@ -186,7 +182,6 @@ function Render:render()
         self.terminal.setCursorBlink(false)
     end
 
-    --benchmark.stop("render")
     return self
 end
 

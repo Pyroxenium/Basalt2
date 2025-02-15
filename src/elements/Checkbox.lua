@@ -15,9 +15,9 @@ Checkbox.listenTo(Checkbox, "mouse_click")
 
 function Checkbox.new(props, basalt)
     local self = setmetatable({}, Checkbox):__init()
-    self:init(props, basalt)
     self.set("width", 1)
     self.set("height", 1)
+    self:init(props, basalt)
     return self
 end
 

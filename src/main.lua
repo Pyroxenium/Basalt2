@@ -1,5 +1,3 @@
-local benchmark = require("benchmark")
-benchmark.start("Basalt Initialization")
 local elementManager = require("elementManager")
 local errorManager = require("errorManager")
 local propertySystem = require("propertySystem")
@@ -178,7 +176,6 @@ end
 --- @usage basalt.run()
 --- @usage basalt.run(false)
 function basalt.run(isActive)
-    benchmark.stop("Basalt Initialization")
     updaterActive = isActive
     if(isActive==nil)then updaterActive = true end
     local function f()
@@ -195,6 +192,10 @@ function basalt.run(isActive)
             errorManager.error(err)
         end
     end
+end
+
+function basalt.getAPI(name)
+    return elementManager.getAPI(name)
 end
 
 return basalt

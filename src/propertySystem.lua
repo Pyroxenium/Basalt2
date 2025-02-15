@@ -16,6 +16,16 @@ function PropertySystem.addSetterHook(hook)
     table.insert(PropertySystem._setterHooks, hook)
 end
 
+local function applyHooks(element, propertyName, value, config)
+    for _, hook in ipairs(PropertySystem._setterHooks) do
+        local newValue = hook(element, propertyName, value, config)
+        if newValue ~= nil then
+            value = newValue
+        end
+    end
+    return value
+end
+
 function PropertySystem.defineProperty(class, name, config)
     if not rawget(class, '_properties') then
         class._properties = {}
@@ -42,16 +52,8 @@ function PropertySystem.defineProperty(class, name, config)
 
     class["set" .. capitalizedName] = function(self, value, ...)
         expect(1, self, "element")
-        
-        -- Setter Hooks ausführen
-        for _, hook in ipairs(PropertySystem._setterHooks) do
-            local newValue = hook(self, name, value, config)
-            if newValue ~= nil then
-                value = newValue
-            end
-        end
+        value = applyHooks(self, name, value, config)
 
-        -- Type checking: Entweder korrekter Typ ODER Function
         if type(value) ~= "function" then
             expect(2, value, config.type)
         end
@@ -59,8 +61,34 @@ function PropertySystem.defineProperty(class, name, config)
         if config.setter then
             value = config.setter(self, value, ...)
         end
-        
+
         self:_updateProperty(name, value)
+        return self
+    end
+end
+
+function PropertySystem.combineProperties(class, name, ...)
+    local properties = {...}
+    for k,v in pairs(properties)do
+        if not class._properties[v] then errorManager.error("Property not found: "..v) end
+    end
+    local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
+
+    class["get" .. capitalizedName] = function(self, ...)
+        expect(1, self, "element")
+        local value = {}
+        for _,v in pairs(properties)do
+            value[v] = self.get(v)
+        end
+        return table.unpack(value)
+    end
+
+    class["set" .. capitalizedName] = function(self, ...)
+        expect(1, self, "element")
+        local values = {...}
+        for i,v in pairs(properties)do
+            self.set(v, values[i])
+        end
         return self
     end
 end
@@ -195,7 +223,7 @@ function PropertySystem:__init()
             if config.canTriggerRender then
                 self:updateRender()
             end
-            self._values[name] = value
+            self._values[name] = applyHooks(self, name, value, config)
             if oldValue ~= value and self._observers[name] then
                 for _, callback in ipairs(self._observers[name]) do
                     callback(self, value, oldValue)
@@ -249,10 +277,12 @@ function PropertySystem:__init()
             end
         end,
         __newindex = function(t, k, v)
-            if self._properties[k] then
-                if self._properties[k].setter then
-                    v = self._properties[k].setter(self, v)
+            local config = self._properties[k]
+            if config then
+                if config.setter then
+                    v = config.setter(self, v)
                 end
+                v = applyHooks(self, k, v, config)
                 self:_updateProperty(k, v)
             else
                 rawset(t, k, v)
@@ -278,15 +308,13 @@ end
 
 function PropertySystem:_updateProperty(name, value)
     local oldValue = self._values[name]
-    -- Wenn der alte Wert eine Funktion ist, müssen wir den tatsächlichen Wert holen
     if type(oldValue) == "function" then
         oldValue = oldValue(self)
     end
-    
+
     self._values[name] = value
-    -- Wenn der neue Wert eine Funktion ist, evaluieren für Observer
     local newValue = type(value) == "function" and value(self) or value
-    
+
     if oldValue ~= newValue then
         if self._properties[name].canTriggerRender then
             self:updateRender()

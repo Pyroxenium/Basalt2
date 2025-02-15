@@ -164,7 +164,7 @@ end
 --- @vararg any The arguments for the event
 --- @return boolean? handled Whether the event was handled
 function BaseElement:handleEvent(event, ...)
-    return true
+    return false
 end
 
 function BaseElement:getBaseFrame()

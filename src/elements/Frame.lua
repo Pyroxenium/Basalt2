@@ -12,11 +12,11 @@ Frame.__index = Frame
 --- @usage local element = Frame.new("myId", basalt)
 function Frame.new(props, basalt)
     local self = setmetatable({}, Frame):__init()
-    self:init(props, basalt)
     self.set("width", 12)
     self.set("height", 6)
-    self.set("background", colors.blue)
+    self.set("background", colors.gray)
     self.set("z", 10)
+    self:init(props, basalt)
     return self
 end
 

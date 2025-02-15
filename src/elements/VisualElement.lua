@@ -53,6 +53,18 @@ VisualElement.defineProperty(VisualElement, "focused", {default = false, type = 
     return value
 end})
 
+VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "boolean", canTriggerRender = true, setter=function(self, value)
+    if(self.parent~=nil)then
+        self.parent.set("childrenSorted", false)
+        self.parent.set("childrenEventsSorted", false)
+    end
+    return value
+end})
+
+VisualElement.combineProperties(VisualElement, "position", "x", "y")
+VisualElement.combineProperties(VisualElement, "size", "width", "height")
+VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
+
 VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
 
@@ -66,7 +78,6 @@ local max, min = math.max, math.min
 function VisualElement.new(props, basalt)
     local self = setmetatable({}, VisualElement):__init()
     self:init(props, basalt)
-    self.set("type", "VisualElement")
     return self
 end
 
@@ -139,8 +150,8 @@ function VisualElement:mouse_click(button, x, y)
 end
 
 function VisualElement:mouse_up(button, x, y)
+    self.set("clicked", false)
     if self:isInBounds(x, y) then
-        self.set("clicked", false)
         self:fireEvent("mouse_up", button, x, y)
         return true
     end

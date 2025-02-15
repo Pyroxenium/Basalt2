@@ -13,9 +13,9 @@ ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.lime,
 
 function ProgressBar.new(props, basalt)
     local self = setmetatable({}, ProgressBar):__init()
-    self:init(props, basalt)
     self.set("width", 10)
     self.set("height", 1)
+    self:init(props, basalt)
     return self
 end
 

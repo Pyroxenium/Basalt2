@@ -20,9 +20,10 @@ List.listenTo(List, "mouse_scroll")
 
 function List.new(props, basalt)
     local self = setmetatable({}, List):__init()
-    self:init(props, basalt)
     self.set("width", 16)
     self.set("height", 8)
+    self.set("background", colors.gray)
+    self:init(props, basalt)
     return self
 end
 
@@ -54,16 +55,25 @@ end
 
 function List:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) and self.get("selectable") then
-        local relY = self:getRelativePosition(x, y)
-        local index = relY + self.get("offset")
+        local _, index = self:getRelativePosition(x, y)
         
-        if index <= #self.get("items") then
-            self.set("selectedIndex", index)
-            self:fireEvent("select", index, self.get("items")[index])
+        local adjustedIndex = index + self.get("offset")
+        local items = self.get("items")
+
+        if adjustedIndex <= #items then
+            local item = items[adjustedIndex]
+            self.set("selectedIndex", adjustedIndex)
+
+            if type(item) == "table" and item.callback then
+                item.callback(self)
+            end
+
+            self:fireEvent("select", adjustedIndex, item)
             self:updateRender()
             return true
         end
     end
+    return false
 end
 
 function List:mouse_scroll(direction, x, y)
@@ -77,24 +87,47 @@ function List:mouse_scroll(direction, x, y)
     end
 end
 
+function List:onSelect(callback)
+    self:registerCallback("select", callback)
+    return self
+end
+
 function List:render()
     VisualElement.render(self)
-    
+
     local items = self.get("items")
     local height = self.get("height")
     local offset = self.get("offset")
     local selected = self.get("selectedIndex")
-    
+    local width = self.get("width")
+
     for i = 1, height do
         local itemIndex = i + offset
         local item = items[itemIndex]
-        
+
         if item then
-            if itemIndex == selected then
-                self:textBg(1, i, string.rep(" ", self.get("width")), self.get("selectedColor"))
-                self:textFg(1, i, item, colors.white)
+            if type(item) == "table" and item.separator then
+                local separatorChar = (item.text or "-"):sub(1,1)
+                local separatorText = string.rep(separatorChar, width)
+                local fg = item.foreground or self.get("foreground")
+                local bg = item.background or self.get("background")
+
+                self:textBg(1, i, string.rep(" ", width), bg)
+                self:textFg(1, i, separatorText, fg)
             else
-                self:textFg(1, i, item, self.get("foreground"))
+                local text = type(item) == "table" and item.text or item
+                local isSelected = itemIndex == selected
+
+                local bg = isSelected and 
+                    (item.selectedBackground or self.get("selectedColor")) or
+                    (item.background or self.get("background"))
+
+                local fg = isSelected and 
+                    (item.selectedForeground or colors.white) or 
+                    (item.foreground or self.get("foreground"))
+
+                self:textBg(1, i, string.rep(" ", width), bg)
+                self:textFg(1, i, text, fg)
             end
         end
     end

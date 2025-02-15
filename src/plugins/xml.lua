@@ -35,7 +35,7 @@ local function parseXML(self, xmlString)
             tag.children = {}
             tag.content = ""
             table.insert(current.children, tag)
-            
+
             if not line:match("/>$") then
                 table.insert(stack, current)
                 current = tag

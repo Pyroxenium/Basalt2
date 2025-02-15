@@ -232,13 +232,13 @@ end
 --- @usage local element = Flexbox.new("myId", basalt)
 function Flexbox.new(props, basalt)
     local self = setmetatable({}, Flexbox):__init()
-    self:init(props, basalt)
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.blue)
     self.set("z", 10)
     self:observe("width", function() self.set("flexUpdateLayout", true) end)
     self:observe("height", function() self.set("flexUpdateLayout", true) end)
+    self:init(props, basalt)
     return self
 end
 

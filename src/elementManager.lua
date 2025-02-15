@@ -13,6 +13,7 @@ local main = format:gsub("path", dir)
 local ElementManager = {}
 ElementManager._elements = {}
 ElementManager._plugins = {}
+ElementManager._APIs = {}
 local elementsDirectory = fs.combine(dir, "elements")
 local pluginsDirectory = fs.combine(dir, "plugins")
 
@@ -40,10 +41,14 @@ if fs.exists(pluginsDirectory) then
             local plugin = require(fs.combine("plugins", name))
             if type(plugin) == "table" then
                 for k,v in pairs(plugin) do
-                    if(ElementManager._plugins[k]==nil)then
-                        ElementManager._plugins[k] = {}
+                    if(k ~= "API")then
+                        if(ElementManager._plugins[k]==nil)then
+                            ElementManager._plugins[k] = {}
+                        end
+                        table.insert(ElementManager._plugins[k], v)
+                    else
+                        ElementManager._APIs[name] = v
                     end
-                    table.insert(ElementManager._plugins[k], v)
                 end
             end
         end
@@ -112,6 +117,10 @@ end
 
 function ElementManager.getElementList()
     return ElementManager._elements
+end
+
+function ElementManager.getAPI(name)
+    return ElementManager._APIs[name]
 end
 
 return ElementManager

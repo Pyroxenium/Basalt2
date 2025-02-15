@@ -32,9 +32,9 @@ Input.listenTo(Input, "char")
 --- @usage local element = Input.new("myId", basalt)
 function Input.new(props, basalt)
     local self = setmetatable({}, Input):__init()
-    self:init(id, basalt)
     self.set("width", 8)
     self.set("z", 3)
+    self:init(id, basalt)
     return self
 end
 
