@@ -6,6 +6,7 @@
 |---|---|---|
 |[PropertySystem.addSetterHook](#PropertySystem.addSetterHook)|-|
 |[PropertySystem.blueprint](#PropertySystem.blueprint)|table|
+|[PropertySystem.combineProperties](#PropertySystem.combineProperties)|-|
 |[PropertySystem.createFromBlueprint](#PropertySystem.createFromBlueprint)|-|
 |[PropertySystem.defineProperty](#PropertySystem.defineProperty)|-|
 |[PropertySystem:__init](#PropertySystem:__init)|-|
@@ -27,6 +28,8 @@ Creates a blueprint of an element class with all its properties
 
 ### Returns
 * `table` `blueprint` A table containing all property definitions
+
+## PropertySystem.combineProperties()
 
 ## PropertySystem.createFromBlueprint()
 

@@ -20,6 +20,7 @@
 |[List:init](#List:init)|-|
 |[List:mouse_click](#List:mouse_click)|-|
 |[List:mouse_scroll](#List:mouse_scroll)|-|
+|[List:onSelect](#List:onSelect)|-|
 |[List:removeItem](#List:removeItem)|-|
 |[List:render](#List:render)|-|
 
@@ -34,6 +35,8 @@
 ## List:mouse_click()
 
 ## List:mouse_scroll()
+
+## List:onSelect()
 
 ## List:removeItem()
 

@@ -1,3 +1,5 @@
+## ElementManager.getAPI()
+
 ## ElementManager.getElement()
 
 ## ElementManager.getElementList()

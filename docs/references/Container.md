@@ -8,6 +8,7 @@
 |[Container:addChild](#Container:addChild)|-|
 |[Container:blit](#Container:blit)|-|
 |[Container:char](#Container:char)|-|
+|[Container:clear](#Container:clear)|-|
 |[Container:getChild](#Container:getChild)|-|
 |[Container:handleEvent](#Container:handleEvent)|-|
 |[Container:init](#Container:init)|-|
@@ -15,6 +16,7 @@
 |[Container:key](#Container:key)|-|
 |[Container:key_up](#Container:key_up)|-|
 |[Container:mouse_click](#Container:mouse_click)|-|
+|[Container:mouse_up](#Container:mouse_up)|-|
 |[Container:multiBlit](#Container:multiBlit)|-|
 |[Container:registerChildEvent](#Container:registerChildEvent)|-|
 |[Container:registerChildrenEvents](#Container:registerChildrenEvents)|-|
@@ -34,6 +36,8 @@
 
 ## Container:char()
 
+## Container:clear()
+
 ## Container:getChild()
 
 ## Container:handleEvent()
@@ -47,6 +51,8 @@
 ## Container:key_up()
 
 ## Container:mouse_click()
+
+## Container:mouse_up()
 
 ## Container:multiBlit()
 

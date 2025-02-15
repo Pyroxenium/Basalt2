@@ -1,7 +1,18 @@
-Will temporary exist while developing, maybe i will create a benchmark plugin in future
-## Benchmark.start()
+## BaseElement:benchmark()
 
-## Benchmark.stop()
+## BaseElement:endProfile()
 
-## Benchmark.update()
+## BaseElement:getBenchmarkStats()
+
+## BaseElement:logBenchmark()
+
+## BaseElement:startProfile()
+
+## BaseElement:stopBenchmark()
+
+## Container:benchmarkContainer()
+
+## Container:logContainerBenchmarks()
+
+## Container:stopContainerBenchmark()
 

@@ -16,6 +16,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |---|---|---|
 |[basalt.create](#basalt.create)|table|Creates a new UI element
 |[basalt.createFrame](#basalt.createFrame)|table|
+|[basalt.getAPI](#basalt.getAPI)|-|
 |[basalt.getElementManager](#basalt.getElementManager)|table|
 |[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|
 |[basalt.removeSchedule](#basalt.removeSchedule)|-|
@@ -50,6 +51,8 @@ Creates and returns a new frame
  ```lua
 local mainFrame = basalt.createFrame()
 ```
+
+## basalt.getAPI()
 
 ## basalt.getElementManager()
 Returns the element manager instance
