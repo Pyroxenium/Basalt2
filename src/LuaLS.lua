@@ -141,6 +141,14 @@ function Container:addContainer()
     return self
 end
 
+--- Adds a new Dropdown to the container
+---@generic Element: Container
+---@param self Element
+---@return Dropdown
+function Container:addDropdown()
+    return self
+end
+
 --- Adds a new Flexbox to the container
 ---@generic Element: Container
 ---@param self Element
@@ -181,6 +189,14 @@ function Container:addList()
     return self
 end
 
+--- Adds a new Menu to the container
+---@generic Element: Container
+---@param self Element
+---@return Menu
+function Container:addMenu()
+    return self
+end
+
 --- Adds a new Program to the container
 ---@generic Element: Container
 ---@param self Element
@@ -202,6 +218,22 @@ end
 ---@param self Element
 ---@return Slider
 function Container:addSlider()
+    return self
+end
+
+--- Adds a new Table to the container
+---@generic Element: Container
+---@param self Element
+---@return Table
+function Container:addTable()
+    return self
+end
+
+--- Adds a new Tree to the container
+---@generic Element: Container
+---@param self Element
+---@return Tree
+function Container:addTree()
     return self
 end
 
