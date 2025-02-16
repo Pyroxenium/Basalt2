@@ -32,19 +32,7 @@ jobs:
       # Step 2: Generate LuaLS Definitions
       - name: Generate LuaLS
         run: |
-          # Remove potential old file
-          rm -f src/elements/src/LuaLS.lua
-          
-          # Generate with correct paths
-          lua tools/annotationParser.lua ./src/elements ./src/LuaLS.lua
-          
-          # Verify generation
-          if [ -f "./src/LuaLS.lua" ]; then
-            echo "LuaLS.lua generated successfully"
-          else
-            echo "Failed to generate LuaLS.lua"
-            exit 1
-          fi
+          lua tools/annotationParser.lua src/elements src/LuaLS.lua
 
       # Step 3: Bundle and Minify
       - name: Bundle and Minify
@@ -55,11 +43,18 @@ jobs:
       # Step 4: Prepare and Generate Documentation
       - name: Prepare docs directory
         run: |
-          mkdir -p build_docs/docs/references
+          # Checkout gh-pages branch in a separate directory
+          git worktree add gh-pages gh-pages
+          
+          # Only clean references directory
+          rm -rf gh-pages/docs/references
+          mkdir -p gh-pages/docs/references
 
       - name: Generate Documentation
         run: |
           lua tools/generate-docs.lua
+
+          cp -r build_docs/docs/references/* gh-pages/docs/references/
 
       # Step 5: Deploy Documentation
       - name: Deploy Documentation
@@ -67,7 +62,8 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build_docs
+          publish_dir: ./gh-pages
+          keep_files: true
 
       # Step 6: Generate Changelog
       - name: Generate Changelog
@@ -81,6 +77,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua "src/LuaLS.lua" release/basalt.lua CHANGELOG.md
+          git add config.lua src/LuaLS.lua release/basalt.lua CHANGELOG.md
           git commit -m "Update config, LuaLS definitions, bundle and changelog" || exit 0
           git push
