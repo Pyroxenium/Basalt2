@@ -13,6 +13,8 @@ Button.defineProperty(Button, "text", {default = "Button", type = "string", canT
 Button.listenTo(Button, "mouse_click")
 Button.listenTo(Button, "mouse_up")
 
+--- Creates a new Button instance
+--- @return table self The created instance
 function Button.new()
     local self = setmetatable({}, Button):__init()
     self.set("width", 10)
@@ -21,11 +23,15 @@ function Button.new()
     return self
 end
 
+--- Initializes the Button instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
 function Button:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Button")
 end
 
+--- Renders the Button
 function Button:render()
     VisualElement.render(self)
     local text = self.get("text")
