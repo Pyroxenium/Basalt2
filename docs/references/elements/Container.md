@@ -242,6 +242,9 @@ function Container:unregisterChildEvent(child, eventName)
     return self
 end
 
+--- Removes a child from the container
+--- @param child table The child to remove
+--- @return Container self The container instance
 function Container:removeChild(child)
     for i,v in ipairs(self._values.children) do
         if v == child then
@@ -254,6 +257,9 @@ function Container:removeChild(child)
     return self
 end
 
+--- Removes a child from the container
+--- @param path string The path to the child to remove
+--- @return Container? self The container instance
 function Container:getChild(path)
     if type(path) == "string" then
         local parts = split(path, "/")
@@ -296,13 +302,21 @@ local function callChildrenEvents(self, visibleOnly, event, ...)
     return false
 end
 
+--- Default handler for events
+--- @param event string The event to handle
+--- @vararg any The event arguments
+--- @return boolean Whether the event was handled
 function Container:handleEvent(event, ...)
     VisualElement.handleEvent(self, event, ...)
     local args = convertMousePosition(self, event, ...)
     return callChildrenEvents(self, false, event, table.unpack(args))
 end
 
-
+--- Handles mouse click events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean Whether the event was handled
 function Container:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_click", button, x, y)
@@ -312,9 +326,16 @@ function Container:mouse_click(button, x, y)
             return true
         end
         self.set("focusedChild", nil)
+        return true
     end
+    return false
 end
 
+--- Handles mouse up events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean Whether the event was handled
 function Container:mouse_up(button, x, y)
     if VisualElement.mouse_up(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_up", button, x, y)
@@ -323,8 +344,12 @@ function Container:mouse_up(button, x, y)
             return true
         end
     end
+    return false
 end
 
+--- Handles key events
+--- @param key number The key that was pressed
+--- @return boolean Whether the event was handled
 function Container:key(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key", key)
@@ -332,6 +357,9 @@ function Container:key(key)
     return true
 end
 
+--- Handles char events
+--- @param char string The character that was pressed
+--- @return boolean Whether the event was handled
 function Container:char(char)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("char", char)
@@ -339,6 +367,9 @@ function Container:char(char)
     return true
 end
 
+--- Handles key up events
+--- @param key number The key that was released
+--- @return boolean Whether the event was handled
 function Container:key_up(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key_up", key)
@@ -346,49 +377,74 @@ function Container:key_up(key)
     return true
 end
 
+--- Draws multiple lines of text, fg and bg strings, it is usually used in the render loop
+--- @param x number The x position to draw the text
+--- @param y number The y position to draw the text
+--- @param width number The width of the text
+--- @param height number The height of the text
+--- @param text string The text to draw
+--- @param fg string The foreground color of the text
+--- @param bg string The background color of the text
+--- @return Container self The container instance
 function Container:multiBlit(x, y, width, height, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
 
     width = x < 1 and math.min(width + x - 1, w) or math.min(width, math.max(0, w - x + 1))
     height = y < 1 and math.min(height + y - 1, h) or math.min(height, math.max(0, h - y + 1))
 
-    if width <= 0 or height <= 0 then return end
+    if width <= 0 or height <= 0 then return self end
 
     VisualElement.multiBlit(self, math.max(1, x), math.max(1, y), width, height, text, fg, bg)
+    return self
 end
 
+--- Draws a line of text and fg as color, it is usually used in the render loop
+--- @param x number The x position to draw the text
+--- @param y number The y position to draw the text
+--- @param text string The text to draw
+--- @param fg color The foreground color of the text
+--- @return Container self The container instance
 function Container:textFg(x, y, text, fg)
     local w, h = self.get("width"), self.get("height")
 
-    if y < 1 or y > h then return end
+    if y < 1 or y > h then return self end
 
     local textStart = x < 1 and (2 - x) or 1
     local textLen = math.min(#text - textStart + 1, w - math.max(1, x) + 1)
 
-    if textLen <= 0 then return end
+    if textLen <= 0 then return self end
 
     VisualElement.textFg(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1), fg)
 end
 
+--- Draws a line of text and fg and bg as colors, it is usually used in the render loop
+--- @param x number The x position to draw the text
+--- @param y number The y position to draw the text
+--- @param text string The text to draw
+--- @param fg string The foreground color of the text
+--- @param bg string The background color of the text
+--- @return Container self The container instance
 function Container:blit(x, y, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
 
-    if y < 1 or y > h then return end
+    if y < 1 or y > h then return self end
 
     local textStart = x < 1 and (2 - x) or 1
     local textLen = math.min(#text - textStart + 1, w - math.max(1, x) + 1)
     local fgLen = math.min(#fg - textStart + 1, w - math.max(1, x) + 1)
     local bgLen = math.min(#bg - textStart + 1, w - math.max(1, x) + 1)
 
-    if textLen <= 0 then return end
+    if textLen <= 0 then return self end
 
     local finalText = text:sub(textStart, textStart + textLen - 1)
     local finalFg = fg:sub(textStart, textStart + fgLen - 1)
     local finalBg = bg:sub(textStart, textStart + bgLen - 1)
 
     VisualElement.blit(self, math.max(1, x), math.max(1, y), finalText, finalFg, finalBg)
+    return self
 end
 
+--- Renders the container
 function Container:render()
     VisualElement.render(self)
     if not self.get("childrenSorted")then
