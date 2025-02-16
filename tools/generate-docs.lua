@@ -1,3 +1,5 @@
+local markdown = require("tools/markdown")
+
 local function ensureDirectory(path)
     local dir = path:match("(.*)/[^/]*$")
     if dir then
@@ -6,9 +8,8 @@ local function ensureDirectory(path)
 end
 
 local function processFile(inputFile)
-    local f = io.open(inputFile, "r")
-    local content = f:read("*all")
-    f:close()
+    local parsed = markdown.parseFile(inputFile)
+    local md = markdown.makeMarkdown(parsed)
 
     local outputFile
     if inputFile:match("^src/[^/]+%.lua$") then
@@ -20,9 +21,7 @@ local function processFile(inputFile)
     ensureDirectory(outputFile)
     print(string.format("Processing: %s -> %s", inputFile, outputFile))
 
-    local out = io.open(outputFile, "w")
-    out:write(content)
-    out:close()
+    markdown.saveToFile(outputFile, md)
 end
 
 for file in io.popen('find "src" -type f -name "*.lua"'):lines() do
