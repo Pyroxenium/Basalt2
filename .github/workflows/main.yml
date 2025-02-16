@@ -27,12 +27,12 @@ jobs:
       # Step 1: Config Generation
       - name: Generate Config
         run: |
-          cd $GITHUB_WORKSPACE
-          lua tools/annotationParser.lua src/elements src/LuaLS.lua
+          lua tools/generate-config.lua
 
       # Step 2: Generate LuaLS Definitions
       - name: Generate LuaLS
         run: |
+          cd $GITHUB_WORKSPACE
           lua tools/annotationParser.lua src/elements src/LuaLS.lua
 
       # Step 3: Bundle and Minify
