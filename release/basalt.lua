@@ -183,8 +183,7 @@ function _d.run(caa)bd=caa
 if(caa==nil)then bd=true end;local function daa()baa()
 while bd do aaa(os.pullEventRaw())baa()end end
 while bd do local _ba,aba=pcall(daa)if not(_ba)then
-cc.header="Basalt Runtime Error"cc.error(aba)end end end;_d.autoUpdate=_d.run;function _d.getAPI(caa)return bc.getAPI(caa)end;return
-_d end
+cc.header="Basalt Runtime Error"cc.error(aba)end end end;function _d.getAPI(caa)return bc.getAPI(caa)end;return _d end
 project["init.lua"] = function(...) local da={...}local _b=fs.getDir(da[2])local ab=package.path
 local bb="path;/path/?.lua;/path/?/init.lua;"local cb=bb:gsub("path",_b)package.path=cb.."rom/?"
 local function db(bc)
