@@ -25,13 +25,12 @@ end
 local function scanDir(dir)
     local files = {}
     for file in io.popen('find "'..dir..'" -type f -name "*.lua"'):lines() do
-        local f = io.open(file, "r")
-        if f then
-            local content = f:read("*all")
-            f:close()
-            -- Entferne den src/ Prefix vom Pfad für die Config
-            local configPath = file:gsub("^src/", "")
-            files[configPath] = content
+        local name = file:match("([^/]+)%.lua$")
+        if name then
+            files[file] = {
+                name = name,
+                path = file:gsub("^src/", ""),
+            }
         end
     end
     return files

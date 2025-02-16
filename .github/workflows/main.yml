@@ -27,7 +27,8 @@ jobs:
       # Step 1: Config Generation
       - name: Generate Config
         run: |
-          lua tools/generate-config.lua
+          cd $GITHUB_WORKSPACE
+          lua tools/annotationParser.lua src/elements src/LuaLS.lua
 
       # Step 2: Generate LuaLS Definitions
       - name: Generate LuaLS
@@ -69,6 +70,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua src/LuaLS.lua release/basalt.lua CHANGELOG.md
+          git add config.lua "src/LuaLS.lua" release/basalt.lua CHANGELOG.md
           git commit -m "Update config, LuaLS definitions, bundle and changelog" || exit 0
           git push
