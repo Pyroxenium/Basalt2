@@ -17,7 +17,6 @@ function Frame.new()
     return self
 end
 
---- Initializes the Frame instance
 function Frame:init(props, basalt)
     Container.init(self, props, basalt)
     self.set("type", "Frame")
