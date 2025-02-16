@@ -1,4 +1,0 @@
-## BaseElement:fromXML()
-
-## Container:loadXML()
-

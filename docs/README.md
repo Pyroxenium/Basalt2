@@ -1,2 +1,0 @@
-# basalt-docs
-Basalts documentation
