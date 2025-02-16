@@ -9,11 +9,17 @@ local max = math.max
 local Container = setmetatable({}, VisualElement)
 Container.__index = Container
 
+---@property children table {} The children of the container
 Container.defineProperty(Container, "children", {default = {}, type = "table"})
+---@property childrenSorted boolean true Whether the children are sorted
 Container.defineProperty(Container, "childrenSorted", {default = true, type = "boolean"})
+---@property childrenEventsSorted boolean true Whether the children events are sorted
 Container.defineProperty(Container, "childrenEventsSorted", {default = true, type = "boolean"})
+---@property childrenEvents table {} The children events of the container
 Container.defineProperty(Container, "childrenEvents", {default = {}, type = "table"})
+---@property eventListenerCount table {} The event listener count of the container
 Container.defineProperty(Container, "eventListenerCount", {default = {}, type = "table"})
+---@property focusedChild table nil The focused child of the container
 Container.defineProperty(Container, "focusedChild", {default = nil, type = "table", setter = function(self, value, internal)
     local oldChild = self._values.focusedChild
 
@@ -36,19 +42,10 @@ Container.defineProperty(Container, "focusedChild", {default = nil, type = "tabl
     return value
 end})
 
+---@property visibleChildren table {} The visible children of the container
 Container.defineProperty(Container, "visibleChildren", {default = {}, type = "table"})
+---@property visibleChildrenEvents table {} The visible children events of the container
 Container.defineProperty(Container, "visibleChildrenEvents", {default = {}, type = "table"})
-
-function Container:isChildVisible(child)
-    local childX, childY = child.get("x"), child.get("y")
-    local childW, childH = child.get("width"), child.get("height")
-    local containerW, containerH = self.get("width"), self.get("height")
-
-    return childX <= containerW and
-           childY <= containerH and
-           childX + childW > 0 and
-           childY + childH > 0
-end
 
 for k, _ in pairs(elementManager:getElementList()) do
     local capitalizedName = k:sub(1,1):upper() .. k:sub(2)
@@ -68,16 +65,38 @@ for k, _ in pairs(elementManager:getElementList()) do
     end
 end
 
+--- Creates a new Container instance
+--- @return Container self The new container instance
 function Container.new()
     local self = setmetatable({}, Container):__init()
     return self
 end
 
+--- Initializes the Container instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
 function Container:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Container")
 end
 
+--- Returns whether a child is visible
+--- @param child table The child to check
+--- @return boolean boolean the child is visible
+function Container:isChildVisible(child)
+    local childX, childY = child.get("x"), child.get("y")
+    local childW, childH = child.get("width"), child.get("height")
+    local containerW, containerH = self.get("width"), self.get("height")
+
+    return childX <= containerW and
+           childY <= containerH and
+           childX + childW > 0 and
+           childY + childH > 0
+end
+
+--- Adds a child to the container
+--- @param child table The child to add
+--- @return Container self The container instance
 function Container:addChild(child)
     if child == self then
         error("Cannot add container to itself")
@@ -118,6 +137,8 @@ local function sortAndFilterChildren(self, children)
     return visibleChildren
 end
 
+--- Clears the container
+--- @return Container self The container instance
 function Container:clear()
     self.set("children", {})
     self.set("childrenEvents", {})
@@ -125,27 +146,43 @@ function Container:clear()
     self.set("visibleChildrenEvents", {})
     self.set("childrenSorted", true)
     self.set("childrenEventsSorted", true)
+    return self
 end
 
+--- Sorts the children of the container
+--- @return Container self The container instance
 function Container:sortChildren()
     self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
     self.set("childrenSorted", true)
+    return self
 end
 
+--- Sorts the children events of the container
+--- @param eventName string The event name to sort
+--- @return Container self The container instance
 function Container:sortChildrenEvents(eventName)
     if self._values.childrenEvents[eventName] then
         self._values.visibleChildrenEvents[eventName] = sortAndFilterChildren(self, self._values.childrenEvents[eventName])
     end
     self.set("childrenEventsSorted", true)
+    return self
 end
 
+--- Registers the children events of the container
+--- @param child table The child to register events for
+--- @return Container self The container instance
 function Container:registerChildrenEvents(child)
     if(child._registeredEvents == nil)then return end
     for event in pairs(child._registeredEvents) do
         self:registerChildEvent(child, event)
     end
+    return self
 end
 
+--- Registers the children events of the container
+--- @param child table The child to register events for
+--- @param eventName string The event name to register
+--- @return Container self The container instance
 function Container:registerChildEvent(child, eventName)
     if not self._values.childrenEvents[eventName] then
         self._values.childrenEvents[eventName] = {}
@@ -158,22 +195,31 @@ function Container:registerChildEvent(child, eventName)
 
     for _, registeredChild in ipairs(self._values.childrenEvents[eventName]) do
         if registeredChild == child then
-            return
+            return self
         end
     end
 
     self.set("childrenEventsSorted", false)
     table.insert(self._values.childrenEvents[eventName], child)
     self._values.eventListenerCount[eventName] = self._values.eventListenerCount[eventName] + 1
+    return self
 end
 
+--- Unregisters the children events of the container
+--- @param child table The child to unregister events for
+--- @return Container self The container instance
 function Container:removeChildrenEvents(child)
-    if(child._registeredEvents == nil)then return end
+    if(child._registeredEvents == nil)then return self end
     for event in pairs(child._registeredEvents) do
         self:unregisterChildEvent(child, event)
     end
+    return self
 end
 
+--- Unregisters the children events of the container
+--- @param child table The child to unregister events for
+--- @param eventName string The event name to unregister
+--- @return Container self The container instance
 function Container:unregisterChildEvent(child, eventName)
     if self._values.childrenEvents[eventName] then
         for i, listener in ipairs(self._values.childrenEvents[eventName]) do
@@ -193,6 +239,7 @@ function Container:unregisterChildEvent(child, eventName)
             end
         end
     end
+    return self
 end
 
 function Container:removeChild(child)
