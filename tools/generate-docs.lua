@@ -1,8 +1,16 @@
+local function ensureDirectory(path)
+    local dir = path:match("(.*)/[^/]*$")
+    if dir then
+        os.execute('mkdir -p "' .. dir .. '"')
+    end
+end
+
 local function processFile(inputFile, outputFile)
     local f = io.open(inputFile, "r")
     local content = f:read("*all")
     f:close()
 
+    ensureDirectory(outputFile)
 
     local out = io.open(outputFile, "w")
     out:write(content)
