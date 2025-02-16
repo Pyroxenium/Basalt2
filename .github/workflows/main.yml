@@ -32,20 +32,19 @@ jobs:
       # Step 2: Generate LuaLS Definitions
       - name: Generate LuaLS
         run: |
-          echo "Current directory: $PWD"
-          echo "Listing tools directory:"
-          ls -la tools/
-          echo "Listing src/elements directory:"
-          ls -la src/elements/
+          # Remove potential old file
+          rm -f src/elements/src/LuaLS.lua
           
-          # Ensure the script is executable
-          chmod +x tools/annotationParser.lua
+          # Generate with correct paths
+          lua tools/annotationParser.lua ./src/elements ./src/LuaLS.lua
           
-          # Run with full path and debug output
-          lua tools/annotationParser.lua "$(pwd)/src/elements" "$(pwd)/src/LuaLS.lua"
-          
-          # Check if file was created
-          ls -la src/LuaLS.lua || echo "File not created!"
+          # Verify generation
+          if [ -f "./src/LuaLS.lua" ]; then
+            echo "LuaLS.lua generated successfully"
+          else
+            echo "Failed to generate LuaLS.lua"
+            exit 1
+          fi
 
       # Step 3: Bundle and Minify
       - name: Bundle and Minify
