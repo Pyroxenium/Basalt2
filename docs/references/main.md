@@ -197,12 +197,6 @@ function basalt.run(isActive)
     end
 end
 
---- Starts the Basalt runtime
---- @param isActive? boolean Whether to start active (default: true)
---- @usage basalt.autoUpdate()
---- @usage basalt.autoUpdate(false)
-basalt.autoUpdate = basalt.run
-
 function basalt.getAPI(name)
     return elementManager.getAPI(name)
 end
