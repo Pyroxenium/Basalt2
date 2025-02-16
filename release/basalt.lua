@@ -974,10 +974,6 @@ if _d and not ad then _d.set("focused",true,true)if dc.parent then
 dc.parent:setFocusedChild(dc)end end;return _d end})
 _c.defineProperty(_c,"visibleChildren",{default={},type="table"})
 _c.defineProperty(_c,"visibleChildrenEvents",{default={},type="table"})
-function _c:isChildVisible(dc)local _d,ad=dc.get("x"),dc.get("y")
-local bd,cd=dc.get("width"),dc.get("height")local dd,__a=self.get("width"),self.get("height")
-return
-_d<=dd and ad<=__a and _d+bd>0 and ad+cd>0 end
 for dc,_d in pairs(_b:getElementList())do
 local ad=dc:sub(1,1):upper()..dc:sub(2)
 if ad~="BaseFrame"then
@@ -987,6 +983,10 @@ _c["addDelayed"..ad]=function(bd,cd)bb(1,bd,"table")
 local dd=bd.basalt.create(dc,cd,true,bd)return dd end end end
 function _c.new()local dc=setmetatable({},_c):__init()return dc end
 function _c:init(dc,_d)ab.init(self,dc,_d)self.set("type","Container")end
+function _c:isChildVisible(dc)local _d,ad=dc.get("x"),dc.get("y")
+local bd,cd=dc.get("width"),dc.get("height")local dd,__a=self.get("width"),self.get("height")
+return
+_d<=dd and ad<=__a and _d+bd>0 and ad+cd>0 end
 function _c:addChild(dc)
 if dc==self then error("Cannot add container to itself")end;table.insert(self._values.children,dc)
 dc.parent=self;self.set("childrenSorted",false)
@@ -1000,26 +1000,26 @@ local __a=ad[dd].get("z")if __a>cd then ad[dd+1]=ad[dd]dd=dd-1 else break end en
 function _c:clear()self.set("children",{})
 self.set("childrenEvents",{})self.set("visibleChildren",{})
 self.set("visibleChildrenEvents",{})self.set("childrenSorted",true)
-self.set("childrenEventsSorted",true)end
+self.set("childrenEventsSorted",true)return self end
 function _c:sortChildren()
-self.set("visibleChildren",ac(self,self._values.children))self.set("childrenSorted",true)end
+self.set("visibleChildren",ac(self,self._values.children))self.set("childrenSorted",true)return self end
 function _c:sortChildrenEvents(dc)if self._values.childrenEvents[dc]then
 self._values.visibleChildrenEvents[dc]=ac(self,self._values.childrenEvents[dc])end
-self.set("childrenEventsSorted",true)end
+self.set("childrenEventsSorted",true)return self end
 function _c:registerChildrenEvents(dc)if(dc._registeredEvents==nil)then return end
 for _d in
-pairs(dc._registeredEvents)do self:registerChildEvent(dc,_d)end end
+pairs(dc._registeredEvents)do self:registerChildEvent(dc,_d)end;return self end
 function _c:registerChildEvent(dc,_d)
 if not self._values.childrenEvents[_d]then
 self._values.childrenEvents[_d]={}self._values.eventListenerCount[_d]=0;if self.parent then
 self.parent:registerChildEvent(self,_d)end end;for ad,bd in ipairs(self._values.childrenEvents[_d])do
-if bd==dc then return end end
+if bd==dc then return self end end
 self.set("childrenEventsSorted",false)
 table.insert(self._values.childrenEvents[_d],dc)self._values.eventListenerCount[_d]=
-self._values.eventListenerCount[_d]+1 end
-function _c:removeChildrenEvents(dc)if(dc._registeredEvents==nil)then return end
+self._values.eventListenerCount[_d]+1;return self end
+function _c:removeChildrenEvents(dc)if(dc._registeredEvents==nil)then return self end
 for _d in
-pairs(dc._registeredEvents)do self:unregisterChildEvent(dc,_d)end end
+pairs(dc._registeredEvents)do self:unregisterChildEvent(dc,_d)end;return self end
 function _c:unregisterChildEvent(dc,_d)
 if self._values.childrenEvents[_d]then
 for ad,bd in
@@ -1030,7 +1030,7 @@ self._values.eventListenerCount[_d]-1
 if
 self._values.eventListenerCount[_d]<=0 then
 self._values.childrenEvents[_d]=nil;self._values.eventListenerCount[_d]=nil;if self.parent then
-self.parent:unregisterChildEvent(self,_d)end end;break end end end end
+self.parent:unregisterChildEvent(self,_d)end end;break end end end;return self end
 function _c:removeChild(dc)
 for _d,ad in ipairs(self._values.children)do if ad==dc then
 table.remove(self._values.children,_d)dc.parent=nil;break end end;self:removeChildrenEvents(dc)return self end
@@ -1183,7 +1183,7 @@ function d:init(_a,aa)c.init(self,_a,aa)self.set("type","Checkbox")end
 function d:mouse_click(_a,aa,ba)
 if c.mouse_click(self,_a,aa,ba)then
 self.set("checked",not self.get("checked"))
-self:fireEvent("change",self.get("checked"))return true end end
+self:fireEvent("change",self.get("checked"))return true end;return false end
 function d:render()c.render(self)local _a=
 self.get("checked")and self.get("symbol")or" "
 self:textFg(1,1,"[".._a.."]",self.get("foreground"))local aa=self.get("text")if#aa>0 then

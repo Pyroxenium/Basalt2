@@ -115,7 +115,159 @@ end
 
 
 ---@class Container
+---@field children table
+---@field childrenSorted boolean
+---@field childrenEventsSorted boolean
+---@field childrenEvents table
+---@field eventListenerCount table
+---@field focusedChild table
+---@field visibleChildren table
+---@field visibleChildrenEvents table
 local Container = {}
+
+--- Gets the The children of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getChildren()
+    return self.children
+end
+
+--- Sets the The children of the container
+---@generic Element: Container
+---@param self Element
+---@param children table
+---@return Element
+function Container:setChildren(children)
+    self.children = children
+    return self
+end
+
+--- Gets the Whether the children are sorted
+---@generic Element: Container
+---@param self Element
+---@return boolean
+function Container:getChildrenSorted()
+    return self.childrenSorted
+end
+
+--- Sets the Whether the children are sorted
+---@generic Element: Container
+---@param self Element
+---@param childrenSorted boolean
+---@return Element
+function Container:setChildrenSorted(childrenSorted)
+    self.childrenSorted = childrenSorted
+    return self
+end
+
+--- Gets the Whether the children events are sorted
+---@generic Element: Container
+---@param self Element
+---@return boolean
+function Container:getChildrenEventsSorted()
+    return self.childrenEventsSorted
+end
+
+--- Sets the Whether the children events are sorted
+---@generic Element: Container
+---@param self Element
+---@param childrenEventsSorted boolean
+---@return Element
+function Container:setChildrenEventsSorted(childrenEventsSorted)
+    self.childrenEventsSorted = childrenEventsSorted
+    return self
+end
+
+--- Gets the The children events of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getChildrenEvents()
+    return self.childrenEvents
+end
+
+--- Sets the The children events of the container
+---@generic Element: Container
+---@param self Element
+---@param childrenEvents table
+---@return Element
+function Container:setChildrenEvents(childrenEvents)
+    self.childrenEvents = childrenEvents
+    return self
+end
+
+--- Gets the The event listener count of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getEventListenerCount()
+    return self.eventListenerCount
+end
+
+--- Sets the The event listener count of the container
+---@generic Element: Container
+---@param self Element
+---@param eventListenerCount table
+---@return Element
+function Container:setEventListenerCount(eventListenerCount)
+    self.eventListenerCount = eventListenerCount
+    return self
+end
+
+--- Gets the The focused child of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getFocusedChild()
+    return self.focusedChild
+end
+
+--- Sets the The focused child of the container
+---@generic Element: Container
+---@param self Element
+---@param focusedChild table
+---@return Element
+function Container:setFocusedChild(focusedChild)
+    self.focusedChild = focusedChild
+    return self
+end
+
+--- Gets the The visible children of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getVisibleChildren()
+    return self.visibleChildren
+end
+
+--- Sets the The visible children of the container
+---@generic Element: Container
+---@param self Element
+---@param visibleChildren table
+---@return Element
+function Container:setVisibleChildren(visibleChildren)
+    self.visibleChildren = visibleChildren
+    return self
+end
+
+--- Gets the The visible children events of the container
+---@generic Element: Container
+---@param self Element
+---@return table
+function Container:getVisibleChildrenEvents()
+    return self.visibleChildrenEvents
+end
+
+--- Sets the The visible children events of the container
+---@generic Element: Container
+---@param self Element
+---@param visibleChildrenEvents table
+---@return Element
+function Container:setVisibleChildrenEvents(visibleChildrenEvents)
+    self.visibleChildrenEvents = visibleChildrenEvents
+    return self
+end
 
 --- Adds a new Button to the container
 ---@generic Element: Container
