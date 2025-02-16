@@ -749,9 +749,10 @@ end
 ---@field height number
 ---@field background color
 ---@field foreground color
----@field clicked boole
+---@field clicked boolean
 ---@field backgroundEnabled boolean
 ---@field focused boolean
+---@field visible boolean
 local VisualElement = {}
 
 --- Gets the x position of the element
@@ -883,7 +884,7 @@ end
 --- Gets the false element is currently clicked
 ---@generic Element: VisualElement
 ---@param self Element
----@return boole
+---@return boolean
 function VisualElement:getClicked()
     return self.clicked
 end
@@ -891,7 +892,7 @@ end
 --- Sets the false element is currently clicked
 ---@generic Element: VisualElement
 ---@param self Element
----@param clicked boole
+---@param clicked boolean
 ---@return Element
 function VisualElement:setClicked(clicked)
     self.clicked = clicked
@@ -931,5 +932,23 @@ end
 ---@return Element
 function VisualElement:setFocused(focused)
     self.focused = focused
+    return self
+end
+
+--- Gets the whether the element is visible
+---@generic Element: VisualElement
+---@param self Element
+---@return boolean
+function VisualElement:getVisible()
+    return self.visible
+end
+
+--- Sets the whether the element is visible
+---@generic Element: VisualElement
+---@param self Element
+---@param visible boolean
+---@return Element
+function VisualElement:setVisible(visible)
+    self.visible = visible
     return self
 end

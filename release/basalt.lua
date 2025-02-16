@@ -1285,9 +1285,11 @@ self:fireEvent("mouse_click",cb,self:getRelativePosition(db,_c))return true end;
 false end
 function _b:mouse_up(cb,db,_c)self.set("clicked",false)if self:isInBounds(db,_c)then
 self:fireEvent("mouse_up",cb,db,_c)return true end
-self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))end;function _b:mouse_release()self.set("clicked",false)end;function _b:focus()
-self:fireEvent("focus")end;function _b:blur()self:fireEvent("blur")
-self:setCursor(1,1,false)end
+self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))end
+function _b:mouse_release(cb,db,_c)
+if self.get("clicked")then
+self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))self.set("clicked",false)return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
+self:fireEvent("blur")self:setCursor(1,1,false)end
 function _b:getAbsolutePosition(cb,db)
 local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end
 local bc=self.parent;while bc do local cc,dc=bc.get("x"),bc.get("y")_c=_c+cc-1;ac=ac+dc-1
