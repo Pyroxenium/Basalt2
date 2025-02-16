@@ -1053,10 +1053,10 @@ function _c:mouse_click(dc,_d,ad)
 if ab.mouse_click(self,dc,_d,ad)then
 local bd=bc(self,"mouse_click",dc,_d,ad)
 local cd,dd=cc(self,true,"mouse_click",table.unpack(bd))
-if(cd)then self.set("focusedChild",dd)return true end;self.set("focusedChild",nil)end end
+if(cd)then self.set("focusedChild",dd)return true end;self.set("focusedChild",nil)return true end;return false end
 function _c:mouse_up(dc,_d,ad)
 if ab.mouse_up(self,dc,_d,ad)then local bd=bc(self,"mouse_up",dc,_d,ad)
-local cd,dd=cc(self,true,"mouse_up",table.unpack(bd))if(cd)then return true end end end;function _c:key(dc)if self.get("focusedChild")then return
+local cd,dd=cc(self,true,"mouse_up",table.unpack(bd))if(cd)then return true end end;return false end;function _c:key(dc)if self.get("focusedChild")then return
 self.get("focusedChild"):dispatchEvent("key",dc)end
 return true end
 function _c:char(dc)if
@@ -1069,22 +1069,23 @@ local a_a,b_a=self.get("width"),self.get("height")ad=dc<1 and math.min(ad+dc-1,a
 math.min(ad,math.max(0,a_a-dc+1))bd=_d<1 and math.min(
 bd+_d-1,b_a)or
 math.min(bd,math.max(0,b_a-_d+1))if ad<=0 or
-bd<=0 then return end
-ab.multiBlit(self,math.max(1,dc),math.max(1,_d),ad,bd,cd,dd,__a)end
+bd<=0 then return self end
+ab.multiBlit(self,math.max(1,dc),math.max(1,_d),ad,bd,cd,dd,__a)return self end
 function _c:textFg(dc,_d,ad,bd)local cd,dd=self.get("width"),self.get("height")if
-_d<1 or _d>dd then return end;local __a=dc<1 and(2 -dc)or 1
-local a_a=math.min(#ad-__a+1,
-cd-math.max(1,dc)+1)if a_a<=0 then return end
-ab.textFg(self,math.max(1,dc),math.max(1,_d),ad:sub(__a,__a+a_a-1),bd)end
+_d<1 or _d>dd then return self end;local __a=dc<1 and(2 -dc)or 1
+local a_a=math.min(#ad-
+__a+1,cd-math.max(1,dc)+1)if a_a<=0 then return self end
+ab.textFg(self,math.max(1,dc),math.max(1,_d),ad:sub(__a,
+__a+a_a-1),bd)end
 function _c:blit(dc,_d,ad,bd,cd)local dd,__a=self.get("width"),self.get("height")if
-_d<1 or _d>__a then return end;local a_a=dc<1 and(2 -dc)or 1
-local b_a=math.min(#ad-a_a+1,
-dd-math.max(1,dc)+1)
+_d<1 or _d>__a then return self end;local a_a=dc<1 and(2 -dc)or 1
+local b_a=math.min(
+#ad-a_a+1,dd-math.max(1,dc)+1)
 local c_a=math.min(#bd-a_a+1,dd-math.max(1,dc)+1)
-local d_a=math.min(#cd-a_a+1,dd-math.max(1,dc)+1)if b_a<=0 then return end;local _aa=ad:sub(a_a,a_a+b_a-1)local aaa=bd:sub(a_a,
+local d_a=math.min(#cd-a_a+1,dd-math.max(1,dc)+1)if b_a<=0 then return self end;local _aa=ad:sub(a_a,a_a+b_a-1)local aaa=bd:sub(a_a,
 a_a+c_a-1)
 local baa=cd:sub(a_a,a_a+d_a-1)
-ab.blit(self,math.max(1,dc),math.max(1,_d),_aa,aaa,baa)end
+ab.blit(self,math.max(1,dc),math.max(1,_d),_aa,aaa,baa)return self end
 function _c:render()ab.render(self)if not self.get("childrenSorted")then
 self:sortChildren()end
 if
