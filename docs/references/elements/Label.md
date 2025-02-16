@@ -1,37 +1,31 @@
-local elementManager = require("elementManager")
-local VisualElement = elementManager.getElement("VisualElement")
+# Label : VisualElement
 
----@class Label : VisualElement
-local Label = setmetatable({}, VisualElement)
-Label.__index = Label
+## Properties
 
----@property text string Label Label text to be displayed
-Label.defineProperty(Label, "text", {default = "Label", type = "string", setter = function(self, value)
-    if(type(value)=="function")then value = value() end
-    self.set("width", #value)
-    return value
-end})
+|Property|Type|Default|Description|
+|---|---|---|---|
+|text|string|Label|Label text to be displayed
 
---- Creates a new Label instance
---- @return Label object The newly created Label instance
---- @usage local element = Label.new("myId", basalt)
-function Label.new()
-    local self = setmetatable({}, Label):__init()
-    self.set("z", 3)
-    self.set("foreground", colors.black)
-    self.set("backgroundEnabled", false)
-    return self
-end
+## Functions
 
-function Label:init(props, basalt)
-    VisualElement.init(self, props, basalt)
-    self.set("type", "Label")
-end
+|Method|Returns|Description|
+|---|---|---|
+|[Label.new](#Label.new)|Label|
+|[Label:init](#Label:init)|-|
+|[Label:render](#Label:render)|-|
 
-function Label:render()
-    VisualElement.render(self)
-    local text = self.get("text")
-    self:textFg(1, 1, text, self.get("foreground"))
-end
+## Label.new()
+Creates a new Label instance
 
-return Label
+### Returns
+* `Label` `object` The newly created Label instance
+
+### Usage
+ ```lua
+local element = Label.new("myId", basalt)
+```
+
+## Label:init()
+
+## Label:render()
+

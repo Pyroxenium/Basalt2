@@ -1,60 +1,46 @@
-local VisualElement = require("elements/VisualElement")
+# Checkbox : VisualElement
 
----@class Checkbox : VisualElement
-local Checkbox = setmetatable({}, VisualElement)
-Checkbox.__index = Checkbox
+## Properties
 
----@property checked boolean Whether checkbox is checked
-Checkbox.defineProperty(Checkbox, "checked", {default = false, type = "boolean", canTriggerRender = true})
----@property text string Label text
-Checkbox.defineProperty(Checkbox, "text", {default = "", type = "string", canTriggerRender = true})
----@property symbol string Check symbol
-Checkbox.defineProperty(Checkbox, "symbol", {default = "x", type = "string"})
+|Property|Type|Default|Description|
+|---|---|---|---|
+|checked|boolean|Whether|checkbox is checked
+|text|string|Label|text
+|symbol|string|Check|symbol
 
-Checkbox.listenTo(Checkbox, "mouse_click")
+## Functions
 
---- Creates a new Checkbox instance
---- @return Checkbox self The created instance
-function Checkbox.new()
-    local self = setmetatable({}, Checkbox):__init()
-    self.set("width", 1)
-    self.set("height", 1)
-    return self
-end
+|Method|Returns|Description|
+|---|---|---|
+|[Checkbox.new](#Checkbox.new)|Checkbox|
+|[Checkbox:init](#Checkbox:init)|-|
+|[Checkbox:mouse_click](#Checkbox:mouse_click)|boolean|
+|[Checkbox:render](#Checkbox:render)|-|
 
---- Initializes the Checkbox instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
-function Checkbox:init(props, basalt)
-    VisualElement.init(self, props, basalt)
-    self.set("type", "Checkbox")
-end
+## Checkbox.new()
+Creates a new Checkbox instance
 
---- Handles mouse click events
---- @param button number The button that was clicked
---- @param x number The x position of the click
---- @param y number The y position of the click
---- @return boolean Whether the event was handled
-function Checkbox:mouse_click(button, x, y)
-    if VisualElement.mouse_click(self, button, x, y) then
-        self.set("checked", not self.get("checked"))
-        self:fireEvent("change", self.get("checked"))
-        return true
-    end
-    return false
-end
+### Returns
+* `Checkbox` `self` The created instance
 
---- Renders the Checkbox
-function Checkbox:render()
-    VisualElement.render(self)
+## Checkbox:init(props, basalt)
+Initializes the Checkbox instance
 
-    local text = self.get("checked") and self.get("symbol") or " "
-    self:textFg(1, 1, "["..text.."]", self.get("foreground"))
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
 
-    local label = self.get("text")
-    if #label > 0 then
-        self:textFg(4, 1, label, self.get("foreground"))
-    end
-end
+## Checkbox:mouse_click(button, x, y)
+Handles mouse click events
 
-return Checkbox
+### Parameters
+* `button` `number` The button that was clicked
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
+
+### Returns
+* `boolean` `Whether` the event was handled
+
+## Checkbox:render()
+Renders the Checkbox
+

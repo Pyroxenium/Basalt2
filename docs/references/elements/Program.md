@@ -1,176 +1,52 @@
-local elementManager = require("elementManager")
-local VisualElement = elementManager.getElement("VisualElement")
-local errorManager = require("errorManager")
+Rendering optimization (only render when screen changed)
+Eventsystem improvement
+Cursor is sometimes not visible on time
+# Program : VisualElement
 
---TODO:
--- Rendering optimization (only render when screen changed)
--- Eventsystem improvement
--- Cursor is sometimes not visible on time
+## Functions
 
----@class Program : VisualElement
-local Program = setmetatable({}, VisualElement)
-Program.__index = Program
+|Method|Returns|Description|
+|---|---|---|
+|[BasaltProgram.new](#BasaltProgram.new)|-|
+|[BasaltProgram:resize](#BasaltProgram:resize)|-|
+|[BasaltProgram:resume](#BasaltProgram:resume)|-|
+|[BasaltProgram:run](#BasaltProgram:run)|-|
+|[BasaltProgram:stop](#BasaltProgram:stop)|-|
+|[Program.new](#Program.new)|Program|
+|[Program:dispatchEvent](#Program:dispatchEvent)|-|
+|[Program:execute](#Program:execute)|-|
+|[Program:focus](#Program:focus)|-|
+|[Program:init](#Program:init)|-|
+|[Program:render](#Program:render)|-|
 
-Program.defineProperty(Program, "program", {default = nil, type = "table"})
-Program.defineProperty(Program, "path", {default = "", type = "string"})
-Program.defineProperty(Program, "running", {default = false, type = "boolean"})
+## BasaltProgram.new()
 
-Program.listenTo(Program, "key")
-Program.listenTo(Program, "char")
-Program.listenTo(Program, "key_up")
-Program.listenTo(Program, "paste")
-Program.listenTo(Program, "mouse_click")
-Program.listenTo(Program, "mouse_drag")
-Program.listenTo(Program, "mouse_scroll")
-Program.listenTo(Program, "mouse_up")
+## BasaltProgram:resize()
 
-local BasaltProgram = {}
-BasaltProgram.__index = BasaltProgram
-local newPackage = dofile("rom/modules/main/cc/require.lua").make
+## BasaltProgram:resume()
 
-function BasaltProgram.new()
-    local self = setmetatable({}, BasaltProgram)
-    self.env = {}
-    self.args = {}
-    return self
-end
+## BasaltProgram:run()
 
-function BasaltProgram:run(path, width, height)
-    self.window = window.create(term.current(), 1, 1, width, height, false)
-    local pPath = shell.resolveProgram(path)
-    if(pPath~=nil)then
-        if(fs.exists(pPath)) then
-            local file = fs.open(pPath, "r")
-            local content = file.readAll()
-            file.close()
-            local env = setmetatable(self.env, {__index=_ENV})
-            env.shell = shell
-            env.term = self.window
-            env.require, env.package = newPackage(env, fs.getDir(pPath))
-            env.term.current = term.current
-            env.term.redirect = term.redirect
-            env.term.native = term.native
+## BasaltProgram:stop()
 
-            self.coroutine = coroutine.create(function()
-                local program = load(content, path, "bt", env)
-                if program then
-                    local current = term.current()
-                    term.redirect(self.window)
-                    local result = program(path, table.unpack(self.args))
-                    term.redirect(current)
-                    return result
-                end
-            end)
-            local current = term.current()
-            term.redirect(self.window)
-            local ok, result = coroutine.resume(self.coroutine)
-            term.redirect(current)
-            if not ok then
-                errorManager.header = "Basalt Program Error ".. path
-                errorManager.error(result)
-            end
-        else
-            errorManager.header = "Basalt Program Error ".. path
-            errorManager.error("File not found")
-        end
-    else
-        errorManager.header = "Basalt Program Error"
-        errorManager.error("Program "..path.." not found")
-    end
-end
+## Program.new()
+Creates a new Program instance
 
-function BasaltProgram:resize(width, height)
-    self.window.reposition(1, 1, width, height)
-end
+### Returns
+* `Program` `object` The newly created Program instance
 
-function BasaltProgram:resume(event, ...)
-    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then return end
-    if(self.filter~=nil)then
-        if(event~=self.filter)then return end
-        self.filter=nil
-    end
-    local current = term.current()
-    term.redirect(self.window)
-    local ok, result = coroutine.resume(self.coroutine, event, ...)
-    term.redirect(current)
+### Usage
+ ```lua
+local element = Program.new("myId", basalt)
+```
 
-    if ok then
-        self.filter = result
-    else
-        errorManager.header = "Basalt Program Error"
-        errorManager.error(result)
-    end
-    return ok, result
-end
+## Program:dispatchEvent()
 
-function BasaltProgram:stop()
+## Program:execute()
 
-end
+## Program:focus()
 
---- Creates a new Program instance
---- @return Program object The newly created Program instance
---- @usage local element = Program.new("myId", basalt)
-function Program.new()
-    local self = setmetatable({}, Program):__init()
-    self.set("z", 5)
-    self.set("width", 30)
-    self.set("height", 12)
-    return self
-end
+## Program:init()
 
-function Program:init(props, basalt)
-    VisualElement.init(self, props, basalt)
-    self.set("type", "Program")
-end
+## Program:render()
 
-function Program:execute(path)
-    self.set("path", path)
-    self.set("running", true)
-    local program = BasaltProgram.new()
-    self.set("program", program)
-    program:run(path, self.get("width"), self.get("height"))
-    self:updateRender()
-    return self
-end
-
-function Program:dispatchEvent(event, ...)
-    local program = self.get("program")
-    local result = VisualElement.dispatchEvent(self, event, ...)
-    if program then
-        program:resume(event, ...)
-        if(self.get("focused"))then
-            local cursorBlink = program.window.getCursorBlink()
-            local cursorX, cursorY = program.window.getCursorPos()
-            self:setCursor(cursorX, cursorY, cursorBlink)
-        end
-        self:updateRender()
-    end
-    return result
-end
-
-function Program:focus()
-    if(VisualElement.focus(self))then
-        local program = self.get("program")
-        if program then
-            local cursorBlink = program.window.getCursorBlink()
-            local cursorX, cursorY = program.window.getCursorPos()
-            self:setCursor(cursorX, cursorY, cursorBlink)
-        end
-    end
-end
-
-function Program:render()
-    VisualElement.render(self)
-    local program = self.get("program")
-    if program then
-        local _, height = program.window.getSize()
-        for y = 1, height do
-            local text, fg, bg = program.window.getLine(y)
-            if text then
-                self:blit(1, y, text, fg, bg)
-            end
-        end
-    end
-end
-
-return Program

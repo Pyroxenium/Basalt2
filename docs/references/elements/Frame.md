@@ -1,25 +1,23 @@
-local elementManager = require("elementManager")
-local Container = elementManager.getElement("Container")
+# Frame : Container
 
----@class Frame : Container
-local Frame = setmetatable({}, Container)
-Frame.__index = Frame
+## Functions
 
---- Creates a new Frame instance
---- @return Frame object The newly created Frame instance
---- @usage local element = Frame.new("myId", basalt)
-function Frame.new()
-    local self = setmetatable({}, Frame):__init()
-    self.set("width", 12)
-    self.set("height", 6)
-    self.set("background", colors.gray)
-    self.set("z", 10)
-    return self
-end
+|Method|Returns|Description|
+|---|---|---|
+|[Frame.new](#Frame.new)|Frame|
+|[Frame:init](#Frame:init)|-|
 
-function Frame:init(props, basalt)
-    Container.init(self, props, basalt)
-    self.set("type", "Frame")
-end
+## Frame.new()
+Creates a new Frame instance
 
-return Frame
+### Returns
+* `Frame` `object` The newly created Frame instance
+
+### Usage
+ ```lua
+local element = Frame.new("myId", basalt)
+```
+
+## Frame:init()
+Initializes the Frame instance
+
