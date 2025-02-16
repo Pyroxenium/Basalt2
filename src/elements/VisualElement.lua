@@ -28,7 +28,7 @@ VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "numb
 VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
 ---@property foreground color white foreground color of the element
 VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
----@property clicked boole an false element is currently clicked
+---@property clicked boolean an false element is currently clicked
 VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
 ---@property backgroundEnabled boolean true whether the background is enabled
 VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
@@ -53,6 +53,7 @@ VisualElement.defineProperty(VisualElement, "focused", {default = false, type = 
     return value
 end})
 
+---@property visible boolean true whether the element is visible
 VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "boolean", canTriggerRender = true, setter=function(self, value)
     if(self.parent~=nil)then
         self.parent.set("childrenSorted", false)
@@ -61,8 +62,11 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
     return value
 end})
 
+---@combinedProperty position x y
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
+---@combinedProperty size width height
 VisualElement.combineProperties(VisualElement, "size", "width", "height")
+---@combinedProperty color foreground background
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
 VisualElement.listenTo(VisualElement, "focus")
@@ -80,6 +84,7 @@ function VisualElement.new()
     return self
 end
 
+--- Initializes the VisualElement instance
 function VisualElement:init(props, basalt)
     BaseElement.init(self, props, basalt)
     self.set("type", "VisualElement")
@@ -110,12 +115,23 @@ function VisualElement:textFg(x, y, text, fg)
     self.parent:textFg(x, y, text, fg)
 end
 
+--- Draws a text character with a background at the specified position, used in the rendering system
+--- @param x number The x position to draw
+--- @param y number The y position to draw
+--- @param text string The text char to draw
+--- @param bg color The background color
 function VisualElement:textBg(x, y, text, bg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
     self.parent:textBg(x, y, text, bg)
 end
 
+--- Draws a text character with a foreground and background at the specified position, used in the rendering system
+--- @param x number The x position to draw
+--- @param y number The y position to draw
+--- @param text string The text char to draw
+--- @param fg string The foreground color
+--- @param bg string The background color
 function VisualElement:blit(x, y, text, fg, bg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
@@ -148,6 +164,11 @@ function VisualElement:mouse_click(button, x, y)
     return false
 end
 
+--- Handles a mouse up event
+--- @param button number The button that was released
+--- @param x number The x position of the release
+--- @param y number The y position of the release
+--- @return boolean release Whether the element was released on the element
 function VisualElement:mouse_up(button, x, y)
     self.set("clicked", false)
     if self:isInBounds(x, y) then
@@ -157,14 +178,26 @@ function VisualElement:mouse_up(button, x, y)
     self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
 end
 
-function VisualElement:mouse_release()
-    self.set("clicked", false)
+--- Handles a mouse release event
+--- @param button number The button that was released
+--- @param x number The x position of the release
+--- @param y number The y position of the release
+--- @return boolean release Whether the element was released on the element
+function VisualElement:mouse_release(button, x, y)
+    if self.get("clicked") then
+        self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
+        self.set("clicked", false)
+        return true
+    end
+    return false
 end
 
+--- Handles a focus event
 function VisualElement:focus()
     self:fireEvent("focus")
 end
 
+--- Handles a blur event
 function VisualElement:blur()
     self:fireEvent("blur")
     self:setCursor(1,1, false)
@@ -214,6 +247,10 @@ function VisualElement:getRelativePosition(x, y)
            y - (elementY - 1) - (parentY - 1)
 end
 
+--- Sets the cursor position
+--- @param x number The x position of the cursor
+--- @param y number The y position of the cursor
+--- @param blink boolean Whether the cursor should blink
 function VisualElement:setCursor(x, y, blink)
     if self.parent then
         local absX, absY = self:getAbsolutePosition(x, y)

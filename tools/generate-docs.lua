@@ -5,23 +5,28 @@ local function ensureDirectory(path)
     end
 end
 
-local function processFile(inputFile, outputFile)
+local function processFile(inputFile)
     local f = io.open(inputFile, "r")
     local content = f:read("*all")
     f:close()
 
+    local outputFile
+    if inputFile:match("^src/[^/]+%.lua$") then
+        outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", ".md")
+    else
+        outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", ".md")
+    end
+
     ensureDirectory(outputFile)
+    print(string.format("Processing: %s -> %s", inputFile, outputFile))
 
     local out = io.open(outputFile, "w")
     out:write(content)
     out:close()
-
-    print("Generated docs for: " .. inputFile)
 end
 
 for file in io.popen('find "src" -type f -name "*.lua"'):lines() do
     if not file:match("LuaLS.lua$") then
-        local outputFile = "build_docs/docs/references/" .. file:gsub("^src/", ""):gsub("%.lua$", ".md")
-        processFile(file, outputFile)
+        processFile(file)
     end
 end
