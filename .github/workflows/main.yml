@@ -32,8 +32,20 @@ jobs:
       # Step 2: Generate LuaLS Definitions
       - name: Generate LuaLS
         run: |
-          cd $GITHUB_WORKSPACE
-          lua tools/annotationParser.lua src/elements src/LuaLS.lua
+          echo "Current directory: $PWD"
+          echo "Listing tools directory:"
+          ls -la tools/
+          echo "Listing src/elements directory:"
+          ls -la src/elements/
+          
+          # Ensure the script is executable
+          chmod +x tools/annotationParser.lua
+          
+          # Run with full path and debug output
+          lua tools/annotationParser.lua "$(pwd)/src/elements" "$(pwd)/src/LuaLS.lua"
+          
+          # Check if file was created
+          ls -la src/LuaLS.lua || echo "File not created!"
 
       # Step 3: Bundle and Minify
       - name: Bundle and Minify
