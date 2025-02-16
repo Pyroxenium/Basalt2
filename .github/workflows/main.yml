@@ -19,25 +19,56 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Lua
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lua5.3
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v8
+        with:
+          luaVersion: "5.4"
 
+      # Step 1: Config Generation
       - name: Generate Config
         run: |
           lua tools/generate-config.lua
 
+      # Step 2: Generate LuaLS Definitions
+      - name: Generate LuaLS
+        run: |
+          lua tools/annotationParser.lua src/elements src/LuaLS.lua
+
+      # Step 3: Bundle and Minify
+      - name: Bundle and Minify
+        run: |
+          mkdir -p release
+          lua tools/bundler.lua
+
+      # Step 4: Prepare and Generate Documentation
+      - name: Prepare docs directory
+        run: |
+          mkdir -p build_docs/docs/references
+
+      - name: Generate Documentation
+        run: |
+          lua tools/generate-docs.lua
+
+      # Step 5: Deploy Documentation
+      - name: Deploy Documentation
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build_docs
+
+      # Step 6: Generate Changelog
       - name: Generate Changelog
         id: changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Step 7: Commit all changes
       - name: Commit Changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua CHANGELOG.md
-          git commit -m "Update config and changelog" || exit 0
+          git add config.lua src/LuaLS.lua release/basalt.lua CHANGELOG.md
+          git commit -m "Update config, LuaLS definitions, bundle and changelog" || exit 0
           git push
