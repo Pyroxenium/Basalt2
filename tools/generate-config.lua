@@ -24,16 +24,14 @@ end
 
 local function scanDir(dir)
     local files = {}
-    for _, file in ipairs(fs.list(dir)) do
-        local path = fs.combine(dir, file)
-        if fs.isDir(path) then
-            for subFile, content in pairs(scanDir(path)) do
-                files[fs.combine(file, subFile)] = content
-            end
-        else
-            local f = fs.open(path, "r")
-            files[file] = f.readAll()
-            f.close()
+    for file in io.popen('find "'..dir..'" -type f -name "*.lua"'):lines() do
+        local f = io.open(file, "r")
+        if f then
+            local content = f:read("*all")
+            f:close()
+            -- Entferne den src/ Prefix vom Pfad für die Config
+            local configPath = file:gsub("^src/", "")
+            files[configPath] = content
         end
     end
     return files
@@ -44,6 +42,8 @@ local config = {
     files = sourceFiles,
 }
 
-local f = fs.open("config.lua", "w")
-f.write("return " .. serialize(config))
-f.close()
+local f = io.open("config.lua", "w")
+if f then
+    f:write("return " .. serialize(config))
+    f:close()
+end
