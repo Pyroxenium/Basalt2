@@ -6,17 +6,14 @@ local Frame = setmetatable({}, Container)
 Frame.__index = Frame
 
 --- Creates a new Frame instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return Frame object The newly created Frame instance
 --- @usage local element = Frame.new("myId", basalt)
-function Frame.new(props, basalt)
+function Frame.new()
     local self = setmetatable({}, Frame):__init()
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.gray)
     self.set("z", 10)
-    self:init(props, basalt)
     return self
 end
 

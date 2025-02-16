@@ -73,7 +73,9 @@ function basalt.create(type, properties, lazyLoading, parent)
         queueLazyElements()
         return blueprint
     else
-        return elementClass.new(properties, basalt)
+        local element = elementClass.new()
+        element:init(properties, basalt)
+        return element
     end
 end
 
@@ -82,6 +84,7 @@ end
 --- @usage local mainFrame = basalt.createFrame()
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
+    frame:postInit()
     mainFrame = frame
     return frame
 end

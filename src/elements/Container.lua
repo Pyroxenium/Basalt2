@@ -57,6 +57,7 @@ for k, _ in pairs(elementManager:getElementList()) do
             expect(1, self, "table")
             local element = self.basalt.create(k, ...)
             self:addChild(element)
+            element:postInit()
             return element
         end
         Container["addDelayed"..capitalizedName] = function(self, prop)
@@ -67,9 +68,8 @@ for k, _ in pairs(elementManager:getElementList()) do
     end
 end
 
-function Container.new(props, basalt)
+function Container.new()
     local self = setmetatable({}, Container):__init()
-    self:init(props, basalt)
     return self
 end
 

@@ -13,11 +13,10 @@ Checkbox.defineProperty(Checkbox, "symbol", {default = "x", type = "string"})
 
 Checkbox.listenTo(Checkbox, "mouse_click")
 
-function Checkbox.new(props, basalt)
+function Checkbox.new()
     local self = setmetatable({}, Checkbox):__init()
     self.set("width", 1)
     self.set("height", 1)
-    self:init(props, basalt)
     return self
 end
 

@@ -19,12 +19,11 @@ Slider.listenTo(Slider, "mouse_click")
 Slider.listenTo(Slider, "mouse_drag")
 Slider.listenTo(Slider, "mouse_up")
 
-function Slider.new(props, basalt)
+function Slider.new()
     local self = setmetatable({}, Slider):__init()
     self.set("width", 8)
     self.set("height", 1)
     self.set("backgroundEnabled", false)
-    self:init(props, basalt)
     return self
 end
 

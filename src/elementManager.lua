@@ -98,9 +98,7 @@ function ElementManager.loadElement(name)
 
                 for funcName, func in pairs(plugin) do
                     if funcName ~= "setup" and funcName ~= "hooks" then
-                        element[funcName] = function(self, ...)
-                            return func(self, ...)
-                        end
+                        element[funcName] = func
                     end
                 end
             end

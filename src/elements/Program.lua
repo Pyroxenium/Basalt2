@@ -108,16 +108,13 @@ function BasaltProgram:stop()
 end
 
 --- Creates a new Program instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return Program object The newly created Program instance
 --- @usage local element = Program.new("myId", basalt)
-function Program.new(props, basalt)
+function Program.new()
     local self = setmetatable({}, Program):__init()
     self.set("z", 5)
     self.set("width", 30)
     self.set("height", 12)
-    self:init(props, basalt)
     return self
 end
 

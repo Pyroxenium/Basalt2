@@ -24,6 +24,22 @@ function utils.deepCopy(obj)
     return copy
 end
 
+function utils.copy(obj)
+    local new = {}
+    for k,v in pairs(obj)do
+        new[k] = v
+    end
+    return new
+end
+
+function utils.reverse(t)
+    local reversed = {}
+    for i = #t, 1, -1 do
+        table.insert(reversed, t[i])
+    end
+    return reversed
+end
+
 function utils.uuid()
     return string.format('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
     math.random(0, 0xffff), math.random(0, 0xffff), math.random(0, 0xffff),

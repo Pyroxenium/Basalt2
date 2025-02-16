@@ -11,12 +11,11 @@ Dropdown.defineProperty(Dropdown, "dropdownHeight", {default = 5, type = "number
 Dropdown.defineProperty(Dropdown, "selectedText", {default = "", type = "string"})
 Dropdown.defineProperty(Dropdown, "dropSymbol", {default = "\31", type = "string"})  -- ▼ Symbol
 
-function Dropdown.new(props, basalt)
+function Dropdown.new()
     local self = setmetatable({}, Dropdown):__init()
     self.set("width", 16)
-    self.set("height", 1)  -- Dropdown ist initial nur 1 Zeile hoch
+    self.set("height", 1)
     self.set("z", 8)
-    self:init(props, basalt)
     return self
 end
 

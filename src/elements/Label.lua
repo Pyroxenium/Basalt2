@@ -13,16 +13,13 @@ Label.defineProperty(Label, "text", {default = "Label", type = "string", setter 
 end})
 
 --- Creates a new Label instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return Label object The newly created Label instance
 --- @usage local element = Label.new("myId", basalt)
-function Label.new(props, basalt)
+function Label.new()
     local self = setmetatable({}, Label):__init()
     self.set("z", 3)
     self.set("foreground", colors.black)
     self.set("backgroundEnabled", false)
-    self:init(props, basalt)
     return self
 end
 

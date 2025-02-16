@@ -13,12 +13,11 @@ Button.defineProperty(Button, "text", {default = "Button", type = "string", canT
 Button.listenTo(Button, "mouse_click")
 Button.listenTo(Button, "mouse_up")
 
-function Button.new(props, basalt)
+function Button.new()
     local self = setmetatable({}, Button):__init()
     self.set("width", 10)
     self.set("height", 3)
     self.set("z", 5)
-    self:init(props, basalt)
     return self
 end
 

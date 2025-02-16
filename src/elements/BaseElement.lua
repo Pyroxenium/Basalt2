@@ -46,9 +46,8 @@ end
 --- @param basalt table The basalt instance
 --- @return table The newly created BaseElement instance
 --- @usage local element = BaseElement.new("myId", basalt)
-function BaseElement.new(props, basalt)
+function BaseElement.new()
     local self = setmetatable({}, BaseElement):__init()
-    self:init(props, basalt)
     return self
 end
 
@@ -57,11 +56,7 @@ end
 --- @param basalt table The basalt instance
 --- @return table self The initialized instance
 function BaseElement:init(props, basalt)
-    if(type(props) == "table")then
-        for k,v in pairs(props)do
-            self[k] = v
-        end
-    end
+    self._props = props
     self._values.id = uuid()
     self.basalt = basalt
     self._registeredEvents = {}
@@ -77,6 +72,18 @@ function BaseElement:init(props, basalt)
             end
         end
     end
+    return self
+end
+
+--- Post initialization hook
+--- @return table self The BaseElement instance
+function BaseElement:postInit()
+    if(self._props)then
+        for k,v in pairs(self._props)do
+            self.set(k, v)
+        end
+    end
+    self._props = nil
     return self
 end
 

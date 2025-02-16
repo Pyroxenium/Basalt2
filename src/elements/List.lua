@@ -18,12 +18,11 @@ List.defineProperty(List, "selectedColor", {default = colors.blue, type = "numbe
 List.listenTo(List, "mouse_click")
 List.listenTo(List, "mouse_scroll")
 
-function List.new(props, basalt)
+function List.new()
     local self = setmetatable({}, List):__init()
     self.set("width", 16)
     self.set("height", 8)
     self.set("background", colors.gray)
-    self:init(props, basalt)
     return self
 end
 

@@ -114,7 +114,8 @@ function PropertySystem.blueprint(elementClass, properties, basalt, parent)
         end
 
         template.create = function(self)
-            local element = elementClass.new({}, basalt)
+            local element = elementClass.new()
+            element:init({}, self.basalt)
             for name, value in pairs(self._values) do
                 element._values[name] = value
             end
@@ -128,6 +129,7 @@ function PropertySystem.blueprint(elementClass, properties, basalt, parent)
             end
             element:updateRender()
             self.loadedCallback(element)
+            element:postInit()
             return element
         end
 

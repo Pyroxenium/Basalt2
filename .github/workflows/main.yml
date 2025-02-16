@@ -1,4 +1,4 @@
-name: Update Installer Config
+name: Basalt Build Pipeline
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - 'src/**'
 
 jobs:
-  update-config:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install Lua
         run: |
@@ -25,11 +27,17 @@ jobs:
       - name: Generate Config
         run: |
           lua tools/generate-config.lua
-          
-      - name: Commit and Push Changes
+
+      - name: Generate Changelog
+        id: changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit Changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua
-          git commit -m "Update installer config" || exit 0
+          git add config.lua CHANGELOG.md
+          git commit -m "Update config and changelog" || exit 0
           git push

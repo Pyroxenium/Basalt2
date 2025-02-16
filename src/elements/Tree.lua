@@ -15,12 +15,11 @@ Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "
 Tree.listenTo(Tree, "mouse_click")
 Tree.listenTo(Tree, "mouse_scroll")
 
-function Tree.new(props, basalt)
+function Tree.new()
     local self = setmetatable({}, Tree):__init()
     self.set("width", 30)
     self.set("height", 10)
     self.set("z", 5)
-    self:init(props, basalt)
     return self
 end
 

@@ -11,11 +11,10 @@ ProgressBar.defineProperty(ProgressBar, "showPercentage", {default = false, type
 ---@property progressColor color Progress bar color
 ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.lime, type = "number"})
 
-function ProgressBar.new(props, basalt)
+function ProgressBar.new()
     local self = setmetatable({}, ProgressBar):__init()
     self.set("width", 10)
     self.set("height", 1)
-    self:init(props, basalt)
     return self
 end
 

@@ -8,30 +8,29 @@ local defaultTheme = {
         foreground = colors.black,
 
         Frame = {
-            background = colors.gray,
-
-            Button = {
-                background = "{self.clicked and colors.black or colors.blue}",
-                foreground = "{self.clicked and colors.blue or colors.white}"
-            }
+            background = colors.black,
+            names = {
+                basaltDebugLogClose = {
+                    background = colors.blue,
+                    foreground = colors.white
+                }
+            },
         },
-
         Button = {
             background = "{self.clicked and colors.black or colors.cyan}",
-            foreground = "{self.clicked and colors.cyan or colors.black}"
+            foreground = "{self.clicked and colors.cyan or colors.black}",
         },
 
-        Input = {
-            background = "{self.focused and colors.cyan or colors.lightGray}",
-            foreground = colors.black,
-            placeholderColor = colors.gray
+        names = {
+            basaltDebugLog = {
+                background = colors.red,
+                foreground = colors.white
+            },
+            test = {
+                background = "{self.clicked and colors.black or colors.green}",
+                foreground = "{self.clicked and colors.green or colors.black}"
+            }
         },
-
-        List = {
-            background = colors.cyan,
-            foreground = colors.black,
-            selectedColor = colors.blue
-        }
     }
 }
 
@@ -41,115 +40,129 @@ local themes = {
 
 local currentTheme = "default"
 
-local function resolveThemeValue(value, theme)
-    if type(value) == "string" and theme.colors[value] then
-        return theme.colors[value]
+local BaseElement = {
+    hooks = {
+        postInit = {
+            pre = function(self)
+            self:applyTheme()
+        end}
+    }
+}
+
+function BaseElement.____getElementPath(self, types)
+    if types then
+        table.insert(types, 1, self._values.type)
+    else
+        types = {self._values.type}
     end
-    return value
+    local parent = self.parent
+    if parent then
+        return parent.____getElementPath(parent, types)
+    else
+        return types
+    end
 end
 
-local function getThemeForElement(element)
-    local path = {}
-    local current = element
+local function lookUpTemplate(theme, path)
+    local current = theme
 
-    while current do
-        table.insert(path, 1, current.get("type"))
-        current = current.parent
-    end
+    for i = 1, #path do
+        local found = false
+        local types = path[i]
 
-    local result = {}
-    local current = defaultTheme
-
-    for _, elementType in ipairs(path) do
-        if current[elementType] then
-            for k,v in pairs(current[elementType]) do
-                result[k] = v
+        for _, elementType in ipairs(types) do
+            if current[elementType] then
+                current = current[elementType]
+                found = true
+                break
             end
-            current = current[elementType]
+        end
+
+        if not found then
+            return nil
         end
     end
+
+    return current
+end
+
+local function getDefaultProperties(theme, elementType)
+    local result = {}
+    if theme.default then
+        for k,v in pairs(theme.default) do
+            if type(v) ~= "table" then
+                result[k] = v
+            end
+        end
+
+        if theme.default[elementType] then
+            for k,v in pairs(theme.default[elementType]) do
+                if type(v) ~= "table" then
+                    result[k] = v
+                end
+            end
+        end
+    end
+    return result
+end
+
+local function applyNamedStyles(result, theme, elementType, elementName, themeTable)
+    if theme.default and theme.default.names and theme.default.names[elementName] then
+        for k,v in pairs(theme.default.names[elementName]) do
+            if type(v) ~= "table" then result[k] = v end
+        end
+    end
+
+    if theme.default and theme.default[elementType] and theme.default[elementType].names 
+       and theme.default[elementType].names[elementName] then
+        for k,v in pairs(theme.default[elementType].names[elementName]) do
+            if type(v) ~= "table" then result[k] = v end
+        end
+    end
+
+    if themeTable and themeTable.names and themeTable.names[elementName] then
+        for k,v in pairs(themeTable.names[elementName]) do
+            if type(v) ~= "table" then result[k] = v end
+        end
+    end
+end
+
+local function collectThemeProps(theme, path, elementType, elementName)
+    local result = {}
+    local themeTable = lookUpTemplate(theme, path)
+    if themeTable then
+        for k,v in pairs(themeTable) do
+            if type(v) ~= "table" then
+                result[k] = v
+            end
+        end
+    end
+
+    if next(result) == nil then
+        result = getDefaultProperties(theme, elementType)
+    end
+
+    applyNamedStyles(result, theme, elementType, elementName, themeTable)
 
     return result
 end
 
-local function applyTheme(element, props)
-
-    local theme = getThemeForElement(element)
-
-    if props then
-        for k,v in pairs(props) do
-            theme[k] = v
-        end
-    end
-
-    for k,v in pairs(theme) do
-        if element:getPropertyConfig(k) then
-            element.set(k, v)
-        end
-    end
-end
-
-local BaseElement = {
-    hooks = {
-        init = function(self)
-            self.defineProperty(self, "theme", {
-                default = currentTheme,
-                type = "string",
-                setter = function(self, value)
-                    self:applyTheme(value)
-                    return value
-                end
-            })
-        end
-    }
-}
-
-function BaseElement:applyTheme(themeName)
-    local theme = themes[themeName] or themes.default
-    local elementType = self.get("type")
-
-    if theme.elementStyles[elementType] then
-        local styles = theme.elementStyles[elementType]
+ function BaseElement:applyTheme()
+    local styles = self:getTheme()
+    if(styles ~= nil) then
         for prop, value in pairs(styles) do
-            if self:getPropertyConfig(prop) then
-                self.set(prop, resolveThemeValue(value, theme))
-            end
+            self.set(prop, value)
         end
     end
 end
 
-local BaseFrame = {
-    hooks = {
-        init = function(self)
-            applyTheme(self)
-        end
-    }
-}
+function BaseElement:getTheme()
+    local path = self:____getElementPath()
+    local elementType = self.get("type")
+    local elementName = self.get("name")
 
-local Container = {
-    hooks = {
-        init = function(self)
-            for k, _ in pairs(self.basalt.getElementManager().getElementList()) do
-                local capitalizedName = k:sub(1,1):upper() .. k:sub(2)
-                if capitalizedName ~= "BaseFrame" then  
-                    local methodName = "add"..capitalizedName
-                    local original = self[methodName]
-                    if original then
-                        self[methodName] = function(self, name, props)
-                            if type(name) == "table" then
-                                props = name
-                                name = nil
-                            end
-                            local element = original(self, name)
-                            applyTheme(element, props)
-                            return element
-                        end
-                    end
-                end
-            end
-        end
-    }
-}
+    return collectThemeProps(themes[currentTheme], path, elementType, elementName)
+end
 
 local themeAPI = {
     setTheme = function(newTheme)
@@ -171,13 +184,7 @@ local themeAPI = {
 }
 
 local Theme = {
-    setup = function(basalt)
-        basalt.setTheme(defaultTheme)
-    end,
-
     BaseElement = BaseElement,
-    BaseFrame = BaseFrame,
-    Container = Container,
     API = themeAPI
 }
 

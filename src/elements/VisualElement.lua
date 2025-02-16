@@ -75,9 +75,8 @@ local max, min = math.max, math.min
 --- @param basalt table The basalt instance
 --- @return VisualElement object The newly created VisualElement instance
 --- @usage local element = VisualElement.new("myId", basalt)
-function VisualElement.new(props, basalt)
+function VisualElement.new()
     local self = setmetatable({}, VisualElement):__init()
-    self:init(props, basalt)
     return self
 end
 

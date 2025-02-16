@@ -226,11 +226,9 @@ local function updateLayout(self, direction, spacing, justifyContent, wrap)
 end
 
 --- Creates a new Flexbox instance
---- @param props table The properties to initialize the element with 
---- @param basalt table The basalt instance
 --- @return Flexbox object The newly created Flexbox instance
 --- @usage local element = Flexbox.new("myId", basalt)
-function Flexbox.new(props, basalt)
+function Flexbox.new()
     local self = setmetatable({}, Flexbox):__init()
     self.set("width", 12)
     self.set("height", 6)
@@ -238,7 +236,6 @@ function Flexbox.new(props, basalt)
     self.set("z", 10)
     self:observe("width", function() self.set("flexUpdateLayout", true) end)
     self:observe("height", function() self.set("flexUpdateLayout", true) end)
-    self:init(props, basalt)
     return self
 end
 

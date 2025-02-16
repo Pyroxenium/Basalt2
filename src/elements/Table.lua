@@ -18,12 +18,11 @@ Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTr
 Table.listenTo(Table, "mouse_click")
 Table.listenTo(Table, "mouse_scroll")
 
-function Table.new(props, basalt)
+function Table.new()
     local self = setmetatable({}, Table):__init()
     self.set("width", 30)
     self.set("height", 10)
     self.set("z", 5)
-    self:init(props, basalt)
     return self
 end
 

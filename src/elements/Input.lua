@@ -26,15 +26,12 @@ Input.listenTo(Input, "key")
 Input.listenTo(Input, "char")
 
 --- Creates a new Input instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return Input object The newly created Input instance
 --- @usage local element = Input.new("myId", basalt)
-function Input.new(props, basalt)
+function Input.new()
     local self = setmetatable({}, Input):__init()
     self.set("width", 8)
     self.set("z", 3)
-    self:init(id, basalt)
     return self
 end
 

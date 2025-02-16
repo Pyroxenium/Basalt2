@@ -8,12 +8,11 @@ Menu.__index = Menu
 
 Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "number"})
 
-function Menu.new(props, basalt)
+function Menu.new()
     local self = setmetatable({}, Menu):__init()
     self.set("width", 30)
     self.set("height", 1)
     self.set("background", colors.gray)
-    self:init(props, basalt)
     return self
 end
 

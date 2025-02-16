@@ -19,11 +19,10 @@ BaseFrame.defineProperty(BaseFrame, "term", {default = nil, type = "table", sett
     return value
 end})
 
-function BaseFrame.new(props, basalt)
+function BaseFrame.new()
     local self = setmetatable({}, BaseFrame):__init()
     self.set("term", term.current())
     self.set("background", colors.lightGray)
-    self:init(props, basalt)
     return self
 end
 
