@@ -1,4 +1,4 @@
-local markdown = require("markdown")
+local markdown = require("tools/markdown")
 
 local function ensureDirectory(path)
     local dir = path:match("(.*)/[^/]*$")

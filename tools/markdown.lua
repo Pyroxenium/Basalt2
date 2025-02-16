@@ -336,13 +336,4 @@ function markdown.saveToFile(source, output)
     file:close()
 end
 
-local args = {...}
-if args[1]~= nil and args[2]~= nil then
-    local source = args[1]
-    local output = args[2]
-    markdown.parseFile(source)
-    local md = markdown.makeMarkdown()
-    markdown.saveToFile(output, md)
-end
-
 return markdown
