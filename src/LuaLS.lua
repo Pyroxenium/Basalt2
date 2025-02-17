@@ -952,3 +952,84 @@ function VisualElement:setVisible(visible)
     self.visible = visible
     return self
 end
+
+--- {button number, x number, y number} Fired when the element is clicked
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnMouseClick(callback)
+    return self
+end
+
+--- {button number, x number, y number} Fired when the mouse is released
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnMouseUp(callback)
+    return self
+end
+
+--- {button number, x number, y number} Fired when the mouse is released
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnMouseRelease(callback)
+    return self
+end
+
+--- {button number, x number, y number} Fired when the mouse is dragged
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnMouseDrag(callback)
+    return self
+end
+
+--- {-} Fired when the element is focused
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnFocus(callback)
+    return self
+end
+
+--- {-} Fired when the element is blurred
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnBlur(callback)
+    return self
+end
+
+--- {key number, code number, isRepeat boolean} Fired when a key is pressed
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnKey(callback)
+    return self
+end
+
+--- {key number, code number} Fired when a key is released
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnKeyUp(callback)
+    return self
+end
+
+--- {char string} Fired when a key is pressed
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnChar(callback)
+    return self
+end

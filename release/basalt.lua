@@ -1092,7 +1092,9 @@ if
 not self.get("childrenEventsSorted")then for dc in pairs(self._values.childrenEvents)do
 self:sortChildrenEvents(dc)end end
 for dc,_d in ipairs(self.get("visibleChildren"))do if _d==self then
-self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;_d:render()end end;return _c end
+self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;_d:render()end end;function _c:destroy()
+for dc,_d in ipairs(self._values.children)do _d:destroy()end;ab.destroy(self)end;return
+_c end
 project["elements/Slider.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"step",{default=1,type="number",canTriggerRender=true})
@@ -1170,9 +1172,14 @@ ipairs(self._values.eventCallbacks[ba])do local _b=da(self,...)return _b end end
 self:handleEvent(ba,...)end;function aa:handleEvent(ba,...)return
 false end
 function aa:getBaseFrame()if self.parent then return
-self.parent:getBaseFrame()end;return self end;function aa:destroy()end
-function aa:updateRender()if(self.parent)then
-self.parent:updateRender()else self._renderUpdate=true end end;return aa end
+self.parent:getBaseFrame()end;return self end
+function aa:destroy()
+if self.parent then self.parent:removeChild(self)end
+for ba in pairs(self._registeredEvents)do self:listenEvent(ba,false)end;self._values.eventCallbacks={}self._props=nil;self._values=nil;self.basalt=
+nil;self.parent=nil;self.__index=nil
+setmetatable(self,nil)end
+function aa:updateRender()if(self.parent)then self.parent:updateRender()else
+self._renderUpdate=true end end;return aa end
 project["elements/Checkbox.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
