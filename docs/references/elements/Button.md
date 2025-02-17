@@ -6,6 +6,11 @@
 |---|---|---|---|
 |text|string|Button|Button text
 
+## Events
+
+|Event|Parameters|Description|
+|---|---|---|
+
 ## Functions
 
 |Method|Returns|Description|
@@ -14,7 +19,6 @@
 |[Button:init](#Button:init)|-|
 |[Button:render](#Button:render)|-|
 
-@event mouse_click The event that is triggered when the button is clicked
 ## Button.new()
 Creates a new Button instance
 

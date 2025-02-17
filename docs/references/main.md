@@ -1,30 +1,35 @@
-# Basalt
 This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
 
 Before you can access Basalt, you need to add the following code on top of your file:
-
-### Usage
- ```lua
-local basalt = require("basalt")
-```
-
 What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
+# Basalt
+
+## Fields
+
+|Field|Type|Description|
+|---|---|---|
+|traceback|`boolean`|Whether to show a traceback on errors|
+|_events|`table`|A table of events and their callbacks|
+|_schedule|`function[]`|A table of scheduled functions|
+|_plugins|`table`|A table of plugins|
+|LOGGER|`Log`|The logger instance|
+|path|`string`|The path to the Basalt library|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
 |[basalt.create](#basalt.create)|table|Creates a new UI element
-|[basalt.createFrame](#basalt.createFrame)|table|
-|[basalt.getAPI](#basalt.getAPI)|-|
-|[basalt.getElementManager](#basalt.getElementManager)|table|
-|[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|
-|[basalt.removeSchedule](#basalt.removeSchedule)|-|
-|[basalt.run](#basalt.run)|-|
-|[basalt.scheduleUpdate](#basalt.scheduleUpdate)|number|
-|[basalt.setActiveFrame](#basalt.setActiveFrame)|-|
-|[basalt.stop](#basalt.stop)|-|
-|[basalt.update](#basalt.update)|-|
+|[basalt.createFrame](#basalt.createFrame)|table|Creates a new BaseFrame
+|[basalt.getAPI](#basalt.getAPI)|table|Returns a Plugin API
+|[basalt.getElementManager](#basalt.getElementManager)|table|Returns the element manager
+|[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|Gets or creates the main frame
+|[basalt.removeSchedule](#basalt.removeSchedule)|-|Removes a scheduled update
+|[basalt.run](#basalt.run)|-|Starts the Basalt runtime
+|[basalt.scheduleUpdate](#basalt.scheduleUpdate)|number|Schedules a function to be updated
+|[basalt.setActiveFrame](#basalt.setActiveFrame)|-|Sets the active frame
+|[basalt.stop](#basalt.stop)|-|Stops the Basalt runtime
+|[basalt.update](#basalt.update)|-|Updates all scheduled functions
 
 ## basalt.create(type, properties?)
 Creates and returns a new UI element of the specified type.
@@ -42,7 +47,7 @@ local button = basalt.create("Button")
 ```
 
 ## basalt.createFrame()
-Creates and returns a new frame
+Creates and returns a new BaseFrame
 
 ### Returns
 * `table` `BaseFrame` The created frame instance
@@ -52,7 +57,14 @@ Creates and returns a new frame
 local mainFrame = basalt.createFrame()
 ```
 
-## basalt.getAPI()
+## basalt.getAPI(name)
+Returns a Plugin API
+
+### Parameters
+* `name` `string` The name of the plugin
+
+### Returns
+* `table` `Plugin` The plugin API
 
 ## basalt.getElementManager()
 Returns the element manager instance

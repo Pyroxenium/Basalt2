@@ -22,6 +22,7 @@
 |[Container:blit](#Container:blit)|Container|
 |[Container:char](#Container:char)|boolean|
 |[Container:clear](#Container:clear)|Container|
+|[Container:destroy](#Container:destroy)|-|
 |[Container:getChild](#Container:getChild)|Container?|
 |[Container:handleEvent](#Container:handleEvent)|boolean|
 |[Container:init](#Container:init)|-|
@@ -83,6 +84,8 @@ Clears the container
 
 ### Returns
 * `Container` `self` The container instance
+
+## Container:destroy()
 
 ## Container:getChild(path)
 Removes a child from the container

@@ -1,4 +1,3 @@
-@alias color number
 # VisualElement : BaseElement
 
 ## Properties
@@ -17,6 +16,28 @@
 |focused|boolean|false|whether the element is focused
 |visible|boolean|true|whether the element is visible
 
+## Combined Properties
+
+|Name|Properties|Description|
+|---|---|---|
+|position|{x|y}|Position of the element
+|size|{width|height}|Size of the element
+|color|{foreground|background}|Color of the element
+
+## Events
+
+|Event|Parameters|Description|
+|---|---|---|
+|onMouseClick|`button number, x number, y number`|Fired when the element is clicked|
+|onMouseUp|`button number, x number, y number`|Fired when the mouse is released|
+|onMouseRelease|`button number, x number, y number`|Fired when the mouse is released|
+|onMouseDrag|`button number, x number, y number`|Fired when the mouse is dragged|
+|onFocus|`-`|Fired when the element is focused|
+|onBlur|`-`|Fired when the element is blurred|
+|onKey|`key number, code number, isRepeat boolean`|Fired when a key is pressed|
+|onKeyUp|`key number, code number`|Fired when a key is released|
+|onChar|`char string`|Fired when a key is pressed|
+
 ## Functions
 
 |Method|Returns|Description|
@@ -32,15 +53,11 @@
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|
 |[VisualElement:mouse_release](#VisualElement:mouse_release)|boolean|
 |[VisualElement:mouse_up](#VisualElement:mouse_up)|boolean|
-|[VisualElement:multiBlit](#VisualElement:multiBlit)|-|
 |[VisualElement:render](#VisualElement:render)|-|
 |[VisualElement:setCursor](#VisualElement:setCursor)|-|
 |[VisualElement:textBg](#VisualElement:textBg)|-|
 |[VisualElement:textFg](#VisualElement:textFg)|-|
 
-@combinedProperty position x y
-@combinedProperty size width height
-@combinedProperty color foreground background
 ## VisualElement.new(props, basalt)
 Creates a new VisualElement instance
 
@@ -135,25 +152,8 @@ Handles a mouse up event
 ### Returns
 * `boolean` `release` Whether the element was released on the element
 
-## VisualElement:multiBlit(x, y, width, height, text, fg, bg)
-Draws a text character/fg/bg at the specified position with a certain size, used in the rendering system
-
-### Parameters
-* `x` `number` The x position to draw
-* `y` `number` The y position to draw
-* `width` `number` The width of the element
-* `height` `number` The height of the element
-* `text` `string` The text char to draw
-* `fg` `color` The foreground color
-* `bg` `color` The background color
-
 ## VisualElement:render()
 Renders the element
-
-### Usage
- ```lua
-element:render()
-```
 
 ## VisualElement:setCursor(x, y, blink)
 Sets the cursor position

@@ -19,7 +19,7 @@ The base class for all UI elements in Basalt
 |[BaseElement:destroy](#BaseElement:destroy)|-|
 |[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|
-|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|-|
+|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|
 |[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|
 |[BaseElement:init](#BaseElement:init)|table|
 |[BaseElement:isType](#BaseElement:isType)|boolean|
@@ -56,6 +56,12 @@ local element = BaseElement.new("myId", basalt)
 ```
 
 ## BaseElement:destroy()
+Destroys the element and cleans up all references
+
+### Usage
+ ```lua
+element:destroy()
+```
 
 ## BaseElement:dispatchEvent(event)
 Handles all events
@@ -83,6 +89,10 @@ element:fireEvent("mouse_click", 1, 2)
 ```
 
 ## BaseElement:getBaseFrame()
+Returns the base frame of the element
+
+### Returns
+* `table` `BaseFrame` The base frame of the element
 
 ## BaseElement:handleEvent(event)
 The default event handler for all events
@@ -129,7 +139,7 @@ element:listenEvent("mouse_click", true)
 ```
 
 ## BaseElement:postInit()
-Post initialization hook
+Post initialization
 
 ### Returns
 * `table` `self` The BaseElement instance
