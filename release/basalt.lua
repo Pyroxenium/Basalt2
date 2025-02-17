@@ -1462,13 +1462,14 @@ local aa=setmetatable({},c)aa.terminal=_a;aa.width,aa.height=_a.getSize()
 aa.buffer={text={},fg={},bg={},dirtyRects={}}
 for y=1,aa.height do aa.buffer.text[y]=string.rep(" ",aa.width)
 aa.buffer.fg[y]=string.rep("0",aa.width)aa.buffer.bg[y]=string.rep("f",aa.width)end;return aa end;function c:addDirtyRect(_a,aa,ba,ca)
-table.insert(self.buffer.dirtyRects,{x=_a,y=aa,width=ba,height=ca})end
-function c:blit(_a,aa,ba,ca,da)if aa<1 or
-aa>self.height then return self end;if(#ba~=#ca or#ba~=#da)then
-error("Text, fg, and bg must be the same length")end
-self.buffer.text[aa]=self.buffer.text[aa]:sub(1,
-_a-1)..ba..
-self.buffer.text[aa]:sub(_a+#ba)
+table.insert(self.buffer.dirtyRects,{x=_a,y=aa,width=ba,height=ca})return self end
+function c:blit(_a,aa,ba,ca,da)if aa<1 or aa>
+self.height then return self end
+if
+(#ba~=#ca or#ba~=#da)then error("Text, fg, and bg must be the same length")end
+self.buffer.text[aa]=
+self.buffer.text[aa]:sub(1,_a-1)..
+ba..self.buffer.text[aa]:sub(_a+#ba)
 self.buffer.fg[aa]=
 self.buffer.fg[aa]:sub(1,_a-1)..ca..self.buffer.fg[aa]:sub(_a+#ca)
 self.buffer.bg[aa]=
@@ -1514,16 +1515,6 @@ function c:bg(_a,aa,ba)if aa<1 or aa>self.height then return self end
 self.buffer.bg[aa]=self.buffer.bg[aa]:sub(1,
 _a-1)..ba..
 self.buffer.bg[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:blit(_a,aa,ba,ca,da)if aa<1 or aa>self.height then return self end;if(#ba~=#ca or
-#ba~=#da)then
-error("Text, fg, and bg must be the same length")end
-self.buffer.text[aa]=self.buffer.text[aa]:sub(1,
-_a-1)..ba..
-self.buffer.text[aa]:sub(_a+#ba)
-self.buffer.fg[aa]=
-self.buffer.fg[aa]:sub(1,_a-1)..ca..self.buffer.fg[aa]:sub(_a+#ca)
-self.buffer.bg[aa]=
-self.buffer.bg[aa]:sub(1,_a-1)..da..self.buffer.bg[aa]:sub(_a+#da)self:addDirtyRect(_a,aa,#ba,1)return self end
 function c:clear(_a)local aa=d[_a]or"f"
 for y=1,self.height do
 self.buffer.text[y]=string.rep(" ",self.width)self.buffer.fg[y]=string.rep("0",self.width)
