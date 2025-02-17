@@ -464,4 +464,11 @@ function Container:render()
     end
 end
 
+function Container:destroy()
+    for _, child in ipairs(self._values.children) do
+        child:destroy()
+    end
+    VisualElement.destroy(self)
+end
+
 return Container

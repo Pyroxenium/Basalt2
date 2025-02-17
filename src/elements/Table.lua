@@ -47,7 +47,7 @@ end
 function Table:sortData(columnIndex)
     local data = self.get("data")
     local direction = self.get("sortDirection")
-    
+
     table.sort(data, function(a, b)
         if direction == "asc" then
             return a[columnIndex] < b[columnIndex]
@@ -55,7 +55,7 @@ function Table:sortData(columnIndex)
             return a[columnIndex] > b[columnIndex]
         end
     end)
-    
+
     self.set("data", data)
     return self
 end
@@ -65,7 +65,6 @@ function Table:mouse_click(button, x, y)
 
     local relX, relY = self:getRelativePosition(x, y)
 
-    -- Header-Click für Sorting
     if relY == 1 then
         local currentX = 1
         for i, col in ipairs(self.get("columns")) do
@@ -83,7 +82,6 @@ function Table:mouse_click(button, x, y)
         end
     end
 
-    -- Row-Selection (berücksichtigt Scroll-Offset)
     if relY > 1 then
         local rowIndex = relY - 2 + self.get("scrollOffset")
         if rowIndex >= 0 and rowIndex < #self.get("data") then
@@ -98,7 +96,7 @@ function Table:mouse_scroll(direction, x, y)
     local data = self.get("data")
     local height = self.get("height")
     local visibleRows = height - 2
-    local maxScroll = math.max(0, #data - visibleRows + 1)  -- +1 korrigiert den Scroll-Bereich
+    local maxScroll = math.max(0, #data - visibleRows + 1)
     local newOffset = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
 
     self.set("scrollOffset", newOffset)
@@ -125,14 +123,12 @@ function Table:render()
         currentX = currentX + col.width
     end
 
-    -- Angepasste Berechnung der sichtbaren Zeilen
-    local visibleRows = height - 2  -- Verfügbare Zeilen (minus Header)
+    local visibleRows = height - 2
     for y = 2, height do
         local rowIndex = y - 2 + scrollOffset
         local rowData = data[rowIndex + 1]
 
-        -- Zeile nur rendern wenn es auch Daten dafür gibt
-        if rowData and (rowIndex + 1) <= #data then  -- Korrigierte Bedingung
+        if rowData and (rowIndex + 1) <= #data then
             currentX = 1
             local bg = (rowIndex + 1) == selected and self.get("selectedColor") or self.get("background")
 
@@ -145,33 +141,28 @@ function Table:render()
                 currentX = currentX + col.width
             end
         else
-            -- Leere Zeile füllen
             self:blit(1, y, string.rep(" ", self.get("width")),
                 string.rep(tHex[self.get("foreground")], self.get("width")),
                 string.rep(tHex[self.get("background")], self.get("width")))
         end
     end
 
-    -- Scrollbar Berechnung überarbeitet
     if #data > height - 2 then
         local scrollbarHeight = height - 2
         local thumbSize = math.max(1, math.floor(scrollbarHeight * (height - 2) / #data))
-        
-        -- Thumb Position korrigiert
-        local maxScroll = #data - (height - 2) + 1  -- +1 für korrekte End-Position
+
+        local maxScroll = #data - (height - 2) + 1
         local scrollPercent = scrollOffset / maxScroll
         local thumbPos = 2 + math.floor(scrollPercent * (scrollbarHeight - thumbSize))
-        
+
         if scrollOffset >= maxScroll then
-            thumbPos = height - thumbSize  -- Exakt am Ende
+            thumbPos = height - thumbSize
         end
 
-        -- Scrollbar Background
         for y = 2, height do
             self:blit(self.get("width"), y, "\127", tHex[colors.gray], tHex[colors.gray])
         end
 
-        -- Thumb zeichnen
         for y = thumbPos, math.min(height, thumbPos + thumbSize - 1) do
             self:blit(self.get("width"), y, "\127", tHex[colors.white], tHex[colors.white])
         end

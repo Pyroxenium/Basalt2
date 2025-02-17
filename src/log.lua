@@ -1,3 +1,8 @@
+---@class Log
+---@field _logs table
+---@field _enabled boolean
+---@field _logToFile boolean
+---@field _logFile string
 local Log = {}
 Log._logs = {}
 Log._enabled = true
@@ -6,7 +11,6 @@ Log._logFile = "basalt.log"
 
 fs.delete(Log._logFile)
 
--- Log levels
 Log.LEVEL = {
     DEBUG = 1,
     INFO = 2,
@@ -28,10 +32,12 @@ local levelColors = {
     [Log.LEVEL.ERROR] = colors.red
 }
 
+--- Sets if the logger should log to a file.
 function Log.setLogToFile(enable)
     Log._logToFile = enable
 end
 
+--- sets if the logger should log
 function Log.setEnabled(enable)
     Log._enabled = enable
 end
@@ -51,7 +57,6 @@ local function log(level, ...)
 
     local timeStr = os.date("%H:%M:%S")
 
-    -- Get caller info (skip log function and Log.debug/info/etc functions)
     local info = debug.getinfo(3, "Sl")
     local source = info.source:match("@?(.*)")
     local line = info.currentline
@@ -69,9 +74,7 @@ local function log(level, ...)
 
     local fullMessage = string.format("%s %s%s %s", timeStr, levelStr, levelMsg, message)
 
-    -- File output
     writeToFile(fullMessage)
-    -- Store in memory
     table.insert(Log._logs, {
         time = timeStr,
         level = level,
@@ -79,9 +82,17 @@ local function log(level, ...)
     })
 end
 
+--- Sends a debug message to the logger.
+--- @vararg string The message to log
 function Log.debug(...) log(Log.LEVEL.DEBUG, ...) end
+--- Sends an info message to the logger.
+--- @vararg string The message to log
 function Log.info(...) log(Log.LEVEL.INFO, ...) end
+--- Sends a warning message to the logger.
+--- @vararg string The message to log
 function Log.warn(...) log(Log.LEVEL.WARN, ...) end
+--- Sends an error message to the logger.
+--- @vararg string The message to log
 function Log.error(...) log(Log.LEVEL.ERROR, ...) end
 
 Log.info("Logger initialized")

@@ -8,7 +8,14 @@ local propertySystem = require("propertySystem")
 --- Before you can access Basalt, you need to add the following code on top of your file:
 --- @usage local basalt = require("basalt")
 --- What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
--- @module Basalt
+
+--- @class Basalt
+--- @field traceback boolean Whether to show a traceback on errors
+--- @field _events table A table of events and their callbacks
+--- @field _schedule function[] A table of scheduled functions
+--- @field _plugins table A table of plugins
+--- @field LOGGER Log The logger instance
+--- @field path string The path to the Basalt library
 local basalt = {}
 basalt.traceback = true
 basalt._events = {}
@@ -79,7 +86,8 @@ function basalt.create(type, properties, lazyLoading, parent)
     end
 end
 
---- Creates and returns a new frame
+--- Creates and returns a new BaseFrame
+--- @shortDescription Creates a new BaseFrame
 --- @return table BaseFrame The created frame instance
 --- @usage local mainFrame = basalt.createFrame()
 function basalt.createFrame()
@@ -90,6 +98,7 @@ function basalt.createFrame()
 end
 
 --- Returns the element manager instance
+--- @shortDescription Returns the element manager
 --- @return table ElementManager The element manager
 --- @usage local manager = basalt.getElementManager()
 function basalt.getElementManager()
@@ -97,6 +106,7 @@ function basalt.getElementManager()
 end
 
 --- Gets or creates the main frame
+--- @shortDescription Gets or creates the main frame
 --- @return BaseFrame table The main frame instance
 --- @usage local frame = basalt.getMainFrame()
 function basalt.getMainFrame()
@@ -107,6 +117,7 @@ function basalt.getMainFrame()
 end
 
 --- Sets the active frame
+--- @shortDescription Sets the active frame
 --- @param frame table The frame to set as active
 --- @usage basalt.setActiveFrame(myFrame)
 function basalt.setActiveFrame(frame)
@@ -114,6 +125,7 @@ function basalt.setActiveFrame(frame)
 end
 
 --- Schedules a function to be updated
+--- @shortDescription Schedules a function to be updated
 --- @function scheduleUpdate
 --- @param func function The function to schedule
 --- @return number Id The schedule ID
@@ -124,6 +136,7 @@ function basalt.scheduleUpdate(func)
 end
 
 --- Removes a scheduled update
+--- @shortDescription Removes a scheduled update
 --- @function removeSchedule
 --- @param id number The schedule ID to remove
 --- @usage basalt.removeSchedule(scheduleId)
@@ -131,7 +144,7 @@ function basalt.removeSchedule(id)
     basalt._schedule[id] = nil
 end
 
---- @local Internal event handler
+---@private
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
     if lazyElementsEventHandler(event, ...) then return end
@@ -149,7 +162,7 @@ local function updateEvent(event, ...)
     end
 end
 
---- @local Internal render function
+---@private
 local function renderFrames()
     if(mainFrame)then
         mainFrame:render()
@@ -157,6 +170,7 @@ local function renderFrames()
 end
 
 --- Updates all scheduled functions
+--- @shortDescription Updates all scheduled functions
 --- @usage basalt.update()
 function basalt.update()
     for k,v in pairs(basalt._schedule) do
@@ -167,6 +181,7 @@ function basalt.update()
 end
 
 --- Stops the Basalt runtime
+--- @shortDescription Stops the Basalt runtime
 --- @usage basalt.stop()
 function basalt.stop()
     term.clear()
@@ -175,6 +190,7 @@ function basalt.stop()
 end
 
 --- Starts the Basalt runtime
+--- @shortDescription Starts the Basalt runtime
 --- @param isActive? boolean Whether to start active (default: true)
 --- @usage basalt.run()
 --- @usage basalt.run(false)
@@ -197,6 +213,10 @@ function basalt.run(isActive)
     end
 end
 
+--- Returns a Plugin API
+--- @shortDescription Returns a Plugin API
+--- @param name string The name of the plugin
+--- @return table Plugin The plugin API
 function basalt.getAPI(name)
     return elementManager.getAPI(name)
 end

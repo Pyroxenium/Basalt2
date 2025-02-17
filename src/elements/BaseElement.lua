@@ -75,7 +75,7 @@ function BaseElement:init(props, basalt)
     return self
 end
 
---- Post initialization hook
+--- Post initialization
 --- @return table self The BaseElement instance
 function BaseElement:postInit()
     if(self._props)then
@@ -174,6 +174,8 @@ function BaseElement:handleEvent(event, ...)
     return false
 end
 
+--- Returns the base frame of the element
+--- @return table BaseFrame The base frame of the element
 function BaseElement:getBaseFrame()
     if self.parent then
         return self.parent:getBaseFrame()
@@ -181,8 +183,26 @@ function BaseElement:getBaseFrame()
     return self
 end
 
+--- Destroys the element and cleans up all references
+--- @usage element:destroy()
 function BaseElement:destroy()
+    -- Remove from parent if exists
+    if self.parent then
+        self.parent:removeChild(self)
+    end
 
+    for event in pairs(self._registeredEvents) do
+        self:listenEvent(event, false)
+    end
+    self._values.eventCallbacks = {}
+
+    self._props = nil
+    self._values = nil
+    self.basalt = nil
+    self.parent = nil
+    self.__index = nil
+
+    setmetatable(self, nil)
 end
 
 --- Requests a render update for this element

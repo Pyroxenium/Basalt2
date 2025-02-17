@@ -11,7 +11,12 @@ local commentTypes = {
     "function",
     "local",
     "shortDescription",
-    "property"
+    "property",
+    "combinedProperty",
+    "event",
+    "private",
+    "protected",
+    "field"
 }
 
 local function extractComment(line)
@@ -60,8 +65,11 @@ end
 function markdown.parse(content)
     local blocks = {}
     local properties = {}
+    local combinedProperties = {}
     local events = {}
+    local fields = {}
     local currentBlock = {type = "comment", desc = {}}
+    local skipNextFunction = false
 
     for line in content:gsub("\r\n", "\n"):gmatch("([^\n]*)\n?") do
         if line:match("^%s*$") or line == "" then
@@ -76,6 +84,8 @@ function markdown.parse(content)
                 if(commentType == "desc") then
                     currentBlock.usageIsActive = false
                     table.insert(currentBlock.desc, value)
+                elseif(commentType == "private")or(commentType == "protected")then
+                    skipNextFunction = true
                 else
                     if(commentType == "module")then
                         currentBlock.usageIsActive = false
@@ -100,6 +110,11 @@ function markdown.parse(content)
                     elseif(commentType == "property")then
                         currentBlock = {type = "comment", desc = {}}
                         table.insert(properties, value)
+                    elseif(commentType == "combinedProperty")then
+                        currentBlock = {type = "comment", desc = {}}
+                        table.insert(combinedProperties, value)
+                    elseif(commentType == "field")then
+                        table.insert(fields, value)
                     elseif(commentType == "event")then
                         currentBlock = {type = "comment", desc = {}}
                         table.insert(events, value)
@@ -113,10 +128,14 @@ function markdown.parse(content)
 
                 end
             else
-                local funcName = getFunctionName(line)
-                if funcName then
-                    currentBlock.func = funcName
-                    currentBlock.type = "function"
+                if(skipNextFunction)then
+                    skipNextFunction = false
+                else
+                    local funcName = getFunctionName(line)
+                    if funcName then
+                        currentBlock.func = funcName
+                        currentBlock.type = "function"
+                    end
                 end
             end
         end
@@ -141,7 +160,7 @@ function markdown.parse(content)
         return a.func < b.func
     end)
 
-    markdown.blocks = {properties = properties, events = events}
+    markdown.blocks = {combinedProperties = combinedProperties, properties = properties, events = events, fields = fields}
     for _, block in ipairs(otherBlocks) do
         table.insert(markdown.blocks, block)
     end
@@ -192,6 +211,27 @@ local function markdownFunction(block)
     return output
 end
 
+local function markdownFields()
+    if(#markdown.blocks.fields<=0)then
+        return ""
+    end
+    local output = "\n## Fields\n\n|Field|Type|Description|\n|---|---|---|\n"
+    for _, block in pairs(markdown.blocks.fields) do
+        local name, rest = block:match("([%w_]+)%s+(.+)")
+        if name and rest then
+            local fieldType, desc = rest:match("([^%s].-)%s+([^%s].*)")
+            if fieldType and desc then
+                output = output .. string.format("|%s|`%s`|%s|\n",
+                    name,
+                    fieldType,
+                    desc or ""
+                )
+            end
+        end
+    end
+    return output
+end
+
 local function markdownProperties()
     if(#markdown.blocks.properties<=0)then
         return ""
@@ -204,18 +244,36 @@ local function markdownProperties()
     return output
 end
 
+local function markdownCombinedProperties()
+    if(markdown.blocks.combinedProperties==nil)then
+        return ""
+    end
+    if(#markdown.blocks.combinedProperties<=0)then
+        return ""
+    end
+    local output = "\n## Combined Properties\n\n|Name|Properties|Description|\n|---|---|---|\n"
+    for _, block in pairs(markdown.blocks.combinedProperties) do
+        local name, paramType, defaultValue, desc = block:match("([^%s]+)%s+([^%s]+)%s+([^%s]+)%s+(.*)")
+        output = output .. string.format("|%s|%s|%s|%s\n", name, paramType, defaultValue, desc)
+    end
+    return output
+end
+
 local function markdownEvents()
     if(#markdown.blocks.events<=0)then
         return ""
     end
-    local output = "\n## Events\n\n"
-    for _, block in pairs(markdown.blocks) do
-        if block.type == "module" or block.type == "class" then
-            if(block.event~=nil)then
-                for _, line in pairs(block.event) do
-                    output = output .. "* " .. line .. "\n"
-                end
-            end
+    local output = "\n## Events\n\n|Event|Parameters|Description|\n|---|---|---|\n"
+    
+    for _, event in pairs(markdown.blocks.events) do
+        local name, params, desc = event:match("([%w_]+)%s+{([^}]+)}%s*(.*)")
+        if name and params then
+            local formattedParams = params:gsub("%s*,%s*", ", ")
+            output = output .. string.format("|%s|`%s`|%s|\n", 
+                name,
+                formattedParams,
+                desc or ""
+            )
         end
     end
     return output
@@ -263,7 +321,9 @@ local function markdownModule(block)
         output = output .. line .. "\n"
     end
 
+    output = output .. markdownFields()
     output = output .. markdownProperties()
+    output = output .. markdownCombinedProperties()
     output = output .. markdownEvents()
     output = output .. markdownModuleOrClassFunctions(block)
     output = output .. "\n"
@@ -288,7 +348,9 @@ local function markdownClass(block)
         output = output .. line .. "\n"
     end
 
+    output = output .. markdownFields()
     output = output .. markdownProperties()
+    output = output .. markdownCombinedProperties()
     output = output .. markdownEvents()
     output = output .. markdownModuleOrClassFunctions(block)
     output = output .. "\n"

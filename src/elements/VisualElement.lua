@@ -2,8 +2,6 @@ local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
 
----@alias color number
-
 ---@class VisualElement : BaseElement
 local VisualElement = setmetatable({}, BaseElement)
 VisualElement.__index = VisualElement
@@ -62,12 +60,23 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
     return value
 end})
 
----@combinedProperty position x y
+---@combinedProperty position {x y} Position of the element
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
----@combinedProperty size width height
+---@combinedProperty size {width height} Size of the element
 VisualElement.combineProperties(VisualElement, "size", "width", "height")
----@combinedProperty color foreground background
+---@combinedProperty color {foreground background} Color of the element
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
+
+---@event onMouseClick {button number, x number, y number} Fired when the element is clicked
+---@event onMouseUp {button number, x number, y number} Fired when the mouse is released
+---@event onMouseRelease {button number, x number, y number} Fired when the mouse is released
+---@event onMouseDrag {button number, x number, y number} Fired when the mouse is dragged
+---@event onFocus {-} Fired when the element is focused
+---@event onBlur {-} Fired when the element is blurred
+---@event onKey {key number, code number, isRepeat boolean} Fired when a key is pressed
+---@event onKeyUp {key number, code number} Fired when a key is released
+---@event onChar {char string} Fired when a key is pressed
+
 
 VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
@@ -90,14 +99,7 @@ function VisualElement:init(props, basalt)
     self.set("type", "VisualElement")
 end
 
---- Draws a text character/fg/bg at the specified position with a certain size, used in the rendering system
---- @param x number The x position to draw
---- @param y number The y position to draw
---- @param width number The width of the element
---- @param height number The height of the element
---- @param text string The text char to draw
---- @param fg color The foreground color
---- @param bg color The background color
+---@protected
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     x = x + self.get("x") - 1
     y = y + self.get("y") - 1
@@ -260,7 +262,6 @@ function VisualElement:setCursor(x, y, blink)
 end
 
 --- Renders the element
---- @usage element:render()
 function VisualElement:render()
     if(not self.get("backgroundEnabled"))then
         return
