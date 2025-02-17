@@ -63,12 +63,12 @@ Destroys the element and cleans up all references
 element:destroy()
 ```
 
-## BaseElement:dispatchEvent(event)
+## BaseElement:dispatchEvent(event...)
 Handles all events
-@vararg any The arguments for the event
 
 ### Parameters
 * `event` `string` The event to handle
+* `...` *(vararg)* `any` The arguments for the event
 
 ### Returns
 * `boolean?` `handled` Whether the event was handled
@@ -94,12 +94,12 @@ Returns the base frame of the element
 ### Returns
 * `table` `BaseFrame` The base frame of the element
 
-## BaseElement:handleEvent(event)
+## BaseElement:handleEvent(event...)
 The default event handler for all events
-@vararg any The arguments for the event
 
 ### Parameters
 * `event` `string` The event to handle
+* `...` *(vararg)* `any` The arguments for the event
 
 ### Returns
 * `boolean?` `handled` Whether the event was handled

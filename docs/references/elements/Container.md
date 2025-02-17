@@ -96,12 +96,12 @@ Removes a child from the container
 ### Returns
 * `Container?` `self` The container instance
 
-## Container:handleEvent(event)
+## Container:handleEvent(event...)
 Default handler for events
-@vararg any The event arguments
 
 ### Parameters
 * `event` `string` The event to handle
+* `...` *(vararg)* `any` The event arguments
 
 ### Returns
 * `boolean` `Whether` the event was handled
