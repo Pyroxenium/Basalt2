@@ -1,7 +1,18 @@
+--- @class Render
+--- @field terminal table The terminal object to render to
+--- @field width number The width of the render
+--- @field height number The height of the render
+--- @field buffer table The buffer to render
+--- @field xCursor number The x position of the cursor
+--- @field yCursor number The y position of the cursor
+--- @field blink boolean Whether the cursor should blink
 local Render = {}
 Render.__index = Render
 local colorChars = require("libraries/colorHex")
 
+--- Creates a new Render object
+--- @param terminal table The terminal object to render to
+--- @return Render
 function Render.new(terminal)
     local self = setmetatable({}, Render)
     self.terminal = terminal
@@ -23,6 +34,12 @@ function Render.new(terminal)
     return self
 end
 
+--- Adds a dirty rectangle to the buffer
+--- @param x number The x position of the rectangle
+--- @param y number The y position of the rectangle
+--- @param width number The width of the rectangle
+--- @param height number The height of the rectangle
+--- @returns Render
 function Render:addDirtyRect(x, y, width, height)
     table.insert(self.buffer.dirtyRects, {
         x = x,
@@ -30,8 +47,16 @@ function Render:addDirtyRect(x, y, width, height)
         width = width,
         height = height
     })
+    return self
 end
 
+--- Blits text to the screen
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param text string The text to blit
+--- @param fg string The foreground color of the text
+--- @param bg string The background color of the text
+--- @returns Render
 function Render:blit(x, y, text, fg, bg)
     if y < 1 or y > self.height then return self end
     if(#text ~= #fg or #text ~= #bg)then
@@ -46,6 +71,15 @@ function Render:blit(x, y, text, fg, bg)
     return self
 end
 
+--- Blits text to the screen with multiple lines
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param width number The width of the text
+--- @param height number The height of the text
+--- @param text string The text to blit
+--- @param fg colors The foreground color of the text
+--- @param bg colors The background color of the text
+--- @returns Render
 function Render:multiBlit(x, y, width, height, text, fg, bg)
     if y < 1 or y > self.height then return self end
     if(#text ~= #fg or #text ~= #bg)then
@@ -69,6 +103,11 @@ function Render:multiBlit(x, y, width, height, text, fg, bg)
     return self
 end
 
+--- Blits text to the screen with a foreground color
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param text string The text to blit
+--- @param fg colors The foreground color of the text
 function Render:textFg(x, y, text, fg)
     if y < 1 or y > self.height then return self end
     fg = colorChars[fg] or "0"
@@ -80,6 +119,12 @@ function Render:textFg(x, y, text, fg)
     return self
 end
 
+--- Blits text to the screen with a background color
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param text string The text to blit
+--- @param bg colors The background color of the text
+--- @returns Render
 function Render:textBg(x, y, text, bg)
     if y < 1 or y > self.height then return self end
     bg = colorChars[bg] or "f"
@@ -91,6 +136,11 @@ function Render:textBg(x, y, text, bg)
     return self
 end
 
+--- Blits text to the screen
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param text string The text to blit
+--- @returns Render
 function Render:text(x, y, text)
     if y < 1 or y > self.height then return self end
 
@@ -100,6 +150,11 @@ function Render:text(x, y, text)
     return self
 end
 
+--- Blits a foreground color to the screen
+--- @param x number The x position
+--- @param y number The y position
+--- @param fg string The foreground color to blit
+--- @returns Render
 function Render:fg(x, y, fg)
     if y < 1 or y > self.height then return self end
 
@@ -109,6 +164,11 @@ function Render:fg(x, y, fg)
     return self
 end
 
+--- Blits a background color to the screen
+--- @param x number The x position
+--- @param y number The y position
+--- @param bg string The background color to blit
+--- @returns Render
 function Render:bg(x, y, bg)
     if y < 1 or y > self.height then return self end
 
@@ -118,20 +178,9 @@ function Render:bg(x, y, bg)
     return self
 end
 
-function Render:blit(x, y, text, fg, bg)
-    if y < 1 or y > self.height then return self end
-    if(#text ~= #fg or #text ~= #bg)then
-        error("Text, fg, and bg must be the same length")
-    end
-
-    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
-    self.buffer.fg[y] = self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg)
-    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg)
-    self:addDirtyRect(x, y, #text, 1)
-
-    return self
-end
-
+--- Clears the screen
+--- @param bg colors The background color to clear the screen with
+--- @returns Render
 function Render:clear(bg)
     local bgChar = colorChars[bg] or "f"
     for y=1, self.height do
@@ -143,8 +192,9 @@ function Render:clear(bg)
     return self
 end
 
+--- Renders the buffer to the screen
+--- @returns Render
 function Render:render()
-
     local mergedRects = {}
     for _, rect in ipairs(self.buffer.dirtyRects) do
         local merged = false
@@ -185,6 +235,10 @@ function Render:render()
     return self
 end
 
+--- Checks if two rectangles overlap
+--- @param r1 table The first rectangle
+--- @param r2 table The second rectangle
+--- @returns boolean
 function Render:rectOverlaps(r1, r2)
     return not (r1.x + r1.width <= r2.x or
                r2.x + r2.width <= r1.x or
@@ -192,6 +246,10 @@ function Render:rectOverlaps(r1, r2)
                r2.y + r2.height <= r1.y)
 end
 
+--- Merges two rectangles
+--- @param target table The target rectangle
+--- @param source table The source rectangle
+--- @returns Render
 function Render:mergeRects(target, source)
     local x1 = math.min(target.x, source.x)
     local y1 = math.min(target.y, source.y)
@@ -204,6 +262,10 @@ function Render:mergeRects(target, source)
     target.height = y2 - y1
 end
 
+--- Sets the cursor position
+--- @param x number The x position of the cursor
+--- @param y number The y position of the cursor
+--- @param blink boolean Whether the cursor should blink
 function Render:setCursor(x, y, blink)
     self.terminal.setCursorPos(x, y)
     self.terminal.setCursorBlink(blink)
@@ -213,6 +275,12 @@ function Render:setCursor(x, y, blink)
     return self
 end
 
+--- Clears an area of the screen
+--- @param x number The x position of the area
+--- @param y number The y position of the area
+--- @param width number The width of the area
+--- @param height number The height of the area
+--- @param bg colors The background color to clear the area with
 function Render:clearArea(x, y, width, height, bg)
     local bgChar = colorChars[bg] or "f"
     for dy=0, height-1 do
@@ -226,6 +294,8 @@ function Render:clearArea(x, y, width, height, bg)
     return self
 end
 
+--- Gets the size of the render
+--- @returns number, number
 function Render:getSize()
     return self.width, self.height
 end

@@ -1,8 +1,9 @@
----@class Log
----@field _logs table
----@field _enabled boolean
----@field _logToFile boolean
----@field _logFile string
+--- @class Log
+--- @field _logs table The complete log history
+--- @field _enabled boolean If the logger is enabled
+--- @field _logToFile boolean If the logger should log to a file
+--- @field _logFile string The file to log to
+--- @field LEVEL table The log levels
 local Log = {}
 Log._logs = {}
 Log._enabled = true
@@ -33,11 +34,13 @@ local levelColors = {
 }
 
 --- Sets if the logger should log to a file.
+--- @shortDescription Sets if the logger should log to a file
 function Log.setLogToFile(enable)
     Log._logToFile = enable
 end
 
---- sets if the logger should log
+--- Sets if the logger should log
+--- @shortDescription Sets if the logger should log
 function Log.setEnabled(enable)
     Log._enabled = enable
 end
@@ -83,16 +86,28 @@ local function log(level, ...)
 end
 
 --- Sends a debug message to the logger.
---- @vararg string The message to log
-function Log.debug(...) log(Log.LEVEL.DEBUG, ...) end
+--- @shortDescription Sends a debug message
+--- @usage Log.debug("This is a debug message")
+function Log.debug(...)
+    log(Log.LEVEL.DEBUG, ...)
+end
+
 --- Sends an info message to the logger.
+--- @shortDescription Sends an info message
 --- @vararg string The message to log
+--- @usage Log.info("This is an info message")
 function Log.info(...) log(Log.LEVEL.INFO, ...) end
+
 --- Sends a warning message to the logger.
+--- @shortDescription Sends a warning message
 --- @vararg string The message to log
+--- @usage Log.warn("This is a warning message")
 function Log.warn(...) log(Log.LEVEL.WARN, ...) end
+
 --- Sends an error message to the logger.
+--- @shortDescription Sends an error message
 --- @vararg string The message to log
+--- @usage Log.error("This is an error message")
 function Log.error(...) log(Log.LEVEL.ERROR, ...) end
 
 Log.info("Logger initialized")

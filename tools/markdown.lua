@@ -16,7 +16,8 @@ local commentTypes = {
     "event",
     "private",
     "protected",
-    "field"
+    "field",
+    "vararg"
 }
 
 local function extractComment(line)
@@ -177,16 +178,25 @@ local function markdownFunction(block)
             output = output .. line .. "\n"
         end
     end
-    if(block.param)then
+    if(block.param or block.vararg)then
         output = output .. "\n### Parameters\n"
-        for _, line in pairs(block.param) do
-            local name, paramType, desc = line:match("([^%s]+)%s+([^%s]+)%s+(.*)")
-            fOutput = fOutput .. name .. (block.param[#block.param] == line and "" or ", ")
-            if name:match("%?$") then
-                name = name:sub(1, -2)
-                output = output .. string.format("* `%s` *(optional)* `%s` %s\n", name, paramType, desc)
-            else
-                output = output .. string.format("* `%s` `%s` %s\n", name, paramType, desc)
+        if(block.param)then
+            for _, line in pairs(block.param) do
+                local name, paramType, desc = line:match("([^%s]+)%s+([^%s]+)%s+(.*)")
+                fOutput = fOutput .. name .. (block.param[#block.param] == line and "" or ", ")
+                if name:match("%?$") then
+                    name = name:sub(1, -2)
+                    output = output .. string.format("* `%s` *(optional)* `%s` %s\n", name, paramType, desc)
+                else
+                    output = output .. string.format("* `%s` `%s` %s\n", name, paramType, desc)
+                end
+            end
+        end
+        if(block.vararg)then
+            for _, line in pairs(block.vararg) do
+                local paramType, desc = line:match("([^%s]+)%s+(.*)")
+                fOutput = fOutput .. "..."
+                output = output .. string.format("* `...` *(vararg)* `%s` %s\n", paramType, desc)
             end
         end
     end
