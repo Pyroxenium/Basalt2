@@ -50,7 +50,8 @@ export default defineConfig({
     },
     nav: [
       { text: 'Home', link: '/home' },
-      { text: 'References', link: '/references/main' },
+      { text: 'References', link: '/references/main'},
+      { text: 'Guides', link: '/guides/getting-started' },
     ],
 
     docFooter: {
@@ -60,7 +61,10 @@ export default defineConfig({
 
     sidebar: {
       '/guides/': [
-
+        { text: 'Getting started', link: '/guides/getting-started' },
+        { text: 'Download', link: '/guides/download' },
+        { text: 'Annotations', link: '/guides/annotations' },
+        { text: 'Animations', link: '/guides/animations' },
       ],
 
       '/references/':[
