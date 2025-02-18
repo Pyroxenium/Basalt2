@@ -36,7 +36,7 @@ local function bundle()
         
         table.insert(output, string.format(
             'project["%s"] = function(...) %s end\n',
-            file.path, minified:gsub("\n", " ")
+            file.path, minified
         ))
     end
     

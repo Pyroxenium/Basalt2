@@ -137,6 +137,7 @@ function Tree:onSelect(callback)
     return self
 end
 
+---@private
 function Tree:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
@@ -148,6 +149,10 @@ function Tree:mouse_scroll(direction, x, y)
     end
 end
 
+--- Gets the size of the tree
+--- @shortDescription Gets the size of the tree
+--- @return number width The width of the tree
+--- @return number height The height of the tree
 function Tree:getNodeSize()
     local width, height = 0, 0
     local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
