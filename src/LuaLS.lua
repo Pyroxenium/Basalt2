@@ -365,6 +365,14 @@ function Container:addProgressBar()
     return self
 end
 
+--- Adds a new Scrollbar to the container
+---@generic Element: Container
+---@param self Element
+---@return Scrollbar
+function Container:addScrollbar()
+    return self
+end
+
 --- Adds a new Slider to the container
 ---@generic Element: Container
 ---@param self Element
@@ -506,6 +514,7 @@ end
 ---@field placeholder string
 ---@field placeholderColor color
 ---@field focusedColor color
+---@field cursorColor number
 local Input = {}
 
 --- Gets the The current text content of the input
@@ -613,6 +622,24 @@ end
 ---@return Element
 function Input:setFocusedColor(focusedColor)
     self.focusedColor = focusedColor
+    return self
+end
+
+--- Gets the Color of the cursor
+---@generic Element: Input
+---@param self Element
+---@return number
+function Input:getCursorColor()
+    return self.cursorColor
+end
+
+--- Sets the Color of the cursor
+---@generic Element: Input
+---@param self Element
+---@param cursorColor number
+---@return Element
+function Input:setCursorColor(cursorColor)
+    self.cursorColor = cursorColor
     return self
 end
 
@@ -828,6 +855,219 @@ end
 ---@return Element
 function ProgressBar:setProgressColor(progressColor)
     self.progressColor = progressColor
+    return self
+end
+
+
+---@class Scrollbar
+---@field value number
+---@field min number
+---@field max number
+---@field step number
+---@field dragMultiplier number
+---@field symbol string
+---@field backgroundSymbol string
+---@field symbolBackgroundColor color
+---@field backgroundSymbol string
+---@field orientation string
+---@field handleSize number
+local Scrollbar = {}
+
+--- Gets the Current scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getValue()
+    return self.value
+end
+
+--- Sets the Current scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@param value number
+---@return Element
+function Scrollbar:setValue(value)
+    self.value = value
+    return self
+end
+
+--- Gets the Minimum scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getMin()
+    return self.min
+end
+
+--- Sets the Minimum scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@param min number
+---@return Element
+function Scrollbar:setMin(min)
+    self.min = min
+    return self
+end
+
+--- Gets the Maximum scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getMax()
+    return self.max
+end
+
+--- Sets the Maximum scroll value
+---@generic Element: Scrollbar
+---@param self Element
+---@param max number
+---@return Element
+function Scrollbar:setMax(max)
+    self.max = max
+    return self
+end
+
+--- Gets the Step size for scroll operations
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getStep()
+    return self.step
+end
+
+--- Sets the Step size for scroll operations
+---@generic Element: Scrollbar
+---@param self Element
+---@param step number
+---@return Element
+function Scrollbar:setStep(step)
+    self.step = step
+    return self
+end
+
+--- Gets the How fast the scrollbar moves when dragging
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getDragMultiplier()
+    return self.dragMultiplier
+end
+
+--- Sets the How fast the scrollbar moves when dragging
+---@generic Element: Scrollbar
+---@param self Element
+---@param dragMultiplier number
+---@return Element
+function Scrollbar:setDragMultiplier(dragMultiplier)
+    self.dragMultiplier = dragMultiplier
+    return self
+end
+
+--- Gets the " Symbol used for the scrollbar handle
+---@generic Element: Scrollbar
+---@param self Element
+---@return string
+function Scrollbar:getSymbol()
+    return self.symbol
+end
+
+--- Sets the " Symbol used for the scrollbar handle
+---@generic Element: Scrollbar
+---@param self Element
+---@param symbol string
+---@return Element
+function Scrollbar:setSymbol(symbol)
+    self.symbol = symbol
+    return self
+end
+
+--- Gets the Symbol used for the scrollbar background
+---@generic Element: Scrollbar
+---@param self Element
+---@return string
+function Scrollbar:getBackgroundSymbol()
+    return self.backgroundSymbol
+end
+
+--- Sets the Symbol used for the scrollbar background
+---@generic Element: Scrollbar
+---@param self Element
+---@param backgroundSymbol string
+---@return Element
+function Scrollbar:setBackgroundSymbol(backgroundSymbol)
+    self.backgroundSymbol = backgroundSymbol
+    return self
+end
+
+--- Gets the Background color of the scrollbar handle
+---@generic Element: Scrollbar
+---@param self Element
+---@return color
+function Scrollbar:getSymbolBackgroundColor()
+    return self.symbolBackgroundColor
+end
+
+--- Sets the Background color of the scrollbar handle
+---@generic Element: Scrollbar
+---@param self Element
+---@param symbolBackgroundColor color
+---@return Element
+function Scrollbar:setSymbolBackgroundColor(symbolBackgroundColor)
+    self.symbolBackgroundColor = symbolBackgroundColor
+    return self
+end
+
+--- Gets the Symbol used for the scrollbar background
+---@generic Element: Scrollbar
+---@param self Element
+---@return string
+function Scrollbar:getBackgroundSymbol()
+    return self.backgroundSymbol
+end
+
+--- Sets the Symbol used for the scrollbar background
+---@generic Element: Scrollbar
+---@param self Element
+---@param backgroundSymbol string
+---@return Element
+function Scrollbar:setBackgroundSymbol(backgroundSymbol)
+    self.backgroundSymbol = backgroundSymbol
+    return self
+end
+
+--- Gets the Orientation of the scrollbar ("vertical" or "horizontal")
+---@generic Element: Scrollbar
+---@param self Element
+---@return string
+function Scrollbar:getOrientation()
+    return self.orientation
+end
+
+--- Sets the Orientation of the scrollbar ("vertical" or "horizontal")
+---@generic Element: Scrollbar
+---@param self Element
+---@param orientation string
+---@return Element
+function Scrollbar:setOrientation(orientation)
+    self.orientation = orientation
+    return self
+end
+
+--- Gets the Size of the scrollbar handle in characters
+---@generic Element: Scrollbar
+---@param self Element
+---@return number
+function Scrollbar:getHandleSize()
+    return self.handleSize
+end
+
+--- Sets the Size of the scrollbar handle in characters
+---@generic Element: Scrollbar
+---@param self Element
+---@param handleSize number
+---@return Element
+function Scrollbar:setHandleSize(handleSize)
+    self.handleSize = handleSize
     return self
 end
 
@@ -1085,6 +1325,7 @@ end
 ---@field scrollY number
 ---@field editable boolean
 ---@field syntaxPatterns table
+---@field cursorColor number
 local TextBox = {}
 
 --- Gets the Array of text lines
@@ -1213,11 +1454,30 @@ function TextBox:setSyntaxPatterns(syntaxPatterns)
     return self
 end
 
+--- Gets the Color of the cursor
+---@generic Element: TextBox
+---@param self Element
+---@return number
+function TextBox:getCursorColor()
+    return self.cursorColor
+end
+
+--- Sets the Color of the cursor
+---@generic Element: TextBox
+---@param self Element
+---@param cursorColor number
+---@return Element
+function TextBox:setCursorColor(cursorColor)
+    self.cursorColor = cursorColor
+    return self
+end
+
 
 ---@class Tree
 ---@field nodes table
 ---@field expandedNodes table
 ---@field scrollOffset number
+---@field horizontalOffset number
 ---@field nodeColor color
 ---@field selectedColor color
 local Tree = {}
@@ -1258,7 +1518,7 @@ function Tree:setExpandedNodes(expandedNodes)
     return self
 end
 
---- Gets the Current scroll position
+--- Gets the Current vertical scroll position
 ---@generic Element: Tree
 ---@param self Element
 ---@return number
@@ -1266,13 +1526,31 @@ function Tree:getScrollOffset()
     return self.scrollOffset
 end
 
---- Sets the Current scroll position
+--- Sets the Current vertical scroll position
 ---@generic Element: Tree
 ---@param self Element
 ---@param scrollOffset number
 ---@return Element
 function Tree:setScrollOffset(scrollOffset)
     self.scrollOffset = scrollOffset
+    return self
+end
+
+--- Gets the Current horizontal scroll position
+---@generic Element: Tree
+---@param self Element
+---@return number
+function Tree:getHorizontalOffset()
+    return self.horizontalOffset
+end
+
+--- Sets the Current horizontal scroll position
+---@generic Element: Tree
+---@param self Element
+---@param horizontalOffset number
+---@return Element
+function Tree:setHorizontalOffset(horizontalOffset)
+    self.horizontalOffset = horizontalOffset
     return self
 end
 
@@ -1322,6 +1600,7 @@ end
 ---@field background color
 ---@field foreground color
 ---@field clicked boolean
+---@field hover boolean
 ---@field backgroundEnabled boolean
 ---@field focused boolean
 ---@field visible boolean
@@ -1468,6 +1747,24 @@ end
 ---@return Element
 function VisualElement:setClicked(clicked)
     self.clicked = clicked
+    return self
+end
+
+--- Gets the Whether the mouse is currently hover over the element (Craftos-PC only)
+---@generic Element: VisualElement
+---@param self Element
+---@return boolean
+function VisualElement:getHover()
+    return self.hover
+end
+
+--- Sets the Whether the mouse is currently hover over the element (Craftos-PC only)
+---@generic Element: VisualElement
+---@param self Element
+---@param hover boolean
+---@return Element
+function VisualElement:setHover(hover)
+    self.hover = hover
     return self
 end
 
