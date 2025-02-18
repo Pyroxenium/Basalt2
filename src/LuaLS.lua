@@ -2,7 +2,7 @@
 ---@field text term
 local BaseFrame = {}
 
---- Gets the nil text
+--- Gets the The terminal object to render to
 ---@generic Element: BaseFrame
 ---@param self Element
 ---@return term
@@ -10,7 +10,7 @@ function BaseFrame:getText()
     return self.text
 end
 
---- Sets the nil text
+--- Sets the The terminal object to render to
 ---@generic Element: BaseFrame
 ---@param self Element
 ---@param text term
@@ -381,6 +381,14 @@ function Container:addTable()
     return self
 end
 
+--- Adds a new TextBox to the container
+---@generic Element: Container
+---@param self Element
+---@return TextBox
+function Container:addTextBox()
+    return self
+end
+
 --- Adds a new Tree to the container
 ---@generic Element: Container
 ---@param self Element
@@ -398,13 +406,109 @@ function Container:addVisualElement()
 end
 
 
+---@class Dropdown
+---@field isOpen boolean
+---@field dropdownHeight number
+---@field selectedText string
+---@field dropSymbol string
+local Dropdown = {}
+
+--- Gets the Whether the dropdown menu is currently open
+---@generic Element: Dropdown
+---@param self Element
+---@return boolean
+function Dropdown:getIsOpen()
+    return self.isOpen
+end
+
+--- Sets the Whether the dropdown menu is currently open
+---@generic Element: Dropdown
+---@param self Element
+---@param isOpen boolean
+---@return Element
+function Dropdown:setIsOpen(isOpen)
+    self.isOpen = isOpen
+    return self
+end
+
+--- Gets the Maximum height of the dropdown menu when open
+---@generic Element: Dropdown
+---@param self Element
+---@return number
+function Dropdown:getDropdownHeight()
+    return self.dropdownHeight
+end
+
+--- Sets the Maximum height of the dropdown menu when open
+---@generic Element: Dropdown
+---@param self Element
+---@param dropdownHeight number
+---@return Element
+function Dropdown:setDropdownHeight(dropdownHeight)
+    self.dropdownHeight = dropdownHeight
+    return self
+end
+
+--- Gets the The text to show when no item is selected
+---@generic Element: Dropdown
+---@param self Element
+---@return string
+function Dropdown:getSelectedText()
+    return self.selectedText
+end
+
+--- Sets the The text to show when no item is selected
+---@generic Element: Dropdown
+---@param self Element
+---@param selectedText string
+---@return Element
+function Dropdown:setSelectedText(selectedText)
+    self.selectedText = selectedText
+    return self
+end
+
+--- Gets the The symbol to show for dropdown indication
+---@generic Element: Dropdown
+---@param self Element
+---@return string
+function Dropdown:getDropSymbol()
+    return self.dropSymbol
+end
+
+--- Sets the The symbol to show for dropdown indication
+---@generic Element: Dropdown
+---@param self Element
+---@param dropSymbol string
+---@return Element
+function Dropdown:setDropSymbol(dropSymbol)
+    self.dropSymbol = dropSymbol
+    return self
+end
+
+
+---@class Frame
+local Frame = {}
+
+--- {width number, height number} Fired when the frame is resized
+---@generic Element: Frame
+---@param self Element
+---@param callback function
+---@return Element
+function Frame:onOnResize(callback)
+    return self
+end
+
+
 ---@class Input
 ---@field text string
 ---@field cursorPos number
 ---@field viewOffset number
+---@field placeholder string
+---@field placeholderColor color
+---@field focusedColor color
 local Input = {}
 
---- Gets the - text to be displayed
+--- Gets the The current text content of the input
 ---@generic Element: Input
 ---@param self Element
 ---@return string
@@ -412,7 +516,7 @@ function Input:getText()
     return self.text
 end
 
---- Sets the - text to be displayed
+--- Sets the The current text content of the input
 ---@generic Element: Input
 ---@param self Element
 ---@param text string
@@ -422,7 +526,7 @@ function Input:setText(text)
     return self
 end
 
---- Gets the - current cursor position
+--- Gets the The current cursor position in the text
 ---@generic Element: Input
 ---@param self Element
 ---@return number
@@ -430,7 +534,7 @@ function Input:getCursorPos()
     return self.cursorPos
 end
 
---- Sets the - current cursor position
+--- Sets the The current cursor position in the text
 ---@generic Element: Input
 ---@param self Element
 ---@param cursorPos number
@@ -440,7 +544,7 @@ function Input:setCursorPos(cursorPos)
     return self
 end
 
---- Gets the - offset of view
+--- Gets the The horizontal scroll offset for viewing long text
 ---@generic Element: Input
 ---@param self Element
 ---@return number
@@ -448,7 +552,7 @@ function Input:getViewOffset()
     return self.viewOffset
 end
 
---- Sets the - offset of view
+--- Sets the The horizontal scroll offset for viewing long text
 ---@generic Element: Input
 ---@param self Element
 ---@param viewOffset number
@@ -458,12 +562,66 @@ function Input:setViewOffset(viewOffset)
     return self
 end
 
+--- Gets the Text to display when input is empty
+---@generic Element: Input
+---@param self Element
+---@return string
+function Input:getPlaceholder()
+    return self.placeholder
+end
+
+--- Sets the Text to display when input is empty
+---@generic Element: Input
+---@param self Element
+---@param placeholder string
+---@return Element
+function Input:setPlaceholder(placeholder)
+    self.placeholder = placeholder
+    return self
+end
+
+--- Gets the Color of the placeholder text
+---@generic Element: Input
+---@param self Element
+---@return color
+function Input:getPlaceholderColor()
+    return self.placeholderColor
+end
+
+--- Sets the Color of the placeholder text
+---@generic Element: Input
+---@param self Element
+---@param placeholderColor color
+---@return Element
+function Input:setPlaceholderColor(placeholderColor)
+    self.placeholderColor = placeholderColor
+    return self
+end
+
+--- Gets the Background color when input is focused
+---@generic Element: Input
+---@param self Element
+---@return color
+function Input:getFocusedColor()
+    return self.focusedColor
+end
+
+--- Sets the Background color when input is focused
+---@generic Element: Input
+---@param self Element
+---@param focusedColor color
+---@return Element
+function Input:setFocusedColor(focusedColor)
+    self.focusedColor = focusedColor
+    return self
+end
+
 
 ---@class Label
 ---@field text string
 local Label = {}
 
---- Gets the Label text to be displayed
+--- Gets the The text content to display. Can be a string or a function that returns a string
 ---@generic Element: Label
 ---@param self Element
 ---@return string
@@ -471,7 +629,7 @@ function Label:getText()
     return self.text
 end
 
---- Sets the Label text to be displayed
+--- Sets the The text content to display. Can be a string or a function that returns a string
 ---@generic Element: Label
 ---@param self Element
 ---@param text string
@@ -490,7 +648,7 @@ end
 ---@field selectedColor color
 local List = {}
 
---- Gets the of items to display
+--- Gets the List of items to display. Items can be strings or tables with properties
 ---@generic Element: List
 ---@param self Element
 ---@return table
@@ -498,7 +656,7 @@ function List:getItems()
     return self.items
 end
 
---- Sets the of items to display
+--- Sets the List of items to display. Items can be strings or tables with properties
 ---@generic Element: List
 ---@param self Element
 ---@param items table
@@ -508,7 +666,7 @@ function List:setItems(items)
     return self
 end
 
---- Gets the selected item index
+--- Gets the Index of the currently selected item (0 means no selection)
 ---@generic Element: List
 ---@param self Element
 ---@return number
@@ -516,7 +674,7 @@ function List:getSelectedIndex()
     return self.selectedIndex
 end
 
---- Sets the selected item index
+--- Sets the Index of the currently selected item (0 means no selection)
 ---@generic Element: List
 ---@param self Element
 ---@param selectedIndex number
@@ -526,7 +684,7 @@ function List:setSelectedIndex(selectedIndex)
     return self
 end
 
---- Gets the items can be selected
+--- Gets the Whether items in the list can be selected
 ---@generic Element: List
 ---@param self Element
 ---@return boolean
@@ -534,7 +692,7 @@ function List:getSelectable()
     return self.selectable
 end
 
---- Sets the items can be selected
+--- Sets the Whether items in the list can be selected
 ---@generic Element: List
 ---@param self Element
 ---@param selectable boolean
@@ -544,7 +702,7 @@ function List:setSelectable(selectable)
     return self
 end
 
---- Gets the offset
+--- Gets the Current scroll offset for viewing long lists
 ---@generic Element: List
 ---@param self Element
 ---@return number
@@ -552,7 +710,7 @@ function List:getOffset()
     return self.offset
 end
 
---- Sets the offset
+--- Sets the Current scroll offset for viewing long lists
 ---@generic Element: List
 ---@param self Element
 ---@param offset number
@@ -562,7 +720,7 @@ function List:setOffset(offset)
     return self
 end
 
---- Gets the for selected item
+--- Gets the Background color for the selected item
 ---@generic Element: List
 ---@param self Element
 ---@return color
@@ -570,13 +728,45 @@ function List:getSelectedColor()
     return self.selectedColor
 end
 
---- Sets the for selected item
+--- Sets the Background color for the selected item
 ---@generic Element: List
 ---@param self Element
 ---@param selectedColor color
 ---@return Element
 function List:setSelectedColor(selectedColor)
     self.selectedColor = selectedColor
+    return self
+end
+
+--- {index number, item any} Fired when an item is selected
+---@generic Element: List
+---@param self Element
+---@param callback function
+---@return Element
+function List:onOnSelect(callback)
+    return self
+end
+
+
+---@class Menu
+---@field separatorColor color
+local Menu = {}
+
+--- Gets the The color used for separator items in the menu
+---@generic Element: Menu
+---@param self Element
+---@return color
+function Menu:getSeparatorColor()
+    return self.separatorColor
+end
+
+--- Sets the The color used for separator items in the menu
+---@generic Element: Menu
+---@param self Element
+---@param separatorColor color
+---@return Element
+function Menu:setSeparatorColor(separatorColor)
+    self.separatorColor = separatorColor
     return self
 end
 
@@ -587,7 +777,7 @@ end
 ---@field progressColor color
 local ProgressBar = {}
 
---- Gets the progress (0-100)
+--- Gets the Current progress value (0-100)
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@return number
@@ -595,7 +785,7 @@ function ProgressBar:getProgress()
     return self.progress
 end
 
---- Sets the progress (0-100)
+--- Sets the Current progress value (0-100)
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@param progress number
@@ -605,7 +795,7 @@ function ProgressBar:setProgress(progress)
     return self
 end
 
---- Gets the percentage text
+--- Gets the Whether to show the percentage text in the center
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@return boolean
@@ -613,7 +803,7 @@ function ProgressBar:getShowPercentage()
     return self.showPercentage
 end
 
---- Sets the percentage text
+--- Sets the Whether to show the percentage text in the center
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@param showPercentage boolean
@@ -623,7 +813,7 @@ function ProgressBar:setShowPercentage(showPercentage)
     return self
 end
 
---- Gets the bar color
+--- Gets the The color used for the filled portion of the progress bar
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@return color
@@ -631,7 +821,7 @@ function ProgressBar:getProgressColor()
     return self.progressColor
 end
 
---- Sets the bar color
+--- Sets the The color used for the filled portion of the progress bar
 ---@generic Element: ProgressBar
 ---@param self Element
 ---@param progressColor color
@@ -650,7 +840,7 @@ end
 ---@field sliderColor color
 local Slider = {}
 
---- Gets the Current step position (1 to width/height)
+--- Gets the Current position of the slider handle (1 to width/height)
 ---@generic Element: Slider
 ---@param self Element
 ---@return number
@@ -658,7 +848,7 @@ function Slider:getStep()
     return self.step
 end
 
---- Sets the Current step position (1 to width/height)
+--- Sets the Current position of the slider handle (1 to width/height)
 ---@generic Element: Slider
 ---@param self Element
 ---@param step number
@@ -668,7 +858,7 @@ function Slider:setStep(step)
     return self
 end
 
---- Gets the Maximum value for value conversion
+--- Gets the Maximum value for value conversion (maps slider position to this range)
 ---@generic Element: Slider
 ---@param self Element
 ---@return number
@@ -676,7 +866,7 @@ function Slider:getMax()
     return self.max
 end
 
---- Sets the Maximum value for value conversion
+--- Sets the Maximum value for value conversion (maps slider position to this range)
 ---@generic Element: Slider
 ---@param self Element
 ---@param max number
@@ -686,7 +876,7 @@ function Slider:setMax(max)
     return self
 end
 
---- Gets the Whether the slider is horizontal
+--- Gets the Whether the slider is horizontal (false for vertical)
 ---@generic Element: Slider
 ---@param self Element
 ---@return boolean
@@ -694,7 +884,7 @@ function Slider:getHorizontal()
     return self.horizontal
 end
 
---- Sets the Whether the slider is horizontal
+--- Sets the Whether the slider is horizontal (false for vertical)
 ---@generic Element: Slider
 ---@param self Element
 ---@param horizontal boolean
@@ -704,7 +894,7 @@ function Slider:setHorizontal(horizontal)
     return self
 end
 
---- Gets the Colors for the slider bar
+--- Gets the Color of the slider track
 ---@generic Element: Slider
 ---@param self Element
 ---@return color
@@ -712,7 +902,7 @@ function Slider:getBarColor()
     return self.barColor
 end
 
---- Sets the Colors for the slider bar
+--- Sets the Color of the slider track
 ---@generic Element: Slider
 ---@param self Element
 ---@param barColor color
@@ -722,7 +912,7 @@ function Slider:setBarColor(barColor)
     return self
 end
 
---- Gets the color of the slider handle
+--- Gets the Color of the slider handle
 ---@generic Element: Slider
 ---@param self Element
 ---@return color
@@ -730,13 +920,395 @@ function Slider:getSliderColor()
     return self.sliderColor
 end
 
---- Sets the color of the slider handle
+--- Sets the Color of the slider handle
 ---@generic Element: Slider
 ---@param self Element
 ---@param sliderColor color
 ---@return Element
 function Slider:setSliderColor(sliderColor)
     self.sliderColor = sliderColor
+    return self
+end
+
+--- {value number} Fired when the slider value changes
+---@generic Element: Slider
+---@param self Element
+---@param callback function
+---@return Element
+function Slider:onOnChange(callback)
+    return self
+end
+
+
+---@class Table
+---@field columns table
+---@field data table
+---@field headerColor color
+---@field selectedColor color
+---@field gridColor color
+---@field sortDirection string
+---@field scrollOffset number
+local Table = {}
+
+--- Gets the List of column definitions with {name, width} properties
+---@generic Element: Table
+---@param self Element
+---@return table
+function Table:getColumns()
+    return self.columns
+end
+
+--- Sets the List of column definitions with {name, width} properties
+---@generic Element: Table
+---@param self Element
+---@param columns table
+---@return Element
+function Table:setColumns(columns)
+    self.columns = columns
+    return self
+end
+
+--- Gets the The table data as array of row arrays
+---@generic Element: Table
+---@param self Element
+---@return table
+function Table:getData()
+    return self.data
+end
+
+--- Sets the The table data as array of row arrays
+---@generic Element: Table
+---@param self Element
+---@param data table
+---@return Element
+function Table:setData(data)
+    self.data = data
+    return self
+end
+
+--- Gets the Color of the column headers
+---@generic Element: Table
+---@param self Element
+---@return color
+function Table:getHeaderColor()
+    return self.headerColor
+end
+
+--- Sets the Color of the column headers
+---@generic Element: Table
+---@param self Element
+---@param headerColor color
+---@return Element
+function Table:setHeaderColor(headerColor)
+    self.headerColor = headerColor
+    return self
+end
+
+--- Gets the Background color of selected row
+---@generic Element: Table
+---@param self Element
+---@return color
+function Table:getSelectedColor()
+    return self.selectedColor
+end
+
+--- Sets the Background color of selected row
+---@generic Element: Table
+---@param self Element
+---@param selectedColor color
+---@return Element
+function Table:setSelectedColor(selectedColor)
+    self.selectedColor = selectedColor
+    return self
+end
+
+--- Gets the Color of grid lines
+---@generic Element: Table
+---@param self Element
+---@return color
+function Table:getGridColor()
+    return self.gridColor
+end
+
+--- Sets the Color of grid lines
+---@generic Element: Table
+---@param self Element
+---@param gridColor color
+---@return Element
+function Table:setGridColor(gridColor)
+    self.gridColor = gridColor
+    return self
+end
+
+--- Gets the Sort direction ("asc" or "desc")
+---@generic Element: Table
+---@param self Element
+---@return string
+function Table:getSortDirection()
+    return self.sortDirection
+end
+
+--- Sets the Sort direction ("asc" or "desc")
+---@generic Element: Table
+---@param self Element
+---@param sortDirection string
+---@return Element
+function Table:setSortDirection(sortDirection)
+    self.sortDirection = sortDirection
+    return self
+end
+
+--- Gets the Current scroll position
+---@generic Element: Table
+---@param self Element
+---@return number
+function Table:getScrollOffset()
+    return self.scrollOffset
+end
+
+--- Sets the Current scroll position
+---@generic Element: Table
+---@param self Element
+---@param scrollOffset number
+---@return Element
+function Table:setScrollOffset(scrollOffset)
+    self.scrollOffset = scrollOffset
+    return self
+end
+
+
+---@class TextBox
+---@field lines table
+---@field cursorX number
+---@field cursorY number
+---@field scrollX number
+---@field scrollY number
+---@field editable boolean
+---@field syntaxPatterns table
+local TextBox = {}
+
+--- Gets the Array of text lines
+---@generic Element: TextBox
+---@param self Element
+---@return table
+function TextBox:getLines()
+    return self.lines
+end
+
+--- Sets the Array of text lines
+---@generic Element: TextBox
+---@param self Element
+---@param lines table
+---@return Element
+function TextBox:setLines(lines)
+    self.lines = lines
+    return self
+end
+
+--- Gets the Cursor X position
+---@generic Element: TextBox
+---@param self Element
+---@return number
+function TextBox:getCursorX()
+    return self.cursorX
+end
+
+--- Sets the Cursor X position
+---@generic Element: TextBox
+---@param self Element
+---@param cursorX number
+---@return Element
+function TextBox:setCursorX(cursorX)
+    self.cursorX = cursorX
+    return self
+end
+
+--- Gets the Cursor Y position (line number)
+---@generic Element: TextBox
+---@param self Element
+---@return number
+function TextBox:getCursorY()
+    return self.cursorY
+end
+
+--- Sets the Cursor Y position (line number)
+---@generic Element: TextBox
+---@param self Element
+---@param cursorY number
+---@return Element
+function TextBox:setCursorY(cursorY)
+    self.cursorY = cursorY
+    return self
+end
+
+--- Gets the Horizontal scroll offset
+---@generic Element: TextBox
+---@param self Element
+---@return number
+function TextBox:getScrollX()
+    return self.scrollX
+end
+
+--- Sets the Horizontal scroll offset
+---@generic Element: TextBox
+---@param self Element
+---@param scrollX number
+---@return Element
+function TextBox:setScrollX(scrollX)
+    self.scrollX = scrollX
+    return self
+end
+
+--- Gets the Vertical scroll offset
+---@generic Element: TextBox
+---@param self Element
+---@return number
+function TextBox:getScrollY()
+    return self.scrollY
+end
+
+--- Sets the Vertical scroll offset
+---@generic Element: TextBox
+---@param self Element
+---@param scrollY number
+---@return Element
+function TextBox:setScrollY(scrollY)
+    self.scrollY = scrollY
+    return self
+end
+
+--- Gets the Whether text can be edited
+---@generic Element: TextBox
+---@param self Element
+---@return boolean
+function TextBox:getEditable()
+    return self.editable
+end
+
+--- Sets the Whether text can be edited
+---@generic Element: TextBox
+---@param self Element
+---@param editable boolean
+---@return Element
+function TextBox:setEditable(editable)
+    self.editable = editable
+    return self
+end
+
+--- Gets the Syntax highlighting patterns
+---@generic Element: TextBox
+---@param self Element
+---@return table
+function TextBox:getSyntaxPatterns()
+    return self.syntaxPatterns
+end
+
+--- Sets the Syntax highlighting patterns
+---@generic Element: TextBox
+---@param self Element
+---@param syntaxPatterns table
+---@return Element
+function TextBox:setSyntaxPatterns(syntaxPatterns)
+    self.syntaxPatterns = syntaxPatterns
+    return self
+end
+
+
+---@class Tree
+---@field nodes table
+---@field expandedNodes table
+---@field scrollOffset number
+---@field nodeColor color
+---@field selectedColor color
+local Tree = {}
+
+--- Gets the The tree structure containing node objects with {text, children} properties
+---@generic Element: Tree
+---@param self Element
+---@return table
+function Tree:getNodes()
+    return self.nodes
+end
+
+--- Sets the The tree structure containing node objects with {text, children} properties
+---@generic Element: Tree
+---@param self Element
+---@param nodes table
+---@return Element
+function Tree:setNodes(nodes)
+    self.nodes = nodes
+    return self
+end
+
+--- Gets the Table of nodes that are currently expanded
+---@generic Element: Tree
+---@param self Element
+---@return table
+function Tree:getExpandedNodes()
+    return self.expandedNodes
+end
+
+--- Sets the Table of nodes that are currently expanded
+---@generic Element: Tree
+---@param self Element
+---@param expandedNodes table
+---@return Element
+function Tree:setExpandedNodes(expandedNodes)
+    self.expandedNodes = expandedNodes
+    return self
+end
+
+--- Gets the Current scroll position
+---@generic Element: Tree
+---@param self Element
+---@return number
+function Tree:getScrollOffset()
+    return self.scrollOffset
+end
+
+--- Sets the Current scroll position
+---@generic Element: Tree
+---@param self Element
+---@param scrollOffset number
+---@return Element
+function Tree:setScrollOffset(scrollOffset)
+    self.scrollOffset = scrollOffset
+    return self
+end
+
+--- Gets the Color of unselected nodes
+---@generic Element: Tree
+---@param self Element
+---@return color
+function Tree:getNodeColor()
+    return self.nodeColor
+end
+
+--- Sets the Color of unselected nodes
+---@generic Element: Tree
+---@param self Element
+---@param nodeColor color
+---@return Element
+function Tree:setNodeColor(nodeColor)
+    self.nodeColor = nodeColor
+    return self
+end
+
+--- Gets the Background color of selected node
+---@generic Element: Tree
+---@param self Element
+---@return color
+function Tree:getSelectedColor()
+    return self.selectedColor
+end
+
+--- Sets the Background color of selected node
+---@generic Element: Tree
+---@param self Element
+---@param selectedColor color
+---@return Element
+function Tree:setSelectedColor(selectedColor)
+    self.selectedColor = selectedColor
     return self
 end
 
@@ -755,7 +1327,7 @@ end
 ---@field visible boolean
 local VisualElement = {}
 
---- Gets the x position of the element
+--- Gets the The horizontal position relative to parent
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return number
@@ -763,7 +1335,7 @@ function VisualElement:getX()
     return self.x
 end
 
---- Sets the x position of the element
+--- Sets the The horizontal position relative to parent
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param x number
@@ -773,7 +1345,7 @@ function VisualElement:setX(x)
     return self
 end
 
---- Gets the y position of the element
+--- Gets the The vertical position relative to parent
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return number
@@ -781,7 +1353,7 @@ function VisualElement:getY()
     return self.y
 end
 
---- Sets the y position of the element
+--- Sets the The vertical position relative to parent
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param y number
@@ -791,7 +1363,7 @@ function VisualElement:setY(y)
     return self
 end
 
---- Gets the z position of the element
+--- Gets the The z-index for layering elements
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return number
@@ -799,7 +1371,7 @@ function VisualElement:getZ()
     return self.z
 end
 
---- Sets the z position of the element
+--- Sets the The z-index for layering elements
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param z number
@@ -809,7 +1381,7 @@ function VisualElement:setZ(z)
     return self
 end
 
---- Gets the width of the element
+--- Gets the The width of the element
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return number
@@ -817,7 +1389,7 @@ function VisualElement:getWidth()
     return self.width
 end
 
---- Sets the width of the element
+--- Sets the The width of the element
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param width number
@@ -827,7 +1399,7 @@ function VisualElement:setWidth(width)
     return self
 end
 
---- Gets the height of the element
+--- Gets the The height of the element
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return number
@@ -835,7 +1407,7 @@ function VisualElement:getHeight()
     return self.height
 end
 
---- Sets the height of the element
+--- Sets the The height of the element
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param height number
@@ -845,7 +1417,7 @@ function VisualElement:setHeight(height)
     return self
 end
 
---- Gets the background color of the element
+--- Gets the The background color
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return color
@@ -853,7 +1425,7 @@ function VisualElement:getBackground()
     return self.background
 end
 
---- Sets the background color of the element
+--- Sets the The background color
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param background color
@@ -863,7 +1435,7 @@ function VisualElement:setBackground(background)
     return self
 end
 
---- Gets the foreground color of the element
+--- Gets the The text/foreground color
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return color
@@ -871,7 +1443,7 @@ function VisualElement:getForeground()
     return self.foreground
 end
 
---- Sets the foreground color of the element
+--- Sets the The text/foreground color
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param foreground color
@@ -881,7 +1453,7 @@ function VisualElement:setForeground(foreground)
     return self
 end
 
---- Gets the false element is currently clicked
+--- Gets the Whether the element is currently clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return boolean
@@ -889,7 +1461,7 @@ function VisualElement:getClicked()
     return self.clicked
 end
 
---- Sets the false element is currently clicked
+--- Sets the Whether the element is currently clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param clicked boolean
@@ -899,7 +1471,7 @@ function VisualElement:setClicked(clicked)
     return self
 end
 
---- Gets the whether the background is enabled
+--- Gets the Whether to render the background
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return boolean
@@ -907,7 +1479,7 @@ function VisualElement:getBackgroundEnabled()
     return self.backgroundEnabled
 end
 
---- Sets the whether the background is enabled
+--- Sets the Whether to render the background
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param backgroundEnabled boolean
@@ -917,7 +1489,7 @@ function VisualElement:setBackgroundEnabled(backgroundEnabled)
     return self
 end
 
---- Gets the whether the element is focused
+--- Gets the Whether the element has input focus
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return boolean
@@ -925,7 +1497,7 @@ function VisualElement:getFocused()
     return self.focused
 end
 
---- Sets the whether the element is focused
+--- Sets the Whether the element has input focus
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param focused boolean
@@ -935,7 +1507,7 @@ function VisualElement:setFocused(focused)
     return self
 end
 
---- Gets the whether the element is visible
+--- Gets the Whether the element is visible
 ---@generic Element: VisualElement
 ---@param self Element
 ---@return boolean
@@ -943,7 +1515,7 @@ function VisualElement:getVisible()
     return self.visible
 end
 
---- Sets the whether the element is visible
+--- Sets the Whether the element is visible
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param visible boolean
@@ -953,7 +1525,7 @@ function VisualElement:setVisible(visible)
     return self
 end
 
---- {button number, x number, y number} Fired when the element is clicked
+--- {button number, x number, y number} Fired on mouse click
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -962,7 +1534,7 @@ function VisualElement:onOnMouseClick(callback)
     return self
 end
 
---- {button number, x number, y number} Fired when the mouse is released
+--- {button number, x number, y number} Fired on mouse button release
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -971,7 +1543,7 @@ function VisualElement:onOnMouseUp(callback)
     return self
 end
 
---- {button number, x number, y number} Fired when the mouse is released
+--- {button number, x number, y number} Fired when mouse leaves while clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -980,7 +1552,7 @@ function VisualElement:onOnMouseRelease(callback)
     return self
 end
 
---- {button number, x number, y number} Fired when the mouse is dragged
+--- {button number, x number, y number} Fired when mouse moves while clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -989,7 +1561,7 @@ function VisualElement:onOnMouseDrag(callback)
     return self
 end
 
---- {-} Fired when the element is focused
+--- {-} Fired when element receives focus
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -998,7 +1570,7 @@ function VisualElement:onOnFocus(callback)
     return self
 end
 
---- {-} Fired when the element is blurred
+--- {-} Fired when element loses focus
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1007,7 +1579,7 @@ function VisualElement:onOnBlur(callback)
     return self
 end
 
---- {key number, code number, isRepeat boolean} Fired when a key is pressed
+--- {key number, code number, isRepeat boolean} Fired on key press
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1016,7 +1588,7 @@ function VisualElement:onOnKey(callback)
     return self
 end
 
---- {key number, code number} Fired when a key is released
+--- {key number, code number} Fired on key release
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1025,7 +1597,7 @@ function VisualElement:onOnKeyUp(callback)
     return self
 end
 
---- {char string} Fired when a key is pressed
+--- {char string} Fired on character input
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
