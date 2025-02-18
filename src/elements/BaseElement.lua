@@ -1,5 +1,5 @@
 local PropertySystem = require("propertySystem")
-local uuid = require("/libraries/utils").uuid
+local uuid = require("libraries/utils").uuid
 
 --- The base class for all UI elements in Basalt
 --- @class BaseElement : PropertySystem
