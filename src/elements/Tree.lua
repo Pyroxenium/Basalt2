@@ -128,6 +128,10 @@ function Tree:mouse_click(button, x, y)
     end
 end
 
+--- Registers a callback for when a node is selected
+--- @shortDescription Registers a callback for when a node is selected
+--- @param callback function The callback function
+--- @return Tree self The Tree instance
 function Tree:onSelect(callback)
     self:registerCallback("node_select", callback)
     return self

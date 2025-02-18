@@ -20,7 +20,7 @@ local function bundle()
         'local minified = true\n',
         'local project = {}\n',
         'local baseRequire = require\n',
-        'require = function(path) return project[path] or baseRequire(path) end\n'
+        'require = function(path) return project[path..".lua"] or baseRequire(path) end\n'
     }
     
     for _, file in ipairs(files) do
@@ -31,17 +31,16 @@ local function bundle()
         local success, minified = minify(content)
         if not success then
             print("Failed to minify " .. file.path)
-            print(minified)
             os.exit(1)
         end
         
         table.insert(output, string.format(
             'project["%s"] = function(...) %s end\n',
-            file.path, minified
+            file.path, minified:gsub("\n", " ")
         ))
     end
     
-    table.insert(output, 'return project["main.lua"]')
+    table.insert(output, 'return project["main.lua"]()')
     
     local out = io.open("release/basalt.lua", "w")
     out:write(table.concat(output))
