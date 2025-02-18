@@ -21,10 +21,9 @@ with support for selection and scrolling.
 |[Tree.new](#Tree.new)|Tree|Creates a new Tree instance
 |[Tree:collapseNode](#Tree:collapseNode)|Tree|Collapses a node to hide its children
 |[Tree:expandNode](#Tree:expandNode)|Tree|Expands a node to show its children
-|[Tree:getNodeSize](#Tree:getNodeSize)|-|
+|[Tree:getNodeSize](#Tree:getNodeSize)|number|Gets the size of the tree
 |[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
 |[Tree:mouse_click](#Tree:mouse_click)|-|
-|[Tree:mouse_scroll](#Tree:mouse_scroll)|-|
 |[Tree:onSelect](#Tree:onSelect)|Tree|Registers a callback for when a node is selected
 |[Tree:render](#Tree:render)|-|
 |[Tree:setNodes](#Tree:setNodes)|Tree|Sets the tree nodes and expands the root node
@@ -60,6 +59,11 @@ Expands a node
 * `Tree` `self` The Tree instance
 
 ## Tree:getNodeSize()
+Gets the size of the tree
+
+### Returns
+* `number` `width` The width of the tree
+* `number` `height` The height of the tree
 
 ## Tree:init(props, basalt)
 Initializes the Tree instance
@@ -72,8 +76,6 @@ Initializes the Tree instance
 * `Tree` `self` The initialized instance
 
 ## Tree:mouse_click()
-
-## Tree:mouse_scroll()
 
 ## Tree:onSelect(callback)
 Registers a callback for when a node is selected
