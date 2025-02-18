@@ -62,7 +62,7 @@ if(minified)then
     if(minified_elementDirectory==nil)then
         error("Unable to find minified_elementDirectory please report this bug to our discord.")
     end
-    for name,v in pairs(minfied_elementDirectory)do
+    for name,v in pairs(minified_elementDirectory)do
         ElementManager._elements[name:gsub(".lua", "")] = {
             class = nil,
             plugins = {},
