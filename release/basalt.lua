@@ -61,12 +61,13 @@ cc._elements[ad:gsub(".lua","")]={class=nil,plugins={},loaded=false}end;if
 (minified_pluginDirectory==nil)then
 error("Unable to find minified_pluginDirectory please report this bug to our discord.")end
 for ad,bd in
-pairs(minified_pluginDirectory)do local cd=require(fs.combine("plugins",ad))
-if
-type(cd)=="table"then
-for dd,__a in pairs(cd)do if(dd~="API")then
-if(cc._plugins[dd]==nil)then cc._plugins[dd]={}end;table.insert(cc._plugins[dd],__a)else
-cc._APIs[dd]=__a end end end end end
+pairs(minified_pluginDirectory)do
+local cd=require(fs.combine("plugins",ad:gsub(".lua","")))
+if type(cd)=="table"then
+for dd,__a in pairs(cd)do
+if(dd~="API")then if(cc._plugins[dd]==nil)then
+cc._plugins[dd]={}end
+table.insert(cc._plugins[dd],__a)else cc._APIs[dd]=__a end end end end end
 function cc.loadElement(ad)
 if not cc._elements[ad].loaded then
 package.path=bc.."rom/?"local bd=require(fs.combine("elements",ad))
@@ -1208,7 +1209,7 @@ self:textBg(ca,1," ",self.get("sliderColor"))else
 for y=1,aa do self:textFg(1,y,da,self.get("barColor"))end
 self:textFg(1,ca,"\140",self.get("sliderColor"))end end;return d end
 project["elements/BaseElement.lua"] = function(...) local d=require("propertySystem")
-local _a=require("/libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa;aa._events={}
+local _a=require("libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa;aa._events={}
 aa.defineProperty(aa,"type",{default={"BaseElement"},type="string",setter=function(ba,ca)if
 type(ca)=="string"then table.insert(ba._values.type,1,ca)return
 ba._values.type end;return ca end,getter=function(ba,ca,da)if
