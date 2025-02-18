@@ -1,7 +1,37 @@
 local minified = true
+local minified_elementDirectory = {}
+local minified_pluginDirectory = {}
 local project = {}
 local baseRequire = require
 require = function(path) return project[path..".lua"] or baseRequire(path) end
+minified_pluginDirectory["debug"] = {}
+minified_pluginDirectory["theme"] = {}
+minified_pluginDirectory["reactive"] = {}
+minified_pluginDirectory["xml"] = {}
+minified_pluginDirectory["animation"] = {}
+minified_pluginDirectory["state"] = {}
+minified_pluginDirectory["benchmark"] = {}
+minified_pluginDirectory["pluginTemplate"] = {}
+minified_elementDirectory["Table"] = {}
+minified_elementDirectory["BaseFrame"] = {}
+minified_elementDirectory["ProgressBar"] = {}
+minified_elementDirectory["Menu"] = {}
+minified_elementDirectory["Frame"] = {}
+minified_elementDirectory["Button"] = {}
+minified_elementDirectory["Program"] = {}
+minified_elementDirectory["Label"] = {}
+minified_elementDirectory["Flexbox"] = {}
+minified_elementDirectory["Container"] = {}
+minified_elementDirectory["Slider"] = {}
+minified_elementDirectory["BaseElement"] = {}
+minified_elementDirectory["Checkbox"] = {}
+minified_elementDirectory["Input"] = {}
+minified_elementDirectory["VisualElement"] = {}
+minified_elementDirectory["Scrollbar"] = {}
+minified_elementDirectory["List"] = {}
+minified_elementDirectory["Tree"] = {}
+minified_elementDirectory["TextBox"] = {}
+minified_elementDirectory["Dropdown"] = {}
 project["elementManager.lua"] = function(...) local ab=table.pack(...)
 local bb=fs.getDir(ab[2]or"basalt")local cb=ab[1]if(bb==nil)then
 error("Unable to find directory "..
@@ -24,6 +54,19 @@ type(dd)=="table"then
 for __a,a_a in pairs(dd)do if(__a~="API")then
 if(cc._plugins[__a]==nil)then cc._plugins[__a]={}end;table.insert(cc._plugins[__a],a_a)else
 cc._APIs[cd]=a_a end end end end end end
+if(minified)then if(minified_elementDirectory==nil)then
+error("Unable to find minified_elementDirectory please report this bug to our discord.")end;for ad,bd in
+pairs(minfied_elementDirectory)do
+cc._elements[ad:gsub(".lua","")]={class=nil,plugins={},loaded=false}end;if
+(minified_pluginDirectory==nil)then
+error("Unable to find minified_pluginDirectory please report this bug to our discord.")end
+for ad,bd in
+pairs(minified_pluginDirectory)do local cd=require(fs.combine("plugins",ad))
+if
+type(cd)=="table"then
+for dd,__a in pairs(cd)do if(dd~="API")then
+if(cc._plugins[dd]==nil)then cc._plugins[dd]={}end;table.insert(cc._plugins[dd],__a)else
+cc._APIs[dd]=__a end end end end end
 function cc.loadElement(ad)
 if not cc._elements[ad].loaded then
 package.path=bc.."rom/?"local bd=require(fs.combine("elements",ad))
@@ -155,8 +198,9 @@ function _b:getPropertyConfig(cb)return self._properties[cb]end;return _b end
 project["main.lua"] = function(...) local cc=require("elementManager")
 local dc=require("errorManager")local _d=require("propertySystem")
 local ad=require("libraries/expect")local bd={}bd.traceback=true;bd._events={}bd._schedule={}bd._plugins={}
-bd.LOGGER=require("log")bd.path=fs.getDir(select(2,...))local cd=nil;local dd=false
-local __a=type;local a_a={}local b_a=10;local c_a=0;local d_a=false;local function _aa()if(d_a)then return end
+bd.LOGGER=require("log")
+if(minified)then
+bd.path=fs.getDir(shell.getRunningProgram())else bd.path=fs.getDir(select(2,...))end;local cd=nil;local dd=false;local __a=type;local a_a={}local b_a=10;local c_a=0;local d_a=false;local function _aa()if(d_a)then return end
 c_a=os.startTimer(0.2)d_a=true end;local function aaa(_ba)
 for _=1,_ba do local aba=a_a[1]if(aba)then
 aba:create()end;table.remove(a_a,1)end end
