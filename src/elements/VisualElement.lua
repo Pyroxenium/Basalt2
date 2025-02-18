@@ -30,6 +30,8 @@ VisualElement.defineProperty(VisualElement, "background", {default = colors.blac
 VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
 ---@property clicked boolean false Whether the element is currently clicked
 VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
+---@property hover boolean false Whether the mouse is currently hover over the element (Craftos-PC only)
+VisualElement.defineProperty(VisualElement, "hover", {default = false, type = "boolean"})
 ---@property backgroundEnabled boolean true Whether to render the background
 VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
 ---@property focused boolean false Whether the element has input focus
@@ -81,6 +83,8 @@ VisualElement.combineProperties(VisualElement, "color", "foreground", "backgroun
 
 VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
+VisualElement.listenTo(VisualElement, "mouse_enter", "mouse_move")
+VisualElement.listenTo(VisualElement, "mouse_leave", "mouse_move")
 
 local max, min = math.max, math.min
 
@@ -185,12 +189,12 @@ end
 --- @param y number The y position of the release
 --- @return boolean release Whether the element was released on the element
 function VisualElement:mouse_up(button, x, y)
-    self.set("clicked", false)
     if self:isInBounds(x, y) then
-        self:fireEvent("mouse_up", button, x, y)
+        self.set("clicked", false)
+        self:fireEvent("mouse_up", button, self:getRelativePosition(x, y))
         return true
     end
-    self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
+    return false
 end
 
 --- Handles a mouse release event
@@ -198,11 +202,42 @@ end
 --- @param button number The button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
---- @return boolean release Whether the element was released on the element
 function VisualElement:mouse_release(button, x, y)
-    if self.get("clicked") then
-        self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
-        self.set("clicked", false)
+    self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
+    self.set("clicked", false)
+end
+
+function VisualElement:mouse_move(_, x, y)
+    if(x==nil)or(y==nil)then
+        return
+    end
+    local hover = self.get("hover")
+    if(self:isInBounds(x, y))then
+        if(not hover)then
+            self.set("hover", true)
+            self:fireEvent("mouse_enter", self:getRelativePosition(x, y))
+        end
+        return true
+    else
+        if(hover)then
+            self.set("hover", false)
+            self:fireEvent("mouse_leave", self:getRelativePosition(x, y))
+        end
+    end
+    return false
+end
+
+function VisualElement:mouse_scroll(direction, x, y)
+    if(self:isInBounds(x, y))then
+        self:fireEvent("mouse_scroll", direction, self:getRelativePosition(x, y))
+        return true
+    end
+    return false
+end
+
+function VisualElement:mouse_drag(button, x, y)
+    if(self.get("clicked"))then
+        self:fireEvent("mouse_drag", button, self:getRelativePosition(x, y))
         return true
     end
     return false
@@ -272,11 +307,11 @@ end
 --- @param x number The x position of the cursor
 --- @param y number The y position of the cursor
 --- @param blink boolean Whether the cursor should blink
-function VisualElement:setCursor(x, y, blink)
+function VisualElement:setCursor(x, y, blink, color)
     if self.parent then
         local absX, absY = self:getAbsolutePosition(x, y)
         absX = max(self.get("x"), min(absX, self.get("width") + self.get("x") - 1))
-        return self.parent:setCursor(absX, absY, blink)
+        return self.parent:setCursor(absX, absY, blink, color)
     end
 end
 

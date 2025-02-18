@@ -13,8 +13,10 @@ Tree.defineProperty(Tree, "nodes", {default = {}, type = "table", canTriggerRend
 Tree.defineProperty(Tree, "selectedNode", {default = nil, type = "table", canTriggerRender = true})
 ---@property expandedNodes table {} Table of nodes that are currently expanded
 Tree.defineProperty(Tree, "expandedNodes", {default = {}, type = "table", canTriggerRender = true})
----@property scrollOffset number 0 Current scroll position
+---@property scrollOffset number 0 Current vertical scroll position
 Tree.defineProperty(Tree, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
+---@property horizontalOffset number 0 Current horizontal scroll position
+Tree.defineProperty(Tree, "horizontalOffset", {default = 0, type = "number", canTriggerRender = true})
 ---@property nodeColor color white Color of unselected nodes
 Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "number"})
 ---@property selectedColor color lightBlue Background color of selected node
@@ -106,24 +108,24 @@ local function flattenTree(nodes, expandedNodes, level, result)
 end
 
 function Tree:mouse_click(button, x, y)
-    if not VisualElement.mouse_click(self, button, x, y) then return false end
+    if VisualElement.mouse_click(self, button, x, y) then
+        local relX, relY = self:getRelativePosition(x, y)
+        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
+        local visibleIndex = relY + self.get("scrollOffset")
 
-    local relX, relY = self:getRelativePosition(x, y)
-    local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-    local visibleIndex = relY + self.get("scrollOffset")
+        if flatNodes[visibleIndex] then
+            local nodeInfo = flatNodes[visibleIndex]
+            local node = nodeInfo.node
 
-    if flatNodes[visibleIndex] then
-        local nodeInfo = flatNodes[visibleIndex]
-        local node = nodeInfo.node
+            if relX <= nodeInfo.level * 2 + 2 then
+                self:toggleNode(node)
+            end
 
-        if relX <= nodeInfo.level * 2 + 2 then
-            self:toggleNode(node)
+            self.set("selectedNode", node)
+            self:fireEvent("node_select", node)
         end
-
-        self.set("selectedNode", node)
-        self:fireEvent("node_select", node)
+        return true
     end
-    return true
 end
 
 function Tree:onSelect(callback)
@@ -131,13 +133,25 @@ function Tree:onSelect(callback)
     return self
 end
 
-function Tree:mouse_scroll(direction)
-    local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-    local maxScroll = math.max(0, #flatNodes - self.get("height"))
-    local newScroll = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
+function Tree:mouse_scroll(direction, x, y)
+    if VisualElement.mouse_scroll(self, direction, x, y) then
+        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
+        local maxScroll = math.max(0, #flatNodes - self.get("height"))
+        local newScroll = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
 
-    self.set("scrollOffset", newScroll)
-    return true
+        self.set("scrollOffset", newScroll)
+        return true
+    end
+end
+
+function Tree:getNodeSize()
+    local width, height = 0, 0
+    local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
+    for _, nodeInfo in ipairs(flatNodes) do
+        width = math.max(width, nodeInfo.level + #nodeInfo.node.text)
+    end
+    height = #flatNodes
+    return width, height
 end
 
 function Tree:render()
@@ -148,6 +162,7 @@ function Tree:render()
     local selectedNode = self.get("selectedNode")
     local expandedNodes = self.get("expandedNodes")
     local scrollOffset = self.get("scrollOffset")
+    local horizontalOffset = self.get("horizontalOffset")
 
     for y = 1, height do
         local nodeInfo = flatNodes[y + scrollOffset]
@@ -162,11 +177,10 @@ function Tree:render()
             end
 
             local bg = node == selectedNode and self.get("selectedColor") or self.get("background")
-            local text = indent .. symbol .." " .. (node.text or "Node")
-            text = sub(text, 1, self.get("width"))
+            local fullText = indent .. symbol .." " .. (node.text or "Node")
+            local text = sub(fullText, horizontalOffset + 1, horizontalOffset + self.get("width"))
 
             self:textFg(1, y, text .. string.rep(" ", self.get("width") - #text), self.get("foreground"))
-
         else
             self:textFg(1, y, string.rep(" ", self.get("width")), self.get("foreground"), self.get("background"))
         end

@@ -93,9 +93,14 @@ end
 --- @param x number The x position to set the cursor to
 --- @param y number The y position to set the cursor to
 --- @param blink boolean Whether the cursor should blink
-function BaseFrame:setCursor(x, y, blink)
+function BaseFrame:setCursor(x, y, blink, color)
     local term = self.get("term")
-    self._render:setCursor(x, y, blink)
+    self._render:setCursor(x, y, blink, color)
+end
+
+function BaseFrame:mouse_up(button, x, y)
+    Container.mouse_up(self, button, x, y)
+    Container.mouse_release(self, button, x, y)
 end
 
 --- Renders the Frame
@@ -108,6 +113,17 @@ function BaseFrame:render()
             self._renderUpdate = false
         end
     end
+end
+
+function BaseFrame:term_resize()
+    local width, height = self.get("term").getSize()
+    if(width == self.get("width") and height == self.get("height")) then
+        return
+    end
+    self.set("width", width)
+    self.set("height", height)
+    self._render:setSize(width, height)
+    self._renderUpdate = true
 end
 
 return BaseFrame

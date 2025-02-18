@@ -23,6 +23,8 @@ Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "
 Input.defineProperty(Input, "focusedColor", {default = colors.blue, type = "number"})
 ---@property pattern string? nil Regular expression pattern for input validation
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
+---@property cursorColor number nil Color of the cursor
+Input.defineProperty(Input, "cursorColor", {default = nil, type = "number"})
 
 Input.listenTo(Input, "mouse_click")
 Input.listenTo(Input, "key")
@@ -106,7 +108,7 @@ function Input:key(key)
     end
 
     local relativePos = self.get("cursorPos") - self.get("viewOffset")
-    self:setCursor(relativePos, 1, true)
+    self:setCursor(relativePos, 1, true, self.get("cursorColor") or self.get("foreground"))
     return true
 end
 
@@ -134,7 +136,7 @@ function Input:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
         local text = self.get("text")
-        self:setCursor(math.min(relX, #text + 1), relY, true)
+        self:setCursor(math.min(relX, #text + 1), relY, true, self.get("cursorColor") or self.get("foreground"))
         self:set("cursorPos", relX + self.get("viewOffset"))
         return true
     end

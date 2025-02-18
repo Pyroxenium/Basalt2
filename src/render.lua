@@ -1,4 +1,5 @@
 local colorChars = require("libraries/colorHex")
+local log = require("log")
 
 --- This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional 
 --- functionality. It also has a buffer system to reduce the number of calls
@@ -12,6 +13,8 @@ local colorChars = require("libraries/colorHex")
 --- @field blink boolean Whether the cursor should blink
 local Render = {}
 Render.__index = Render
+
+local sub = string.sub
 
 --- Creates a new Render object
 --- @param terminal table The terminal object to render to
@@ -66,9 +69,9 @@ function Render:blit(x, y, text, fg, bg)
         error("Text, fg, and bg must be the same length")
     end
 
-    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
-    self.buffer.fg[y] = self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg)
-    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg)
+    self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
+    self.buffer.fg[y] = sub(self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg), 1, self.width)
+    self.buffer.bg[y] = sub(self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg), 1, self.width)
     self:addDirtyRect(x, y, #text, 1)
 
     return self
@@ -96,9 +99,9 @@ function Render:multiBlit(x, y, width, height, text, fg, bg)
     for dy=0, height-1 do
         local cy = y + dy
         if cy >= 1 and cy <= self.height then
-            self.buffer.text[cy] = self.buffer.text[cy]:sub(1,x-1) .. text .. self.buffer.text[cy]:sub(x+#text)
-            self.buffer.fg[cy] = self.buffer.fg[cy]:sub(1,x-1) .. fg .. self.buffer.fg[cy]:sub(x+#fg)
-            self.buffer.bg[cy] = self.buffer.bg[cy]:sub(1,x-1) .. bg .. self.buffer.bg[cy]:sub(x+#bg)
+            self.buffer.text[cy] = sub(self.buffer.text[cy]:sub(1,x-1) .. text .. self.buffer.text[cy]:sub(x+#text), 1, self.width)
+            self.buffer.fg[cy] = sub(self.buffer.fg[cy]:sub(1,x-1) .. fg .. self.buffer.fg[cy]:sub(x+#fg), 1, self.width)
+            self.buffer.bg[cy] = sub(self.buffer.bg[cy]:sub(1,x-1) .. bg .. self.buffer.bg[cy]:sub(x+#bg), 1, self.width)
         end
     end
 
@@ -115,9 +118,10 @@ end
 function Render:textFg(x, y, text, fg)
     if y < 1 or y > self.height then return self end
     fg = colorChars[fg] or "0"
+    fg = fg:rep(#text)
 
-    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
-    self.buffer.fg[y] = self.buffer.fg[y]:sub(1,x-1) .. fg:rep(#text) .. self.buffer.fg[y]:sub(x+#text)
+    self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
+    self.buffer.fg[y] = sub(self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg), 1, self.width)
     self:addDirtyRect(x, y, #text, 1)
 
     return self
@@ -133,8 +137,8 @@ function Render:textBg(x, y, text, bg)
     if y < 1 or y > self.height then return self end
     bg = colorChars[bg] or "f"
 
-    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
-    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg:rep(#text) .. self.buffer.bg[y]:sub(x+#text)
+    self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
+    self.buffer.bg[y] = sub(self.buffer.bg[y]:sub(1,x-1) .. bg:rep(#text) .. self.buffer.bg[y]:sub(x+#text), 1, self.width)
     self:addDirtyRect(x, y, #text, 1)
 
     return self
@@ -148,7 +152,7 @@ end
 function Render:text(x, y, text)
     if y < 1 or y > self.height then return self end
 
-    self.buffer.text[y] = self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text)
+    self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
     self:addDirtyRect(x, y, #text, 1)
 
     return self
@@ -162,7 +166,7 @@ end
 function Render:fg(x, y, fg)
     if y < 1 or y > self.height then return self end
 
-    self.buffer.fg[y] = self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg)
+    self.buffer.fg[y] = sub(self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg), 1, self.width)
     self:addDirtyRect(x, y, #fg, 1)
 
     return self
@@ -176,7 +180,7 @@ end
 function Render:bg(x, y, bg)
     if y < 1 or y > self.height then return self end
 
-    self.buffer.bg[y] = self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg)
+    self.buffer.bg[y] = sub(self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg), 1, self.width)
     self:addDirtyRect(x, y, #bg, 1)
 
     return self
@@ -230,6 +234,7 @@ function Render:render()
     self.buffer.dirtyRects = {}
 
     if self.blink then
+        self.terminal.setTextColor(self.cursorColor)
         self.terminal.setCursorPos(self.xCursor, self.yCursor)
         self.terminal.setCursorBlink(true)
     else
@@ -271,12 +276,14 @@ end
 --- @param y number The y position of the cursor
 --- @param blink boolean Whether the cursor should blink
 --- @return Render
-function Render:setCursor(x, y, blink)
+function Render:setCursor(x, y, blink, color)
+    if color ~= nil then self.terminal.setTextColor(color) end
     self.terminal.setCursorPos(x, y)
     self.terminal.setCursorBlink(blink)
     self.xCursor = x
     self.yCursor = y
     self.blink = blink
+    self.cursorColor = color
     return self
 end
 
@@ -304,6 +311,17 @@ end
 --- @return number, number
 function Render:getSize()
     return self.width, self.height
+end
+
+function Render:setSize(width, height)
+    self.width = width
+    self.height = height
+    for y=1, self.height do
+        self.buffer.text[y] = string.rep(" ", self.width)
+        self.buffer.fg[y] = string.rep("0", self.width)
+        self.buffer.bg[y] = string.rep("f", self.width)
+    end
+    return self
 end
 
 return Render

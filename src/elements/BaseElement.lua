@@ -34,12 +34,13 @@ BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = 
 --- @shortDescription Registers an event that this class can listen to
 --- @param class table The class to add the event to
 --- @param eventName string The name of the event to register
+--- @param event? string The event to handle
 --- @usage BaseElement.listenTo(MyClass, "mouse_click")
-function BaseElement.listenTo(class, eventName)
+function BaseElement.listenTo(class, eventName, event)
     if not class._events then
         class._events = {}
     end
-    class._events[eventName] = true
+    class._events[eventName] = {enabled=true, name=eventName, event=event}
 end
 
 --- Creates a new BaseElement instance
@@ -64,13 +65,13 @@ function BaseElement:init(props, basalt)
     self.basalt = basalt
     self._registeredEvents = {}
     if BaseElement._events then
-        for event in pairs(BaseElement._events) do
-            self._registeredEvents[event] = true
-            local handlerName = "on" .. event:gsub("_(%l)", function(c)
+        for key,event in pairs(BaseElement._events) do
+            self._registeredEvents[event.event or event.name] = true
+            local handlerName = "on" .. event.name:gsub("_(%l)", function(c)
                 return c:upper()
             end):gsub("^%l", string.upper)
             self[handlerName] = function(self, ...)
-                self:registerCallback(event, ...)
+                self:registerCallback(event.name, ...)
                 return self
             end
         end

@@ -1,6 +1,7 @@
 local elementManager = require("elementManager")
 local errorManager = require("errorManager")
 local propertySystem = require("propertySystem")
+local expect = require("libraries/expect")
 
 
 --- This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
@@ -123,27 +124,42 @@ function basalt.setActiveFrame(frame)
     mainFrame = frame
 end
 
---- Schedules a function to be updated
---- @shortDescription Schedules a function to be updated
+--- Schedules a function to run in a coroutine
+--- @shortDescription Schedules a function to run in a coroutine
 --- @function scheduleUpdate
 --- @param func function The function to schedule
---- @return number Id The schedule ID
+--- @return thread func The scheduled function
 --- @usage local id = basalt.scheduleUpdate(myFunction)
-function basalt.scheduleUpdate(func)
-    table.insert(basalt._schedule, func)
-    return #basalt._schedule
+function basalt.schedule(func)
+    expect(1, func, "function")
+
+    local co = coroutine.create(func)
+    local ok, result = coroutine.resume(co)
+    if(ok)then
+        table.insert(basalt._schedule, {coroutine=co, filter=result})
+    else
+        errorManager.header = "Basalt Schedule Error"
+        errorManager.error(result)
+    end
+    return co
 end
 
 --- Removes a scheduled update
 --- @shortDescription Removes a scheduled update
 --- @function removeSchedule
---- @param id number The schedule ID to remove
+--- @param func thread The scheduled function to remove
+--- @return boolean success Whether the scheduled function was removed
 --- @usage basalt.removeSchedule(scheduleId)
-function basalt.removeSchedule(id)
-    basalt._schedule[id] = nil
+function basalt.removeSchedule(func)
+    for i, v in ipairs(basalt._schedule) do
+        if(v.coroutine==func)then
+            table.remove(basalt._schedule, i)
+            return true
+        end
+    end
+    return false
 end
 
----@private
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
     if lazyElementsEventHandler(event, ...) then return end
@@ -154,6 +170,19 @@ local function updateEvent(event, ...)
         end
     end
 
+    for _, func in ipairs(basalt._schedule) do
+        if(event==func.filter)then
+            local ok, result = coroutine.resume(func.coroutine, event, ...)
+            if(not ok)then
+                errorManager.header = "Basalt Schedule Error"
+                errorManager.error(result)
+            end
+        end
+        if(coroutine.status(func.coroutine)=="dead")then
+            basalt.removeSchedule(func.coroutine)
+        end
+    end
+
     if basalt._events[event] then
         for _, callback in ipairs(basalt._events[event]) do
             callback(...)
@@ -161,22 +190,19 @@ local function updateEvent(event, ...)
     end
 end
 
----@private
 local function renderFrames()
     if(mainFrame)then
         mainFrame:render()
     end
 end
 
---- Updates all scheduled functions
---- @shortDescription Updates all scheduled functions
+--- Runs basalt once
+--- @shortDescription Runs basalt once
+--- @vararg any The event to run with
 --- @usage basalt.update()
-function basalt.update()
-    for k,v in pairs(basalt._schedule) do
-        if type(v)=="function" then
-            v()
-        end
-    end
+function basalt.update(...)
+    updateEvent(...)
+    renderFrames()
 end
 
 --- Stops the Basalt runtime

@@ -20,6 +20,8 @@ TextBox.defineProperty(TextBox, "scrollY", {default = 0, type = "number", canTri
 TextBox.defineProperty(TextBox, "editable", {default = true, type = "boolean"})
 ---@property syntaxPatterns table {} Syntax highlighting patterns
 TextBox.defineProperty(TextBox, "syntaxPatterns", {default = {}, type = "table"})
+---@property cursorColor number nil Color of the cursor
+TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "number"})
 
 TextBox.listenTo(TextBox, "mouse_click")
 TextBox.listenTo(TextBox, "key")
@@ -41,7 +43,7 @@ end
 
 --- Adds a new syntax highlighting pattern
 --- @param pattern string The regex pattern to match
---- @param color color The color to apply
+--- @param color colors The color to apply
 function TextBox:addSyntaxPattern(pattern, color)
     table.insert(self.get("syntaxPatterns"), {pattern = pattern, color = color})
     return self
@@ -162,7 +164,14 @@ end
 function TextBox:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local scrollY = self.get("scrollY")
-        self.set("scrollY", math.max(0, scrollY + direction))
+        local height = self.get("height")
+        local lines = self.get("lines")
+
+        local maxScroll = math.max(0, #lines - height + 2)
+
+        local newScroll = math.max(0, math.min(maxScroll, scrollY + direction))
+        
+        self.set("scrollY", newScroll)
         self:updateRender()
         return true
     end
@@ -182,16 +191,22 @@ function TextBox:mouse_click(button, x, y)
             self.set("cursorY", targetY)
             self.set("cursorX", math.min(relX + scrollX, #lines[targetY] + 1))
         end
+        self:updateRender()
         return true
     end
     return false
 end
 
 function TextBox:setText(text)
-    self.set("lines", {""})
-    for line in text:gmatch("[^\n]+") do
-        table.insert(self.get("lines"), line)
+    local lines = {}
+    if text == "" then
+        lines = {""}
+    else
+        for line in (text.."\n"):gmatch("([^\n]*)\n") do
+            table.insert(lines, line)
+        end
     end
+    self.set("lines", lines)
     return self
 end
 
@@ -244,7 +259,7 @@ function TextBox:render()
         local relativeX = self.get("cursorX") - scrollX
         local relativeY = self.get("cursorY") - scrollY
         if relativeX >= 1 and relativeX <= width and relativeY >= 1 and relativeY <= height then
-            self:setCursor(relativeX, relativeY, true)
+            self:setCursor(relativeX, relativeY, true, self.get("cursorColor") or self.get("foreground"))
         end
     end
 end

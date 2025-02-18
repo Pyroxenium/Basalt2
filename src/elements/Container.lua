@@ -3,8 +3,6 @@ local VisualElement = elementManager.getElement("VisualElement")
 local expect = require("libraries/expect")
 local split = require("libraries/utils").split
 
-local max = math.max
-
 --- The container class. It is a visual element that can contain other elements. It is the base class for all containers,
 --- like Frames, BaseFrames, and more.
 ---@class Container : VisualElement
@@ -303,7 +301,7 @@ local function convertMousePosition(self, event, ...)
     return args
 end
 
-local function callChildrenEvents(self, visibleOnly, event, ...)
+function Container:callChildrenEvents(visibleOnly, event, ...)
     local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
     if children[event] then
         local events = children[event]
@@ -325,7 +323,7 @@ end
 function Container:handleEvent(event, ...)
     VisualElement.handleEvent(self, event, ...)
     local args = convertMousePosition(self, event, ...)
-    return callChildrenEvents(self, false, event, table.unpack(args))
+    return self:callChildrenEvents(false, event, table.unpack(args))
 end
 
 --- Handles mouse click events
@@ -337,7 +335,7 @@ end
 function Container:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_click", button, x, y)
-        local success, child = callChildrenEvents(self, true, "mouse_click", table.unpack(args))
+        local success, child = self:callChildrenEvents(true, "mouse_click", table.unpack(args))
         if(success)then
             self.set("focusedChild", child)
             return true
@@ -357,12 +355,51 @@ end
 function Container:mouse_up(button, x, y)
     if VisualElement.mouse_up(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_up", button, x, y)
-        local success, child = callChildrenEvents(self, true, "mouse_up", table.unpack(args))
+        local success, child = self:callChildrenEvents(true, "mouse_up", table.unpack(args))
         if(success)then
             return true
         end
     end
     return false
+end
+
+function Container:mouse_release(button, x, y)
+    VisualElement.mouse_release(self, button, x, y)
+    local args = convertMousePosition(self, "mouse_release", button, x, y)
+    self:callChildrenEvents(false, "mouse_release", table.unpack(args))
+end
+
+function Container:mouse_move(_, x, y)
+    if VisualElement.mouse_move(self, _, x, y) then
+        local args = convertMousePosition(self, "mouse_move", _, x, y)
+        local success, child = self:callChildrenEvents(true, "mouse_move", table.unpack(args))
+        if(success)then
+            return true
+        end
+    end
+    return false
+end
+
+function Container:mouse_drag(button, x, y)
+    if VisualElement.mouse_drag(self, button, x, y) then
+        local args = convertMousePosition(self, "mouse_drag", button, x, y)
+        local success, child = self:callChildrenEvents(true, "mouse_drag", table.unpack(args))
+        if(success)then
+            return true
+        end
+    end
+    return false
+end
+
+function Container:mouse_scroll(direction, x, y)
+    if VisualElement.mouse_scroll(self, direction, x, y) then
+        local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
+        local success, child = self:callChildrenEvents(true, "mouse_scroll", table.unpack(args))
+        if(success)then
+            return true
+        end
+        return false
+    end
 end
 
 --- Handles key events
@@ -438,6 +475,7 @@ function Container:textFg(x, y, text, fg)
     if textLen <= 0 then return self end
 
     VisualElement.textFg(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1), fg)
+    return self
 end
 
 --- Draws a line of text and fg and bg as colors, it is usually used in the render loop
