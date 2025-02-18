@@ -22,7 +22,11 @@ basalt._events = {}
 basalt._schedule = {}
 basalt._plugins = {}
 basalt.LOGGER = require("log")
-basalt.path = fs.getDir(select(2, ...))
+if(minified)then
+    basalt.path = fs.getDir(shell.getRunningProgram())
+else
+    basalt.path = fs.getDir(select(2, ...))
+end
 
 local mainFrame = nil
 local updaterActive = false

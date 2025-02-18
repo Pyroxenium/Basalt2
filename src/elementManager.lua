@@ -58,6 +58,37 @@ if fs.exists(pluginsDirectory) then
     end
 end
 
+if(minified)then
+    if(minified_elementDirectory==nil)then
+        error("Unable to find minified_elementDirectory please report this bug to our discord.")
+    end
+    for name,v in pairs(minfied_elementDirectory)do
+        ElementManager._elements[name:gsub(".lua", "")] = {
+            class = nil,
+            plugins = {},
+            loaded = false
+        }
+    end
+    if(minified_pluginDirectory==nil)then
+        error("Unable to find minified_pluginDirectory please report this bug to our discord.")
+    end
+    for name,_ in pairs(minified_pluginDirectory)do
+        local plugin = require(fs.combine("plugins", name))
+        if type(plugin) == "table" then
+            for k,v in pairs(plugin) do
+                if(k ~= "API")then
+                    if(ElementManager._plugins[k]==nil)then
+                        ElementManager._plugins[k] = {}
+                    end
+                    table.insert(ElementManager._plugins[k], v)
+                else
+                    ElementManager._APIs[k] = v
+                end
+            end
+        end
+    end
+end
+
 --- Loads an element by name. This will load the element and apply any plugins to it.
 --- @param name string The name of the element to load
 --- @usage ElementManager.loadElement("Button")

@@ -18,34 +18,55 @@ local function bundle()
     
     local output = {
         'local minified = true\n',
+        'local minified_elementDirectory = {}\n',
+        'local minified_pluginDirectory = {}\n',
         'local project = {}\n',
         'local baseRequire = require\n',
         'require = function(path) return project[path..".lua"] or baseRequire(path) end\n'
     }
-    
+
+    for _, file in ipairs(files) do
+
+        local elementName = file.path:match("^elements/(.+)%.lua$")
+        if elementName then
+            table.insert(output, string.format(
+                'minified_elementDirectory["%s"] = {}\n',
+                elementName
+            ))
+        end
+
+        local pluginName = file.path:match("^plugins/(.+)%.lua$")
+        if pluginName then
+            table.insert(output, string.format(
+                'minified_pluginDirectory["%s"] = {}\n',
+                pluginName
+            ))
+        end
+    end
+
     for _, file in ipairs(files) do
         local f = io.open(file.fullPath, "r")
         local content = f:read("*all")
         f:close()
-        
+
         local success, minified = minify(content)
         if not success then
             print("Failed to minify " .. file.path)
             os.exit(1)
         end
-        
+
         table.insert(output, string.format(
             'project["%s"] = function(...) %s end\n',
             file.path, minified
         ))
     end
-    
+
     table.insert(output, 'return project["main.lua"]()')
-    
+
     local out = io.open("release/basalt.lua", "w")
     out:write(table.concat(output))
     out:close()
-    
+
     print("Successfully bundled files:")
     for _, file in ipairs(files) do
         print("- " .. file.path)
