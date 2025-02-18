@@ -2,8 +2,9 @@ local minified = true
 local minified_elementDirectory = {}
 local minified_pluginDirectory = {}
 local project = {}
+local loadedProject = {}
 local baseRequire = require
-require = function(path) return project[path..".lua"] or baseRequire(path) end
+require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end baseRequire(path) end
 minified_pluginDirectory["debug"] = {}
 minified_pluginDirectory["theme"] = {}
 minified_pluginDirectory["reactive"] = {}
@@ -56,7 +57,7 @@ if(cc._plugins[__a]==nil)then cc._plugins[__a]={}end;table.insert(cc._plugins[__
 cc._APIs[cd]=a_a end end end end end end
 if(minified)then if(minified_elementDirectory==nil)then
 error("Unable to find minified_elementDirectory please report this bug to our discord.")end;for ad,bd in
-pairs(minfied_elementDirectory)do
+pairs(minified_elementDirectory)do
 cc._elements[ad:gsub(".lua","")]={class=nil,plugins={},loaded=false}end;if
 (minified_pluginDirectory==nil)then
 error("Unable to find minified_pluginDirectory please report this bug to our discord.")end
