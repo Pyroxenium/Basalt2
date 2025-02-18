@@ -1,4 +1,6 @@
-local basalt = require("basalt")
+local basalt = http.get("https://raw.githubusercontent.com/Pyroxenium/Basalt2/master/release/basalt.lua")
+
+
 local REPO_URL = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/master/src"
 
 -- Basis-Komponenten die immer installiert werden müssen

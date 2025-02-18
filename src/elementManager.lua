@@ -73,7 +73,8 @@ if(minified)then
         error("Unable to find minified_pluginDirectory please report this bug to our discord.")
     end
     for name,_ in pairs(minified_pluginDirectory)do
-        local plugin = require(fs.combine("plugins", name:gsub(".lua", "")))
+        local plugName = name:gsub(".lua", "")
+        local plugin = require(fs.combine("plugins", plugName))
         if type(plugin) == "table" then
             for k,v in pairs(plugin) do
                 if(k ~= "API")then
