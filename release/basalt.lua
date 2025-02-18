@@ -46,112 +46,112 @@ if __a~="setup"and __a~="hooks"then bd[__a]=a_a end end end end end end
 function cc.getElement(ad)if not cc._elements[ad].loaded then
 cc.loadElement(ad)end;return cc._elements[ad].class end;function cc.getElementList()return cc._elements end;function cc.getAPI(ad)
 return cc._APIs[ad]end;return cc end
-project["propertySystem.lua"] = function(...) local ca=require("libraries/utils").deepCopy
-local da=require("libraries/expect")local _b=require("errorManager")local ab=require("log")local bb={}
-bb.__index=bb;bb._properties={}local cb={}bb._setterHooks={}function bb.addSetterHook(_c)
-table.insert(bb._setterHooks,_c)end
-local function db(_c,ac,bc,cc)for dc,_d in ipairs(bb._setterHooks)do
-local ad=_d(_c,ac,bc,cc)if ad~=nil then bc=ad end end;return bc end
-function bb.defineProperty(_c,ac,bc)
-if not rawget(_c,'_properties')then _c._properties={}end
-_c._properties[ac]={type=bc.type,default=bc.default,canTriggerRender=bc.canTriggerRender,getter=bc.getter,setter=bc.setter}local cc=ac:sub(1,1):upper()..ac:sub(2)
-_c[
-"get"..cc]=function(dc,...)da(1,dc,"element")local _d=dc._values[ac]
-if type(_d)==
-"function"and bc.type~="function"then _d=_d(dc)end
-return bc.getter and bc.getter(dc,_d,...)or _d end
-_c["set"..cc]=function(dc,_d,...)da(1,dc,"element")_d=db(dc,ac,_d,bc)if
-type(_d)~="function"then da(2,_d,bc.type)end;if bc.setter then
-_d=bc.setter(dc,_d,...)end;dc:_updateProperty(ac,_d)return dc end end
-function bb.combineProperties(_c,ac,...)local bc={...}for dc,_d in pairs(bc)do
-if not _c._properties[_d]then _b.error("Property not found: "..
-_d)end end;local cc=
-ac:sub(1,1):upper()..ac:sub(2)
-_c["get"..cc]=function(dc,...)
-da(1,dc,"element")local _d={}for ad,bd in pairs(bc)do _d[bd]=dc.get(bd)end;return
-table.unpack(_d)end
-_c["set"..cc]=function(dc,...)da(1,dc,"element")local _d={...}for ad,bd in pairs(bc)do
-dc.set(bd,_d[ad])end;return dc end end
-function bb.blueprint(_c,ac,bc,cc)
-if not cb[_c]then
-local _d={basalt=bc,__isBlueprint=true,_values=ac or{},_events={},render=function()end,dispatchEvent=function()end,init=function()end}
-_d.loaded=function(bd,cd)bd.loadedCallback=cd;return _d end
-_d.create=function(bd)local cd=_c.new()cd:init({},bd.basalt)for dd,__a in pairs(bd._values)do
-cd._values[dd]=__a end;for dd,__a in pairs(bd._events)do for a_a,b_a in ipairs(__a)do
-cd[dd](cd,b_a)end end;if(cc~=nil)then
-cc:addChild(cd)end;cd:updateRender()bd.loadedCallback(cd)
-cd:postInit()return cd end;local ad=_c
-while ad do
-if rawget(ad,'_properties')then for bd,cd in pairs(ad._properties)do
+project["propertySystem.lua"] = function(...) local ba=require("libraries/utils").deepCopy
+local ca=require("libraries/expect")local da=require("errorManager")local _b={}_b.__index=_b
+_b._properties={}local ab={}_b._setterHooks={}function _b.addSetterHook(cb)
+table.insert(_b._setterHooks,cb)end
+local function bb(cb,db,_c,ac)for bc,cc in ipairs(_b._setterHooks)do
+local dc=cc(cb,db,_c,ac)if dc~=nil then _c=dc end end;return _c end
+function _b.defineProperty(cb,db,_c)
+if not rawget(cb,'_properties')then cb._properties={}end
+cb._properties[db]={type=_c.type,default=_c.default,canTriggerRender=_c.canTriggerRender,getter=_c.getter,setter=_c.setter}local ac=db:sub(1,1):upper()..db:sub(2)
+cb[
+"get"..ac]=function(bc,...)ca(1,bc,"element")local cc=bc._values[db]
+if type(cc)==
+"function"and _c.type~="function"then cc=cc(bc)end
+return _c.getter and _c.getter(bc,cc,...)or cc end
+cb["set"..ac]=function(bc,cc,...)ca(1,bc,"element")cc=bb(bc,db,cc,_c)if
+type(cc)~="function"then ca(2,cc,_c.type)end;if _c.setter then
+cc=_c.setter(bc,cc,...)end;bc:_updateProperty(db,cc)return bc end end
+function _b.combineProperties(cb,db,...)local _c={...}for bc,cc in pairs(_c)do
+if not cb._properties[cc]then da.error("Property not found: "..
+cc)end end;local ac=
+db:sub(1,1):upper()..db:sub(2)
+cb["get"..ac]=function(bc,...)
+ca(1,bc,"element")local cc={}for dc,_d in pairs(_c)do cc[_d]=bc.get(_d)end;return
+table.unpack(cc)end
+cb["set"..ac]=function(bc,...)ca(1,bc,"element")local cc={...}for dc,_d in pairs(_c)do
+bc.set(_d,cc[dc])end;return bc end end
+function _b.blueprint(cb,db,_c,ac)
+if not ab[cb]then
+local cc={basalt=_c,__isBlueprint=true,_values=db or{},_events={},render=function()end,dispatchEvent=function()end,init=function()end}
+cc.loaded=function(_d,ad)_d.loadedCallback=ad;return cc end
+cc.create=function(_d)local ad=cb.new()ad:init({},_d.basalt)for bd,cd in pairs(_d._values)do
+ad._values[bd]=cd end;for bd,cd in pairs(_d._events)do
+for dd,__a in ipairs(cd)do ad[bd](ad,__a)end end
+if(ac~=nil)then ac:addChild(ad)end;ad:updateRender()_d.loadedCallback(ad)
+ad:postInit()return ad end;local dc=cb
+while dc do
+if rawget(dc,'_properties')then for _d,ad in pairs(dc._properties)do
 if
-type(cd.default)=="table"then _d._values[bd]=ca(cd.default)else _d._values[bd]=cd.default end end end
-ad=getmetatable(ad)and rawget(getmetatable(ad),'__index')end;cb[_c]=_d end;local dc={_values={},_events={},loadedCallback=function()end}
-dc.get=function(_d)
-local ad=dc._values[_d]local bd=_c._properties[_d]if
-type(ad)=="function"and bd.type~="function"then ad=ad(dc)end;return ad end
-dc.set=function(_d,ad)dc._values[_d]=ad;return dc end
-setmetatable(dc,{__index=function(_d,ad)
-if ad:match("^on%u")then return
-function(bd,cd)
-_d._events[ad]=_d._events[ad]or{}table.insert(_d._events[ad],cd)return _d end end
-if ad:match("^get%u")then
-local bd=ad:sub(4,4):lower()..ad:sub(5)return function()return _d._values[bd]end end;if ad:match("^set%u")then
-local bd=ad:sub(4,4):lower()..ad:sub(5)
-return function(cd,dd)_d._values[bd]=dd;return _d end end
-return cb[_c][ad]end})return dc end
-function bb.createFromBlueprint(_c,ac,bc)local cc=_c.new({},bc)
-for dc,_d in pairs(ac._values)do if type(_d)=="table"then
-cc._values[dc]=ca(_d)else cc._values[dc]=_d end end;return cc end
-function bb:__init()self._values={}self._observers={}
-self.set=function(dc,_d,...)
-local ad=self._values[dc]local bd=self._properties[dc]
-if(bd~=nil)then if(bd.setter)then
-_d=bd.setter(self,_d,...)end
-if bd.canTriggerRender then self:updateRender()end;self._values[dc]=db(self,dc,_d,bd)if
-ad~=_d and self._observers[dc]then
-for cd,dd in ipairs(self._observers[dc])do dd(self,_d,ad)end end end end
-self.get=function(dc,...)local _d=self._values[dc]local ad=self._properties[dc]
+type(ad.default)=="table"then cc._values[_d]=ba(ad.default)else cc._values[_d]=ad.default end end end
+dc=getmetatable(dc)and rawget(getmetatable(dc),'__index')end;ab[cb]=cc end;local bc={_values={},_events={},loadedCallback=function()end}
+bc.get=function(cc)
+local dc=bc._values[cc]local _d=cb._properties[cc]if
+type(dc)=="function"and _d.type~="function"then dc=dc(bc)end;return dc end
+bc.set=function(cc,dc)bc._values[cc]=dc;return bc end
+setmetatable(bc,{__index=function(cc,dc)
+if dc:match("^on%u")then return
+function(_d,ad)
+cc._events[dc]=cc._events[dc]or{}table.insert(cc._events[dc],ad)return cc end end
+if dc:match("^get%u")then
+local _d=dc:sub(4,4):lower()..dc:sub(5)return function()return cc._values[_d]end end;if dc:match("^set%u")then
+local _d=dc:sub(4,4):lower()..dc:sub(5)
+return function(ad,bd)cc._values[_d]=bd;return cc end end
+return ab[cb][dc]end})return bc end
+function _b.createFromBlueprint(cb,db,_c)local ac=cb.new({},_c)
+for bc,cc in pairs(db._values)do if type(cc)=="table"then
+ac._values[bc]=ba(cc)else ac._values[bc]=cc end end;return ac end
+function _b:__init()self._values={}self._observers={}
+self.set=function(bc,cc,...)
+local dc=self._values[bc]local _d=self._properties[bc]
+if(_d~=nil)then if(_d.setter)then
+cc=_d.setter(self,cc,...)end
+if _d.canTriggerRender then self:updateRender()end;self._values[bc]=bb(self,bc,cc,_d)if
+dc~=cc and self._observers[bc]then
+for ad,bd in ipairs(self._observers[bc])do bd(self,cc,dc)end end end end
+self.get=function(bc,...)local cc=self._values[bc]local dc=self._properties[bc]
 if
-(ad==nil)then _b.error("Property not found: "..dc)return end;if type(_d)=="function"and ad.type~="function"then
-_d=_d(self)end;return
-ad.getter and ad.getter(self,_d,...)or _d end;local _c={}local ac=getmetatable(self).__index
-while ac do if
-rawget(ac,'_properties')then
-for dc,_d in pairs(ac._properties)do if not _c[dc]then _c[dc]=_d end end end;ac=getmetatable(ac)and
-rawget(getmetatable(ac),'__index')end;self._properties=_c;local bc=getmetatable(self)local cc=bc.__index
-setmetatable(self,{__index=function(dc,_d)
-local ad=self._properties[_d]
-if ad then local bd=self._values[_d]if
-type(bd)=="function"and ad.type~="function"then bd=bd(self)end;return bd end
-if type(cc)=="function"then return cc(dc,_d)else return cc[_d]end end,__newindex=function(dc,_d,ad)
-local bd=self._properties[_d]
-if bd then if bd.setter then ad=bd.setter(self,ad)end
-ad=db(self,_d,ad,bd)self:_updateProperty(_d,ad)else rawset(dc,_d,ad)end end,__tostring=function(dc)return
-string.format("Object: %s (id: %s)",dc._values.type,dc.id)end})
-for dc,_d in pairs(_c)do if self._values[dc]==nil then
-if type(_d.default)=="table"then
-self._values[dc]=ca(_d.default)else self._values[dc]=_d.default end end end;return self end
-function bb:_updateProperty(_c,ac)local bc=self._values[_c]
-if type(bc)=="function"then bc=bc(self)end;self._values[_c]=ac
-local cc=type(ac)=="function"and ac(self)or ac
-if bc~=cc then
-if self._properties[_c].canTriggerRender then self:updateRender()end
-if self._observers[_c]then for dc,_d in ipairs(self._observers[_c])do
-_d(self,cc,bc)end end end end
-function bb:observe(_c,ac)
-self._observers[_c]=self._observers[_c]or{}table.insert(self._observers[_c],ac)return self end
-function bb:removeObserver(_c,ac)
-if self._observers[_c]then
-for bc,cc in ipairs(self._observers[_c])do if cc==ac then
-table.remove(self._observers[_c],bc)
-if#self._observers[_c]==0 then self._observers[_c]=nil end;break end end end;return self end;function bb:removeAllObservers(_c)
-if _c then self._observers[_c]=nil else self._observers={}end;return self end
-function bb:instanceProperty(_c,ac)
-bb.defineProperty(self,_c,ac)self._values[_c]=ac.default;return self end
-function bb:removeProperty(_c)self._values[_c]=nil;self._properties[_c]=nil;self._observers[_c]=
+(dc==nil)then da.error("Property not found: "..bc)return end;if type(cc)=="function"and dc.type~="function"then
+cc=cc(self)end;return
+dc.getter and dc.getter(self,cc,...)or cc end;local cb={}local db=getmetatable(self).__index
+while db do if
+rawget(db,'_properties')then
+for bc,cc in pairs(db._properties)do if not cb[bc]then cb[bc]=cc end end end;db=getmetatable(db)and
+rawget(getmetatable(db),'__index')end;self._properties=cb;local _c=getmetatable(self)local ac=_c.__index
+setmetatable(self,{__index=function(bc,cc)
+local dc=self._properties[cc]
+if dc then local _d=self._values[cc]if
+type(_d)=="function"and dc.type~="function"then _d=_d(self)end;return _d end
+if type(ac)=="function"then return ac(bc,cc)else return ac[cc]end end,__newindex=function(bc,cc,dc)
+local _d=self._properties[cc]
+if _d then if _d.setter then dc=_d.setter(self,dc)end
+dc=bb(self,cc,dc,_d)self:_updateProperty(cc,dc)else rawset(bc,cc,dc)end end,__tostring=function(bc)return
+string.format("Object: %s (id: %s)",bc._values.type,bc.id)end})
+for bc,cc in pairs(cb)do if self._values[bc]==nil then
+if type(cc.default)=="table"then
+self._values[bc]=ba(cc.default)else self._values[bc]=cc.default end end end;return self end
+function _b:_updateProperty(cb,db)local _c=self._values[cb]
+if type(_c)=="function"then _c=_c(self)end;self._values[cb]=db
+local ac=type(db)=="function"and db(self)or db
+if _c~=ac then
+if self._properties[cb].canTriggerRender then self:updateRender()end
+if self._observers[cb]then for bc,cc in ipairs(self._observers[cb])do
+cc(self,ac,_c)end end end;return self end
+function _b:observe(cb,db)
+self._observers[cb]=self._observers[cb]or{}table.insert(self._observers[cb],db)return self end
+function _b:removeObserver(cb,db)
+if self._observers[cb]then
+for _c,ac in ipairs(self._observers[cb])do if ac==db then
+table.remove(self._observers[cb],_c)
+if#self._observers[cb]==0 then self._observers[cb]=nil end;break end end end;return self end;function _b:removeAllObservers(cb)
+if cb then self._observers[cb]=nil else self._observers={}end;return self end
+function _b:instanceProperty(cb,db)
+_b.defineProperty(self,cb,db)self._values[cb]=db.default;return self end
+function _b:removeProperty(cb)self._values[cb]=nil;self._properties[cb]=nil;self._observers[cb]=
 nil
-local ac=_c:sub(1,1):upper().._c:sub(2)self["get"..ac]=nil;self["set"..ac]=nil;return self end
-function bb:getPropertyConfig(_c)return self._properties[_c]end;return bb end
+local db=cb:sub(1,1):upper()..cb:sub(2)self["get"..db]=nil;self["set"..db]=nil;return self end
+function _b:getPropertyConfig(cb)return self._properties[cb]end;return _b end
 project["main.lua"] = function(...) local bc=require("elementManager")
 local cc=require("errorManager")local dc=require("propertySystem")local _d={}_d.traceback=true
 _d._events={}_d._schedule={}_d._plugins={}_d.LOGGER=require("log")
@@ -220,12 +220,13 @@ return
 {trackProperty=function(dc,_d)cc.properties[dc]=_d end,trackRender=function()
 cc.renderCount=cc.renderCount+1;cc.lastRender=os.epoch("utc")end,trackEvent=function(dc)cc.eventCount[dc]=(
 cc.eventCount[dc]or 0)+1 end,dump=function()return
-{type=bc.get("type"),id=bc.get("id"),stats=cc}end}end
-local db={debug=function(bc,cc)bc._debugger=cb(bc)
-bc._debugLevel=cc or DEBUG_LEVELS.INFO;return bc end,dumpDebug=function(bc)
-if not bc._debugger then return end;return bc._debugger.dump()end}
-local _c={showDebugLog=function(bc)
-if not bc._debugFrame then local cc=bc.get("width")local dc=bc.get("height")
+{type=bc.get("type"),id=bc.get("id"),stats=cc}end}end;local db={}function db.debug(bc,cc)bc._debugger=cb(bc)
+bc._debugLevel=cc or DEBUG_LEVELS.INFO;return bc end
+function db.dumpDebug(bc)if
+not bc._debugger then return end;return bc._debugger.dump()end;local _c={}
+function _c.showDebugLog(bc)
+if not bc._debugFrame then local cc=bc.get("width")
+local dc=bc.get("height")
 bc._debugFrame=bc:addFrame("basaltDebugLog"):setWidth(cc):setHeight(dc):setZ(999):listenEvent("mouse_scroll",true)
 bc.basalt.LOGGER.debug("Created debug log frame "..bc._debugFrame.get("name"))
 bc._debugFrame:addButton("basaltDebugLogClose"):setWidth(9):setHeight(1):setX(
@@ -252,49 +253,50 @@ da.LEVEL.WARN and colors.yellow or _aa.level==da.LEVEL.DEBUG and colors.lightGra
 bc._debugFrame.dispatchEvent=function(__a,a_a,b_a,...)
 if
 (a_a=="mouse_scroll")then
-__a._scrollOffset=math.max(0,__a._scrollOffset+b_a)__a:updateRender()return true else dd(__a,a_a,b_a,...)end end end;bc._debugFrame.set("visible",true)return bc end,hideDebugLog=function(bc)
-if
-bc._debugFrame then bc._debugFrame.set("visible",false)end;return bc end,toggleDebugLog=function(bc)
-if bc._debugFrame and
-bc._debugFrame:isVisible()then bc:hideDebugLog()else bc:showDebugLog()end;return bc end}
-local ac={debugChildren=function(bc,cc)bc:debug(cc)for dc,_d in pairs(bc.get("children"))do
-if _d.debug then _d:debug(cc)end end;return bc end}return{BaseElement=db,Container=ac,BaseFrame=_c} end
+__a._scrollOffset=math.max(0,__a._scrollOffset+b_a)__a:updateRender()return true else dd(__a,a_a,b_a,...)end end end;bc._debugFrame.set("visible",true)return bc end
+function _c.hideDebugLog(bc)if bc._debugFrame then
+bc._debugFrame.set("visible",false)end;return bc end;function _c.toggleDebugLog(bc)if bc._debugFrame and bc._debugFrame:isVisible()then
+bc:hideDebugLog()else bc:showDebugLog()end
+return bc end
+local ac={}
+function ac.debugChildren(bc,cc)bc:debug(cc)for dc,_d in pairs(bc.get("children"))do if _d.debug then
+_d:debug(cc)end end;return bc end;return{BaseElement=db,Container=ac,BaseFrame=_c} end
 project["plugins/theme.lua"] = function(...) 
-local ab={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local bb={default=ab}local cb="default"
-local db={hooks={postInit={pre=function(ad)ad:applyTheme()end}}}
-function db.____getElementPath(ad,bd)if bd then table.insert(bd,1,ad._values.type)else
-bd={ad._values.type}end;local cd=ad.parent;if cd then return
-cd.____getElementPath(cd,bd)else return bd end end
-local function _c(ad,bd)local cd=ad
-for i=1,#bd do local dd=false;local __a=bd[i]for a_a,b_a in ipairs(__a)do
-if cd[b_a]then cd=cd[b_a]dd=true;break end end;if not dd then return nil end end;return cd end
-local function ac(ad,bd)local cd={}
-if ad.default then for dd,__a in pairs(ad.default)do
-if type(__a)~="table"then cd[dd]=__a end end;if ad.default[bd]then
-for dd,__a in
-pairs(ad.default[bd])do if type(__a)~="table"then cd[dd]=__a end end end end;return cd end
-local function bc(ad,bd,cd,dd,__a)
+local _b={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local ab={default=_b}local bb="default"
+local cb={hooks={postInit={pre=function(dc)dc:applyTheme()end}}}
+function cb.____getElementPath(dc,_d)if _d then table.insert(_d,1,dc._values.type)else
+_d={dc._values.type}end;local ad=dc.parent;if ad then return
+ad.____getElementPath(ad,_d)else return _d end end
+local function db(dc,_d)local ad=dc
+for i=1,#_d do local bd=false;local cd=_d[i]for dd,__a in ipairs(cd)do
+if ad[__a]then ad=ad[__a]bd=true;break end end;if not bd then return nil end end;return ad end
+local function _c(dc,_d)local ad={}
+if dc.default then for bd,cd in pairs(dc.default)do
+if type(cd)~="table"then ad[bd]=cd end end;if dc.default[_d]then
+for bd,cd in
+pairs(dc.default[_d])do if type(cd)~="table"then ad[bd]=cd end end end end;return ad end
+local function ac(dc,_d,ad,bd,cd)
 if
-bd.default and bd.default.names and bd.default.names[dd]then for a_a,b_a in pairs(bd.default.names[dd])do
-if type(b_a)~="table"then ad[a_a]=b_a end end end
+_d.default and _d.default.names and _d.default.names[bd]then for dd,__a in pairs(_d.default.names[bd])do
+if type(__a)~="table"then dc[dd]=__a end end end
 if
 
-bd.default and bd.default[cd]and bd.default[cd].names and bd.default[cd].names[dd]then
-for a_a,b_a in pairs(bd.default[cd].names[dd])do if
-type(b_a)~="table"then ad[a_a]=b_a end end end;if __a and __a.names and __a.names[dd]then
-for a_a,b_a in pairs(__a.names[dd])do if
-type(b_a)~="table"then ad[a_a]=b_a end end end end
-local function cc(ad,bd,cd,dd)local __a={}local a_a=_c(ad,bd)
-if a_a then for b_a,c_a in pairs(a_a)do
-if type(c_a)~="table"then __a[b_a]=c_a end end end;if next(__a)==nil then __a=ac(ad,cd)end
-bc(__a,ad,cd,dd,a_a)return __a end
-function db:applyTheme()local ad=self:getTheme()if(ad~=nil)then
-for bd,cd in pairs(ad)do self.set(bd,cd)end end end
-function db:getTheme()local ad=self:____getElementPath()
-local bd=self.get("type")local cd=self.get("name")return cc(bb[cb],ad,bd,cd)end
-local dc={setTheme=function(ad)ab=ad end,getTheme=function()return ab end,loadTheme=function(ad)local bd=fs.open(ad,"r")
-if bd then
-local cd=bd.readAll()bd.close()ab=textutils.unserializeJSON(cd)end end}local _d={BaseElement=db,API=dc}return _d end
+_d.default and _d.default[ad]and _d.default[ad].names and _d.default[ad].names[bd]then
+for dd,__a in pairs(_d.default[ad].names[bd])do if
+type(__a)~="table"then dc[dd]=__a end end end;if cd and cd.names and cd.names[bd]then
+for dd,__a in pairs(cd.names[bd])do if type(__a)~=
+"table"then dc[dd]=__a end end end end
+local function bc(dc,_d,ad,bd)local cd={}local dd=db(dc,_d)
+if dd then for __a,a_a in pairs(dd)do
+if type(a_a)~="table"then cd[__a]=a_a end end end;if next(cd)==nil then cd=_c(dc,ad)end;ac(cd,dc,ad,bd,dd)
+return cd end
+function cb:applyTheme()local dc=self:getTheme()if(dc~=nil)then
+for _d,ad in pairs(dc)do self.set(_d,ad)end end end
+function cb:getTheme()local dc=self:____getElementPath()
+local _d=self.get("type")local ad=self.get("name")return bc(ab[bb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)_b=dc end;function cc.getTheme()return _b end
+function cc.loadTheme(dc)
+local _d=fs.open(dc,"r")if _d then local ad=_d.readAll()_d.close()
+_b=textutils.unserializeJSON(ad)end end;return{BaseElement=cb,API=cc} end
 project["plugins/reactive.lua"] = function(...) local bb=require("errorManager")
 local cb=require("propertySystem")local db=require("log")
 local _c={colors=true,math=true,clamp=true,round=true}
@@ -422,51 +424,53 @@ local b_a=bd["add"..a_a](bd,__a.attributes.name)
 for c_a,d_a in pairs(__a.attributes)do local _aa=b_a:getPropertyConfig(c_a)if _aa then
 local aaa=cb(d_a,_aa.type,cd)b_a.set(c_a,aaa)end end;db(__a,b_a,cd)
 if#__a.children>0 then _d(__a,b_a,cd)end end end end;_d(dc,self,cc)return self end;return{BaseElement=_c,Container=ac} end
-project["plugins/animation.lua"] = function(...) local aa={}aa.__index=aa;local ba={}
-function aa.registerAnimation(ab,bb)ba[ab]=bb
-aa[ab]=function(cb,...)local db={...}
-local _c="linear"
-if(type(db[#db])=="string")then _c=table.remove(db,#db)end;local ac=table.remove(db,#db)
-return cb:addAnimation(ab,db,ac,_c)end end
-local ca={linear=function(ab)return ab end,easeInQuad=function(ab)return ab*ab end,easeOutQuad=function(ab)
-return 1 - (1 -ab)* (1 -ab)end,easeInOutQuad=function(ab)if ab<0.5 then return 2 *ab*ab end;return 1 -
-(-2 *ab+2)^2 /2 end}function aa.registerEasing(ab,bb)ca[ab]=bb end;local da={}da.__index=da
-function da.new(ab,bb,cb,db,_c)
-local ac=setmetatable({},da)ac.element=ab;ac.type=bb;ac.args=cb;ac.duration=db;ac.startTime=0
-ac.isPaused=false;ac.handlers=ba[bb]ac.easing=_c;return ac end
-function da:start()self.startTime=os.epoch("local")/1000;if
-self.handlers.start then self.handlers.start(self)end end
-function da:update(ab)local bb=math.min(1,ab/self.duration)
-local cb=ca[self.easing](bb)return self.handlers.update(self,cb)end;function da:complete()if self.handlers.complete then
+project["plugins/animation.lua"] = function(...) local aa={}
+local ba={linear=function(ab)return ab end,easeInQuad=function(ab)return ab*ab end,easeOutQuad=function(ab)return
+1 - (1 -ab)* (1 -ab)end,easeInOutQuad=function(ab)if ab<0.5 then return 2 *ab*ab end;return 1 - (
+-2 *ab+2)^2 /2 end}local ca={}ca.__index=ca
+function ca.new(ab,bb,cb,db,_c)local ac=setmetatable({},ca)ac.element=ab
+ac.type=bb;ac.args=cb;ac.duration=db;ac.startTime=0;ac.isPaused=false
+ac.handlers=aa[bb]ac.easing=_c;return ac end;function ca:start()self.startTime=os.epoch("local")/1000;if
+self.handlers.start then self.handlers.start(self)end
+return self end
+function ca:update(ab)local bb=math.min(1,
+ab/self.duration)
+local cb=ba[self.easing](bb)return self.handlers.update(self,cb)end;function ca:complete()if self.handlers.complete then
 self.handlers.complete(self)end end
-function aa.new(ab)
-local bb={}bb.element=ab;bb.sequences={{}}bb.sequenceCallbacks={}
-bb.currentSequence=1;bb.timer=nil;setmetatable(bb,aa)return bb end
-function aa:sequence()table.insert(self.sequences,{})self.currentSequence=#
+local da={}da.__index=da
+function da.registerAnimation(ab,bb)aa[ab]=bb
+da[ab]=function(cb,...)local db={...}local _c="linear"
+if(
+type(db[#db])=="string")then _c=table.remove(db,#db)end;local ac=table.remove(db,#db)
+return cb:addAnimation(ab,db,ac,_c)end end;function da.registerEasing(ab,bb)ba[ab]=bb end
+function da.new(ab)local bb={}bb.element=ab
+bb.sequences={{}}bb.sequenceCallbacks={}bb.currentSequence=1;bb.timer=nil
+setmetatable(bb,da)return bb end
+function da:sequence()table.insert(self.sequences,{})self.currentSequence=#
 self.sequences;self.sequenceCallbacks[self.currentSequence]={start=nil,update=nil,complete=
 nil}return self end
-function aa:onStart(ab)
+function da:onStart(ab)
 if
 not self.sequenceCallbacks[self.currentSequence]then self.sequenceCallbacks[self.currentSequence]={}end
 self.sequenceCallbacks[self.currentSequence].start=ab;return self end
-function aa:onUpdate(ab)
+function da:onUpdate(ab)
 if
 not self.sequenceCallbacks[self.currentSequence]then self.sequenceCallbacks[self.currentSequence]={}end
 self.sequenceCallbacks[self.currentSequence].update=ab;return self end
-function aa:onComplete(ab)
+function da:onComplete(ab)
 if
 not self.sequenceCallbacks[self.currentSequence]then self.sequenceCallbacks[self.currentSequence]={}end
 self.sequenceCallbacks[self.currentSequence].complete=ab;return self end
-function aa:addAnimation(ab,bb,cb,db)local _c=da.new(self.element,ab,bb,cb,db)
+function da:addAnimation(ab,bb,cb,db)local _c=ca.new(self.element,ab,bb,cb,db)
 table.insert(self.sequences[self.currentSequence],_c)return self end
-function aa:start()self.currentSequence=1
+function da:start()self.currentSequence=1
 if
 (self.sequenceCallbacks[self.currentSequence])then if(self.sequenceCallbacks[self.currentSequence].start)then
 self.sequenceCallbacks[self.currentSequence].start(self.element)end end
 if
 #self.sequences[self.currentSequence]>0 then self.timer=os.startTimer(0.05)for ab,bb in
 ipairs(self.sequences[self.currentSequence])do bb:start()end end;return self end
-function aa:event(ab,bb)
+function da:event(ab,bb)
 if ab=="timer"and bb==self.timer then
 local cb=os.epoch("local")/1000;local db=true;local _c={}
 local ac=self.sequenceCallbacks[self.currentSequence]
@@ -481,13 +485,13 @@ self.currentSequence=self.currentSequence+1;_c={}
 local bc=self.sequenceCallbacks[self.currentSequence]if bc and bc.start then bc.start(self.element)end
 for cc,dc in
 ipairs(self.sequences[self.currentSequence])do dc:start()table.insert(_c,dc)end end end;if#_c>0 then self.timer=os.startTimer(0.05)end end end
-aa.registerAnimation("move",{start=function(ab)ab.startX=ab.element.get("x")
+da.registerAnimation("move",{start=function(ab)ab.startX=ab.element.get("x")
 ab.startY=ab.element.get("y")end,update=function(ab,bb)local cb=ab.startX+
 (ab.args[1]-ab.startX)*bb;local db=ab.startY+
 (ab.args[2]-ab.startY)*bb
 ab.element.set("x",math.floor(cb))ab.element.set("y",math.floor(db))return bb>=1 end,complete=function(ab)
 ab.element.set("x",ab.args[1])ab.element.set("y",ab.args[2])end})
-aa.registerAnimation("morphText",{start=function(ab)local bb=ab.element.get(ab.args[1])
+da.registerAnimation("morphText",{start=function(ab)local bb=ab.element.get(ab.args[1])
 local cb=ab.args[2]local db=math.max(#bb,#cb)
 local _c=string.rep(" ",math.floor(db-#bb)/2)ab.startText=_c..bb.._c
 ab.targetText=cb..string.rep(" ",db-#cb)ab.length=db end,update=function(ab,bb)
@@ -498,17 +502,17 @@ if bb<0.5 then
 cb=cb.. (math.random()>bb*2 and db or" ")else cb=cb..
 (math.random()> (bb-0.5)*2 and" "or _c)end end;ab.element.set(ab.args[1],cb)return bb>=1 end,complete=function(ab)
 ab.element.set(ab.args[1],ab.targetText:gsub("%s+$",""))end})
-aa.registerAnimation("typewrite",{start=function(ab)ab.targetText=ab.args[2]
+da.registerAnimation("typewrite",{start=function(ab)ab.targetText=ab.args[2]
 ab.element.set(ab.args[1],"")end,update=function(ab,bb)
 local cb=math.floor(#ab.targetText*bb)
 ab.element.set(ab.args[1],ab.targetText:sub(1,cb))return bb>=1 end})
-aa.registerAnimation("fadeText",{start=function(ab)ab.chars={}for i=1,#ab.args[2]do
+da.registerAnimation("fadeText",{start=function(ab)ab.chars={}for i=1,#ab.args[2]do
 ab.chars[i]={char=ab.args[2]:sub(i,i),visible=false}end end,update=function(ab,bb)
 local cb=""for db,_c in ipairs(ab.chars)do
 if math.random()<bb then _c.visible=true end
 cb=cb.. (_c.visible and _c.char or" ")end
 ab.element.set(ab.args[1],cb)return bb>=1 end})
-aa.registerAnimation("scrollText",{start=function(ab)ab.width=ab.element.get("width")
+da.registerAnimation("scrollText",{start=function(ab)ab.width=ab.element.get("width")
 ab.targetText=ab.args[2]ab.element.set(ab.args[1],"")end,update=function(ab,bb)local cb=math.floor(
 ab.width* (1 -bb))
 local db=string.rep(" ",cb)
@@ -518,7 +522,7 @@ cb then cb:event(bb,...)end end end
 function _b.setup(ab)
 VisualElementBaseDispatchEvent=ab.dispatchEvent
 ab.defineProperty(ab,"animation",{default=nil,type="table"})ab.listenTo(ab,"timer")end
-function _b:animate()local ab=aa.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
+function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
 project["plugins/state.lua"] = function(...) local d=require("propertySystem")
 local _a=require("errorManager")local aa={}
 function aa.setup(ba)
@@ -621,22 +625,22 @@ ca.info(string.format("%s> %s: %.2fms/call [Total: %dms, Calls: %d]",
 bc.." ",__a.type,__a.avgTime,__a.totalTime,__a.calls))end end end end;return self end
 function cb:stopContainerBenchmark(_c)
 for ac,bc in pairs(self.get("children"))do if bc:isType("Container")then
-bc:stopContainerBenchmark(_c)else bc:stopBenchmark(_c)end end;self:stopBenchmark(_c)return self end
-local db={start=function(_c,ac)ac=ac or{}local bc=_b()bc.name=_c;bc.startTime=os.clock()*1000
-bc.custom=true;da[_c]=bc end,stop=function(_c)
-local ac=da[_c]if not ac or not ac.custom then return end
-local bc=os.clock()*1000;local cc=bc-ac.startTime;ac.calls=ac.calls+1
-ac.totalTime=ac.totalTime+cc;ac.minTime=math.min(ac.minTime,cc)
+bc:stopContainerBenchmark(_c)else bc:stopBenchmark(_c)end end;self:stopBenchmark(_c)return self end;local db={}
+function db.start(_c,ac)ac=ac or{}local bc=_b()bc.name=_c
+bc.startTime=os.clock()*1000;bc.custom=true;da[_c]=bc end
+function db.stop(_c)local ac=da[_c]if not ac or not ac.custom then return end;local bc=
+os.clock()*1000;local cc=bc-ac.startTime;ac.calls=ac.calls+1;ac.totalTime=
+ac.totalTime+cc;ac.minTime=math.min(ac.minTime,cc)
 ac.maxTime=math.max(ac.maxTime,cc)ac.lastTime=cc
 ca.info(string.format("Custom Benchmark '%s': "..
 "Calls: %d ".."Average time: %.2fms "..
 "Min time: %.2fms "..
 "Max time: %.2fms ".."Last time: %.2fms ".."Total time: %.2fms",_c,ac.calls,
-ac.totalTime/ac.calls,ac.minTime,ac.maxTime,ac.lastTime,ac.totalTime))end,getStats=function(_c)
-local ac=da[_c]if not ac then return nil end;return
-{averageTime=ac.totalTime/ac.calls,totalTime=ac.totalTime,calls=ac.calls,minTime=ac.minTime,maxTime=ac.maxTime,lastTime=ac.lastTime}end,clear=function(_c)da[_c]=
-nil end,clearAll=function()
-for _c,ac in pairs(da)do if ac.custom then da[_c]=nil end end end}return{BaseElement=bb,Container=cb,API=db} end
+ac.totalTime/ac.calls,ac.minTime,ac.maxTime,ac.lastTime,ac.totalTime))end
+function db.getStats(_c)local ac=da[_c]if not ac then return nil end;return
+{averageTime=ac.totalTime/ac.calls,totalTime=ac.totalTime,calls=ac.calls,minTime=ac.minTime,maxTime=ac.maxTime,lastTime=ac.lastTime}end;function db.clear(_c)da[_c]=nil end;function db.clearAll()for _c,ac in pairs(da)do
+if ac.custom then da[_c]=nil end end end;return
+{BaseElement=bb,Container=cb,API=db} end
 project["plugins/pluginTemplate.lua"] = function(...) local b={hooks={init={}}}function b.setup(c)
 c.defineProperty(c,"testProp",{default=5,type="number"})end;function b.hooks.init(c)end
 function b:testFunc()end;return{VisualElement=b} end
@@ -736,8 +740,8 @@ nil,type="table",setter=function(da,_b)
 if _b==nil or _b.setCursorPos==nil then return _b end;da._render=ba.new(_b)da._renderUpdate=true;local ab,bb=_b.getSize()
 da.set("width",ab)da.set("height",bb)return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
-da.set("term",term.current())da.set("background",colors.lightGray)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","BaseFrame")end;function ca:multiBlit(da,_b,ab,bb,cb,db,_c)
+da.set("term",term.current())da.set("background",colors.lightGray)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","BaseFrame")return
+self end;function ca:multiBlit(da,_b,ab,bb,cb,db,_c)
 self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)
 self._render:textFg(da,_b,ab,bb)end;function ca:textBg(da,_b,ab,bb)
 self._render:textBg(da,_b,ab,bb)end;function ca:blit(da,_b,ab,bb,cb)
@@ -795,10 +799,11 @@ if
 type(_c)=="table"then if _c.callback then _c.callback(self)end end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
 project["elements/Frame.lua"] = function(...) local d=require("elementManager")
 local _a=d.getElement("Container")local aa=setmetatable({},_a)aa.__index=aa
-function aa.new()
-local ba=setmetatable({},aa):__init()ba.set("width",12)ba.set("height",6)
-ba.set("background",colors.gray)ba.set("z",10)return ba end
-function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Frame")end;return aa end
+aa.listenTo(aa,"resize")
+function aa.new()local ba=setmetatable({},aa):__init()
+ba.set("width",12)ba.set("height",6)
+ba.set("background",colors.gray)ba.set("z",10)return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Frame")
+return self end;return aa end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
@@ -871,9 +876,10 @@ aa.defineProperty(aa,"text",{default="Label",type="string",setter=function(ba,ca
 "function")then ca=ca()end;ba.set("width",#ca)return ca end})
 function aa.new()local ba=setmetatable({},aa):__init()
 ba.set("z",3)ba.set("foreground",colors.black)
-ba.set("backgroundEnabled",false)return ba end
-function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Label")end;function aa:render()_a.render(self)local ba=self.get("text")
-self:textFg(1,1,ba,self.get("foreground"))end;return aa end
+ba.set("backgroundEnabled",false)return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Label")
+return self end
+function aa:render()_a.render(self)
+local ba=self.get("text")self:textFg(1,1,ba,self.get("foreground"))end;return aa end
 project["elements/Flexbox.lua"] = function(...) local da=require("elementManager")
 local _b=da.getElement("Container")local ab=setmetatable({},_b)ab.__index=ab
 ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
@@ -1202,21 +1208,21 @@ aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
 aa.defineProperty(aa,"cursorPos",{default=1,type="number"})
 aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
-aa.defineProperty(aa,"placeholder",{default="asd",type="string"})
+aa.defineProperty(aa,"placeholder",{default="...",type="string"})
 aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="number"})
 aa.defineProperty(aa,"focusedColor",{default=colors.blue,type="number"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})aa.listenTo(aa,"mouse_click")aa.listenTo(aa,"key")
 aa.listenTo(aa,"char")function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",8)ba.set("z",3)return ba end;function aa:init(ba,ca)
-d.init(self,ba,ca)self.set("type","Input")end
-function aa:char(ba)if
-not self.get("focused")then return end
+ba.set("width",8)ba.set("z",3)return ba end
+function aa:init(ba,ca)
+d.init(self,ba,ca)self.set("type","Input")return self end
+function aa:char(ba)if not self.get("focused")then return false end
 local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
 local ab=self.get("pattern")if _b and#ca>=_b then return end
 if ab and not ba:match(ab)then return end
 self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateRender()
-self:updateViewport()end
-function aa:key(ba)if not self.get("focused")then return end
+self:updateViewport()return true end
+function aa:key(ba)if not self.get("focused")then return false end
 local ca=self.get("cursorPos")local da=self.get("text")local _b=self.get("viewOffset")
 local ab=self.get("width")
 if ba==keys.left then if ca>1 then self.set("cursorPos",ca-1)
@@ -1227,7 +1233,7 @@ self.set("viewOffset",ca-ab+1)end end elseif
 ba==keys.backspace then if ca>1 then
 self.set("text",da:sub(1,ca-2)..da:sub(ca))self.set("cursorPos",ca-1)self:updateRender()
 self:updateViewport()end end
-local bb=self.get("cursorPos")-self.get("viewOffset")self:setCursor(bb,1,true)end
+local bb=self.get("cursorPos")-self.get("viewOffset")self:setCursor(bb,1,true)return true end
 function aa:focus()d.focus(self)self:updateRender()end
 function aa:blur()d.blur(self)self:updateRender()end
 function aa:mouse_click(ba,ca,da)
@@ -1341,7 +1347,7 @@ function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then local ca=self.get("offset")
 local da=math.max(0,#
 self.get("items")-self.get("height"))ca=math.min(da,math.max(0,ca+_a))
-self.set("offset",ca)return true end end
+self.set("offset",ca)return true end;return false end
 function d:onSelect(_a)self:registerCallback("select",_a)return self end
 function d:render()c.render(self)local _a=self.get("items")
 local aa=self.get("height")local ba=self.get("offset")
@@ -1360,8 +1366,8 @@ local db=cb and
 local _c=cb and(ab.selectedForeground or colors.white)or(ab.foreground or
 self.get("foreground"))self:textBg(1,i,string.rep(" ",da),db)
 self:textFg(1,i,bb,_c)end end end end;return d end
-project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("libraries/colorHex")local ba=setmetatable({},_a)ba.__index=ba
+project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
+local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true})
 ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=true})
 ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
@@ -1404,9 +1410,91 @@ local ac=db.level;local bc=string.rep("  ",ac)local cc=" "if
 _c.children and#_c.children>0 then cc=bb[_c]and"\31"or"\16"end
 local dc=
 _c==ab and self.get("selectedColor")or self.get("background")
-local _d=bc..cc.." ".. (_c.text or"Node")
-self:blit(1,y,_d..string.rep(" ",self.get("width")-#_d),string.rep(aa[self.get("nodeColor")],self.get("width")),string.rep(aa[dc],self.get("width")))else
-self:blit(1,y,string.rep(" ",self.get("width")),string.rep(aa[self.get("foreground")],self.get("width")),string.rep(aa[self.get("background")],self.get("width")))end end end;return ba end
+local _d=bc..cc.." ".. (_c.text or"Node")_d=aa(_d,1,self.get("width"))
+self:textFg(1,y,_d..string.rep(" ",
+self.get("width")-#_d),self.get("foreground"))else
+self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
+project["elements/TextBox.lua"] = function(...) local ca=require("elements/VisualElement")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"lines",{default={""},type="table",canTriggerRender=true})
+_b.defineProperty(_b,"cursorX",{default=1,type="number"})
+_b.defineProperty(_b,"cursorY",{default=1,type="number"})
+_b.defineProperty(_b,"scrollX",{default=0,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"scrollY",{default=0,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"editable",{default=true,type="boolean"})
+_b.defineProperty(_b,"syntaxPatterns",{default={},type="table"})_b.listenTo(_b,"mouse_click")_b.listenTo(_b,"key")
+_b.listenTo(_b,"char")_b.listenTo(_b,"mouse_scroll")
+function _b.new()
+local _c=setmetatable({},_b):__init()_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
+return self end;function _b:addSyntaxPattern(_c,ac)
+table.insert(self.get("syntaxPatterns"),{pattern=_c,color=ac})return self end
+local function ab(_c,ac)
+local bc=_c.get("lines")local cc=_c.get("cursorX")local dc=_c.get("cursorY")local _d=bc[dc]bc[dc]=_d:sub(1,
+cc-1)..ac.._d:sub(cc)
+_c.set("cursorX",cc+1)_c:updateViewport()_c:updateRender()end
+local function bb(_c)local ac=_c.get("lines")local bc=_c.get("cursorX")
+local cc=_c.get("cursorY")local dc=ac[cc]local _d=dc:sub(bc)ac[cc]=dc:sub(1,bc-1)
+table.insert(ac,cc+1,_d)_c.set("cursorX",1)_c.set("cursorY",cc+1)
+_c:updateViewport()_c:updateRender()end
+local function cb(_c)local ac=_c.get("lines")local bc=_c.get("cursorX")
+local cc=_c.get("cursorY")local dc=ac[cc]
+if bc>1 then
+ac[cc]=dc:sub(1,bc-2)..dc:sub(bc)_c.set("cursorX",bc-1)elseif cc>1 then local _d=ac[cc-1]
+_c.set("cursorX",#_d+1)_c.set("cursorY",cc-1)ac[cc-1]=_d..dc
+table.remove(ac,cc)end;_c:updateViewport()_c:updateRender()end
+function _b:updateViewport()local _c=self.get("cursorX")
+local ac=self.get("cursorY")local bc=self.get("scrollX")local cc=self.get("scrollY")
+local dc=self.get("width")local _d=self.get("height")
+if _c-bc>dc then
+self.set("scrollX",_c-dc)elseif _c-bc<1 then self.set("scrollX",_c-1)end;if ac-cc>_d then self.set("scrollY",ac-_d)elseif ac-cc<1 then
+self.set("scrollY",ac-1)end end
+function _b:char(_c)if
+not self.get("editable")or not self.get("focused")then return false end;ab(self,_c)return true end
+function _b:key(_c)if
+not self.get("editable")or not self.get("focused")then return false end
+local ac=self.get("lines")local bc=self.get("cursorX")local cc=self.get("cursorY")
+if _c==
+keys.enter then bb(self)elseif _c==keys.backspace then cb(self)elseif _c==keys.left then
+if bc>1 then self.set("cursorX",
+bc-1)elseif cc>1 then self.set("cursorY",cc-1)self.set("cursorX",
+#ac[cc-1]+1)end elseif _c==keys.right then
+if bc<=#ac[cc]then self.set("cursorX",bc+1)elseif cc<#ac then self.set("cursorY",
+cc+1)self.set("cursorX",1)end elseif _c==keys.up and cc>1 then self.set("cursorY",cc-1)
+self.set("cursorX",math.min(bc,
+#ac[cc-1]+1))elseif _c==keys.down and cc<#ac then self.set("cursorY",cc+1)
+self.set("cursorX",math.min(bc,
+#ac[cc+1]+1))end;self:updateRender()self:updateViewport()return true end
+function _b:mouse_scroll(_c,ac,bc)if self:isInBounds(ac,bc)then local cc=self.get("scrollY")self.set("scrollY",math.max(0,
+cc+_c))
+self:updateRender()return true end;return
+false end
+function _b:mouse_click(_c,ac,bc)
+if ca.mouse_click(self,_c,ac,bc)then
+local cc,dc=self:getRelativePosition(ac,bc)local _d=self.get("scrollX")local ad=self.get("scrollY")
+local bd=dc+ad;local cd=self.get("lines")if bd<=#cd then self.set("cursorY",bd)
+self.set("cursorX",math.min(
+cc+_d,#cd[bd]+1))end;return true end;return false end
+function _b:setText(_c)self.set("lines",{""})for ac in _c:gmatch("[^\n]+")do
+table.insert(self.get("lines"),ac)end;return self end
+function _b:getText()return table.concat(self.get("lines"),"\n")end
+local function db(_c,ac)local bc=ac
+local cc=string.rep(da[_c.get("foreground")],#bc)local dc=_c.get("syntaxPatterns")
+for _d,ad in ipairs(dc)do local bd=1
+while true do
+local cd,dd=bc:find(ad.pattern,bd)if not cd then break end
+cc=cc:sub(1,cd-1)..
+string.rep(da[ad.color],dd-cd+1)..cc:sub(dd+1)bd=dd+1 end end;return bc,cc end
+function _b:render()ca.render(self)local _c=self.get("lines")
+local ac=self.get("scrollX")local bc=self.get("scrollY")local cc=self.get("width")
+local dc=self.get("height")local _d=da[self.get("foreground")]
+local ad=da[self.get("background")]
+for y=1,dc do local bd=y+bc;local cd=_c[bd]or""local dd=cd:sub(ac+1,ac+cc)if#dd<cc then dd=dd..string.rep(" ",
+cc-#dd)end
+local __a,a_a=db(self,dd)self:blit(1,y,__a,a_a,string.rep(ad,#dd))end
+if self.get("focused")then local bd=self.get("cursorX")-ac;local cd=
+self.get("cursorY")-bc
+if
+bd>=1 and bd<=cc and cd>=1 and cd<=dc then self:setCursor(bd,cd,true)end end end;return _b end
 project["elements/Dropdown.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
@@ -1415,15 +1503,15 @@ ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
 ca.defineProperty(ca,"selectedText",{default="",type="string"})
 ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})
 function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",16)da.set("height",1)da.set("z",8)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Dropdown")end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
-if cb==1 then self.set("isOpen",not
-self.get("isOpen"))if
-not self.get("isOpen")then self.set("height",1)else
-self.set("height",1 +math.min(self.get("dropdownHeight"),#
-self.get("items")))end
+da.set("width",16)da.set("height",1)da.set("z",8)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Dropdown")
+return self end
+function ca:mouse_click(da,_b,ab)if not
+_a.mouse_click(self,da,_b,ab)then return false end
+local bb,cb=self:getRelativePosition(_b,ab)
+if cb==1 then
+self.set("isOpen",not self.get("isOpen"))if not self.get("isOpen")then self.set("height",1)else
+self.set("height",1 +math.min(self.get("dropdownHeight"),
+#self.get("items")))end
 return true elseif self.get("isOpen")and cb>1 then
 local db=cb-1 +self.get("offset")local _c=self.get("items")
 if db<=#_c then local ac=_c[db]if type(ac)=="table"and
@@ -1456,14 +1544,14 @@ self.get("background"))
 local dc=bc and(_c.selectedForeground or colors.white)or(_c.foreground or
 self.get("foreground"))self:textBg(1,i,string.rep(" ",cb),cc)
 self:textFg(1,i,ac,dc)end end end end end;return ca end
-project["render.lua"] = function(...) local c={}c.__index=c;local d=require("libraries/colorHex")
-function c.new(_a)
-local aa=setmetatable({},c)aa.terminal=_a;aa.width,aa.height=_a.getSize()
+project["render.lua"] = function(...) local c=require("libraries/colorHex")local d={}d.__index=d
+function d.new(_a)
+local aa=setmetatable({},d)aa.terminal=_a;aa.width,aa.height=_a.getSize()
 aa.buffer={text={},fg={},bg={},dirtyRects={}}
 for y=1,aa.height do aa.buffer.text[y]=string.rep(" ",aa.width)
-aa.buffer.fg[y]=string.rep("0",aa.width)aa.buffer.bg[y]=string.rep("f",aa.width)end;return aa end;function c:addDirtyRect(_a,aa,ba,ca)
+aa.buffer.fg[y]=string.rep("0",aa.width)aa.buffer.bg[y]=string.rep("f",aa.width)end;return aa end;function d:addDirtyRect(_a,aa,ba,ca)
 table.insert(self.buffer.dirtyRects,{x=_a,y=aa,width=ba,height=ca})return self end
-function c:blit(_a,aa,ba,ca,da)if aa<1 or aa>
+function d:blit(_a,aa,ba,ca,da)if aa<1 or aa>
 self.height then return self end
 if
 (#ba~=#ca or#ba~=#da)then error("Text, fg, and bg must be the same length")end
@@ -1474,7 +1562,7 @@ self.buffer.fg[aa]=
 self.buffer.fg[aa]:sub(1,_a-1)..ca..self.buffer.fg[aa]:sub(_a+#ca)
 self.buffer.bg[aa]=
 self.buffer.bg[aa]:sub(1,_a-1)..da..self.buffer.bg[aa]:sub(_a+#da)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:multiBlit(_a,aa,ba,ca,da,_b,ab)if aa<1 or aa>self.height then return self end;if(
+function d:multiBlit(_a,aa,ba,ca,da,_b,ab)if aa<1 or aa>self.height then return self end;if(
 #da~=#_b or#da~=#ab)then
 error("Text, fg, and bg must be the same length")end;da=da:rep(ba)
 _b=_b:rep(ba)ab=ab:rep(ba)
@@ -1487,39 +1575,39 @@ self.buffer.fg[bb]=
 self.buffer.fg[bb]:sub(1,_a-1).._b..self.buffer.fg[bb]:sub(_a+#_b)
 self.buffer.bg[bb]=
 self.buffer.bg[bb]:sub(1,_a-1)..ab..self.buffer.bg[bb]:sub(_a+#ab)end end;self:addDirtyRect(_a,aa,ba,ca)return self end
-function c:textFg(_a,aa,ba,ca)if aa<1 or aa>self.height then return self end
-ca=d[ca]or"0"
+function d:textFg(_a,aa,ba,ca)if aa<1 or aa>self.height then return self end
+ca=c[ca]or"0"
 self.buffer.text[aa]=
 self.buffer.text[aa]:sub(1,_a-1)..
 ba..self.buffer.text[aa]:sub(_a+#ba)
 self.buffer.fg[aa]=
 self.buffer.fg[aa]:sub(1,_a-1)..
 ca:rep(#ba)..self.buffer.fg[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:textBg(_a,aa,ba,ca)if aa<1 or aa>self.height then return self end
-ca=d[ca]or"f"
+function d:textBg(_a,aa,ba,ca)if aa<1 or aa>self.height then return self end
+ca=c[ca]or"f"
 self.buffer.text[aa]=
 self.buffer.text[aa]:sub(1,_a-1)..
 ba..self.buffer.text[aa]:sub(_a+#ba)
 self.buffer.bg[aa]=
 self.buffer.bg[aa]:sub(1,_a-1)..
 ca:rep(#ba)..self.buffer.bg[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:text(_a,aa,ba)if aa<1 or aa>self.height then return self end
+function d:text(_a,aa,ba)if aa<1 or aa>self.height then return self end
 self.buffer.text[aa]=self.buffer.text[aa]:sub(1,
 _a-1)..ba..
 self.buffer.text[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:fg(_a,aa,ba)if aa<1 or aa>self.height then return self end
+function d:fg(_a,aa,ba)if aa<1 or aa>self.height then return self end
 self.buffer.fg[aa]=self.buffer.fg[aa]:sub(1,
 _a-1)..ba..
 self.buffer.fg[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:bg(_a,aa,ba)if aa<1 or aa>self.height then return self end
+function d:bg(_a,aa,ba)if aa<1 or aa>self.height then return self end
 self.buffer.bg[aa]=self.buffer.bg[aa]:sub(1,
 _a-1)..ba..
 self.buffer.bg[aa]:sub(_a+#ba)self:addDirtyRect(_a,aa,#ba,1)return self end
-function c:clear(_a)local aa=d[_a]or"f"
+function d:clear(_a)local aa=c[_a]or"f"
 for y=1,self.height do
 self.buffer.text[y]=string.rep(" ",self.width)self.buffer.fg[y]=string.rep("0",self.width)
 self.buffer.bg[y]=string.rep(aa,self.width)self:addDirtyRect(1,y,self.width,1)end;return self end
-function c:render()local _a={}
+function d:render()local _a={}
 for aa,ba in ipairs(self.buffer.dirtyRects)do local ca=false;for da,_b in ipairs(_a)do
 if
 self:rectOverlaps(ba,_b)then self:mergeRects(_b,ba)ca=true;break end end;if not ca then
@@ -1534,20 +1622,20 @@ ba.x+ba.width-1))end end end;self.buffer.dirtyRects={}if self.blink then
 self.terminal.setCursorPos(self.xCursor,self.yCursor)self.terminal.setCursorBlink(true)else
 self.terminal.setCursorBlink(false)end;return
 self end
-function c:rectOverlaps(_a,aa)return
+function d:rectOverlaps(_a,aa)return
 not(
 _a.x+_a.width<=aa.x or aa.x+aa.width<=_a.x or _a.y+_a.height<=aa.y or
 aa.y+aa.height<=_a.y)end
-function c:mergeRects(_a,aa)local ba=math.min(_a.x,aa.x)
+function d:mergeRects(_a,aa)local ba=math.min(_a.x,aa.x)
 local ca=math.min(_a.y,aa.y)
 local da=math.max(_a.x+_a.width,aa.x+aa.width)
 local _b=math.max(_a.y+_a.height,aa.y+aa.height)_a.x=ba;_a.y=ca;_a.width=da-ba;_a.height=_b-ca end
-function c:setCursor(_a,aa,ba)self.terminal.setCursorPos(_a,aa)
+function d:setCursor(_a,aa,ba)self.terminal.setCursorPos(_a,aa)
 self.terminal.setCursorBlink(ba)self.xCursor=_a;self.yCursor=aa;self.blink=ba;return self end
-function c:clearArea(_a,aa,ba,ca,da)local _b=d[da]or"f"
+function d:clearArea(_a,aa,ba,ca,da)local _b=c[da]or"f"
 for dy=0,ca-1 do local ab=aa+dy
 if ab>=1 and ab<=self.height then
-local bb=string.rep(" ",ba)local cb=string.rep(_b,ba)self:blit(_a,ab,bb,"0",_b)end end;return self end;function c:getSize()return self.width,self.height end;return c end
+local bb=string.rep(" ",ba)local cb=string.rep(_b,ba)self:blit(_a,ab,bb,"0",_b)end end;return self end;function d:getSize()return self.width,self.height end;return d end
 project["log.lua"] = function(...) local aa={}aa._logs={}aa._enabled=true;aa._logToFile=true
 aa._logFile="basalt.log"fs.delete(aa._logFile)
 aa.LEVEL={DEBUG=1,INFO=2,WARN=3,ERROR=4}
@@ -1564,6 +1652,5 @@ for _d,ad in ipairs(table.pack(...))do if _d>1 then cc=
 cc.." "end;cc=cc..tostring(ad)end;local dc=string.format("%s %s%s %s",bb,ac,bc,cc)da(dc)
 table.insert(aa._logs,{time=bb,level=ab,message=cc})end;function aa.debug(...)_b(aa.LEVEL.DEBUG,...)end;function aa.info(...)
 _b(aa.LEVEL.INFO,...)end
-function aa.warn(...)_b(aa.LEVEL.WARN,...)end;function aa.error(...)_b(aa.LEVEL.ERROR,...)end
-aa.info("Logger initialized")return aa end
+function aa.warn(...)_b(aa.LEVEL.WARN,...)end;function aa.error(...)_b(aa.LEVEL.ERROR,...)end;return aa end
 return project["main.lua"]
