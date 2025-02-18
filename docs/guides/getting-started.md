@@ -24,7 +24,7 @@ In your Lua script, use the require function to include Basalt. Here's an exampl
 local basalt = require("basalt") -- Here we're including the Library and storing it to a variable called "basalt"
 ```
 
-Merely loading Basalt is insufficient. It's essential to initiate the event and draw handlers. To facilitate this, Basalt offers the [basalt.run()](../references/basalt#basalt-run) function.
+Merely loading Basalt is insufficient. It's essential to initiate the event and draw handlers. To facilitate this, Basalt offers the [basalt.run()](../references/main#basalt-run-isactive) function.
 
 Here is an example:
 
@@ -43,7 +43,7 @@ Now that you have Basalt installed, let's dive into creating a simple user inter
 
 ### The Baseframe
 
-The Baseframe serves as the foundation for building user interfaces in Basalt. It acts as the root container for all other UI elements and is essential for creating your UI layout. Check out [basalt.addFrame](../references/basalt#basalt-addframe) to learn more about how to create Baseframes.
+The Baseframe serves as the foundation for building user interfaces in Basalt. It acts as the root container for all other UI elements and is essential for creating your UI layout. Check out [basalt.addFrame](../references/main#basalt-createframe) to learn more about how to create Baseframes.
 
 ```lua
 local basalt = require("basalt")
@@ -57,7 +57,7 @@ basalt.run() -- lets start the event listener (should be on the bottom)
 After creating your Baseframe, you can start adding elements to it. Basalt offers a variety of UI elements that you can integrate into your interface. Below is an outline of how you can add elements to your Baseframe:
 
 1. **Choose the Right Element:** Before adding an element, decide which UI component suits your requirements best. Refer to the [reference](../references/main) page to explore the available elements and their functionalities.
-2. **Use the [add{Element}](../references/container#add-element) Method:** To add an element, utilize the [add{Element}](../references/container#add-element) method, where {Element} corresponds to the specific UI component you wish to include. For example, to add a [button](../references/button), you would use addButton(), and for [labels](../references/label), you would use addLabel().
+2. **Use the add{Element} Method:** To add an element, utilize the add{Element} method, where {Element} corresponds to the specific UI component you wish to include. For example, to add a [button](../references/elements/Button), you would use addButton(), and for [labels](../references/elements/Label), you would use addLabel().
 3. **Customize as Needed:** Once added, you can customize the properties and appearance of each element according to your preferences. Basalt provides a range of options for customization, including text, colors, size, position, and more.
 
 Let us add a button to our example:
@@ -75,7 +75,7 @@ basalt.run()
 
 Once you've added elements to your UI, you can customize their appearance and behavior by modifying their properties. If you're new to working with properties in Basalt, it's recommended to check out our [property guide](/guides/properties) for a detailed overview.
 
-To begin modifying properties, you first need to identify which properties are available for a specific element. For example, let's consider the [Button](../references/button) element. In the reference page for the [Button](../references/button), you'll find a list of properties available for that element. However, keep in mind that Button inherits properties from [VisualElement](../references/visualelement), which expands the available properties further. For instance, [VisualElement](../references/visualelement) includes properties like background, foreground, x, y, width, height, and visibility.
+To begin modifying properties, you first need to identify which properties are available for a specific element. For example, let's consider the [Button](../references/elements/button) element. In the reference page for the [Button](../references/elements/Button), you'll find a list of properties available for that element. However, keep in mind that Button inherits properties from [VisualElement](../references/elements/VisualElement), which expands the available properties further. For instance, [VisualElement](../references/elements/VisualElement) includes properties like background, foreground, x, y, width, height, and visibility.
 
 To modify these properties, you'll use corresponding setter functions. Each property has its own setter function, such as `setBackground()` for background color, `setX()` for horizontal position, and so on. Here's an example demonstrating how to set properties for a button:
 
@@ -93,9 +93,9 @@ In this example, we create a button, set its horizontal and vertical positions u
 
 ### Attaching Events to Elements
 
-Events allow you to define actions that should be performed when a specific user interaction occurs, such as clicking a button or typing in an input field. While some events are specific to certain elements, many general events are inherited from the [VisualElement](../references/visualelement) class. Let's explore how to attach events to elements, using a `onClick` event as an example.
+Events allow you to define actions that should be performed when a specific user interaction occurs, such as clicking a button or typing in an input field. While some events are specific to certain elements, many general events are inherited from the [VisualElement](../references/elements/VisualElement) class. Let's explore how to attach events to elements, using a `onClick` event as an example.
 
-First, let's clarify that while certain events may appear to be associated with specific elements like input, many general events are inherited from the VisualElement class. This means that you can attach these events to any UI element, not just buttons. Common events include `onClick`, `onClickUp`, `onScroll`, `onDrag`, `onKey`, `onKeyUp`, `onChar`,... - a full list can be found on the [VisualElement](../references/visualelement#events) page.
+First, let's clarify that while certain events may appear to be associated with specific elements like input, many general events are inherited from the VisualElement class. This means that you can attach these events to any UI element, not just buttons. Common events include `onClick`, `onClickUp`, `onScroll`, `onDrag`, `onKey`, `onKeyUp`, `onChar`,... - a full list can be found on the [VisualElement](../references/elements/VisualElement#events) page.
 
 To attach an event to an element, you'll use a function definition that specifies the action to be performed when the event occurs. Here's how you can attach an onClick event to a button:
 

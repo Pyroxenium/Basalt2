@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: Home
-      link: /guides/
+      link: /home
     - theme: alt
       text: Guides
-      link: guides/getting-started
+      link: /guides/getting-started
     - theme: alt
       text: References
       link: /references/main
