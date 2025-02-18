@@ -1,160 +1,160 @@
 return {
   ["files"] = {
-    ["src/errorManager.lua"] = {
-      ["name"] = "errorManager",
-      ["path"] = "errorManager.lua",
-    },
-    ["src/elements/Button.lua"] = {
-      ["name"] = "Button",
-      ["path"] = "elements/Button.lua",
-    },
-    ["src/elements/Label.lua"] = {
-      ["name"] = "Label",
-      ["path"] = "elements/Label.lua",
-    },
-    ["src/plugins/xml.lua"] = {
-      ["name"] = "xml",
-      ["path"] = "plugins/xml.lua",
-    },
-    ["src/elements/Scrollbar.lua"] = {
-      ["name"] = "Scrollbar",
-      ["path"] = "elements/Scrollbar.lua",
-    },
-    ["src/plugins/state.lua"] = {
-      ["name"] = "state",
-      ["path"] = "plugins/state.lua",
-    },
-    ["src/elements/Tree.lua"] = {
-      ["name"] = "Tree",
-      ["path"] = "elements/Tree.lua",
-    },
-    ["src/plugins/animation.lua"] = {
-      ["name"] = "animation",
-      ["path"] = "plugins/animation.lua",
-    },
-    ["src/elements/Container.lua"] = {
-      ["name"] = "Container",
-      ["path"] = "elements/Container.lua",
-    },
-    ["src/elements/BaseElement.lua"] = {
-      ["name"] = "BaseElement",
-      ["path"] = "elements/BaseElement.lua",
-    },
-    ["src/plugins/debug.lua"] = {
-      ["name"] = "debug",
-      ["path"] = "plugins/debug.lua",
-    },
-    ["src/init.lua"] = {
-      ["name"] = "init",
-      ["path"] = "init.lua",
-    },
-    ["src/LuaLS.lua"] = {
-      ["name"] = "LuaLS",
-      ["path"] = "LuaLS.lua",
-    },
-    ["src/elements/Flexbox.lua"] = {
-      ["name"] = "Flexbox",
-      ["path"] = "elements/Flexbox.lua",
-    },
-    ["src/elements/Dropdown.lua"] = {
-      ["name"] = "Dropdown",
-      ["path"] = "elements/Dropdown.lua",
-    },
-    ["src/elements/Program.lua"] = {
-      ["name"] = "Program",
-      ["path"] = "elements/Program.lua",
-    },
-    ["src/elements/List.lua"] = {
-      ["name"] = "List",
-      ["path"] = "elements/List.lua",
-    },
-    ["src/plugins/pluginTemplate.lua"] = {
-      ["name"] = "pluginTemplate",
-      ["path"] = "plugins/pluginTemplate.lua",
-    },
-    ["src/plugins/reactive.lua"] = {
-      ["name"] = "reactive",
-      ["path"] = "plugins/reactive.lua",
-    },
-    ["src/elements/Frame.lua"] = {
-      ["name"] = "Frame",
-      ["path"] = "elements/Frame.lua",
-    },
     ["src/libraries/expect.lua"] = {
-      ["name"] = "expect",
       ["path"] = "libraries/expect.lua",
-    },
-    ["src/plugins/theme.lua"] = {
-      ["name"] = "theme",
-      ["path"] = "plugins/theme.lua",
-    },
-    ["src/elements/ProgressBar.lua"] = {
-      ["name"] = "ProgressBar",
-      ["path"] = "elements/ProgressBar.lua",
-    },
-    ["src/elements/Input.lua"] = {
-      ["name"] = "Input",
-      ["path"] = "elements/Input.lua",
-    },
-    ["src/log.lua"] = {
-      ["name"] = "log",
-      ["path"] = "log.lua",
-    },
-    ["src/render.lua"] = {
-      ["name"] = "render",
-      ["path"] = "render.lua",
-    },
-    ["src/elements/TextBox.lua"] = {
-      ["name"] = "TextBox",
-      ["path"] = "elements/TextBox.lua",
-    },
-    ["src/libraries/colorHex.lua"] = {
-      ["name"] = "colorHex",
-      ["path"] = "libraries/colorHex.lua",
-    },
-    ["src/elements/Slider.lua"] = {
-      ["name"] = "Slider",
-      ["path"] = "elements/Slider.lua",
+      ["name"] = "expect",
     },
     ["src/elements/Table.lua"] = {
-      ["name"] = "Table",
       ["path"] = "elements/Table.lua",
-    },
-    ["src/libraries/utils.lua"] = {
-      ["name"] = "utils",
-      ["path"] = "libraries/utils.lua",
-    },
-    ["src/elements/VisualElement.lua"] = {
-      ["name"] = "VisualElement",
-      ["path"] = "elements/VisualElement.lua",
-    },
-    ["src/elements/BaseFrame.lua"] = {
-      ["name"] = "BaseFrame",
-      ["path"] = "elements/BaseFrame.lua",
-    },
-    ["src/elementManager.lua"] = {
-      ["name"] = "elementManager",
-      ["path"] = "elementManager.lua",
-    },
-    ["src/propertySystem.lua"] = {
-      ["name"] = "propertySystem",
-      ["path"] = "propertySystem.lua",
+      ["name"] = "Table",
     },
     ["src/plugins/benchmark.lua"] = {
-      ["name"] = "benchmark",
       ["path"] = "plugins/benchmark.lua",
+      ["name"] = "benchmark",
     },
-    ["src/main.lua"] = {
-      ["name"] = "main",
-      ["path"] = "main.lua",
+    ["src/elements/Container.lua"] = {
+      ["path"] = "elements/Container.lua",
+      ["name"] = "Container",
     },
-    ["src/elements/Menu.lua"] = {
-      ["name"] = "Menu",
-      ["path"] = "elements/Menu.lua",
+    ["src/elements/Program.lua"] = {
+      ["path"] = "elements/Program.lua",
+      ["name"] = "Program",
+    },
+    ["src/libraries/utils.lua"] = {
+      ["path"] = "libraries/utils.lua",
+      ["name"] = "utils",
+    },
+    ["src/elements/BaseFrame.lua"] = {
+      ["path"] = "elements/BaseFrame.lua",
+      ["name"] = "BaseFrame",
+    },
+    ["src/libraries/colorHex.lua"] = {
+      ["path"] = "libraries/colorHex.lua",
+      ["name"] = "colorHex",
+    },
+    ["src/elements/ProgressBar.lua"] = {
+      ["path"] = "elements/ProgressBar.lua",
+      ["name"] = "ProgressBar",
     },
     ["src/elements/Checkbox.lua"] = {
-      ["name"] = "Checkbox",
       ["path"] = "elements/Checkbox.lua",
+      ["name"] = "Checkbox",
+    },
+    ["src/elements/Scrollbar.lua"] = {
+      ["path"] = "elements/Scrollbar.lua",
+      ["name"] = "Scrollbar",
+    },
+    ["src/elements/Flexbox.lua"] = {
+      ["path"] = "elements/Flexbox.lua",
+      ["name"] = "Flexbox",
+    },
+    ["src/elements/Frame.lua"] = {
+      ["path"] = "elements/Frame.lua",
+      ["name"] = "Frame",
+    },
+    ["src/elements/Slider.lua"] = {
+      ["path"] = "elements/Slider.lua",
+      ["name"] = "Slider",
+    },
+    ["src/elements/Label.lua"] = {
+      ["path"] = "elements/Label.lua",
+      ["name"] = "Label",
+    },
+    ["src/render.lua"] = {
+      ["path"] = "render.lua",
+      ["name"] = "render",
+    },
+    ["src/plugins/pluginTemplate.lua"] = {
+      ["path"] = "plugins/pluginTemplate.lua",
+      ["name"] = "pluginTemplate",
+    },
+    ["src/elementManager.lua"] = {
+      ["path"] = "elementManager.lua",
+      ["name"] = "elementManager",
+    },
+    ["src/plugins/reactive.lua"] = {
+      ["path"] = "plugins/reactive.lua",
+      ["name"] = "reactive",
+    },
+    ["src/plugins/xml.lua"] = {
+      ["path"] = "plugins/xml.lua",
+      ["name"] = "xml",
+    },
+    ["src/elements/Dropdown.lua"] = {
+      ["path"] = "elements/Dropdown.lua",
+      ["name"] = "Dropdown",
+    },
+    ["src/errorManager.lua"] = {
+      ["path"] = "errorManager.lua",
+      ["name"] = "errorManager",
+    },
+    ["src/elements/List.lua"] = {
+      ["path"] = "elements/List.lua",
+      ["name"] = "List",
+    },
+    ["src/propertySystem.lua"] = {
+      ["path"] = "propertySystem.lua",
+      ["name"] = "propertySystem",
+    },
+    ["src/elements/Input.lua"] = {
+      ["path"] = "elements/Input.lua",
+      ["name"] = "Input",
+    },
+    ["src/log.lua"] = {
+      ["path"] = "log.lua",
+      ["name"] = "log",
+    },
+    ["src/plugins/animation.lua"] = {
+      ["path"] = "plugins/animation.lua",
+      ["name"] = "animation",
+    },
+    ["src/elements/TextBox.lua"] = {
+      ["path"] = "elements/TextBox.lua",
+      ["name"] = "TextBox",
+    },
+    ["src/elements/Button.lua"] = {
+      ["path"] = "elements/Button.lua",
+      ["name"] = "Button",
+    },
+    ["src/main.lua"] = {
+      ["path"] = "main.lua",
+      ["name"] = "main",
+    },
+    ["src/elements/BaseElement.lua"] = {
+      ["path"] = "elements/BaseElement.lua",
+      ["name"] = "BaseElement",
+    },
+    ["src/elements/VisualElement.lua"] = {
+      ["path"] = "elements/VisualElement.lua",
+      ["name"] = "VisualElement",
+    },
+    ["src/elements/Menu.lua"] = {
+      ["path"] = "elements/Menu.lua",
+      ["name"] = "Menu",
+    },
+    ["src/plugins/debug.lua"] = {
+      ["path"] = "plugins/debug.lua",
+      ["name"] = "debug",
+    },
+    ["src/plugins/state.lua"] = {
+      ["path"] = "plugins/state.lua",
+      ["name"] = "state",
+    },
+    ["src/LuaLS.lua"] = {
+      ["path"] = "LuaLS.lua",
+      ["name"] = "LuaLS",
+    },
+    ["src/init.lua"] = {
+      ["path"] = "init.lua",
+      ["name"] = "init",
+    },
+    ["src/plugins/theme.lua"] = {
+      ["path"] = "plugins/theme.lua",
+      ["name"] = "theme",
+    },
+    ["src/elements/Tree.lua"] = {
+      ["path"] = "elements/Tree.lua",
+      ["name"] = "Tree",
     },
   },
 }
