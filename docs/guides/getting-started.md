@@ -73,9 +73,9 @@ basalt.run()
 
 ### Modifying Properties
 
-Once you've added elements to your UI, you can customize their appearance and behavior by modifying their properties. If you're new to working with properties in Basalt, it's recommended to check out our [property guide](/guides/properties) for a detailed overview.
+Once you've added elements to your UI, you can customize their appearance and behavior by modifying their properties. If you're new to working with properties in Basalt, it's recommended to check out our [property guide](properties) for a detailed overview.
 
-To begin modifying properties, you first need to identify which properties are available for a specific element. For example, let's consider the [Button](../references/elements/button) element. In the reference page for the [Button](../references/elements/Button), you'll find a list of properties available for that element. However, keep in mind that Button inherits properties from [VisualElement](../references/elements/VisualElement), which expands the available properties further. For instance, [VisualElement](../references/elements/VisualElement) includes properties like background, foreground, x, y, width, height, and visibility.
+To begin modifying properties, you first need to identify which properties are available for a specific element. For example, let's consider the [Button](../references/elements/Button) element. In the reference page for the [Button](../references/elements/Button), you'll find a list of properties available for that element. However, keep in mind that Button inherits properties from [VisualElement](../references/elements/VisualElement), which expands the available properties further. For instance, [VisualElement](../references/elements/VisualElement) includes properties like background, foreground, x, y, width, height, and visibility.
 
 To modify these properties, you'll use corresponding setter functions. Each property has its own setter function, such as `setBackground()` for background color, `setX()` for horizontal position, and so on. Here's an example demonstrating how to set properties for a button:
 
