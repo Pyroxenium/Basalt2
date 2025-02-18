@@ -14,19 +14,19 @@ The base class for all UI elements in Basalt
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.listenTo](#BaseElement.listenTo)|-|
-|[BaseElement.new](#BaseElement.new)|table|
-|[BaseElement:destroy](#BaseElement:destroy)|-|
-|[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|
-|[BaseElement:fireEvent](#BaseElement:fireEvent)|table|
-|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|
-|[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|
-|[BaseElement:init](#BaseElement:init)|table|
-|[BaseElement:isType](#BaseElement:isType)|boolean|
-|[BaseElement:listenEvent](#BaseElement:listenEvent)|table|
-|[BaseElement:postInit](#BaseElement:postInit)|table|
-|[BaseElement:registerCallback](#BaseElement:registerCallback)|table|
-|[BaseElement:updateRender](#BaseElement:updateRender)|-|
+|[BaseElement.listenTo](#BaseElement.listenTo)|-|Registers an event that this class can listen to
+|[BaseElement.new](#BaseElement.new)|table|Creates a new BaseElement instance
+|[BaseElement:destroy](#BaseElement:destroy)|-|Destroys the element and cleans up all references
+|[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|Handles all events
+|[BaseElement:fireEvent](#BaseElement:fireEvent)|table|Triggers an event and calls all registered callbacks
+|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|Returns the base frame of the element
+|[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|The default event handler for all events
+|[BaseElement:init](#BaseElement:init)|table|Initializes the BaseElement instance
+|[BaseElement:isType](#BaseElement:isType)|boolean|Checks if the element is a specific type
+|[BaseElement:listenEvent](#BaseElement:listenEvent)|table|Enables or disables event listening for a specific event
+|[BaseElement:postInit](#BaseElement:postInit)|table|Post initialization
+|[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
+|[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
 
 ## BaseElement.listenTo(class, eventName)
 Registers an event that this class can listen to
@@ -52,7 +52,7 @@ Creates a new BaseElement instance
 
 ### Usage
  ```lua
-local element = BaseElement.new("myId", basalt)
+local element = BaseElement.new()
 ```
 
 ## BaseElement:destroy()
@@ -166,4 +166,5 @@ Requests a render update for this element
  ```lua
 element:updateRender()
 ```
+
 

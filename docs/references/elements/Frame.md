@@ -1,23 +1,38 @@
 # Frame : Container
+This is the frame class. It serves as a grouping container for other elements.
+
+## Events
+
+|Event|Parameters|Description|
+|---|---|---|
+|onResize|`width number, height number`|Fired when the frame is resized|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Frame.new](#Frame.new)|Frame|
-|[Frame:init](#Frame:init)|-|
+|[Frame.new](#Frame.new)|Frame|Creates a new Frame instance
+|[Frame:init](#Frame:init)|Frame|Initializes the Frame instance
 
 ## Frame.new()
 Creates a new Frame instance
 
 ### Returns
-* `Frame` `object` The newly created Frame instance
+* `Frame` `self` The newly created Frame instance
 
 ### Usage
  ```lua
-local element = Frame.new("myId", basalt)
+local frame = Frame.new()
 ```
 
-## Frame:init()
+## Frame:init(props, basalt)
 Initializes the Frame instance
+
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `Frame` `self` The initialized instance
+
 

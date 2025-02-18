@@ -1,4 +1,5 @@
 # Log
+Logger module for Basalt. Logs messages to the console and optionally to a file.
 
 ## Fields
 
@@ -21,8 +22,11 @@
 |[Log.setLogToFile](#Log.setLogToFile)|-|Sets if the logger should log to a file
 |[Log.warn](#Log.warn)|-|Sends a warning message
 
-## Log.debug()
+## Log.debug(...)
 Sends a debug message to the logger.
+
+### Parameters
+* `...` *(vararg)* `string` The message to log
 
 ### Usage
  ```lua
@@ -67,4 +71,5 @@ Sends a warning message to the logger.
  ```lua
 Log.warn("This is a warning message")
 ```
+
 

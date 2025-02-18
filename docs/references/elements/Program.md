@@ -1,6 +1,3 @@
-Rendering optimization (only render when screen changed)
-Eventsystem improvement
-Cursor is sometimes not visible on time
 # Program : VisualElement
 
 ## Functions
@@ -49,4 +46,5 @@ local element = Program.new("myId", basalt)
 ## Program:init()
 
 ## Program:render()
+
 

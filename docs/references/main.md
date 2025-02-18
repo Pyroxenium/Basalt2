@@ -1,8 +1,14 @@
+# Basalt
 This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
 
 Before you can access Basalt, you need to add the following code on top of your file:
+
+### Usage
+ ```lua
+local basalt = require("basalt")
+```
+
 What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
-# Basalt
 
 ## Fields
 
@@ -151,4 +157,5 @@ Updates all scheduled functions
  ```lua
 basalt.update()
 ```
+
 

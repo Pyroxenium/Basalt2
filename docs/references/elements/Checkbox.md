@@ -1,4 +1,5 @@
 # Checkbox : VisualElement
+This is the checkbox class. It is a visual element that can be checked.
 
 ## Properties
 
@@ -12,10 +13,10 @@
 
 |Method|Returns|Description|
 |---|---|---|
-|[Checkbox.new](#Checkbox.new)|Checkbox|
-|[Checkbox:init](#Checkbox:init)|-|
-|[Checkbox:mouse_click](#Checkbox:mouse_click)|boolean|
-|[Checkbox:render](#Checkbox:render)|-|
+|[Checkbox.new](#Checkbox.new)|Checkbox|Creates a new Checkbox instance
+|[Checkbox:init](#Checkbox:init)|-|Initializes the Checkbox instance
+|[Checkbox:mouse_click](#Checkbox:mouse_click)|boolean|Handles mouse click events
+|[Checkbox:render](#Checkbox:render)|-|Renders the Checkbox
 
 ## Checkbox.new()
 Creates a new Checkbox instance
@@ -39,8 +40,9 @@ Handles mouse click events
 * `y` `number` The y position of the click
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `Clicked` Whether the event was handled
 
 ## Checkbox:render()
 Renders the Checkbox
+
 

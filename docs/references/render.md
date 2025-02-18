@@ -1,4 +1,6 @@
 # Render
+This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional 
+functionality. It also has a buffer system to reduce the number of calls
 
 ## Fields
 
@@ -17,21 +19,21 @@
 |Method|Returns|Description|
 |---|---|---|
 |[Render.new](#Render.new)|Render|
-|[Render:addDirtyRect](#Render:addDirtyRect)|s|
-|[Render:bg](#Render:bg)|s|
-|[Render:blit](#Render:blit)|s|
-|[Render:clear](#Render:clear)|s|
-|[Render:clearArea](#Render:clearArea)|-|
-|[Render:fg](#Render:fg)|s|
-|[Render:getSize](#Render:getSize)|s|
-|[Render:mergeRects](#Render:mergeRects)|s|
-|[Render:multiBlit](#Render:multiBlit)|s|
-|[Render:rectOverlaps](#Render:rectOverlaps)|s|
-|[Render:render](#Render:render)|s|
-|[Render:setCursor](#Render:setCursor)|-|
-|[Render:text](#Render:text)|s|
-|[Render:textBg](#Render:textBg)|s|
-|[Render:textFg](#Render:textFg)|-|
+|[Render:addDirtyRect](#Render:addDirtyRect)|Render|
+|[Render:bg](#Render:bg)|Render|
+|[Render:blit](#Render:blit)|Render|
+|[Render:clear](#Render:clear)|Render|
+|[Render:clearArea](#Render:clearArea)|Render|
+|[Render:fg](#Render:fg)|Render|
+|[Render:getSize](#Render:getSize)|number,|
+|[Render:mergeRects](#Render:mergeRects)|Render|
+|[Render:multiBlit](#Render:multiBlit)|Render|
+|[Render:rectOverlaps](#Render:rectOverlaps)|boolean|
+|[Render:render](#Render:render)|Render|
+|[Render:setCursor](#Render:setCursor)|Render|
+|[Render:text](#Render:text)|Render|
+|[Render:textBg](#Render:textBg)|Render|
+|[Render:textFg](#Render:textFg)|Render|
 
 ## Render.new(terminal)
 Creates a new Render object
@@ -97,6 +99,9 @@ Clears an area of the screen
 * `height` `number` The height of the area
 * `bg` `colors` The background color to clear the area with
 
+### Returns
+* `nil` `nil` nil
+
 ## Render:fg(x, y, fg)
 Blits a foreground color to the screen
 
@@ -112,7 +117,7 @@ Blits a foreground color to the screen
 Gets the size of the render
 
 ### Returns
-* `s` `number,` number
+* `nil` `nil` nil
 
 ## Render:mergeRects(target, source)
 Merges two rectangles
@@ -163,6 +168,9 @@ Sets the cursor position
 * `y` `number` The y position of the cursor
 * `blink` `boolean` Whether the cursor should blink
 
+### Returns
+* `nil` `nil` nil
+
 ## Render:text(x, y, text)
 Blits text to the screen
 
@@ -194,4 +202,8 @@ Blits text to the screen with a foreground color
 * `y` `number` The y position to blit to
 * `text` `string` The text to blit
 * `fg` `colors` The foreground color of the text
+
+### Returns
+* `nil` `nil` nil
+
 

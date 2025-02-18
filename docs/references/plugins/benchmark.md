@@ -1,18 +1,45 @@
-## BaseElement:benchmark()
+# BenchmarkAPI
+Benchmark API methods
 
-## BaseElement:endProfile()
+## Functions
 
-## BaseElement:getBenchmarkStats()
+|Method|Returns|Description|
+|---|---|---|
+|[API.clear](#API.clear)|-|Removes a benchmark's data
+|[API.clearAll](#API.clearAll)|-|Removes all custom benchmark data
+|[API.getStats](#API.getStats)|table?|Retrieves benchmark statistics
+|[API.start](#API.start)|-|Starts timing a custom operation
+|[API.stop](#API.stop)|-|Stops timing and logs results
 
-## BaseElement:logBenchmark()
+## API.clear(name)
+Clears a specific benchmark
 
-## BaseElement:startProfile()
+### Parameters
+* `name` `string` The name of the benchmark to clear
 
-## BaseElement:stopBenchmark()
+## API.clearAll()
+Clears all custom benchmarks
 
-## Container:benchmarkContainer()
+## API.getStats(name)
+Gets statistics for a benchmark
 
-## Container:logContainerBenchmarks()
+### Parameters
+* `name` `string` The name of the benchmark
 
-## Container:stopContainerBenchmark()
+### Returns
+* `table?` `stats` The benchmark statistics or nil
+
+## API.start(name, options?)
+Starts a custom benchmark
+
+### Parameters
+* `name` `string` The name of the benchmark
+* `options` *(optional)* `table` Optional configuration
+
+## API.stop(name)
+Stops a custom benchmark
+
+### Parameters
+* `name` `string` The name of the benchmark to stop
+
 

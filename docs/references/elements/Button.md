@@ -1,4 +1,5 @@
 # Button : VisualElement
+This is the button class. It is a visual element that can be clicked.
 
 ## Properties
 
@@ -15,9 +16,9 @@
 
 |Method|Returns|Description|
 |---|---|---|
-|[Button.new](#Button.new)|table|
-|[Button:init](#Button:init)|-|
-|[Button:render](#Button:render)|-|
+|[Button.new](#Button.new)|table|Creates a new Button instance
+|[Button:init](#Button:init)|-|Initializes the Button instance
+|[Button:render](#Button:render)|-|Renders the Button
 
 ## Button.new()
 Creates a new Button instance
@@ -34,4 +35,5 @@ Initializes the Button instance
 
 ## Button:render()
 Renders the Button
+
 

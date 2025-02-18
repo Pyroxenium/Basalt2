@@ -1,4 +1,6 @@
 # Container : VisualElement
+The container class. It is a visual element that can contain other elements. It is the base class for all containers,
+like Frames, BaseFrames, and more.
 
 ## Properties
 
@@ -17,30 +19,30 @@
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container.new](#Container.new)|Container|
-|[Container:addChild](#Container:addChild)|Container|
-|[Container:blit](#Container:blit)|Container|
-|[Container:char](#Container:char)|boolean|
-|[Container:clear](#Container:clear)|Container|
-|[Container:destroy](#Container:destroy)|-|
-|[Container:getChild](#Container:getChild)|Container?|
-|[Container:handleEvent](#Container:handleEvent)|boolean|
-|[Container:init](#Container:init)|-|
-|[Container:isChildVisible](#Container:isChildVisible)|boolean|
-|[Container:key](#Container:key)|boolean|
-|[Container:key_up](#Container:key_up)|boolean|
-|[Container:mouse_click](#Container:mouse_click)|boolean|
-|[Container:mouse_up](#Container:mouse_up)|boolean|
-|[Container:multiBlit](#Container:multiBlit)|Container|
-|[Container:registerChildEvent](#Container:registerChildEvent)|Container|
-|[Container:registerChildrenEvents](#Container:registerChildrenEvents)|Container|
-|[Container:removeChild](#Container:removeChild)|Container|
-|[Container:removeChildrenEvents](#Container:removeChildrenEvents)|Container|
-|[Container:render](#Container:render)|-|
-|[Container:sortChildren](#Container:sortChildren)|Container|
-|[Container:sortChildrenEvents](#Container:sortChildrenEvents)|Container|
-|[Container:textFg](#Container:textFg)|Container|
-|[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|
+|[Container.new](#Container.new)|Container|Creates a new Container instance
+|[Container:addChild](#Container:addChild)|Container|Adds a child to the container
+|[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
+|[Container:char](#Container:char)|boolean|Handles char events
+|[Container:clear](#Container:clear)|Container|Clears the container
+|[Container:destroy](#Container:destroy)|Container|Destroys the container and its children
+|[Container:getChild](#Container:getChild)|Container?|Removes a child from the container
+|[Container:handleEvent](#Container:handleEvent)|boolean|Default handler for events
+|[Container:init](#Container:init)|-|Initializes the Container instance
+|[Container:isChildVisible](#Container:isChildVisible)|boolean|Returns whether a child is visible
+|[Container:key](#Container:key)|boolean|Handles key events
+|[Container:key_up](#Container:key_up)|boolean|Handles key up events
+|[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
+|[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
+|[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
+|[Container:registerChildEvent](#Container:registerChildEvent)|Container|Registers the children events of the container
+|[Container:registerChildrenEvents](#Container:registerChildrenEvents)|Container|Registers the children events of the container
+|[Container:removeChild](#Container:removeChild)|Container|Removes a child from the container
+|[Container:removeChildrenEvents](#Container:removeChildrenEvents)|Container|Unregisters the children events of the container
+|[Container:render](#Container:render)|-|Renders the container
+|[Container:sortChildren](#Container:sortChildren)|Container|Sorts the children of the container
+|[Container:sortChildrenEvents](#Container:sortChildrenEvents)|Container|Sorts the children events of the container
+|[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
+|[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|Unregisters the children events of the container
 
 ## Container.new()
 Creates a new Container instance
@@ -77,7 +79,7 @@ Handles char events
 * `char` `string` The character that was pressed
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:clear()
 Clears the container
@@ -86,6 +88,10 @@ Clears the container
 * `Container` `self` The container instance
 
 ## Container:destroy()
+Destroys the container and its children
+
+### Returns
+* `Container` `self` The container instance
 
 ## Container:getChild(path)
 Removes a child from the container
@@ -104,7 +110,7 @@ Default handler for events
 * `...` *(vararg)* `any` The event arguments
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:init(props, basalt)
 Initializes the Container instance
@@ -129,7 +135,7 @@ Handles key events
 * `key` `number` The key that was pressed
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:key_up(key)
 Handles key up events
@@ -138,7 +144,7 @@ Handles key up events
 * `key` `number` The key that was released
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:mouse_click(button, x, y)
 Handles mouse click events
@@ -149,7 +155,7 @@ Handles mouse click events
 * `y` `number` The y position of the click
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:mouse_up(button, x, y)
 Handles mouse up events
@@ -160,7 +166,7 @@ Handles mouse up events
 * `y` `number` The y position of the click
 
 ### Returns
-* `boolean` `Whether` the event was handled
+* `boolean` `handled` Whether the event was handled
 
 ## Container:multiBlit(x, y, width, height, text, fg, bg)
 Draws multiple lines of text, fg and bg strings, it is usually used in the render loop
@@ -253,4 +259,5 @@ Unregisters the children events of the container
 
 ### Returns
 * `Container` `self` The container instance
+
 
