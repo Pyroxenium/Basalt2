@@ -30,12 +30,12 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.getAPI](#basalt.getAPI)|table|Returns a Plugin API
 |[basalt.getElementManager](#basalt.getElementManager)|table|Returns the element manager
 |[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|Gets or creates the main frame
-|[basalt.removeSchedule](#basalt.removeSchedule)|-|Removes a scheduled update
+|[basalt.removeSchedule](#basalt.removeSchedule)|boolean|Removes a scheduled update
 |[basalt.run](#basalt.run)|-|Starts the Basalt runtime
-|[basalt.scheduleUpdate](#basalt.scheduleUpdate)|number|Schedules a function to be updated
+|[basalt.schedule](#basalt.schedule)|thread|Schedules a function to run in a coroutine
 |[basalt.setActiveFrame](#basalt.setActiveFrame)|-|Sets the active frame
 |[basalt.stop](#basalt.stop)|-|Stops the Basalt runtime
-|[basalt.update](#basalt.update)|-|Updates all scheduled functions
+|[basalt.update](#basalt.update)|-|Runs basalt once
 
 ## basalt.create(type, properties?)
 Creates and returns a new UI element of the specified type.
@@ -94,11 +94,14 @@ Gets or creates the main frame
 local frame = basalt.getMainFrame()
 ```
 
-## basalt.removeSchedule(id)
+## basalt.removeSchedule(func)
 Removes a scheduled update
 
 ### Parameters
-* `id` `number` The schedule ID to remove
+* `func` `thread` The scheduled function to remove
+
+### Returns
+* `boolean` `success` Whether the scheduled function was removed
 
 ### Usage
  ```lua
@@ -117,14 +120,14 @@ basalt.run()
 basalt.run(false)
 ```
 
-## basalt.scheduleUpdate(func)
-Schedules a function to be updated
+## basalt.schedule(func)
+Schedules a function to run in a coroutine
 
 ### Parameters
 * `func` `function` The function to schedule
 
 ### Returns
-* `number` `Id` The schedule ID
+* `thread` `func` The scheduled function
 
 ### Usage
  ```lua
@@ -150,8 +153,11 @@ Stops the Basalt runtime
 basalt.stop()
 ```
 
-## basalt.update()
-Updates all scheduled functions
+## basalt.update(...)
+Runs basalt once
+
+### Parameters
+* `...` *(vararg)* `any` The event to run with
 
 ### Usage
  ```lua

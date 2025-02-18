@@ -12,6 +12,7 @@ A multi-line text editor component with cursor support and text manipulation fea
 |scrollY|number|0|Vertical scroll offset
 |editable|boolean|true|Whether text can be edited
 |syntaxPatterns|table|{}|Syntax highlighting patterns
+|cursorColor|number|nil|Color of the cursor
 
 ## Functions
 
@@ -36,7 +37,7 @@ Adds a new syntax highlighting pattern
 
 ### Parameters
 * `pattern` `string` The regex pattern to match
-* `color` `color` The color to apply
+* `color` `colors` The color to apply
 
 ## TextBox:char()
 

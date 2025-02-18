@@ -28,12 +28,13 @@ The base class for all UI elements in Basalt
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
 |[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
 
-## BaseElement.listenTo(class, eventName)
+## BaseElement.listenTo(class, eventName, event?)
 Registers an event that this class can listen to
 
 ### Parameters
 * `class` `table` The class to add the event to
 * `eventName` `string` The name of the event to register
+* `event` *(optional)* `string` The event to handle
 
 ### Usage
  ```lua

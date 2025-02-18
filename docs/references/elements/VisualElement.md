@@ -14,6 +14,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |background|color|black|The background color
 |foreground|color|white|The text/foreground color
 |clicked|boolean|false|Whether the element is currently clicked
+|hover|boolean|false|Whether the mouse is currently hover over the element (Craftos-PC only)
 |backgroundEnabled|boolean|true|Whether to render the background
 |focused|boolean|false|Whether the element has input focus
 |visible|boolean|true|Whether the element is visible
@@ -53,7 +54,10 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |[VisualElement:init](#VisualElement:init)|-|Initializes a new visual element with properties
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|Handles a mouse click event
-|[VisualElement:mouse_release](#VisualElement:mouse_release)|boolean|Handles a mouse release event
+|[VisualElement:mouse_drag](#VisualElement:mouse_drag)|-|
+|[VisualElement:mouse_move](#VisualElement:mouse_move)|-|
+|[VisualElement:mouse_release](#VisualElement:mouse_release)|-|Handles a mouse release event
+|[VisualElement:mouse_scroll](#VisualElement:mouse_scroll)|-|
 |[VisualElement:mouse_up](#VisualElement:mouse_up)|boolean|Handles a mouse up event
 |[VisualElement:render](#VisualElement:render)|-|Renders the element
 |[VisualElement:setCursor](#VisualElement:setCursor)|-|Sets the cursor position
@@ -136,6 +140,10 @@ Handles a mouse click event
 ### Returns
 * `boolean` `clicked` Whether the element was clicked
 
+## VisualElement:mouse_drag()
+
+## VisualElement:mouse_move()
+
 ## VisualElement:mouse_release(button, x, y)
 Handles a mouse release event
 
@@ -144,8 +152,7 @@ Handles a mouse release event
 * `x` `number` The x position of the release
 * `y` `number` The y position of the release
 
-### Returns
-* `boolean` `release` Whether the element was released on the element
+## VisualElement:mouse_scroll()
 
 ## VisualElement:mouse_up(button, x, y)
 Handles a mouse up event

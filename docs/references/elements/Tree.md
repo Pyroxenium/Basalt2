@@ -9,7 +9,8 @@ with support for selection and scrolling.
 |nodes|table|{}|The tree structure containing node objects with {text, children} properties
 |selectedNode|table?|nil|Currently selected node
 |expandedNodes|table|{}|Table of nodes that are currently expanded
-|scrollOffset|number|0|Current scroll position
+|scrollOffset|number|0|Current vertical scroll position
+|horizontalOffset|number|0|Current horizontal scroll position
 |nodeColor|color|white|Color of unselected nodes
 |selectedColor|color|lightBlue|Background color of selected node
 
@@ -20,6 +21,7 @@ with support for selection and scrolling.
 |[Tree.new](#Tree.new)|Tree|Creates a new Tree instance
 |[Tree:collapseNode](#Tree:collapseNode)|Tree|Collapses a node to hide its children
 |[Tree:expandNode](#Tree:expandNode)|Tree|Expands a node to show its children
+|[Tree:getNodeSize](#Tree:getNodeSize)|-|
 |[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
 |[Tree:mouse_click](#Tree:mouse_click)|-|
 |[Tree:mouse_scroll](#Tree:mouse_scroll)|-|
@@ -56,6 +58,8 @@ Expands a node
 
 ### Returns
 * `Tree` `self` The Tree instance
+
+## Tree:getNodeSize()
 
 ## Tree:init(props, basalt)
 Initializes the Tree instance

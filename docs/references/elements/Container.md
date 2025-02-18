@@ -22,6 +22,7 @@ like Frames, BaseFrames, and more.
 |[Container.new](#Container.new)|Container|Creates a new Container instance
 |[Container:addChild](#Container:addChild)|Container|Adds a child to the container
 |[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
+|[Container:callChildrenEvents](#Container:callChildrenEvents)|-|
 |[Container:char](#Container:char)|boolean|Handles char events
 |[Container:clear](#Container:clear)|Container|Clears the container
 |[Container:destroy](#Container:destroy)|Container|Destroys the container and its children
@@ -32,6 +33,10 @@ like Frames, BaseFrames, and more.
 |[Container:key](#Container:key)|boolean|Handles key events
 |[Container:key_up](#Container:key_up)|boolean|Handles key up events
 |[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
+|[Container:mouse_drag](#Container:mouse_drag)|-|
+|[Container:mouse_move](#Container:mouse_move)|-|
+|[Container:mouse_release](#Container:mouse_release)|-|
+|[Container:mouse_scroll](#Container:mouse_scroll)|-|
 |[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
 |[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
 |[Container:registerChildEvent](#Container:registerChildEvent)|Container|Registers the children events of the container
@@ -71,6 +76,8 @@ Draws a line of text and fg and bg as colors, it is usually used in the render l
 
 ### Returns
 * `Container` `self` The container instance
+
+## Container:callChildrenEvents()
 
 ## Container:char(char)
 Handles char events
@@ -156,6 +163,14 @@ Handles mouse click events
 
 ### Returns
 * `boolean` `handled` Whether the event was handled
+
+## Container:mouse_drag()
+
+## Container:mouse_move()
+
+## Container:mouse_release()
+
+## Container:mouse_scroll()
 
 ## Container:mouse_up(button, x, y)
 Handles mouse up events
