@@ -62,13 +62,13 @@ cc._elements[ad:gsub(".lua","")]={class=nil,plugins={},loaded=false}end;if
 (minified_pluginDirectory==nil)then
 error("Unable to find minified_pluginDirectory please report this bug to our discord.")end
 for ad,bd in
-pairs(minified_pluginDirectory)do
-local cd=require(fs.combine("plugins",ad:gsub(".lua","")))
-if type(cd)=="table"then
-for dd,__a in pairs(cd)do
-if(dd~="API")then if(cc._plugins[dd]==nil)then
-cc._plugins[dd]={}end
-table.insert(cc._plugins[dd],__a)else cc._APIs[dd]=__a end end end end end
+pairs(minified_pluginDirectory)do local cd=ad:gsub(".lua","")
+local dd=require(fs.combine("plugins",cd))
+if type(dd)=="table"then
+for __a,a_a in pairs(dd)do
+if(__a~="API")then if(cc._plugins[__a]==nil)then
+cc._plugins[__a]={}end
+table.insert(cc._plugins[__a],a_a)else cc._APIs[__a]=a_a end end end end end
 function cc.loadElement(ad)
 if not cc._elements[ad].loaded then
 package.path=bc.."rom/?"local bd=require(fs.combine("elements",ad))
