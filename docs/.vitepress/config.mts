@@ -6,7 +6,7 @@ export default defineConfig({
   description: "A UI Framework made for CC:Tweaked",
   lang: 'en-US',
   lastUpdated: true,
-  base: "/gh-pages/",
+  base: "/Basalt2/",
 
   head: [
     //[
