@@ -63,12 +63,11 @@ export default defineConfig({
 
       ],
 
-'/references/':[
+      '/references/':[
         {
-          text: 'Core', link: 'references/main',
-          collapsed: false,
+          text: 'Basalt', link: 'references/main',
+          collapsed: true,
           items: [
-            {text: 'Basalt', link: 'references/main'},
             {text: 'PropertySystem', link: 'references/propertySystem'},
             {text: 'Render', link: 'references/render'},
             {text: 'Log', link: 'references/log'},
@@ -77,10 +76,9 @@ export default defineConfig({
             ],
         },
         {
-          text: 'elements', link: 'references/elements/BaseElement',
+          text: 'Element', link: 'references/elements/BaseElement',
           collapsed: false,
           items: [
-            {text: 'Element', link: 'references/elements/BaseElement', collapsed: false, items: [
               {text: 'VisualElement', link: 'references/elements/VisualElement', collapsed: false, items: [
                 {text: 'Container', link: 'references/elements/Container', collapsed: true, items: [
                   {text: 'BaseFrame', link: 'references/elements/BaseFrame'},
@@ -90,17 +88,36 @@ export default defineConfig({
                 {text: 'Label', link: 'references/elements/Label'},  
                 {text: 'Input', link: 'references/elements/Input'},
                 {text: 'Checkbox', link: 'references/elements/Checkbox'},
-                {text: 'List', link: 'references/elements/List', collapsed: true},
+                {text: 'List', link: 'references/elements/List', collapsed: true,
+                  items: [
+                    {text: 'Dropdown', link: 'references/elements/Dropdown'},
+                    {text: 'Menu', link: 'references/elements/Menu'},
+                    {text: 'Table', link: 'references/elements/Table'},
+                    {text: 'Tree', link: 'references/elements/Tree'},
+                  ]
+                },
+                {text: 'Slider', link: 'references/elements/Slider'},
+                {text: 'ProgressBar', link: 'references/elements/ProgressBar'},
+                {text: 'Program', link: 'references/elements/Program'},
               ]},
-            ]}
           ]
         },
         {
           text: 'plugins', link: 'references/plugins/animations',
           collapsed: false,
           items: [
-            {text: 'Animations', link: 'references/plugins/animation'},
-            {text: 'Benchmark', link: 'references/plugins/benchmark'},
+            {text: 'Animations', link: 'references/plugins/Animation', collapsed: true,
+              items: [
+                {text: 'Animation Instance', link: 'references/plugins/Animation_AnimationInstance'},
+                {text: 'VisualElement', link: 'references/plugins/Animation_VisualElement'},
+              ]
+            },
+            {text: 'Benchmark', link: 'references/plugins/benchmark', collapsed: true,
+              items: [
+                {text: 'BaseElement', link: 'references/plugins/benchmark_BaseElement'},
+                {text: 'Container', link: 'references/plugins/benchmark_Container'},
+              ]
+            },
             {text: 'Debug', link: 'references/plugins/debug'},
             {text: 'Reactive', link: 'references/plugins/reactive'},
             {text: 'State', link: 'references/plugins/state'},
