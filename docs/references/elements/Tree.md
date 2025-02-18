@@ -25,7 +25,7 @@ with support for selection and scrolling.
 |[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
 |[Tree:mouse_click](#Tree:mouse_click)|-|
 |[Tree:mouse_scroll](#Tree:mouse_scroll)|-|
-|[Tree:onSelect](#Tree:onSelect)|-|
+|[Tree:onSelect](#Tree:onSelect)|Tree|Registers a callback for when a node is selected
 |[Tree:render](#Tree:render)|-|
 |[Tree:setNodes](#Tree:setNodes)|Tree|Sets the tree nodes and expands the root node
 |[Tree:toggleNode](#Tree:toggleNode)|Tree|Toggles between expanded and collapsed state
@@ -75,7 +75,14 @@ Initializes the Tree instance
 
 ## Tree:mouse_scroll()
 
-## Tree:onSelect()
+## Tree:onSelect(callback)
+Registers a callback for when a node is selected
+
+### Parameters
+* `callback` `function` The callback function
+
+### Returns
+* `Tree` `self` The Tree instance
 
 ## Tree:render()
 
