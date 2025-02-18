@@ -1,9 +1,15 @@
 local deepCopy = require("libraries/utils").deepCopy
 local expect = require("libraries/expect")
 local errorManager = require("errorManager")
-local log = require("log")
 
+--- PropertySystem is a class that allows Elements to have properties that can be observed and updated.
+--- It also allows for properties to have custom getters and setters. This is the base system for all Elements.
 --- @class PropertySystem
+--- @field _properties table A table containing all property configurations
+--- @field _values table A table containing all property values
+--- @field _observers table A table containing all property observers
+--- @field set function A function to set a property value
+--- @field get function A function to get a property value
 local PropertySystem = {}
 PropertySystem.__index = PropertySystem
 
@@ -12,6 +18,9 @@ local blueprintTemplates = {}
 
 PropertySystem._setterHooks = {}
 
+--- Adds a setter hook to the PropertySystem. Setter hooks are functions that are called before a property is set.
+--- @shortDescription Adds a setter hook to the PropertySystem
+--- @param hook function The hook function to add
 function PropertySystem.addSetterHook(hook)
     table.insert(PropertySystem._setterHooks, hook)
 end
@@ -26,6 +35,11 @@ local function applyHooks(element, propertyName, value, config)
     return value
 end
 
+--- Defines a property for an element class
+--- @shortDescription Defines a property for an element class
+--- @param class table The element class to define the property for
+--- @param name string The name of the property
+--- @param config table The configuration of the property
 function PropertySystem.defineProperty(class, name, config)
     if not rawget(class, '_properties') then
         class._properties = {}
@@ -67,6 +81,11 @@ function PropertySystem.defineProperty(class, name, config)
     end
 end
 
+--- Combines multiple properties into a single getter and setter
+--- @shortDescription Combines multiple properties
+--- @param class table The element class to combine the properties for
+--- @param name string The name of the combined property
+--- @vararg string The names of the properties to combine
 function PropertySystem.combineProperties(class, name, ...)
     local properties = {...}
     for k,v in pairs(properties)do
@@ -94,6 +113,7 @@ function PropertySystem.combineProperties(class, name, ...)
 end
 
 --- Creates a blueprint of an element class with all its properties
+--- @shortDescription Creates a blueprint of an element class
 --- @param elementClass table The element class to create a blueprint from
 --- @return table blueprint A table containing all property definitions
 function PropertySystem.blueprint(elementClass, properties, basalt, parent)
@@ -198,6 +218,11 @@ function PropertySystem.blueprint(elementClass, properties, basalt, parent)
     return blueprint
 end
 
+--- Creates an element from a blueprint
+--- @shortDescription Creates an element from a blueprint
+--- @param elementClass table The element class to create from the blueprint
+--- @param blueprint table The blueprint to create the element from
+--- @return table element The created element
 function PropertySystem.createFromBlueprint(elementClass, blueprint, basalt)
     local element = elementClass.new({}, basalt)
     for name, value in pairs(blueprint._values) do
@@ -211,6 +236,9 @@ function PropertySystem.createFromBlueprint(elementClass, blueprint, basalt)
     return element
 end
 
+--- Initializes the PropertySystem IS USED INTERNALLY
+--- @shortDescription Initializes the PropertySystem
+--- @return table self The PropertySystem
 function PropertySystem:__init()
     self._values = {}
     self._observers = {}
@@ -308,6 +336,11 @@ function PropertySystem:__init()
     return self
 end
 
+--- Update call for a property IS USED INTERNALLY
+--- @shortDescription Update call for a property
+--- @param name string The name of the property
+--- @param value any The value of the property
+--- @return table self The PropertySystem
 function PropertySystem:_updateProperty(name, value)
     local oldValue = self._values[name]
     if type(oldValue) == "function" then
@@ -327,14 +360,25 @@ function PropertySystem:_updateProperty(name, value)
             end
         end
     end
+    return self
 end
 
+--- Observers a property
+--- @shortDescription Observers a property
+--- @param name string The name of the property
+--- @param callback function The callback function to call when the property changes
+--- @return table self The PropertySystem
 function PropertySystem:observe(name, callback)
     self._observers[name] = self._observers[name] or {}
     table.insert(self._observers[name], callback)
     return self
 end
 
+--- Removes an observer from a property
+--- @NshortDescription Removes an observer from a property
+--- @param name string The name of the property
+--- @param callback function The callback function to remove
+--- @return table self The PropertySystem
 function PropertySystem:removeObserver(name, callback)
     if self._observers[name] then
         for i, cb in ipairs(self._observers[name]) do
@@ -350,6 +394,10 @@ function PropertySystem:removeObserver(name, callback)
     return self
 end
 
+--- Removes all observers from a property
+--- @shortDescription Removes all observers from a property
+--- @param name string The name of the property
+--- @return table self The PropertySystem
 function PropertySystem:removeAllObservers(name)
     if name then
         self._observers[name] = nil
@@ -359,12 +407,21 @@ function PropertySystem:removeAllObservers(name)
     return self
 end
 
+--- Adds a property to the PropertySystem on instance level
+--- @shortDescription Adds a property to the PropertySystem on instance level
+--- @param name string The name of the property
+--- @param config table The configuration of the property
+--- @return table self The PropertySystem
 function PropertySystem:instanceProperty(name, config)
     PropertySystem.defineProperty(self, name, config)
     self._values[name] = config.default
     return self
 end
 
+--- Removes a property from the PropertySystem on instance level
+--- @shortDescription Removes a property from the PropertySystem
+--- @param name string The name of the property
+--- @return table self The PropertySystem
 function PropertySystem:removeProperty(name)
     self._values[name] = nil
     self._properties[name] = nil
@@ -376,6 +433,10 @@ function PropertySystem:removeProperty(name)
     return self
 end
 
+--- Gets a property configuration
+--- @shortDescription Gets a property configuration
+--- @param name string The name of the property
+--- @return table config The configuration of the property
 function PropertySystem:getPropertyConfig(name)
     return self._properties[name]
 end

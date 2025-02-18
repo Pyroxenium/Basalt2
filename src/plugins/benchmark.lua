@@ -1,5 +1,6 @@
 local log = require("log")
 
+
 local activeProfiles = setmetatable({}, {__mode = "k"})
 
 local function createProfile()
@@ -36,8 +37,18 @@ local function wrapMethod(element, methodName)
     end
 end
 
+---@splitClass
+
+--- This is the benchmark plugin. It provides performance measurement tools for elements and methods,
+--- with support for hierarchical profiling and detailed statistics.
+--- The following methods are available for BaseElement
+---@class BaseElement
 local BaseElement = {}
 
+--- Starts profiling a method
+--- @shortDescription Starts timing a method call
+--- @param methodName string The name of the method to profile
+--- @return BaseElement self The element instance
 function BaseElement:startProfile(methodName)
     local profile = activeProfiles[self]
     if not profile then 
@@ -70,6 +81,10 @@ function BaseElement:startProfile(methodName)
     return self
 end
 
+--- Ends profiling a method
+--- @shortDescription Ends timing a method call and records statistics
+--- @param methodName string The name of the method to stop profiling
+--- @return BaseElement self The element instance
 function BaseElement:endProfile(methodName)
     local profile = activeProfiles[self]
     if not profile or not profile.methods[methodName] then return self end
@@ -87,6 +102,11 @@ function BaseElement:endProfile(methodName)
     return self
 end
 
+--- Enables benchmarking for a method
+--- @shortDescription Enables performance measurement for a method
+--- @param methodName string The name of the method to benchmark
+--- @return BaseElement self The element instance
+--- @usage element:benchmark("render")
 function BaseElement:benchmark(methodName)
     if not self[methodName] then
         log.error("Method " .. methodName .. " does not exist")
@@ -101,6 +121,10 @@ function BaseElement:benchmark(methodName)
     return self
 end
 
+--- Logs benchmark statistics for a method
+--- @shortDescription Logs benchmark statistics for a method
+--- @param methodName string The name of the method to log
+--- @return BaseElement self The element instance
 function BaseElement:logBenchmark(methodName)
     local profile = activeProfiles[self]
     if not profile or not profile.methods[methodName] then return self end
@@ -131,6 +155,10 @@ function BaseElement:logBenchmark(methodName)
     return self
 end
 
+--- Stops benchmarking for a method
+--- @shortDescription Disables performance measurement for a method
+--- @param methodName string The name of the method to stop benchmarking
+--- @return BaseElement self The element instance
 function BaseElement:stopBenchmark(methodName)
     local profile = activeProfiles[self]
     if not profile or not profile.methods[methodName] then return self end
@@ -147,6 +175,10 @@ function BaseElement:stopBenchmark(methodName)
     return self
 end
 
+--- Gets benchmark statistics for a method
+--- @shortDescription Retrieves benchmark statistics for a method
+--- @param methodName string The name of the method to get statistics for
+--- @return table? stats The benchmark statistics or nil
 function BaseElement:getBenchmarkStats(methodName)
     local profile = activeProfiles[self]
     if not profile or not profile.methods[methodName] then return nil end
@@ -162,8 +194,17 @@ function BaseElement:getBenchmarkStats(methodName)
     }
 end
 
+---@splitClass
+
+--- Container benchmarking methods
+---@class Container
 local Container = {}
 
+--- Enables benchmarking for a container and all its children
+--- @shortDescription Recursively enables benchmarking
+--- @param methodName string The method to benchmark
+--- @return Container self The container instance
+--- @usage container:benchmarkContainer("render")
 function Container:benchmarkContainer(methodName)
     self:benchmark(methodName)
 
@@ -177,6 +218,10 @@ function Container:benchmarkContainer(methodName)
     return self
 end
 
+--- Logs benchmark statistics for a container and all its children
+--- @shortDescription Recursively logs benchmark statistics
+--- @param methodName string The method to log
+--- @return Container self The container instance
 function Container:logContainerBenchmarks(methodName, depth)
     depth = depth or 0
     local indent = string.rep("  ", depth)
@@ -237,6 +282,10 @@ function Container:logContainerBenchmarks(methodName, depth)
     return self
 end
 
+--- Stops benchmarking for a container and all its children
+--- @shortDescription Recursively stops benchmarking
+--- @param methodName string The method to stop benchmarking
+--- @return Container self The container instance
 function Container:stopContainerBenchmark(methodName)
     for _, child in pairs(self.get("children")) do
         if child:isType("Container") then
@@ -250,73 +299,91 @@ function Container:stopContainerBenchmark(methodName)
     return self
 end
 
-local API = {
-    start = function(name, options)
-        options = options or {}
-        local profile = createProfile()
-        profile.name = name
-        profile.startTime = os.clock() * 1000
-        profile.custom = true
-        activeProfiles[name] = profile
-    end,
+--- Benchmark API methods
+---@class BenchmarkAPI
+local API = {}
 
-    stop = function(name)
-        local profile = activeProfiles[name]
-        if not profile or not profile.custom then return end
+--- Starts a custom benchmark
+--- @shortDescription Starts timing a custom operation
+--- @param name string The name of the benchmark
+--- @param options? table Optional configuration
+function API.start(name, options)
+    options = options or {}
+    local profile = createProfile()
+    profile.name = name
+    profile.startTime = os.clock() * 1000
+    profile.custom = true
+    activeProfiles[name] = profile
+end
 
-        local endTime = os.clock() * 1000
-        local duration = endTime - profile.startTime
+--- Stops a custom benchmark
+--- @shortDescription Stops timing and logs results
+--- @param name string The name of the benchmark to stop
+function API.stop(name)
+    local profile = activeProfiles[name]
+    if not profile or not profile.custom then return end
 
-        profile.calls = profile.calls + 1
-        profile.totalTime = profile.totalTime + duration
-        profile.minTime = math.min(profile.minTime, duration)
-        profile.maxTime = math.max(profile.maxTime, duration)
-        profile.lastTime = duration
+    local endTime = os.clock() * 1000
+    local duration = endTime - profile.startTime
 
-        log.info(string.format(
-            "Custom Benchmark '%s': " ..
-            "Calls: %d " ..
-            "Average time: %.2fms " ..
-            "Min time: %.2fms " ..
-            "Max time: %.2fms " ..
-            "Last time: %.2fms " ..
-            "Total time: %.2fms",
-            name,
-            profile.calls,
-            profile.totalTime / profile.calls,
-            profile.minTime,
-            profile.maxTime,
-            profile.lastTime,
-            profile.totalTime
-        ))
-    end,
+    profile.calls = profile.calls + 1
+    profile.totalTime = profile.totalTime + duration
+    profile.minTime = math.min(profile.minTime, duration)
+    profile.maxTime = math.max(profile.maxTime, duration)
+    profile.lastTime = duration
 
-    getStats = function(name)
-        local profile = activeProfiles[name]
-        if not profile then return nil end
+    log.info(string.format(
+        "Custom Benchmark '%s': " ..
+        "Calls: %d " ..
+        "Average time: %.2fms " ..
+        "Min time: %.2fms " ..
+        "Max time: %.2fms " ..
+        "Last time: %.2fms " ..
+        "Total time: %.2fms",
+        name,
+        profile.calls,
+        profile.totalTime / profile.calls,
+        profile.minTime,
+        profile.maxTime,
+        profile.lastTime,
+        profile.totalTime
+    ))
+end
 
-        return {
-            averageTime = profile.totalTime / profile.calls,
-            totalTime = profile.totalTime,
-            calls = profile.calls,
-            minTime = profile.minTime,
-            maxTime = profile.maxTime,
-            lastTime = profile.lastTime
-        }
-    end,
+--- Gets statistics for a benchmark
+--- @shortDescription Retrieves benchmark statistics
+--- @param name string The name of the benchmark
+--- @return table? stats The benchmark statistics or nil
+function API.getStats(name)
+    local profile = activeProfiles[name]
+    if not profile then return nil end
 
-    clear = function(name)
-        activeProfiles[name] = nil
-    end,
+    return {
+        averageTime = profile.totalTime / profile.calls,
+        totalTime = profile.totalTime,
+        calls = profile.calls,
+        minTime = profile.minTime,
+        maxTime = profile.maxTime,
+        lastTime = profile.lastTime
+    }
+end
 
-    clearAll = function()
-        for k,v in pairs(activeProfiles) do
-            if v.custom then
-                activeProfiles[k] = nil
-            end
+--- Clears a specific benchmark
+--- @shortDescription Removes a benchmark's data
+--- @param name string The name of the benchmark to clear
+function API.clear(name)
+    activeProfiles[name] = nil
+end
+
+--- Clears all custom benchmarks
+--- @shortDescription Removes all custom benchmark data
+function API.clearAll()
+    for k,v in pairs(activeProfiles) do
+        if v.custom then
+            activeProfiles[k] = nil
         end
     end
-}
+end
 
 return {
     BaseElement = BaseElement,

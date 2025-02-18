@@ -132,8 +132,15 @@ local function handleEvent(node, element, scope)
     end
 end
 
+--- The XML plugin provides XML parsing and UI creation from XML markup
+---@class BaseElement
 local BaseElement = {}
 
+--- Creates an element from an XML node
+--- @shortDescription Creates element from XML node
+--- @param self BaseElement The element instance
+--- @param node table The XML node to create from
+--- @return BaseElement self The element instance
 function BaseElement:fromXML(node)
     for attr, value in pairs(node.attributes) do
         local config = self:getPropertyConfig(attr)
@@ -145,8 +152,22 @@ function BaseElement:fromXML(node)
     return self
 end
 
+---@class Container
 local Container = {}
 
+--- Loads and creates UI elements from XML content
+--- @shortDescription Loads UI from XML string
+--- @param self Container The container to load into
+--- @param content string The XML content to parse
+--- @param scope? table Optional scope for variable resolution
+--- @return Container self The container instance
+--- @usage
+--- local xml = [[
+---   <Frame>
+---     <Button name="myButton" x="5" y="5"/>
+---   </Frame>
+--- ]]
+--- container:loadXML(xml)
 function Container:loadXML(content, scope)
     local tree = parseXML(self, content)
 

@@ -5,6 +5,8 @@ local split = require("libraries/utils").split
 
 local max = math.max
 
+--- The container class. It is a visual element that can contain other elements. It is the base class for all containers,
+--- like Frames, BaseFrames, and more.
 ---@class Container : VisualElement
 local Container = setmetatable({}, VisualElement)
 Container.__index = Container
@@ -66,6 +68,7 @@ for k, _ in pairs(elementManager:getElementList()) do
 end
 
 --- Creates a new Container instance
+--- @shortDescription Creates a new Container instance
 --- @return Container self The new container instance
 function Container.new()
     local self = setmetatable({}, Container):__init()
@@ -73,6 +76,7 @@ function Container.new()
 end
 
 --- Initializes the Container instance
+--- @shortDescription Initializes the Container instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 function Container:init(props, basalt)
@@ -81,6 +85,7 @@ function Container:init(props, basalt)
 end
 
 --- Returns whether a child is visible
+--- @shortDescription Returns whether a child is visible
 --- @param child table The child to check
 --- @return boolean boolean the child is visible
 function Container:isChildVisible(child)
@@ -95,6 +100,7 @@ function Container:isChildVisible(child)
 end
 
 --- Adds a child to the container
+--- @shortDescription Adds a child to the container
 --- @param child table The child to add
 --- @return Container self The container instance
 function Container:addChild(child)
@@ -138,6 +144,7 @@ local function sortAndFilterChildren(self, children)
 end
 
 --- Clears the container
+--- @shortDescription Clears the container
 --- @return Container self The container instance
 function Container:clear()
     self.set("children", {})
@@ -150,6 +157,7 @@ function Container:clear()
 end
 
 --- Sorts the children of the container
+--- @shortDescription Sorts the children of the container
 --- @return Container self The container instance
 function Container:sortChildren()
     self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
@@ -158,6 +166,7 @@ function Container:sortChildren()
 end
 
 --- Sorts the children events of the container
+--- @shortDescription Sorts the children events of the container
 --- @param eventName string The event name to sort
 --- @return Container self The container instance
 function Container:sortChildrenEvents(eventName)
@@ -169,6 +178,7 @@ function Container:sortChildrenEvents(eventName)
 end
 
 --- Registers the children events of the container
+--- @shortDescription Registers the children events of the container
 --- @param child table The child to register events for
 --- @return Container self The container instance
 function Container:registerChildrenEvents(child)
@@ -180,6 +190,7 @@ function Container:registerChildrenEvents(child)
 end
 
 --- Registers the children events of the container
+--- @shortDescription Registers the children events of the container
 --- @param child table The child to register events for
 --- @param eventName string The event name to register
 --- @return Container self The container instance
@@ -206,6 +217,7 @@ function Container:registerChildEvent(child, eventName)
 end
 
 --- Unregisters the children events of the container
+--- @shortDescription Unregisters the children events of the container
 --- @param child table The child to unregister events for
 --- @return Container self The container instance
 function Container:removeChildrenEvents(child)
@@ -217,6 +229,7 @@ function Container:removeChildrenEvents(child)
 end
 
 --- Unregisters the children events of the container
+--- @shortDescription Unregisters the children events of the container
 --- @param child table The child to unregister events for
 --- @param eventName string The event name to unregister
 --- @return Container self The container instance
@@ -243,6 +256,7 @@ function Container:unregisterChildEvent(child, eventName)
 end
 
 --- Removes a child from the container
+--- @shortDescription Removes a child from the container
 --- @param child table The child to remove
 --- @return Container self The container instance
 function Container:removeChild(child)
@@ -258,6 +272,7 @@ function Container:removeChild(child)
 end
 
 --- Removes a child from the container
+--- @shortDescription Removes a child from the container
 --- @param path string The path to the child to remove
 --- @return Container? self The container instance
 function Container:getChild(path)
@@ -303,9 +318,10 @@ local function callChildrenEvents(self, visibleOnly, event, ...)
 end
 
 --- Default handler for events
+--- @shortDescription Default handler for events
 --- @param event string The event to handle
 --- @vararg any The event arguments
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:handleEvent(event, ...)
     VisualElement.handleEvent(self, event, ...)
     local args = convertMousePosition(self, event, ...)
@@ -313,10 +329,11 @@ function Container:handleEvent(event, ...)
 end
 
 --- Handles mouse click events
+--- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_click", button, x, y)
@@ -332,10 +349,11 @@ function Container:mouse_click(button, x, y)
 end
 
 --- Handles mouse up events
+--- @shortDescription Handles mouse up events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:mouse_up(button, x, y)
     if VisualElement.mouse_up(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_up", button, x, y)
@@ -348,8 +366,9 @@ function Container:mouse_up(button, x, y)
 end
 
 --- Handles key events
+--- @shortDescription Handles key events
 --- @param key number The key that was pressed
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:key(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key", key)
@@ -358,8 +377,9 @@ function Container:key(key)
 end
 
 --- Handles char events
+--- @shortDescription Handles char events
 --- @param char string The character that was pressed
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:char(char)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("char", char)
@@ -368,8 +388,9 @@ function Container:char(char)
 end
 
 --- Handles key up events
+--- @shortDescription Handles key up events
 --- @param key number The key that was released
---- @return boolean Whether the event was handled
+--- @return boolean handled Whether the event was handled
 function Container:key_up(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key_up", key)
@@ -378,6 +399,7 @@ function Container:key_up(key)
 end
 
 --- Draws multiple lines of text, fg and bg strings, it is usually used in the render loop
+--- @shortDescription Draws multiple lines of text, fg and bg strings
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
 --- @param width number The width of the text
@@ -399,6 +421,7 @@ function Container:multiBlit(x, y, width, height, text, fg, bg)
 end
 
 --- Draws a line of text and fg as color, it is usually used in the render loop
+--- @shortDescription Draws a line of text and fg as color
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
 --- @param text string The text to draw
@@ -418,6 +441,7 @@ function Container:textFg(x, y, text, fg)
 end
 
 --- Draws a line of text and fg and bg as colors, it is usually used in the render loop
+--- @shortDescription Draws a line of text and fg and bg as colors
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
 --- @param text string The text to draw
@@ -445,6 +469,7 @@ function Container:blit(x, y, text, fg, bg)
 end
 
 --- Renders the container
+--- @shortDescription Renders the container
 function Container:render()
     VisualElement.render(self)
     if not self.get("childrenSorted")then
@@ -464,6 +489,9 @@ function Container:render()
     end
 end
 
+--- Destroys the container and its children
+--- @shortDescription Destroys the container and its children
+--- @return Container self The container instance
 function Container:destroy()
     for _, child in ipairs(self._values.children) do
         child:destroy()

@@ -1,3 +1,4 @@
+--- Logger module for Basalt. Logs messages to the console and optionally to a file.
 --- @class Log
 --- @field _logs table The complete log history
 --- @field _enabled boolean If the logger is enabled
@@ -87,10 +88,9 @@ end
 
 --- Sends a debug message to the logger.
 --- @shortDescription Sends a debug message
+--- @vararg string The message to log
 --- @usage Log.debug("This is a debug message")
-function Log.debug(...)
-    log(Log.LEVEL.DEBUG, ...)
-end
+function Log.debug(...) log(Log.LEVEL.DEBUG, ...) end
 
 --- Sends an info message to the logger.
 --- @shortDescription Sends an info message
@@ -109,7 +109,5 @@ function Log.warn(...) log(Log.LEVEL.WARN, ...) end
 --- @vararg string The message to log
 --- @usage Log.error("This is an error message")
 function Log.error(...) log(Log.LEVEL.ERROR, ...) end
-
-Log.info("Logger initialized")
 
 return Log

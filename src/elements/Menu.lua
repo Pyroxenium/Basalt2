@@ -2,12 +2,19 @@ local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local tHex = require("libraries/colorHex")
 
+--- This is the menu class. It provides a horizontal menu bar with selectable items and separators.
+--- Menu items are displayed in a single row and can have custom colors and callbacks.
 ---@class Menu : List
 local Menu = setmetatable({}, List)
 Menu.__index = Menu
 
+---@property separatorColor color gray The color used for separator items in the menu
 Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "number"})
 
+--- Creates a new Menu instance
+--- @shortDescription Creates a new Menu instance
+--- @return Menu self The newly created Menu instance
+--- @usage local menu = Menu.new()
 function Menu.new()
     local self = setmetatable({}, Menu):__init()
     self.set("width", 30)
@@ -16,12 +23,22 @@ function Menu.new()
     return self
 end
 
+--- Initializes the Menu instance
+--- @shortDescription Initializes the Menu instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Menu self The initialized instance
 function Menu:init(props, basalt)
     List.init(self, props, basalt)
     self.set("type", "Menu")
     return self
 end
 
+--- Sets the menu items
+--- @shortDescription Sets the menu items and calculates total width
+--- @param items table[] List of items with {text, separator, callback, foreground, background} properties
+--- @return Menu self The Menu instance
+--- @usage menu:setItems({{text="File"}, {separator=true}, {text="Edit"}})
 function Menu:setItems(items)
     local listItems = {}
     local totalWidth = 0
@@ -40,6 +57,8 @@ function Menu:setItems(items)
     return List.setItems(self, listItems)
 end
 
+--- Renders the menu
+--- @shortDescription Renders the menu horizontally with proper spacing and colors
 function Menu:render()
     VisualElement.render(self)
     local currentX = 1
@@ -63,6 +82,12 @@ function Menu:render()
     end
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events and item selection
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean Whether the event was handled
 function Menu:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
     if(self.get("selectable") == false) then return false end

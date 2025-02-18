@@ -31,6 +31,7 @@ BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
 --- Registers an event that this class can listen to
+--- @shortDescription Registers an event that this class can listen to
 --- @param class table The class to add the event to
 --- @param eventName string The name of the event to register
 --- @usage BaseElement.listenTo(MyClass, "mouse_click")
@@ -42,16 +43,18 @@ function BaseElement.listenTo(class, eventName)
 end
 
 --- Creates a new BaseElement instance
+--- @shortDescription Creates a new BaseElement instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return table The newly created BaseElement instance
---- @usage local element = BaseElement.new("myId", basalt)
+--- @usage local element = BaseElement.new()
 function BaseElement.new()
     local self = setmetatable({}, BaseElement):__init()
     return self
 end
 
 --- Initializes the BaseElement instance
+--- @shortDescription Initializes the BaseElement instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return table self The initialized instance
@@ -76,6 +79,7 @@ function BaseElement:init(props, basalt)
 end
 
 --- Post initialization
+--- @shortDescription Post initialization
 --- @return table self The BaseElement instance
 function BaseElement:postInit()
     if(self._props)then
@@ -88,6 +92,7 @@ function BaseElement:postInit()
 end
 
 --- Checks if the element is a specific type
+--- @shortDescription Checks if the element is a specific type
 --- @param type string The type to check for
 --- @return boolean Whether the element is of the specified type
 function BaseElement:isType(type)
@@ -100,6 +105,7 @@ function BaseElement:isType(type)
 end
 
 --- Enables or disables event listening for a specific event
+--- @shortDescription Enables or disables event listening for a specific event
 --- @param eventName string The name of the event to listen for
 --- @param enable? boolean Whether to enable or disable the event (default: true)
 --- @return table self The BaseElement instance
@@ -123,6 +129,7 @@ function BaseElement:listenEvent(eventName, enable)
 end
 
 --- Registers a callback function for an event
+--- @shortDescription Registers a callback function
 --- @param event string The event to register the callback for
 --- @param callback function The callback function to register
 --- @return table self The BaseElement instance
@@ -141,6 +148,7 @@ function BaseElement:registerCallback(event, callback)
 end
 
 --- Triggers an event and calls all registered callbacks
+--- @shortDescription Triggers an event and calls all registered callbacks
 --- @param event string The event to fire
 --- @param ... any Additional arguments to pass to the callbacks
 --- @return table self The BaseElement instance
@@ -156,6 +164,7 @@ function BaseElement:fireEvent(event, ...)
 end
 
 --- Handles all events
+--- @shortDescription Handles all events
 --- @param event string The event to handle
 --- @vararg any The arguments for the event
 --- @return boolean? handled Whether the event was handled
@@ -167,6 +176,7 @@ function BaseElement:dispatchEvent(event, ...)
 end
 
 --- The default event handler for all events
+--- @shortDescription The default event handler for all events
 --- @param event string The event to handle
 --- @vararg any The arguments for the event
 --- @return boolean? handled Whether the event was handled
@@ -175,6 +185,7 @@ function BaseElement:handleEvent(event, ...)
 end
 
 --- Returns the base frame of the element
+--- @shortDescription Returns the base frame of the element
 --- @return table BaseFrame The base frame of the element
 function BaseElement:getBaseFrame()
     if self.parent then
@@ -184,6 +195,7 @@ function BaseElement:getBaseFrame()
 end
 
 --- Destroys the element and cleans up all references
+--- @shortDescription Destroys the element and cleans up all references
 --- @usage element:destroy()
 function BaseElement:destroy()
     -- Remove from parent if exists
@@ -206,6 +218,7 @@ function BaseElement:destroy()
 end
 
 --- Requests a render update for this element
+--- @shortDescription Requests a render update for this element
 --- @usage element:updateRender()
 function BaseElement:updateRender()
     if(self.parent) then

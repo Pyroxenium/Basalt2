@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 
+--- This is the checkbox class. It is a visual element that can be checked.
 ---@class Checkbox : VisualElement
 local Checkbox = setmetatable({}, VisualElement)
 Checkbox.__index = Checkbox
@@ -14,6 +15,7 @@ Checkbox.defineProperty(Checkbox, "symbol", {default = "x", type = "string"})
 Checkbox.listenTo(Checkbox, "mouse_click")
 
 --- Creates a new Checkbox instance
+--- @shortDescription Creates a new Checkbox instance
 --- @return Checkbox self The created instance
 function Checkbox.new()
     local self = setmetatable({}, Checkbox):__init()
@@ -23,6 +25,7 @@ function Checkbox.new()
 end
 
 --- Initializes the Checkbox instance
+--- @shortDescription Initializes the Checkbox instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 function Checkbox:init(props, basalt)
@@ -31,10 +34,11 @@ function Checkbox:init(props, basalt)
 end
 
 --- Handles mouse click events
+--- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
---- @return boolean Whether the event was handled
+--- @return boolean Clicked Whether the event was handled
 function Checkbox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         self.set("checked", not self.get("checked"))
@@ -45,6 +49,7 @@ function Checkbox:mouse_click(button, x, y)
 end
 
 --- Renders the Checkbox
+--- @shortDescription Renders the Checkbox
 function Checkbox:render()
     VisualElement.render(self)
 

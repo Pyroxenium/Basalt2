@@ -17,7 +17,8 @@ local commentTypes = {
     "private",
     "protected",
     "field",
-    "vararg"
+    "vararg",
+    "splitClass"
 }
 
 local function extractComment(line)
@@ -71,6 +72,8 @@ function markdown.parse(content)
     local fields = {}
     local currentBlock = {type = "comment", desc = {}}
     local skipNextFunction = false
+    local currentClass = "None"
+    local splitNextClass = false
 
     for line in content:gsub("\r\n", "\n"):gmatch("([^\n]*)\n?") do
         if line:match("^%s*$") or line == "" then
@@ -87,6 +90,8 @@ function markdown.parse(content)
                     table.insert(currentBlock.desc, value)
                 elseif(commentType == "private")or(commentType == "protected")then
                     skipNextFunction = true
+                elseif(commentType == "splitClass")then
+                    splitNextClass = true
                 else
                     if(commentType == "module")then
                         currentBlock.usageIsActive = false
@@ -96,6 +101,13 @@ function markdown.parse(content)
                         currentBlock.usageIsActive = false
                         currentBlock.type = "class"
                         currentBlock.className = value
+                        currentBlock.splitClass = splitNextClass
+                        splitNextClass = false
+                        currentClass = value
+                        fields[currentClass] = {}
+                        properties[currentClass] = {}
+                        combinedProperties[currentClass] = {}
+                        events[currentClass] = {}
                     end
                     if(commentType == "usage")then
                         currentBlock.usage = currentBlock.usage or {}
@@ -110,15 +122,17 @@ function markdown.parse(content)
                         currentBlock.shortDescription = value
                     elseif(commentType == "property")then
                         currentBlock = {type = "comment", desc = {}}
-                        table.insert(properties, value)
+                        table.insert(properties[currentClass], value)
                     elseif(commentType == "combinedProperty")then
                         currentBlock = {type = "comment", desc = {}}
-                        table.insert(combinedProperties, value)
+                        table.insert(combinedProperties[currentClass], value)
                     elseif(commentType == "field")then
-                        table.insert(fields, value)
+                        if currentClass then
+                            table.insert(fields[currentClass], value)
+                        end
                     elseif(commentType == "event")then
                         currentBlock = {type = "comment", desc = {}}
-                        table.insert(events, value)
+                        table.insert(events[currentClass], value)
                     else
                         currentBlock.usageIsActive = false
                         currentBlock[commentType] = currentBlock[commentType] or {}
@@ -136,6 +150,7 @@ function markdown.parse(content)
                     if funcName then
                         currentBlock.func = funcName
                         currentBlock.type = "function"
+                        currentBlock.className = currentClass
                     end
                 end
             end
@@ -168,6 +183,7 @@ function markdown.parse(content)
     for _, block in ipairs(functionBlocks) do
         table.insert(markdown.blocks, block)
     end
+    return markdown.blocks
 end
 
 local function markdownFunction(block)
@@ -221,12 +237,12 @@ local function markdownFunction(block)
     return output
 end
 
-local function markdownFields()
-    if(#markdown.blocks.fields<=0)then
+local function markdownFields(className)
+    if(#markdown.blocks.fields[className]<=0)then
         return ""
     end
     local output = "\n## Fields\n\n|Field|Type|Description|\n|---|---|---|\n"
-    for _, block in pairs(markdown.blocks.fields) do
+    for _, block in pairs(markdown.blocks.fields[className]) do
         local name, rest = block:match("([%w_]+)%s+(.+)")
         if name and rest then
             local fieldType, desc = rest:match("([^%s].-)%s+([^%s].*)")
@@ -242,44 +258,31 @@ local function markdownFields()
     return output
 end
 
-local function markdownProperties()
-    if(#markdown.blocks.properties<=0)then
+local function markdownProperties(className)
+    if(#markdown.blocks.properties[className]<=0)then
         return ""
     end
     local output = "\n## Properties\n\n|Property|Type|Default|Description|\n|---|---|---|---|\n"
-    for _, block in pairs(markdown.blocks.properties) do
+    for _, block in pairs(markdown.blocks.properties[className]) do
         local name, paramType, defaultValue, desc = block:match("([^%s]+)%s+([^%s]+)%s+([^%s]+)%s+(.*)")
         output = output .. string.format("|%s|%s|%s|%s\n", name, paramType, defaultValue, desc)
     end
     return output
 end
 
-local function markdownCombinedProperties()
-    if(markdown.blocks.combinedProperties==nil)then
+local function markdownCombinedProperties(className)
+    if(markdown.blocks.combinedProperties[className]==nil)then
         return ""
     end
-    if(#markdown.blocks.combinedProperties<=0)then
+    if(#markdown.blocks.combinedProperties[className]<=0)then
         return ""
     end
     local output = "\n## Combined Properties\n\n|Name|Properties|Description|\n|---|---|---|\n"
-    for _, block in pairs(markdown.blocks.combinedProperties) do
-        local name, paramType, defaultValue, desc = block:match("([^%s]+)%s+([^%s]+)%s+([^%s]+)%s+(.*)")
-        output = output .. string.format("|%s|%s|%s|%s\n", name, paramType, defaultValue, desc)
-    end
-    return output
-end
-
-local function markdownEvents()
-    if(#markdown.blocks.events<=0)then
-        return ""
-    end
-    local output = "\n## Events\n\n|Event|Parameters|Description|\n|---|---|---|\n"
-    
-    for _, event in pairs(markdown.blocks.events) do
-        local name, params, desc = event:match("([%w_]+)%s+{([^}]+)}%s*(.*)")
+    for _, block in pairs(markdown.blocks.combinedProperties[className]) do
+        local name, params, desc = block:match("([%w_]+)%s+{([^}]+)}%s*(.*)")
         if name and params then
             local formattedParams = params:gsub("%s*,%s*", ", ")
-            output = output .. string.format("|%s|`%s`|%s|\n", 
+            output = output .. string.format("|%s|`%s`|%s|\n",
                 name,
                 formattedParams,
                 desc or ""
@@ -289,12 +292,41 @@ local function markdownEvents()
     return output
 end
 
-local function markdownModuleOrClassFunctions()
+local function markdownEvents(className)
+    if(#markdown.blocks.events[className]<=0)then
+        return ""
+    end
+    local output = "\n## Events\n\n|Event|Parameters|Description|\n|---|---|---|\n"
+    
+    for _, event in pairs(markdown.blocks.events[className]) do
+        local name, params, desc = event:match("([%w_]+)%s+{([^}]+)}%s*(.*)")
+        if name and params then
+            local formattedParams = params:gsub("%s*,%s*", ", ")
+            output = output .. string.format("|%s|`%s`|%s|\n",
+                name,
+                formattedParams,
+                desc or ""
+            )
+        end
+    end
+    return output
+end
+
+local function markdownClassFunctionList(className)
     if(#markdown.blocks<=0)then
         return ""
     end
+    local fList = {}
+    for _, v in pairs(markdown.blocks) do
+        if(v.type=="function")then
+            if(v.className==className)then
+                table.insert(fList, v)
+            end
+        end
+    end
+
     local output = "\n## Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
-    for _, block in pairs(markdown.blocks) do
+    for _, block in pairs(fList) do
         if block.type == "function" then
             output = output .. "|[" .. block.func .. "](#" .. block.func .. ")|"
             if(block["return"]~=nil)then
@@ -310,33 +342,6 @@ local function markdownModuleOrClassFunctions()
             end
         end
     end
-    return output
-end
-
-local function markdownModule(block)
-    local output = "# ".. block.moduleName.."\n"
-    if(block.usage~=nil)then
-        if(#block.usage > 0)then
-            for k,v in pairs(block.usage) do
-                local _output = "\n### Usage\n ```lua\n"
-                for _, line in pairs(v.content) do
-                    _output = _output .. line .. "\n"
-                end
-                _output = _output .. "```\n"
-                table.insert(block.desc, v.line, _output)
-            end
-        end
-    end
-    for _, line in pairs(block.desc) do
-        output = output .. line .. "\n"
-    end
-
-    output = output .. markdownFields()
-    output = output .. markdownProperties()
-    output = output .. markdownCombinedProperties()
-    output = output .. markdownEvents()
-    output = output .. markdownModuleOrClassFunctions(block)
-    output = output .. "\n"
     return output
 end
 
@@ -358,32 +363,38 @@ local function markdownClass(block)
         output = output .. line .. "\n"
     end
 
-    output = output .. markdownFields()
-    output = output .. markdownProperties()
-    output = output .. markdownCombinedProperties()
-    output = output .. markdownEvents()
-    output = output .. markdownModuleOrClassFunctions(block)
+    output = output .. markdownFields(block.className)
+    output = output .. markdownProperties(block.className)
+    output = output .. markdownCombinedProperties(block.className)
+    output = output .. markdownEvents(block.className)
+    output = output .. markdownClassFunctionList(block.className) .. "\n"
+    for k,v in pairs(markdown.blocks) do
+        if(v.type=="function")then
+            if(v.className==block.className)then
+                output = output .. markdownFunction(v)
+            end
+        end
+    end
     output = output .. "\n"
     return output
 end
 
 function markdown.makeMarkdown()
+    local classes = {}
     local output = ""
     for _, block in pairs(markdown.blocks) do
-        if block.type == "function" then
-            output = output .. markdownFunction(block)
-        elseif block.type == "comment" then
+        if block.type == "comment" then
             for _, line in pairs(block.desc) do
                 output = output .. line .. "\n"
             end
-        elseif block.type == "module" then
-            output = output .. markdownModule(block)
+        --[[elseif block.type == "module" then
+            output = output .. markdownModule(block)]]
         elseif block.type == "class" then
-            output = output .. markdownClass(block)
+            classes[block.className] = {content=markdownClass(block), data=block}
         end
     end
 
-    return output
+    return classes
 end
 
 function markdown.parseFile(source)
@@ -399,13 +410,56 @@ function markdown.parseFile(source)
 end
 
 function markdown.saveToFile(source, output)
-    local file = io.open(source, "w")
-    if not file then
-        error("Could not open file for writing: " .. source)
+    local mainFile
+    local mainFileCount = 0
+
+    local sortedOutput = {}
+    for _, v in pairs(output) do
+        table.insert(sortedOutput, v)
     end
 
-    file:write(output)
-    file:close()
+    table.sort(sortedOutput, function(a, b)
+        return a.data.className < b.data.className
+    end)
+
+    for k,v in pairs(sortedOutput) do
+        if(v.data.splitClass)then
+            local subFile = io.open(source.."_"..v.data.className..".md", "w")
+            if not subFile then
+                error("Could not open file for writing: " .. source.."_"..v.data.className..".md")
+            end
+            subFile:write(v.content)
+            subFile:close()
+        else
+            if(mainFile==nil)then
+                mainFile = io.open(source..".md", "w")
+            end
+            if(mainFileCount>0)then
+                mainFile:write("---\n<br>\n\n")
+            end
+            if not mainFile then
+                error("Could not open file for writing: " .. source..".md")
+            end
+            mainFile:write(v.content)
+            mainFileCount = mainFileCount + 1
+        end
+
+    end
+    if(mainFile~=nil)then
+        mainFile:close()
+    end
+
+
+
+
+        --[[local file = io.open(source..".md", "w")
+        if not file then
+            error("Could not open file for writing: " .. source..".md")
+        end
+        for _, content in pairs(output) do
+            file:write(content)
+        end
+        file:close()]]
 end
 
 return markdown

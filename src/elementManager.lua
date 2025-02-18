@@ -10,6 +10,9 @@ local defaultPath = package.path
 local format = "path;/path/?.lua;/path/?/init.lua;"
 local main = format:gsub("path", dir)
 
+--- This class manages elements and plugins. It loads elements and plugins from the elements and plugins directories
+--- and then applies the plugins to the elements. It also provides a way to get elements and APIs.
+--- @class ElementManager
 local ElementManager = {}
 ElementManager._elements = {}
 ElementManager._plugins = {}
@@ -55,6 +58,9 @@ if fs.exists(pluginsDirectory) then
     end
 end
 
+--- Loads an element by name. This will load the element and apply any plugins to it.
+--- @param name string The name of the element to load
+--- @usage ElementManager.loadElement("Button")
 function ElementManager.loadElement(name)
     if not ElementManager._elements[name].loaded then
         package.path = main.."rom/?"
@@ -106,6 +112,9 @@ function ElementManager.loadElement(name)
     end
 end
 
+--- Gets an element by name. If the element is not loaded, it will try to load it first.
+--- @param name string The name of the element to get
+--- @return table Element The element class
 function ElementManager.getElement(name)
     if not ElementManager._elements[name].loaded then
         ElementManager.loadElement(name)
@@ -113,10 +122,15 @@ function ElementManager.getElement(name)
     return ElementManager._elements[name].class
 end
 
+--- Gets a list of all elements
+--- @return table ElementList A list of all elements
 function ElementManager.getElementList()
     return ElementManager._elements
 end
 
+--- Gets an Plugin API by name
+--- @param name string The name of the API to get
+--- @return table API The API
 function ElementManager.getAPI(name)
     return ElementManager._APIs[name]
 end

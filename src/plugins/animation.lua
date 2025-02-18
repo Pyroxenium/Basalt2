@@ -1,22 +1,4 @@
-local Animation = {}
-Animation.__index = Animation
-
 local registeredAnimations = {}
-
-function Animation.registerAnimation(name, handlers)
-    registeredAnimations[name] = handlers
-
-    Animation[name] = function(self, ...)
-        local args = {...}
-        local easing = "linear"
-        if(type(args[#args]) == "string") then
-            easing = table.remove(args, #args)
-        end
-        local duration = table.remove(args, #args)
-        return self:addAnimation(name, args, duration, easing)
-    end
-end
-
 local easings = {
     linear = function(progress)
         return progress
@@ -38,13 +20,29 @@ local easings = {
     end
 }
 
-function Animation.registerEasing(name, func)
-    easings[name] = func
-end
+---@splitClass
 
+--- This is the AnimationInstance class. It represents a single animation instance
+---@class AnimationInstance
+---@field element VisualElement The element being animated
+---@field type string The type of animation
+---@field args table The animation arguments
+---@field duration number The duration in seconds
+---@field startTime number The animation start time
+---@field isPaused boolean Whether the animation is paused
+---@field handlers table The animation handlers
+---@field easing string The easing function name
 local AnimationInstance = {}
 AnimationInstance.__index = AnimationInstance
 
+--- Creates a new AnimationInstance
+--- @shortDescription Creates a new animation instance
+--- @param element VisualElement The element to animate
+--- @param animType string The type of animation
+--- @param args table The animation arguments
+--- @param duration number Duration in seconds
+--- @param easing string The easing function name
+--- @return AnimationInstance The new animation instance
 function AnimationInstance.new(element, animType, args, duration, easing)
     local self = setmetatable({}, AnimationInstance)
     self.element = element
@@ -58,25 +56,72 @@ function AnimationInstance.new(element, animType, args, duration, easing)
     return self
 end
 
+--- Starts the animation
+--- @shortDescription Starts the animation
+--- @return AnimationInstance self The animation instance
 function AnimationInstance:start()
     self.startTime = os.epoch("local") / 1000
     if self.handlers.start then
         self.handlers.start(self)
     end
+    return self
 end
 
+--- Updates the animation
+--- @shortDescription Updates the animation
+--- @param elapsed number The elapsed time in seconds
+--- @return boolean Whether the animation is finished
 function AnimationInstance:update(elapsed)
     local rawProgress = math.min(1, elapsed / self.duration)
     local progress = easings[self.easing](rawProgress)
     return self.handlers.update(self, progress)
 end
 
+--- Gets called when the animation is completed
+--- @shortDescription Called when the animation is completed
 function AnimationInstance:complete()
     if self.handlers.complete then
         self.handlers.complete(self)
     end
 end
 
+--- This is the animation plugin. It provides a animation system for visual elements
+--- with support for sequences, easing functions, and multiple animation types.
+---@class Animation
+local Animation = {}
+Animation.__index = Animation
+
+--- Registers a new animation type
+--- @shortDescription Registers a custom animation type
+--- @param name string The name of the animation
+--- @param handlers table Table containing start, update and complete handlers
+--- @usage Animation.registerAnimation("fade", {start=function(anim) end, update=function(anim,progress) end})
+function Animation.registerAnimation(name, handlers)
+    registeredAnimations[name] = handlers
+
+    Animation[name] = function(self, ...)
+        local args = {...}
+        local easing = "linear"
+        if(type(args[#args]) == "string") then
+            easing = table.remove(args, #args)
+        end
+        local duration = table.remove(args, #args)
+        return self:addAnimation(name, args, duration, easing)
+    end
+end
+
+--- Registers a new easing function
+--- @shortDescription Adds a custom easing function
+--- @param name string The name of the easing function
+--- @param func function The easing function (takes progress 0-1, returns modified progress)
+function Animation.registerEasing(name, func)
+    easings[name] = func
+end
+
+--- Creates a new Animation
+--- @shortDescription Creates a new animation
+--- @param element VisualElement The element to animate
+--- @return Animation The new animation
 function Animation.new(element)
     local self = {}
     self.element = element
@@ -88,6 +133,9 @@ function Animation.new(element)
     return self
 end
 
+--- Creates a new sequence
+--- @shortDescription Creates a new sequence
+--- @return Animation self The animation instance
 function Animation:sequence()
     table.insert(self.sequences, {})
     self.currentSequence = #self.sequences
@@ -99,6 +147,9 @@ function Animation:sequence()
     return self
 end
 
+--- Registers a callback for the start event
+--- @shortDescription Registers a callback for the start event
+--- @param callback function The callback function to register
 function Animation:onStart(callback)
     if not self.sequenceCallbacks[self.currentSequence] then
         self.sequenceCallbacks[self.currentSequence] = {}
@@ -107,6 +158,10 @@ function Animation:onStart(callback)
     return self
 end
 
+--- Registers a callback for the update event
+--- @shortDescription Registers a callback for the update event
+--- @param callback function The callback function to register
+--- @return Animation self The animation instance
 function Animation:onUpdate(callback)
     if not self.sequenceCallbacks[self.currentSequence] then
         self.sequenceCallbacks[self.currentSequence] = {}
@@ -115,6 +170,10 @@ function Animation:onUpdate(callback)
     return self
 end
 
+--- Registers a callback for the complete event
+--- @shortDescription Registers a callback for the complete event
+--- @param callback function The callback function to register
+--- @return Animation self The animation instance
 function Animation:onComplete(callback)
     if not self.sequenceCallbacks[self.currentSequence] then
         self.sequenceCallbacks[self.currentSequence] = {}
@@ -123,14 +182,22 @@ function Animation:onComplete(callback)
     return self
 end
 
+--- Adds a new animation to the sequence
+--- @shortDescription Adds a new animation to the sequence
+--- @param type string The type of animation
+--- @param args table The animation arguments
+--- @param duration number The duration in seconds
+--- @param easing string The easing function name
 function Animation:addAnimation(type, args, duration, easing)
     local anim = AnimationInstance.new(self.element, type, args, duration, easing)
     table.insert(self.sequences[self.currentSequence], anim)
     return self
 end
 
+--- Starts the animation
+--- @shortDescription Starts the animation
+--- @return Animation self The animation instance
 function Animation:start()
-
     self.currentSequence = 1
     if(self.sequenceCallbacks[self.currentSequence])then
         if(self.sequenceCallbacks[self.currentSequence].start) then
@@ -146,6 +213,10 @@ function Animation:start()
     return self
 end
 
+--- The event handler for the animation (listens to timer events)
+--- @shortDescription The event handler for the animation
+--- @param event string The event type
+--- @param timerId number The timer ID
 function Animation:event(event, timerId)
     if event == "timer" and timerId == self.timer then
         local currentTime = os.epoch("local") / 1000
@@ -300,8 +371,13 @@ Animation.registerAnimation("scrollText", {
     end
 })
 
+---@splitClass
+
+--- Adds additional methods for VisualElement when adding animation plugin
+--- @class VisualElement
 local VisualElement = {hooks={}}
 
+---@private
 function VisualElement.hooks.dispatchEvent(self, event, ...)
     if event == "timer" then
         local animation = self.get("animation")
@@ -311,12 +387,16 @@ function VisualElement.hooks.dispatchEvent(self, event, ...)
     end
 end
 
+---@private
 function VisualElement.setup(element)
     VisualElementBaseDispatchEvent = element.dispatchEvent
     element.defineProperty(element, "animation", {default = nil, type = "table"})
     element.listenTo(element, "timer")
 end
 
+--- Creates a new Animation Object
+--- @shortDescription Creates a new animation
+--- @return Animation animation The new animation
 function VisualElement:animate()
     local animation = Animation.new(self)
     self.set("animation", animation)

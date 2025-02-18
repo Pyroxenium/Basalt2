@@ -1,24 +1,31 @@
 local VisualElement = require("elements/VisualElement")
 
+--- This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
+--- with customizable colors and value ranges.
 ---@class Slider : VisualElement
 local Slider = setmetatable({}, VisualElement)
 Slider.__index = Slider
 
----@property step number 1 Current step position (1 to width/height)
+---@property step number 1 Current position of the slider handle (1 to width/height)
 Slider.defineProperty(Slider, "step", {default = 1, type = "number", canTriggerRender = true})
----@property max number 100 Maximum value for value conversion
+---@property max number 100 Maximum value for value conversion (maps slider position to this range)
 Slider.defineProperty(Slider, "max", {default = 100, type = "number"})
----@property horizontal boolean true Whether the slider is horizontal
+---@property horizontal boolean true Whether the slider is horizontal (false for vertical)
 Slider.defineProperty(Slider, "horizontal", {default = true, type = "boolean", canTriggerRender = true})
----@property barColor color color Colors for the slider bar
+---@property barColor color gray Color of the slider track
 Slider.defineProperty(Slider, "barColor", {default = colors.gray, type = "number", canTriggerRender = true})
----@property sliderColor color The color of the slider handle
+---@property sliderColor color blue Color of the slider handle
 Slider.defineProperty(Slider, "sliderColor", {default = colors.blue, type = "number", canTriggerRender = true})
 
+---@event onChange {value number} Fired when the slider value changes
 Slider.listenTo(Slider, "mouse_click")
 Slider.listenTo(Slider, "mouse_drag")
 Slider.listenTo(Slider, "mouse_up")
 
+--- Creates a new Slider instance
+--- @shortDescription Creates a new Slider instance
+--- @return Slider self The newly created Slider instance
+--- @usage local slider = Slider.new()
 function Slider.new()
     local self = setmetatable({}, Slider):__init()
     self.set("width", 8)
@@ -27,11 +34,20 @@ function Slider.new()
     return self
 end
 
+--- Initializes the Slider instance
+--- @shortDescription Initializes the Slider instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Slider self The initialized instance
 function Slider:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Slider")
 end
 
+--- Gets the current value of the slider
+--- @shortDescription Gets the current value mapped to the max range
+--- @return number value The current value (0 to max)
+--- @usage local value = slider:getValue()
 function Slider:getValue()
     local step = self.get("step")
     local max = self.get("max")
@@ -39,6 +55,12 @@ function Slider:getValue()
     return math.floor((step - 1) * (max / (maxSteps - 1)))
 end
 
+--- Handles mouse click events
+--- @shortDescription Updates slider position on mouse click
+--- @param button number The mouse button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Slider:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -62,6 +84,8 @@ function Slider:mouse_scroll(direction, x, y)
     end
 end
 
+--- Renders the slider
+--- @shortDescription Renders the slider with track and handle
 function Slider:render()
     VisualElement.render(self)
     local width = self.get("width")

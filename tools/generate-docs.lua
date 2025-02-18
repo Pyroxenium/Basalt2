@@ -11,15 +11,10 @@ local function processFile(inputFile)
     local parsed = markdown.parseFile(inputFile)
     local md = markdown.makeMarkdown(parsed)
 
-    local outputFile
-    if inputFile:match("^src/[^/]+%.lua$") then
-        outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", ".md")
-    else
-        outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", ".md")
-    end
+    local outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", "")
 
     ensureDirectory(outputFile)
-    print(string.format("Processing: %s -> %s", inputFile, outputFile))
+    --print(string.format("Processing: %s -> %s", inputFile, outputFile))
 
     markdown.saveToFile(outputFile, md)
 end

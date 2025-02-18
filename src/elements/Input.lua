@@ -1,24 +1,27 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
 
+--- This is the input class. It provides a text input field that can handle user input with various features like
+--- cursor movement, text manipulation, placeholder text, and input validation.
 ---@class Input : VisualElement
 local Input = setmetatable({}, VisualElement)
 Input.__index = Input
 
----@property text string Input - text to be displayed
+---@property text string - The current text content of the input
 Input.defineProperty(Input, "text", {default = "", type = "string", canTriggerRender = true})
-
----@property cursorPos number Input - current cursor position
+---@property cursorPos number 1 The current cursor position in the text
 Input.defineProperty(Input, "cursorPos", {default = 1, type = "number"})
-
----@property viewOffset number Input - offset of view
+---@property viewOffset number 0 The horizontal scroll offset for viewing long text
 Input.defineProperty(Input, "viewOffset", {default = 0, type = "number", canTriggerRender = true})
-
--- Neue Properties
+---@property maxLength number? nil Maximum length of input text (optional)
 Input.defineProperty(Input, "maxLength", {default = nil, type = "number"})
-Input.defineProperty(Input, "placeholder", {default = "asd", type = "string"})
+---@property placeholder string ... Text to display when input is empty
+Input.defineProperty(Input, "placeholder", {default = "...", type = "string"})
+---@property placeholderColor color gray Color of the placeholder text
 Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "number"})
+---@property focusedColor color blue Background color when input is focused
 Input.defineProperty(Input, "focusedColor", {default = colors.blue, type = "number"})
+---@property pattern string? nil Regular expression pattern for input validation
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 
 Input.listenTo(Input, "mouse_click")
@@ -26,6 +29,7 @@ Input.listenTo(Input, "key")
 Input.listenTo(Input, "char")
 
 --- Creates a new Input instance
+--- @shortDescription Creates a new Input instance
 --- @return Input object The newly created Input instance
 --- @usage local element = Input.new("myId", basalt)
 function Input.new()
@@ -35,13 +39,23 @@ function Input.new()
     return self
 end
 
+--- Initializes the Input instance
+--- @shortDescription Initializes the Input instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Input self The initialized instance
 function Input:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Input")
+    return self
 end
 
+--- Handles char events
+--- @shortDescription Handles char events
+--- @param char string The character that was typed
+--- @return boolean handled Whether the event was handled
 function Input:char(char)
-    if not self.get("focused") then return end
+    if not self.get("focused") then return false end
     local text = self.get("text")
     local pos = self.get("cursorPos")
     local maxLength = self.get("maxLength")
@@ -54,10 +68,15 @@ function Input:char(char)
     self.set("cursorPos", pos + 1)
     self:updateRender()
     self:updateViewport()
+    return true
 end
 
+--- Handles key events
+--- @shortDescription Handles key events
+--- @param key number The key that was pressed
+--- @return boolean handled Whether the event was handled
 function Input:key(key)
-    if not self.get("focused") then return end
+    if not self.get("focused") then return false end
     local pos = self.get("cursorPos")
     local text = self.get("text")
     local viewOffset = self.get("viewOffset")
@@ -88,18 +107,29 @@ function Input:key(key)
 
     local relativePos = self.get("cursorPos") - self.get("viewOffset")
     self:setCursor(relativePos, 1, true)
+    return true
 end
 
+--- Handles focus events
+--- @shortDescription Handles focus events
 function Input:focus()
     VisualElement.focus(self)
     self:updateRender()
 end
 
+--- Handles blur events
+--- @shortDescription Handles blur events
 function Input:blur()
     VisualElement.blur(self)
     self:updateRender()
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Input:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -110,6 +140,8 @@ function Input:mouse_click(button, x, y)
     end
 end
 
+--- Updates the input's viewport
+--- @shortDescription Updates the input's viewport
 function Input:updateViewport()
     local width = self.get("width")
     local cursorPos = self.get("cursorPos")
@@ -128,6 +160,8 @@ function Input:updateViewport()
     end
 end
 
+--- Renders the input element
+--- @shortDescription Renders the input element
 function Input:render()
     local text = self.get("text")
     local viewOffset = self.get("viewOffset")

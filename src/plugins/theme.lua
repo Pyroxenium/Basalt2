@@ -40,15 +40,20 @@ local themes = {
 
 local currentTheme = "default"
 
+--- This is the theme plugin. It provides a theming system that allows for consistent styling across elements
+--- with support for inheritance, named styles, and dynamic theme switching.
+---@class BaseElement
 local BaseElement = {
     hooks = {
         postInit = {
             pre = function(self)
-            self:applyTheme()
-        end}
+                self:applyTheme()
+            end
+        }
     }
 }
 
+---@private
 function BaseElement.____getElementPath(self, types)
     if types then
         table.insert(types, 1, self._values.type)
@@ -147,7 +152,11 @@ local function collectThemeProps(theme, path, elementType, elementName)
     return result
 end
 
- function BaseElement:applyTheme()
+--- Applies the current theme to this element
+--- @shortDescription Applies theme styles to the element
+--- @param self BaseElement The element to apply theme to
+--- @return BaseElement self The element instance
+function BaseElement:applyTheme()
     local styles = self:getTheme()
     if(styles ~= nil) then
         for prop, value in pairs(styles) do
@@ -156,6 +165,10 @@ end
     end
 end
 
+--- Gets the theme properties for this element
+--- @shortDescription Gets theme properties for the element
+--- @param self BaseElement The element to get theme for
+--- @return table styles The theme properties
 function BaseElement:getTheme()
     local path = self:____getElementPath()
     local elementType = self.get("type")
@@ -164,28 +177,37 @@ function BaseElement:getTheme()
     return collectThemeProps(themes[currentTheme], path, elementType, elementName)
 end
 
-local themeAPI = {
-    setTheme = function(newTheme)
-        defaultTheme = newTheme
-    end,
+--- The Theme API provides methods for managing themes globally
+---@class ThemeAPI
+local themeAPI = {}
 
-    getTheme = function()
-        return defaultTheme
-    end,
+--- Sets the current theme
+--- @shortDescription Sets a new theme
+--- @param newTheme table The theme configuration to set
+function themeAPI.setTheme(newTheme)
+    defaultTheme = newTheme
+end
 
-    loadTheme = function(path)
-        local file = fs.open(path, "r")
-        if file then
-            local content = file.readAll()
-            file.close()
-            defaultTheme = textutils.unserializeJSON(content)
-        end
+--- Gets the current theme configuration
+--- @shortDescription Gets the current theme
+--- @return table theme The current theme configuration
+function themeAPI.getTheme()
+    return defaultTheme
+end
+
+--- Loads a theme from a JSON file
+--- @shortDescription Loads theme from JSON file
+--- @param path string Path to the theme JSON file
+function themeAPI.loadTheme(path)
+    local file = fs.open(path, "r")
+    if file then
+        local content = file.readAll()
+        file.close()
+        defaultTheme = textutils.unserializeJSON(content)
     end
-}
+end
 
-local Theme = {
+return {
     BaseElement = BaseElement,
     API = themeAPI
 }
-
-return Theme

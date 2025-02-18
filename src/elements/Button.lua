@@ -2,6 +2,7 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
 
+--- This is the button class. It is a visual element that can be clicked.
 ---@class Button : VisualElement
 local Button = setmetatable({}, VisualElement)
 Button.__index = Button
@@ -14,6 +15,7 @@ Button.listenTo(Button, "mouse_click")
 Button.listenTo(Button, "mouse_up")
 
 --- Creates a new Button instance
+--- @shortDescription Creates a new Button instance
 --- @return table self The created instance
 function Button.new()
     local self = setmetatable({}, Button):__init()
@@ -24,6 +26,7 @@ function Button.new()
 end
 
 --- Initializes the Button instance
+--- @shortDescription Initializes the Button instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 function Button:init(props, basalt)
@@ -32,6 +35,7 @@ function Button:init(props, basalt)
 end
 
 --- Renders the Button
+--- @shortDescription Renders the Button
 function Button:render()
     VisualElement.render(self)
     local text = self.get("text")

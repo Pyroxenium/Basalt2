@@ -1,5 +1,9 @@
 local LOGGER = require("log")
 
+--- This is Basalt's error handler. All the errors are handled by this module.
+--- @class ErrorHandler
+--- @field tracebackEnabled boolean If the error handler should print a stack trace
+--- @field header string The header of the error message
 local errorHandler = {
     tracebackEnabled = true,
     header = "Basalt Error"
@@ -11,6 +15,9 @@ local function coloredPrint(message, color)
     term.setTextColor(colors.white)
 end
 
+--- Handles an error
+--- @param errMsg string The error message
+--- @usage errorHandler.error("An error occurred")
 function errorHandler.error(errMsg)
     if errorHandler.errorHandled then
         error()

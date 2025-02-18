@@ -1,7 +1,12 @@
 local PropertySystem = require("propertySystem")
 local errorManager = require("errorManager")
+
+--- This is the state plugin. It provides a state management system for UI elements with support for
+--- persistent states, computed states, and state sharing between elements.
+---@class BaseElement
 local BaseElement = {}
 
+---@private
 function BaseElement.setup(element)
     element.defineProperty(element, "states", {default = {}, type = "table"})
     element.defineProperty(element, "computedStates", {default = {}, type = "table"})
@@ -11,6 +16,15 @@ function BaseElement.setup(element)
     })
 end
 
+--- Initializes a new state for this element
+--- @shortDescription Initializes a new state
+--- @param self BaseElement The element to initialize state for
+--- @param name string The name of the state
+--- @param default any The default value of the state
+--- @param canTriggerRender? boolean Whether state changes trigger a render
+--- @param persist? boolean Whether to persist the state to disk
+--- @param path? string Custom file path for persistence
+--- @return BaseElement self The element instance
 function BaseElement:initializeState(name, default, canTriggerRender, persist, path)
     local states = self.get("states")
 
@@ -47,6 +61,12 @@ function BaseElement:initializeState(name, default, canTriggerRender, persist, p
     return self
 end
 
+--- Sets the value of a state
+--- @shortDescription Sets a state value
+--- @param self BaseElement The element to set state for
+--- @param name string The name of the state
+--- @param value any The new value for the state
+--- @return BaseElement self The element instance
 function BaseElement:setState(name, value)
     local states = self.get("states")
     if not states[name] then
@@ -78,6 +98,11 @@ function BaseElement:setState(name, value)
     return self
 end
 
+--- Gets the value of a state
+--- @shortDescription Gets a state value
+--- @param self BaseElement The element to get state from
+--- @param name string The name of the state
+--- @return any value The current state value
 function BaseElement:getState(name)
     local states = self.get("states")
     if not states[name] then
@@ -86,6 +111,12 @@ function BaseElement:getState(name)
     return states[name].value
 end
 
+--- Creates a computed state that derives its value from other states
+--- @shortDescription Creates a computed state
+--- @param self BaseElement The element to create computed state for
+--- @param key string The name of the computed state
+--- @param computeFn function Function that computes the state value
+--- @return BaseElement self The element instance
 function BaseElement:computed(key, computeFn)
     local computed = self.get("computedStates")
     computed[key] = setmetatable({}, {
@@ -96,6 +127,12 @@ function BaseElement:computed(key, computeFn)
     return self
 end
 
+--- Shares a state with other elements, keeping them in sync
+--- @shortDescription Shares state between elements
+--- @param self BaseElement The source element
+--- @param stateKey string The state to share
+--- @vararg BaseElement The target elements to share with
+--- @return BaseElement self The source element
 function BaseElement:shareState(stateKey, ...)
     local value = self:getState(stateKey)
 
@@ -116,6 +153,12 @@ function BaseElement:shareState(stateKey, ...)
     return self
 end
 
+--- Registers a callback for state changes
+--- @shortDescription Watches for state changes
+--- @param self BaseElement The element to watch
+--- @param stateName string The state to watch
+--- @param callback function Called with (element, newValue, oldValue)
+--- @return BaseElement self The element instance
 function BaseElement:onStateChange(stateName, callback)
     if not self.get("states")[stateName] then
         errorManager.error("Cannot observe state '" .. stateName .. "': State not initialized")

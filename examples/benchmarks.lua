@@ -7,7 +7,6 @@ local btn = main:addButton()
     :setY(5)
     :onMouseClick(function()
         main:logContainerBenchmarks("render")
-        --main:stopChildrenBenchmark("render")
     end)
 
 local prog = main:addProgram()

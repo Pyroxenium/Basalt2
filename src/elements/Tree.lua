@@ -1,20 +1,32 @@
 local VisualElement = require("elements/VisualElement")
-local tHex = require("libraries/colorHex")
+local sub = string.sub
 
+--- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
+--- with support for selection and scrolling.
 ---@class Tree : VisualElement
 local Tree = setmetatable({}, VisualElement)
 Tree.__index = Tree
 
+---@property nodes table {} The tree structure containing node objects with {text, children} properties
 Tree.defineProperty(Tree, "nodes", {default = {}, type = "table", canTriggerRender = true})
+---@property selectedNode table? nil Currently selected node
 Tree.defineProperty(Tree, "selectedNode", {default = nil, type = "table", canTriggerRender = true})
+---@property expandedNodes table {} Table of nodes that are currently expanded
 Tree.defineProperty(Tree, "expandedNodes", {default = {}, type = "table", canTriggerRender = true})
+---@property scrollOffset number 0 Current scroll position
 Tree.defineProperty(Tree, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
+---@property nodeColor color white Color of unselected nodes
 Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "number"})
+---@property selectedColor color lightBlue Background color of selected node
 Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "number"})
 
 Tree.listenTo(Tree, "mouse_click")
 Tree.listenTo(Tree, "mouse_scroll")
 
+--- Creates a new Tree instance
+--- @shortDescription Creates a new Tree instance
+--- @return Tree self The newly created Tree instance
+--- @usage local tree = Tree.new()
 function Tree.new()
     local self = setmetatable({}, Tree):__init()
     self.set("width", 30)
@@ -23,12 +35,22 @@ function Tree.new()
     return self
 end
 
+--- Initializes the Tree instance
+--- @shortDescription Initializes the Tree instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Tree self The initialized instance
 function Tree:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Tree")
     return self
 end
 
+--- Sets the tree nodes
+--- @shortDescription Sets the tree nodes and expands the root node
+--- @param nodes table[] Array of node objects
+--- @return Tree self The Tree instance
+--- @usage tree:setNodes({{text="Root", children={{text="Child"}}}})
 function Tree:setNodes(nodes)
     self.set("nodes", nodes)
     if #nodes > 0 then
@@ -37,18 +59,30 @@ function Tree:setNodes(nodes)
     return self
 end
 
+--- Expands a node
+--- @shortDescription Expands a node to show its children
+--- @param node table The node to expand
+--- @return Tree self The Tree instance
 function Tree:expandNode(node)
     self.get("expandedNodes")[node] = true
     self:updateRender()
     return self
 end
 
+--- Collapses a node
+--- @shortDescription Collapses a node to hide its children
+--- @param node table The node to collapse
+--- @return Tree self The Tree instance
 function Tree:collapseNode(node)
     self.get("expandedNodes")[node] = nil
     self:updateRender()
     return self
 end
 
+--- Toggles a node's expanded state
+--- @shortDescription Toggles between expanded and collapsed state
+--- @param node table The node to toggle
+--- @return Tree self The Tree instance
 function Tree:toggleNode(node)
     if self.get("expandedNodes")[node] then
         self:collapseNode(node)
@@ -101,14 +135,14 @@ function Tree:mouse_scroll(direction)
     local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
     local maxScroll = math.max(0, #flatNodes - self.get("height"))
     local newScroll = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
-    
+
     self.set("scrollOffset", newScroll)
     return true
 end
 
 function Tree:render()
     VisualElement.render(self)
-    
+
     local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
     local height = self.get("height")
     local selectedNode = self.get("selectedNode")
@@ -121,8 +155,7 @@ function Tree:render()
             local node = nodeInfo.node
             local level = nodeInfo.level
             local indent = string.rep("  ", level)
-            
-            -- Expand/Collapse Symbol
+
             local symbol = " "
             if node.children and #node.children > 0 then
                 symbol = expandedNodes[node] and "\31" or "\16"
@@ -130,15 +163,12 @@ function Tree:render()
 
             local bg = node == selectedNode and self.get("selectedColor") or self.get("background")
             local text = indent .. symbol .." " .. (node.text or "Node")
-            
-            self:blit(1, y, text .. string.rep(" ", self.get("width") - #text),
-                string.rep(tHex[self.get("nodeColor")], self.get("width")),
-                string.rep(tHex[bg], self.get("width")))
+            text = sub(text, 1, self.get("width"))
+
+            self:textFg(1, y, text .. string.rep(" ", self.get("width") - #text), self.get("foreground"))
+
         else
-            -- Leere Zeile
-            self:blit(1, y, string.rep(" ", self.get("width")),
-                string.rep(tHex[self.get("foreground")], self.get("width")),
-                string.rep(tHex[self.get("background")], self.get("width")))
+            self:textFg(1, y, string.rep(" ", self.get("width")), self.get("foreground"), self.get("background"))
         end
     end
 end

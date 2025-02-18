@@ -2,15 +2,17 @@ local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
 
+--- This is the visual element class. It serves as the base class for all visual UI elements
+--- and provides core functionality for positioning, sizing, colors, and rendering.
 ---@class VisualElement : BaseElement
 local VisualElement = setmetatable({}, BaseElement)
 VisualElement.__index = VisualElement
 
----@property x number 1 x position of the element
+---@property x number 1 The horizontal position relative to parent
 VisualElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
----@property y number 1 y position of the element
+---@property y number 1 The vertical position relative to parent
 VisualElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true})
----@property z number 1 z position of the element
+---@property z number 1 The z-index for layering elements
 VisualElement.defineProperty(VisualElement, "z", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
     if self.parent then
         self.parent:sortChildren()
@@ -18,19 +20,19 @@ VisualElement.defineProperty(VisualElement, "z", {default = 1, type = "number", 
     return value
 end})
 
----@property width number 1 width of the element
+---@property width number 1 The width of the element
 VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
----@property height number 1 height of the element
+---@property height number 1 The height of the element
 VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
----@property background color black background color of the element
+---@property background color black The background color
 VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
----@property foreground color white foreground color of the element
+---@property foreground color white The text/foreground color
 VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
----@property clicked boolean an false element is currently clicked
+---@property clicked boolean false Whether the element is currently clicked
 VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
----@property backgroundEnabled boolean true whether the background is enabled
+---@property backgroundEnabled boolean true Whether to render the background
 VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
----@property focused boolean false whether the element is focused
+---@property focused boolean false Whether the element has input focus
 VisualElement.defineProperty(VisualElement, "focused", {default = false, type = "boolean", setter = function(self, value, internal)
     local curValue = self.get("focused")
     if value == curValue then return value end
@@ -51,7 +53,7 @@ VisualElement.defineProperty(VisualElement, "focused", {default = false, type = 
     return value
 end})
 
----@property visible boolean true whether the element is visible
+---@property visible boolean true Whether the element is visible
 VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "boolean", canTriggerRender = true, setter=function(self, value)
     if(self.parent~=nil)then
         self.parent.set("childrenSorted", false)
@@ -60,23 +62,22 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
     return value
 end})
 
----@combinedProperty position {x y} Position of the element
+---@combinedProperty position {x y} Combined x, y position
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
----@combinedProperty size {width height} Size of the element
+---@combinedProperty size {width height} Combined width, height
 VisualElement.combineProperties(VisualElement, "size", "width", "height")
----@combinedProperty color {foreground background} Color of the element
+---@combinedProperty color {foreground background} Combined foreground, background colors
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
----@event onMouseClick {button number, x number, y number} Fired when the element is clicked
----@event onMouseUp {button number, x number, y number} Fired when the mouse is released
----@event onMouseRelease {button number, x number, y number} Fired when the mouse is released
----@event onMouseDrag {button number, x number, y number} Fired when the mouse is dragged
----@event onFocus {-} Fired when the element is focused
----@event onBlur {-} Fired when the element is blurred
----@event onKey {key number, code number, isRepeat boolean} Fired when a key is pressed
----@event onKeyUp {key number, code number} Fired when a key is released
----@event onChar {char string} Fired when a key is pressed
-
+---@event onMouseClick {button number, x number, y number} Fired on mouse click
+---@event onMouseUp {button number, x number, y number} Fired on mouse button release
+---@event onMouseRelease {button number, x number, y number} Fired when mouse leaves while clicked
+---@event onMouseDrag {button number, x number, y number} Fired when mouse moves while clicked
+---@event onFocus {-} Fired when element receives focus
+---@event onBlur {-} Fired when element loses focus
+---@event onKey {key number, code number, isRepeat boolean} Fired on key press
+---@event onKeyUp {key number, code number} Fired on key release
+---@event onChar {char string} Fired on character input
 
 VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
@@ -84,6 +85,7 @@ VisualElement.listenTo(VisualElement, "blur")
 local max, min = math.max, math.min
 
 --- Creates a new VisualElement instance
+--- @shortDescription Creates a new visual element
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return VisualElement object The newly created VisualElement instance
@@ -94,11 +96,16 @@ function VisualElement.new()
 end
 
 --- Initializes the VisualElement instance
+--- @shortDescription Initializes a new visual element with properties
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
 function VisualElement:init(props, basalt)
     BaseElement.init(self, props, basalt)
     self.set("type", "VisualElement")
 end
 
+--- Draws multiple characters at once with colors
+--- @shortDescription Multi-character drawing with colors
 ---@protected
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     x = x + self.get("x") - 1
@@ -106,7 +113,8 @@ function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     self.parent:multiBlit(x, y, width, height, text, fg, bg)
 end
 
---- Draws a text character at the specified position, used in the rendering system
+--- Draws text with foreground color
+--- @shortDescription Draws text with foreground color
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
@@ -117,7 +125,8 @@ function VisualElement:textFg(x, y, text, fg)
     self.parent:textFg(x, y, text, fg)
 end
 
---- Draws a text character with a background at the specified position, used in the rendering system
+--- Draws text with background color
+--- @shortDescription Draws text with background color
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
@@ -128,7 +137,8 @@ function VisualElement:textBg(x, y, text, bg)
     self.parent:textBg(x, y, text, bg)
 end
 
---- Draws a text character with a foreground and background at the specified position, used in the rendering system
+--- Draws text with both foreground and background colors
+--- @shortDescription Draws text with both colors
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
@@ -141,6 +151,7 @@ function VisualElement:blit(x, y, text, fg, bg)
 end
 
 --- Checks if the specified coordinates are within the bounds of the element
+--- @shortDescription Checks if point is within bounds
 --- @param x number The x position to check
 --- @param y number The y position to check
 --- @return boolean isInBounds Whether the coordinates are within the bounds of the element
@@ -153,6 +164,7 @@ function VisualElement:isInBounds(x, y)
 end
 
 --- Handles a mouse click event
+--- @shortDescription Handles a mouse click event
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
@@ -167,6 +179,7 @@ function VisualElement:mouse_click(button, x, y)
 end
 
 --- Handles a mouse up event
+--- @shortDescription Handles a mouse up event
 --- @param button number The button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
@@ -181,6 +194,7 @@ function VisualElement:mouse_up(button, x, y)
 end
 
 --- Handles a mouse release event
+--- @shortDescription Handles a mouse release event
 --- @param button number The button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
@@ -195,17 +209,20 @@ function VisualElement:mouse_release(button, x, y)
 end
 
 --- Handles a focus event
+--- @shortDescription Handles a focus event
 function VisualElement:focus()
     self:fireEvent("focus")
 end
 
 --- Handles a blur event
+--- @shortDescription Handles a blur event
 function VisualElement:blur()
     self:fireEvent("blur")
     self:setCursor(1,1, false)
 end
 
 --- Returns the absolute position of the element or the given coordinates.
+--- @shortDescription Returns the absolute position of the element
 ---@param x? number x position
 ---@param y? number y position
 function VisualElement:getAbsolutePosition(x, y)
@@ -229,6 +246,7 @@ function VisualElement:getAbsolutePosition(x, y)
 end
 
 --- Returns the relative position of the element or the given coordinates.
+--- @shortDescription Returns the relative position of the element
 ---@param x? number x position
 ---@param y? number y position
 ---@return number, number
@@ -250,6 +268,7 @@ function VisualElement:getRelativePosition(x, y)
 end
 
 --- Sets the cursor position
+--- @shortDescription Sets the cursor position
 --- @param x number The x position of the cursor
 --- @param y number The y position of the cursor
 --- @param blink boolean Whether the cursor should blink
@@ -262,6 +281,7 @@ function VisualElement:setCursor(x, y, blink)
 end
 
 --- Renders the element
+--- @shortDescription Renders the element
 function VisualElement:render()
     if(not self.get("backgroundEnabled"))then
         return

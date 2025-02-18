@@ -1,23 +1,30 @@
 local VisualElement = require("elements/VisualElement")
 
+--- This is the list class. It provides a scrollable list of selectable items with support for 
+--- custom item rendering, separators, and selection handling.
 ---@class List : VisualElement
 local List = setmetatable({}, VisualElement)
 List.__index = List
 
----@property items table List of items to display
+---@property items table {} List of items to display. Items can be strings or tables with properties
 List.defineProperty(List, "items", {default = {}, type = "table", canTriggerRender = true})
----@property selectedIndex number Currently selected item index
+---@property selectedIndex number 0 Index of the currently selected item (0 means no selection)
 List.defineProperty(List, "selectedIndex", {default = 0, type = "number", canTriggerRender = true})
----@property selectable boolean Whether items can be selected
+---@property selectable boolean true Whether items in the list can be selected
 List.defineProperty(List, "selectable", {default = true, type = "boolean"})
----@property offset number Scrolling offset
+---@property offset number 0 Current scroll offset for viewing long lists
 List.defineProperty(List, "offset", {default = 0, type = "number", canTriggerRender = true})
----@property selectedColor color Color for selected item
+---@property selectedColor color blue Background color for the selected item
 List.defineProperty(List, "selectedColor", {default = colors.blue, type = "number"})
 
+---@event onSelect {index number, item any} Fired when an item is selected
 List.listenTo(List, "mouse_click")
 List.listenTo(List, "mouse_scroll")
 
+--- Creates a new List instance
+--- @shortDescription Creates a new List instance
+--- @return List self The newly created List instance
+--- @usage local list = List.new()
 function List.new()
     local self = setmetatable({}, List):__init()
     self.set("width", 16)
@@ -26,11 +33,22 @@ function List.new()
     return self
 end
 
+--- Initializes the List instance
+--- @shortDescription Initializes the List instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return List self The initialized instance
 function List:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "List")
 end
 
+--- Adds an item to the list
+--- @shortDescription Adds an item to the list
+--- @param text string|table The item to add (string or item table)
+--- @return List self The List instance
+--- @usage list:addItem("New Item")
+--- @usage list:addItem({text="Item", callback=function() end})
 function List:addItem(text)
     local items = self.get("items")
     table.insert(items, text)
@@ -38,6 +56,11 @@ function List:addItem(text)
     return self
 end
 
+--- Removes an item from the list
+--- @shortDescription Removes an item from the list
+--- @param index number The index of the item to remove
+--- @return List self The List instance
+--- @usage list:removeItem(1)
 function List:removeItem(index)
     local items = self.get("items")
     table.remove(items, index)
@@ -45,6 +68,10 @@ function List:removeItem(index)
     return self
 end
 
+--- Clears all items from the list
+--- @shortDescription Clears all items from the list
+--- @return List self The List instance
+--- @usage list:clear()
 function List:clear()
     self.set("items", {})
     self.set("selectedIndex", 0)
@@ -52,6 +79,12 @@ function List:clear()
     return self
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events
+--- @param button number The mouse button that was clicked
+--- @param x number The x-coordinate of the click
+--- @param y number The y-coordinate of the click
+--- @return boolean Whether the event was handled
 function List:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) and self.get("selectable") then
         local _, index = self:getRelativePosition(x, y)
@@ -75,6 +108,12 @@ function List:mouse_click(button, x, y)
     return false
 end
 
+--- Handles mouse scroll events
+--- @shortDescription Handles mouse scroll events
+--- @param direction number The direction of the scroll (1 for down, -1 for up)
+--- @param x number The x-coordinate of the scroll
+--- @param y number The y-coordinate of the scroll
+--- @return boolean Whether the event was handled
 function List:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local offset = self.get("offset")
@@ -84,13 +123,21 @@ function List:mouse_scroll(direction, x, y)
         self.set("offset", offset)
         return true
     end
+    return false
 end
 
+--- Registers a callback for the select event
+--- @shortDescription Registers a callback for the select event
+--- @param callback function The callback function to register
+--- @return List self The List instance
+--- @usage list:onSelect(function(index, item) print("Selected item:", index, item) end)
 function List:onSelect(callback)
     self:registerCallback("select", callback)
     return self
 end
 
+--- Renders the list
+--- @shortDescription Renders the list
 function List:render()
     VisualElement.render(self)
 

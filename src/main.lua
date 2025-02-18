@@ -8,7 +8,6 @@ local propertySystem = require("propertySystem")
 --- Before you can access Basalt, you need to add the following code on top of your file:
 --- @usage local basalt = require("basalt")
 --- What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
-
 --- @class Basalt
 --- @field traceback boolean Whether to show a traceback on errors
 --- @field _events table A table of events and their callbacks

@@ -1,23 +1,38 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
 
+--- This is the table class. It provides a sortable data grid with customizable columns,
+--- row selection, and scrolling capabilities.
 ---@class Table : VisualElement
 local Table = setmetatable({}, VisualElement)
 Table.__index = Table
 
+---@property columns table {} List of column definitions with {name, width} properties
 Table.defineProperty(Table, "columns", {default = {}, type = "table"})
+---@property data table {} The table data as array of row arrays
 Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRender = true})
+---@property selectedRow number? nil Currently selected row index
 Table.defineProperty(Table, "selectedRow", {default = nil, type = "number", canTriggerRender = true})
+---@property headerColor color blue Color of the column headers
 Table.defineProperty(Table, "headerColor", {default = colors.blue, type = "number"})
+---@property selectedColor color lightBlue Background color of selected row
 Table.defineProperty(Table, "selectedColor", {default = colors.lightBlue, type = "number"})
+---@property gridColor color gray Color of grid lines
 Table.defineProperty(Table, "gridColor", {default = colors.gray, type = "number"})
+---@property sortColumn number? nil Currently sorted column index
 Table.defineProperty(Table, "sortColumn", {default = nil, type = "number"})
+---@property sortDirection string "asc" Sort direction ("asc" or "desc")
 Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string"})
+---@property scrollOffset number 0 Current scroll position
 Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
 
 Table.listenTo(Table, "mouse_click")
 Table.listenTo(Table, "mouse_scroll")
 
+--- Creates a new Table instance
+--- @shortDescription Creates a new Table instance
+--- @return Table self The newly created Table instance
+--- @usage local table = Table.new()
 function Table.new()
     local self = setmetatable({}, Table):__init()
     self.set("width", 30)
@@ -26,24 +41,43 @@ function Table.new()
     return self
 end
 
+--- Initializes the Table instance
+--- @shortDescription Initializes the Table instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Table self The initialized instance
 function Table:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Table")
     return self
 end
 
+--- Sets the table columns
+--- @shortDescription Sets the table columns configuration
+--- @param columns table[] Array of column definitions {name="Name", width=10}
+--- @return Table self The Table instance
+--- @usage table:setColumns({{name="ID", width=4}, {name="Name", width=10}})
 function Table:setColumns(columns)
     -- Columns Format: {{name="ID", width=4}, {name="Name", width=10}}
     self.set("columns", columns)
     return self
 end
 
+--- Sets the table data
+--- @shortDescription Sets the table data
+--- @param data table[] Array of row data arrays
+--- @return Table self The Table instance
+--- @usage table:setData({{"1", "Item One"}, {"2", "Item Two"}})
 function Table:setData(data)
     -- Data Format: {{"1", "Item One"}, {"2", "Item Two"}}
     self.set("data", data)
     return self
 end
 
+--- Sorts the table data by column
+--- @shortDescription Sorts the table data by the specified column
+--- @param columnIndex number The index of the column to sort by
+--- @return Table self The Table instance
 function Table:sortData(columnIndex)
     local data = self.get("data")
     local direction = self.get("sortDirection")
@@ -60,6 +94,12 @@ function Table:sortData(columnIndex)
     return self
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles header clicks for sorting and row selection
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Table:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
@@ -92,6 +132,12 @@ function Table:mouse_click(button, x, y)
     return true
 end
 
+--- Handles mouse scroll events
+--- @shortDescription Handles scrolling through the table data
+--- @param direction number The scroll direction (-1 up, 1 down)
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean handled Whether the event was handled
 function Table:mouse_scroll(direction, x, y)
     local data = self.get("data")
     local height = self.get("height")
@@ -103,6 +149,8 @@ function Table:mouse_scroll(direction, x, y)
     return true
 end
 
+--- Renders the table
+--- @shortDescription Renders the table with headers, data and scrollbar
 function Table:render()
     VisualElement.render(self)
 
