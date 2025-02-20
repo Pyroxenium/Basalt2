@@ -14,6 +14,8 @@ like Frames, BaseFrames, and more.
 |focusedChild|table|nil|The focused child of the container
 |visibleChildren|table|{}|The visible children of the container
 |visibleChildrenEvents|table|{}|The visible children events of the container
+|offsetX|number|0|Horizontal content offset
+|offsetY|number|0|Vertical content offset
 
 ## Functions
 

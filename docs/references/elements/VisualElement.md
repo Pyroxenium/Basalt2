@@ -18,6 +18,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |backgroundEnabled|boolean|true|Whether to render the background
 |focused|boolean|false|Whether the element has input focus
 |visible|boolean|true|Whether the element is visible
+|ignoreOffset|boolean|false|Whether to ignore the parent's offset
 
 ## Combined Properties
 
@@ -48,6 +49,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |[VisualElement.new](#VisualElement.new)|VisualElement|Creates a new visual element
 |[VisualElement:blit](#VisualElement:blit)|-|Draws text with both colors
 |[VisualElement:blur](#VisualElement:blur)|-|Handles a blur event
+|[VisualElement:calculatePosition](#VisualElement:calculatePosition)|-|
 |[VisualElement:focus](#VisualElement:focus)|-|Handles a focus event
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|-|Returns the absolute position of the element
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number,|Returns the relative position of the element
@@ -91,6 +93,8 @@ Draws text with both foreground and background colors
 
 ## VisualElement:blur()
 Handles a blur event
+
+## VisualElement:calculatePosition()
 
 ## VisualElement:focus()
 Handles a focus event

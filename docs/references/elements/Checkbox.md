@@ -6,8 +6,9 @@ This is the checkbox class. It is a visual element that can be checked.
 |Property|Type|Default|Description|
 |---|---|---|---|
 |checked|boolean|Whether|checkbox is checked
-|text|string|Label|text
-|symbol|string|Check|symbol
+|text|string|empty|Text to display
+|checkedText|string|Text|when checked
+|autoSize|boolean|true|Whether to automatically size the checkbox
 
 ## Functions
 
