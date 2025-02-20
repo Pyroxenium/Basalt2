@@ -29,6 +29,7 @@ function List.new()
     local self = setmetatable({}, List):__init()
     self.set("width", 16)
     self.set("height", 8)
+    self.set("z", 5)
     self.set("background", colors.gray)
     return self
 end
@@ -41,6 +42,7 @@ end
 function List:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "List")
+    return self
 end
 
 --- Adds an item to the list

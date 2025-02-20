@@ -313,6 +313,11 @@ function API.start(name, options)
     profile.name = name
     profile.startTime = os.clock() * 1000
     profile.custom = true
+    profile.calls = 0
+    profile.totalTime = 0
+    profile.minTime = math.huge
+    profile.maxTime = 0
+    profile.lastTime = 0
     activeProfiles[name] = profile
 end
 

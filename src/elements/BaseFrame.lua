@@ -54,6 +54,8 @@ end
 --- @param fg string The foreground color
 --- @param bg string The background color
 function BaseFrame:multiBlit(x, y, width, height, text, fg, bg)
+    if(x<1)then width = width + x - 1; x = 1 end
+    if(y<1)then height = height + y - 1; y = 1 end
     self._render:multiBlit(x, y, width, height, text, fg, bg)
 end
 
@@ -64,6 +66,7 @@ end
 --- @param text string The text to render
 --- @param fg colors The foreground color
 function BaseFrame:textFg(x, y, text, fg)
+    if x < 1 then text = string.sub(text, 1 - x); x = 1 end
     self._render:textFg(x, y, text, fg)
 end
 
@@ -74,6 +77,7 @@ end
 --- @param text string The text to render
 --- @param bg colors The background color
 function BaseFrame:textBg(x, y, text, bg)
+    if x < 1 then text = string.sub(text, 1 - x); x = 1 end
     self._render:textBg(x, y, text, bg)
 end
 
@@ -85,6 +89,11 @@ end
 --- @param fg string The foreground color
 --- @param bg string The background color
 function BaseFrame:blit(x, y, text, fg, bg)
+    if x < 1 then 
+        text = string.sub(text, 1 - x)
+        fg = string.sub(fg, 1 - x)
+        bg = string.sub(bg, 1 - x)
+        x = 1 end
     self._render:blit(x, y, text, fg, bg)
 end
 

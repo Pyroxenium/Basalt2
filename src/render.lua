@@ -91,7 +91,6 @@ function Render:multiBlit(x, y, width, height, text, fg, bg)
     if(#text ~= #fg or #text ~= #bg)then
         error("Text, fg, and bg must be the same length")
     end
-
     text = text:rep(width)
     fg = fg:rep(width)
     bg = bg:rep(width)
@@ -119,7 +118,6 @@ function Render:textFg(x, y, text, fg)
     if y < 1 or y > self.height then return self end
     fg = colorChars[fg] or "0"
     fg = fg:rep(#text)
-
     self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
     self.buffer.fg[y] = sub(self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg), 1, self.width)
     self:addDirtyRect(x, y, #text, 1)

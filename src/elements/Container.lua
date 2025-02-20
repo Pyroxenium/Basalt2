@@ -47,6 +47,19 @@ Container.defineProperty(Container, "visibleChildren", {default = {}, type = "ta
 ---@property visibleChildrenEvents table {} The visible children events of the container
 Container.defineProperty(Container, "visibleChildrenEvents", {default = {}, type = "table"})
 
+---@property offsetX number 0 Horizontal content offset
+Container.defineProperty(Container, "offsetX", {default = 0, type = "number", canTriggerRender = true, setter=function(self, value)
+    self.set("childrenSorted", false)
+    self.set("childrenEventsSorted", false)
+    return value
+end})
+---@property offsetY number 0 Vertical content offset
+Container.defineProperty(Container, "offsetY", {default = 0, type = "number", canTriggerRender = true, setter=function(self, value)
+    self.set("childrenSorted", false)
+    self.set("childrenEventsSorted", false)
+    return value
+end})
+
 for k, _ in pairs(elementManager:getElementList()) do
     local capitalizedName = k:sub(1,1):upper() .. k:sub(2)
     if capitalizedName ~= "BaseFrame" then
@@ -87,14 +100,26 @@ end
 --- @param child table The child to check
 --- @return boolean boolean the child is visible
 function Container:isChildVisible(child)
+    local containerW, containerH = self.get("width"), self.get("height")
+    local offsetX, offsetY = self.get("offsetX"), self.get("offsetY")
+
     local childX, childY = child.get("x"), child.get("y")
     local childW, childH = child.get("width"), child.get("height")
-    local containerW, containerH = self.get("width"), self.get("height")
 
-    return childX <= containerW and
-           childY <= containerH and
-           childX + childW > 0 and
-           childY + childH > 0
+    local relativeX
+    local relativeY
+    if(child.get("ignoreOffset"))then
+        relativeX = childX
+        relativeY = childY
+    else
+        relativeX = childX - offsetX
+        relativeY = childY - offsetY
+    end
+
+    return (relativeX + childW > 0) and
+           (relativeX <= containerW) and
+           (relativeY + childH > 0) and
+           (relativeY <= containerH)
 end
 
 --- Adds a child to the container
@@ -115,7 +140,7 @@ end
 
 local function sortAndFilterChildren(self, children)
     local visibleChildren = {}
-    
+
     for _, child in ipairs(children) do
         if self:isChildVisible(child) and child.get("visible") then
             table.insert(visibleChildren, child)
@@ -295,7 +320,8 @@ local function convertMousePosition(self, event, ...)
     local args = {...}
     if event:find("mouse_") then
         local button, absX, absY = ...
-        local relX, relY = self:getRelativePosition(absX, absY)
+        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
         args = {button, relX, relY}
     end
     return args
@@ -308,7 +334,7 @@ function Container:callChildrenEvents(visibleOnly, event, ...)
         for i = #events, 1, -1 do
             local child = events[i]
             if(child:dispatchEvent(event, ...))then
-                    return true, child
+                return true, child
             end
         end
     end
@@ -447,7 +473,7 @@ end
 --- @return Container self The container instance
 function Container:multiBlit(x, y, width, height, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
-
+    
     width = x < 1 and math.min(width + x - 1, w) or math.min(width, math.max(0, w - x + 1))
     height = y < 1 and math.min(height + y - 1, h) or math.min(height, math.max(0, h - y + 1))
 

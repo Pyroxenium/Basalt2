@@ -64,7 +64,7 @@ local function parseExpression(expr, element, propName)
             elseif objName == "parent" then
                 return element.parent.get(propName)
             else
-                local target = element:getBaseFrame():getChild(objName)
+                local target = element.parent:getChild(objName)
                 if not target then
                     errorManager.header = "Reactive evaluation error"
                     errorManager.error("Could not find element: " .. objName)
@@ -103,7 +103,7 @@ local function validateReferences(expr, element)
                     return false
                 end
             else
-                local target = element:getBaseFrame():getChild(ref)
+                local target = element.parent:getChild(ref)
                 if not target then
                     errorManager.header = "Reactive evaluation error"
                     errorManager.error("Referenced element not found: " .. ref)

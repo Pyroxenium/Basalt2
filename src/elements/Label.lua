@@ -1,5 +1,6 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
+local wrapText = require("libraries/utils").wrapText
 
 --- This is the label class. It provides a simple text display element that automatically
 --- resizes its width based on the text content.
@@ -8,9 +9,23 @@ local Label = setmetatable({}, VisualElement)
 Label.__index = Label
 
 ---@property text string Label The text content to display. Can be a string or a function that returns a string
-Label.defineProperty(Label, "text", {default = "Label", type = "string", setter = function(self, value)
+Label.defineProperty(Label, "text", {default = "Label", type = "string", canTriggerRender = true, setter = function(self, value)
     if(type(value)=="function")then value = value() end
-    self.set("width", #value)
+    if(self.get("autoSize"))then
+        self.set("width", #value)
+    else
+        self.set("height", #wrapText(value, self.get("width")))
+    end
+    return value
+end})
+
+---@property autoSize boolean true Whether the label should automatically resize its width based on the text content
+Label.defineProperty(Label, "autoSize", {default = true, type = "boolean", canTriggerRender = true, setter = function(self, value)
+    if(value)then
+        self.set("width", #self.get("text"))
+    else
+        self.set("height", #wrapText(self.get("text"), self.get("width")))
+    end
     return value
 end})
 
@@ -37,12 +52,28 @@ function Label:init(props, basalt)
     return self
 end
 
+--- Gets the wrapped lines of the Label
+--- @shortDescription Gets the wrapped lines of the Label
+--- @return table wrappedText The wrapped lines of the Label
+function Label:getWrappedText()
+    local text = self.get("text")
+    local wrappedText = wrapText(text, self.get("width"))
+    return wrappedText
+end
+
 --- Renders the Label
 --- @shortDescription Renders the Label by drawing its text content
 function Label:render()
     VisualElement.render(self)
     local text = self.get("text")
-    self:textFg(1, 1, text, self.get("foreground"))
+    if(self.get("autoSize"))then
+        self:textFg(1, 1, text, self.get("foreground"))
+    else
+        local wrappedText = wrapText(text, self.get("width"))
+        for i, line in ipairs(wrappedText) do
+            self:textFg(1, i, line, self.get("foreground"))
+        end
+    end
 end
 
 return Label

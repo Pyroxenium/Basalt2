@@ -48,7 +48,7 @@ function AnimationInstance.new(element, animType, args, duration, easing)
     self.element = element
     self.type = animType
     self.args = args
-    self.duration = duration
+    self.duration = duration or 1
     self.startTime = 0
     self.isPaused = false
     self.handlers = registeredAnimations[animType]
@@ -288,6 +288,26 @@ Animation.registerAnimation("move", {
     end
 })
 
+Animation.registerAnimation("moveOffset", {
+    start = function(anim)
+        anim.startX = anim.element.get("offsetX")
+        anim.startY = anim.element.get("offsetY")
+    end,
+
+    update = function(anim, progress)
+        local x = anim.startX + (anim.args[1] - anim.startX) * progress
+        local y = anim.startY + (anim.args[2] - anim.startY) * progress
+        anim.element.set("offsetX", math.floor(x))
+        anim.element.set("offsetY", math.floor(y))
+        return progress >= 1
+    end,
+
+    complete = function(anim)
+        anim.element.set("offsetX", anim.args[1])
+        anim.element.set("offsetY", anim.args[2])
+    end
+})
+
 Animation.registerAnimation("morphText", {
     start = function(anim)
         local startText = anim.element.get(anim.args[1])
@@ -384,12 +404,12 @@ function VisualElement.hooks.dispatchEvent(self, event, ...)
         if animation then
             animation:event(event, ...)
         end
+        return true
     end
 end
 
 ---@private
 function VisualElement.setup(element)
-    VisualElementBaseDispatchEvent = element.dispatchEvent
     element.defineProperty(element, "animation", {default = nil, type = "table"})
     element.listenTo(element, "timer")
 end

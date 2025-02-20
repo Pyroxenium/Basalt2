@@ -7,10 +7,26 @@ Checkbox.__index = Checkbox
 
 ---@property checked boolean Whether checkbox is checked
 Checkbox.defineProperty(Checkbox, "checked", {default = false, type = "boolean", canTriggerRender = true})
----@property text string Label text
-Checkbox.defineProperty(Checkbox, "text", {default = "", type = "string", canTriggerRender = true})
----@property symbol string Check symbol
-Checkbox.defineProperty(Checkbox, "symbol", {default = "x", type = "string"})
+---@property text string empty Text to display
+Checkbox.defineProperty(Checkbox, "text", {default = " ", type = "string", canTriggerRender = true, setter=function(self, value)
+    local checkedText = self.get("checkedText")
+    local width = math.max(#value, #checkedText)
+    if(self.get("autoSize"))then
+        self.set("width", width)
+    end
+    return value
+end})
+---@property checkedText string Text when checked
+Checkbox.defineProperty(Checkbox, "checkedText", {default = "x", type = "string", canTriggerRender = true, setter=function(self, value)
+    local text = self.get("text")
+    local width = math.max(#value, #text)
+    if(self.get("autoSize"))then
+        self.set("width", width)
+    end
+    return value
+end})
+---@property autoSize boolean true Whether to automatically size the checkbox
+Checkbox.defineProperty(Checkbox, "autoSize", {default = true, type = "boolean"})
 
 Checkbox.listenTo(Checkbox, "mouse_click")
 
@@ -19,8 +35,6 @@ Checkbox.listenTo(Checkbox, "mouse_click")
 --- @return Checkbox self The created instance
 function Checkbox.new()
     local self = setmetatable({}, Checkbox):__init()
-    self.set("width", 1)
-    self.set("height", 1)
     return self
 end
 
@@ -53,13 +67,12 @@ end
 function Checkbox:render()
     VisualElement.render(self)
 
-    local text = self.get("checked") and self.get("symbol") or " "
-    self:textFg(1, 1, "["..text.."]", self.get("foreground"))
+    local checked = self.get("checked")
+    local defaultText = self.get("text")
+    local checkedText = self.get("checkedText")
+    local text = string.sub(checked and checkedText or defaultText, 1, self.get("width"))
 
-    local label = self.get("text")
-    if #label > 0 then
-        self:textFg(4, 1, label, self.get("foreground"))
-    end
+    self:textFg(1, 1, text, self.get("foreground"))
 end
 
 return Checkbox

@@ -64,6 +64,9 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
     return value
 end})
 
+---@property ignoreOffset boolean false Whether to ignore the parent's offset
+VisualElement.defineProperty(VisualElement, "ignoreOffset", {default = false, type = "boolean"})
+
 ---@combinedProperty position {x y} Combined x, y position
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
 ---@combinedProperty size {width height} Combined width, height
@@ -85,6 +88,7 @@ VisualElement.listenTo(VisualElement, "focus")
 VisualElement.listenTo(VisualElement, "blur")
 VisualElement.listenTo(VisualElement, "mouse_enter", "mouse_move")
 VisualElement.listenTo(VisualElement, "mouse_leave", "mouse_move")
+VisualElement.listenTo(VisualElement, "mouse_scroll")
 
 local max, min = math.max, math.min
 
@@ -112,8 +116,9 @@ end
 --- @shortDescription Multi-character drawing with colors
 ---@protected
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
-    x = x + self.get("x") - 1
-    y = y + self.get("y") - 1
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
     self.parent:multiBlit(x, y, width, height, text, fg, bg)
 end
 
@@ -124,8 +129,9 @@ end
 --- @param text string The text char to draw
 --- @param fg color The foreground color
 function VisualElement:textFg(x, y, text, fg)
-    x = x + self.get("x") - 1
-    y = y + self.get("y") - 1
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
     self.parent:textFg(x, y, text, fg)
 end
 
@@ -136,8 +142,9 @@ end
 --- @param text string The text char to draw
 --- @param bg color The background color
 function VisualElement:textBg(x, y, text, bg)
-    x = x + self.get("x") - 1
-    y = y + self.get("y") - 1
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
     self.parent:textBg(x, y, text, bg)
 end
 
@@ -149,8 +156,9 @@ end
 --- @param fg string The foreground color
 --- @param bg string The background color
 function VisualElement:blit(x, y, text, fg, bg)
-    x = x + self.get("x") - 1
-    y = y + self.get("y") - 1
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
     self.parent:blit(x, y, text, fg, bg)
 end
 
@@ -162,6 +170,12 @@ end
 function VisualElement:isInBounds(x, y)
     local xPos, yPos = self.get("x"), self.get("y")
     local width, height = self.get("width"), self.get("height")
+    if(self.get("ignoreOffset"))then
+        if(self.parent)then
+            x = x - self.parent.get("offsetX")
+            y = y - self.parent.get("offsetY")
+        end
+    end
 
     return x >= xPos and x <= xPos + width - 1 and
            y >= yPos and y <= yPos + height - 1
@@ -256,6 +270,18 @@ function VisualElement:blur()
     self:setCursor(1,1, false)
 end
 
+function VisualElement:calculatePosition()
+    local x, y = self.get("x"), self.get("y")
+    if not self.get("ignoreOffset") then
+        if self.parent ~= nil then
+            local xO, yO = self.parent.get("offsetX"), self.parent.get("offsetY")
+            x = x - xO
+            y = y - yO
+        end
+    end
+    return x, y
+end
+
 --- Returns the absolute position of the element or the given coordinates.
 --- @shortDescription Returns the absolute position of the element
 ---@param x? number x position
@@ -295,9 +321,7 @@ function VisualElement:getRelativePosition(x, y)
         parentX, parentY = self.parent:getRelativePosition()
     end
 
-    local elementX = self.get("x")
-    local elementY = self.get("y")
-
+    local elementX, elementY = self.get("x"), self.get("y")
     return x - (elementX - 1) - (parentX - 1),
            y - (elementY - 1) - (parentY - 1)
 end
