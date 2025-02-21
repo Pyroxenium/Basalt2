@@ -1,5 +1,7 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
+---@configDescription A multi-line text editor component with cursor support and text manipulation features
+---@configDefault false
 
 ---A multi-line text editor component with cursor support and text manipulation features
 ---@class TextBox : VisualElement

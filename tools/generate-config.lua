@@ -74,34 +74,36 @@ local function categorizeFile(path)
     end
 end
 
-local function scanDirectory(baseDir, relativePath)
+local function scanDirectory(baseDir)
     local files = {}
+    -- Liste aller zu scannenden Ordner
+    local dirs = {
+        baseDir .. "/elements",
+        baseDir .. "/plugins",
+        baseDir .. "/libraries",
+        baseDir -- für Core-Files
+    }
     
-    -- Nutze direkt io.popen für das Directory Listing
-    local cmd = 'dir "' .. baseDir .. '/' .. relativePath .. '" /b /s'
-    local pipe = io.popen(cmd)
-    if not pipe then
-        error("Failed to execute directory scan command")
-        return files
-    end
-    
-    for path in pipe:lines() do
-        if path:match("%.lua$") then
-            local config = parseFile(path)
-            if config then
-                config.name = path:match("([^/\\]+)%.lua$")
-                config.path = path:gsub(baseDir .. "/", "")
-                files[path] = config
+    for _, dir in ipairs(dirs) do
+        for entry in io.popen('ls -1 "' .. dir .. '"'):lines() do
+            if entry:match("%.lua$") then
+                local fullPath = dir .. "/" .. entry
+                local config = parseFile(fullPath)
+                if config then
+                    config.name = entry:gsub("%.lua$", "")
+                    -- Relativen Pfad erstellen
+                    config.path = fullPath:gsub("^" .. baseDir .. "/", "")
+                    files[fullPath] = config
+                end
             end
         end
     end
     
-    pipe:close()
     return files
 end
 
 local function generateConfig(srcPath)
-    local files = scanDirectory(srcPath, "")
+    local files = scanDirectory(srcPath)
     local categories = {}
     
     -- Files in Kategorien einordnen

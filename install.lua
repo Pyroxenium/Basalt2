@@ -133,7 +133,7 @@ versionDropdown:onSelect(function(self, index, value)
     end
 end)
 
-instalScreen:addLabel(coloring)
+installScreen:addLabel(coloring)
     :setText("Path:")
     :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
 
