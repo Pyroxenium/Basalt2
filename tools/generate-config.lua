@@ -24,9 +24,11 @@ local function serialize(t, indent)
 end
 
 local function parseFile(filePath)
-    local file = fs.open(filePath, "r")
-    local content = file.readAll()
-    file.close()
+    local file = io.open(filePath, "r")
+    if not file then return nil end
+    
+    local content = file:read("*all")
+    file:close()
 
     local config = {
         description = "",
@@ -74,21 +76,17 @@ end
 
 local function scanDirectory(baseDir, relativePath)
     local files = {}
-    local items = fs.list(fs.combine(baseDir, relativePath))
     
-    for _, item in ipairs(items) do
-        local fullPath = fs.combine(relativePath, item)
-        local absPath = fs.combine(baseDir, fullPath)
-        
-        if fs.isDir(absPath) then
-            for path, config in pairs(scanDirectory(baseDir, fullPath)) do
+    -- Nutze io.popen um Verzeichnis zu scannen
+    local cmd = os.execute('dir "' .. baseDir .. '/' .. relativePath .. '" /b /s')
+    for path in io.popen(cmd):lines() do
+        if path:match("%.lua$") then
+            local config = parseFile(path)
+            if config then
+                config.name = path:match("([^/\\]+)%.lua$")
+                config.path = path:gsub(baseDir .. "/", "")
                 files[path] = config
             end
-        elseif item:match("%.lua$") then
-            local config = parseFile(absPath)
-            config.name = item:gsub("%.lua$", "")
-            config.path = fullPath
-            files[fullPath] = config
         end
     end
     
@@ -143,10 +141,8 @@ local function generateConfig(srcPath)
     }
 end
 
--- Config generieren
-local config = generateConfig("/c:/Users/rjsha/AppData/Roaming/CraftOS-PC/computer/0/Basalt2/src")
-
--- Config speichern
-local configFile = fs.open("/c:/Users/rjsha/AppData/Roaming/CraftOS-PC/computer/0/Basalt2/config.lua", "w")
-configFile.write("return " .. serialize(config))
-configFile.close()
+-- Config generieren und speichern
+local config = generateConfig("src")
+local configFile = io.open("config.lua", "w")
+configFile:write("return " .. serialize(config))
+configFile:close()
