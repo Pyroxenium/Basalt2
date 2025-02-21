@@ -56,7 +56,8 @@ end
 ---@class Checkbox
 ---@field checked boolean
 ---@field text string
----@field symbol string
+---@field checkedText string
+---@field autoSize boolean
 local Checkbox = {}
 
 --- Gets the checkbox is checked
@@ -77,7 +78,7 @@ function Checkbox:setChecked(checked)
     return self
 end
 
---- Gets the text
+--- Gets the Text to display
 ---@generic Element: Checkbox
 ---@param self Element
 ---@return string
@@ -85,7 +86,7 @@ function Checkbox:getText()
     return self.text
 end
 
---- Sets the text
+--- Sets the Text to display
 ---@generic Element: Checkbox
 ---@param self Element
 ---@param text string
@@ -95,21 +96,39 @@ function Checkbox:setText(text)
     return self
 end
 
---- Gets the symbol
+--- Gets the when checked
 ---@generic Element: Checkbox
 ---@param self Element
 ---@return string
-function Checkbox:getSymbol()
-    return self.symbol
+function Checkbox:getCheckedText()
+    return self.checkedText
 end
 
---- Sets the symbol
+--- Sets the when checked
 ---@generic Element: Checkbox
 ---@param self Element
----@param symbol string
+---@param checkedText string
 ---@return Element
-function Checkbox:setSymbol(symbol)
-    self.symbol = symbol
+function Checkbox:setCheckedText(checkedText)
+    self.checkedText = checkedText
+    return self
+end
+
+--- Gets the Whether to automatically size the checkbox
+---@generic Element: Checkbox
+---@param self Element
+---@return boolean
+function Checkbox:getAutoSize()
+    return self.autoSize
+end
+
+--- Sets the Whether to automatically size the checkbox
+---@generic Element: Checkbox
+---@param self Element
+---@param autoSize boolean
+---@return Element
+function Checkbox:setAutoSize(autoSize)
+    self.autoSize = autoSize
     return self
 end
 
@@ -123,6 +142,8 @@ end
 ---@field focusedChild table
 ---@field visibleChildren table
 ---@field visibleChildrenEvents table
+---@field offsetX number
+---@field offsetY number
 local Container = {}
 
 --- Gets the The children of the container
@@ -266,6 +287,42 @@ end
 ---@return Element
 function Container:setVisibleChildrenEvents(visibleChildrenEvents)
     self.visibleChildrenEvents = visibleChildrenEvents
+    return self
+end
+
+--- Gets the Horizontal content offset
+---@generic Element: Container
+---@param self Element
+---@return number
+function Container:getOffsetX()
+    return self.offsetX
+end
+
+--- Sets the Horizontal content offset
+---@generic Element: Container
+---@param self Element
+---@param offsetX number
+---@return Element
+function Container:setOffsetX(offsetX)
+    self.offsetX = offsetX
+    return self
+end
+
+--- Gets the Vertical content offset
+---@generic Element: Container
+---@param self Element
+---@return number
+function Container:getOffsetY()
+    return self.offsetY
+end
+
+--- Sets the Vertical content offset
+---@generic Element: Container
+---@param self Element
+---@param offsetY number
+---@return Element
+function Container:setOffsetY(offsetY)
+    self.offsetY = offsetY
     return self
 end
 
@@ -646,6 +703,7 @@ end
 
 ---@class Label
 ---@field text string
+---@field autoSize boolean
 local Label = {}
 
 --- Gets the The text content to display. Can be a string or a function that returns a string
@@ -663,6 +721,24 @@ end
 ---@return Element
 function Label:setText(text)
     self.text = text
+    return self
+end
+
+--- Gets the Whether the label should automatically resize its width based on the text content
+---@generic Element: Label
+---@param self Element
+---@return boolean
+function Label:getAutoSize()
+    return self.autoSize
+end
+
+--- Sets the Whether the label should automatically resize its width based on the text content
+---@generic Element: Label
+---@param self Element
+---@param autoSize boolean
+---@return Element
+function Label:setAutoSize(autoSize)
+    self.autoSize = autoSize
     return self
 end
 
@@ -1604,6 +1680,7 @@ end
 ---@field backgroundEnabled boolean
 ---@field focused boolean
 ---@field visible boolean
+---@field ignoreOffset boolean
 local VisualElement = {}
 
 --- Gets the The horizontal position relative to parent
@@ -1819,6 +1896,24 @@ end
 ---@return Element
 function VisualElement:setVisible(visible)
     self.visible = visible
+    return self
+end
+
+--- Gets the Whether to ignore the parent's offset
+---@generic Element: VisualElement
+---@param self Element
+---@return boolean
+function VisualElement:getIgnoreOffset()
+    return self.ignoreOffset
+end
+
+--- Sets the Whether to ignore the parent's offset
+---@generic Element: VisualElement
+---@param self Element
+---@param ignoreOffset boolean
+---@return Element
+function VisualElement:setIgnoreOffset(ignoreOffset)
+    self.ignoreOffset = ignoreOffset
     return self
 end
 

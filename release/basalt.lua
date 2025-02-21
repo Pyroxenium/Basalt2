@@ -265,9 +265,18 @@ function aa.uuid()
 return
 string.format('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',math.random(0,0xffff),math.random(0,0xffff),math.random(0,0xffff),
 math.random(0,0x0fff)+0x4000,math.random(0,0x3fff)+0x8000,math.random(0,0xffff),math.random(0,0xffff),math.random(0,0xffff))end
-function aa.split(ba,ca)local da={}local _b=1;local ab=_a(ba)local bb=1
-while true do local cb=ba:find(ca,_b,true)if not cb then
-da[bb]=ba:sub(_b,ab)break end;da[bb]=ba:sub(_b,cb-1)_b=cb+1;bb=bb+1 end;return da end;return aa end
+function aa.split(ba,ca)local da={}for _b in(ba..ca):gmatch("(.-)"..ca)do
+table.insert(da,_b)end;return da end;function aa.removeTags(ba)return ba:gsub("{[^}]+}","")end
+function aa.wrapText(ba,ca)if
+ba==nil then return{}end;ba=aa.removeTags(ba)local da={}
+local _b=aa.split(ba,"\n\n")
+for ab,bb in ipairs(_b)do
+if#bb==0 then table.insert(da,"")if ab<#_b then
+table.insert(da,"")end else local cb=aa.split(bb,"\n")
+for db,_c in ipairs(cb)do
+local ac=aa.split(_c," ")local bc=""
+for cc,dc in ipairs(ac)do if#bc==0 then bc=dc elseif#bc+#dc+1 <=ca then bc=bc.." "..dc else
+table.insert(da,bc)bc=dc end end;if#bc>0 then table.insert(da,bc)end end;if ab<#_b then table.insert(da,"")end end end;return da end;return aa end
 project["plugins/debug.lua"] = function(...) local da=require("log")local _b=require("libraries/colorHex")
 local ab=10;local bb=false
 local function cb(bc)
@@ -373,7 +382,7 @@ bb.error("Could not find element: "..d_a)return nil end;return
 aaa:getState(_aa).value end,__getProperty=function(d_a,_aa)
 if
 d_a=="self"then return dd.get(_aa)elseif d_a=="parent"then
-return dd.parent.get(_aa)else local aaa=dd:getBaseFrame():getChild(d_a)if not aaa then
+return dd.parent.get(_aa)else local aaa=dd.parent:getChild(d_a)if not aaa then
 bb.header="Reactive evaluation error"
 bb.error("Could not find element: "..d_a)return nil end
 return aaa.get(_aa)end end},{__index=ac})if(dd._properties[__a].type=="string")then
@@ -388,7 +397,7 @@ for __a in cd:gmatch("([%w_]+)%.")do
 if not _c[__a]then
 if __a=="self"then elseif __a=="parent"then
 if not dd.parent then
-bb.header="Reactive evaluation error"bb.error("No parent element available")return false end else local a_a=dd:getBaseFrame():getChild(__a)if not a_a then
+bb.header="Reactive evaluation error"bb.error("No parent element available")return false end else local a_a=dd.parent:getChild(__a)if not a_a then
 bb.header="Reactive evaluation error"
 bb.error("Referenced element not found: "..__a)return false end end end end;return true end;local dc=setmetatable({},{__mode="k"})
 local _d=setmetatable({},{__mode="k",__index=function(cd,dd)cd[dd]={}
@@ -485,7 +494,7 @@ local ba={linear=function(ab)return ab end,easeInQuad=function(ab)return ab*ab e
 1 - (1 -ab)* (1 -ab)end,easeInOutQuad=function(ab)if ab<0.5 then return 2 *ab*ab end;return 1 - (
 -2 *ab+2)^2 /2 end}local ca={}ca.__index=ca
 function ca.new(ab,bb,cb,db,_c)local ac=setmetatable({},ca)ac.element=ab
-ac.type=bb;ac.args=cb;ac.duration=db;ac.startTime=0;ac.isPaused=false
+ac.type=bb;ac.args=cb;ac.duration=db or 1;ac.startTime=0;ac.isPaused=false
 ac.handlers=aa[bb]ac.easing=_c;return ac end;function ca:start()self.startTime=os.epoch("local")/1000;if
 self.handlers.start then self.handlers.start(self)end
 return self end
@@ -547,6 +556,13 @@ ab.startY=ab.element.get("y")end,update=function(ab,bb)local cb=ab.startX+
 (ab.args[2]-ab.startY)*bb
 ab.element.set("x",math.floor(cb))ab.element.set("y",math.floor(db))return bb>=1 end,complete=function(ab)
 ab.element.set("x",ab.args[1])ab.element.set("y",ab.args[2])end})
+da.registerAnimation("moveOffset",{start=function(ab)ab.startX=ab.element.get("offsetX")
+ab.startY=ab.element.get("offsetY")end,update=function(ab,bb)local cb=ab.startX+ (ab.args[1]-ab.startX)*
+bb;local db=ab.startY+ (ab.args[2]-
+ab.startY)*bb
+ab.element.set("offsetX",math.floor(cb))ab.element.set("offsetY",math.floor(db))return
+bb>=1 end,complete=function(ab)
+ab.element.set("offsetX",ab.args[1])ab.element.set("offsetY",ab.args[2])end})
 da.registerAnimation("morphText",{start=function(ab)local bb=ab.element.get(ab.args[1])
 local cb=ab.args[2]local db=math.max(#bb,#cb)
 local _c=string.rep(" ",math.floor(db-#bb)/2)ab.startText=_c..bb.._c
@@ -574,10 +590,10 @@ ab.width* (1 -bb))
 local db=string.rep(" ",cb)
 ab.element.set(ab.args[1],db..ab.targetText)return bb>=1 end})local _b={hooks={}}function _b.hooks.dispatchEvent(ab,bb,...)
 if bb=="timer"then local cb=ab.get("animation")if
-cb then cb:event(bb,...)end end end
+cb then cb:event(bb,...)end;return true end end
 function _b.setup(ab)
-VisualElementBaseDispatchEvent=ab.dispatchEvent
-ab.defineProperty(ab,"animation",{default=nil,type="table"})ab.listenTo(ab,"timer")end
+ab.defineProperty(ab,"animation",{default=
+nil,type="table"})ab.listenTo(ab,"timer")end
 function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
 project["plugins/state.lua"] = function(...) local d=require("propertySystem")
 local _a=require("errorManager")local aa={}
@@ -683,7 +699,8 @@ function cb:stopContainerBenchmark(_c)
 for ac,bc in pairs(self.get("children"))do if bc:isType("Container")then
 bc:stopContainerBenchmark(_c)else bc:stopBenchmark(_c)end end;self:stopBenchmark(_c)return self end;local db={}
 function db.start(_c,ac)ac=ac or{}local bc=_b()bc.name=_c
-bc.startTime=os.clock()*1000;bc.custom=true;da[_c]=bc end
+bc.startTime=os.clock()*1000;bc.custom=true;bc.calls=0;bc.totalTime=0;bc.minTime=math.huge;bc.maxTime=0
+bc.lastTime=0;da[_c]=bc end
 function db.stop(_c)local ac=da[_c]if not ac or not ac.custom then return end;local bc=
 os.clock()*1000;local cc=bc-ac.startTime;ac.calls=ac.calls+1;ac.totalTime=
 ac.totalTime+cc;ac.minTime=math.min(ac.minTime,cc)
@@ -797,10 +814,16 @@ if _b==nil or _b.setCursorPos==nil then return _b end;da._render=ba.new(_b)da._r
 da.set("width",ab)da.set("height",bb)return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
 da.set("term",term.current())da.set("background",colors.lightGray)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","BaseFrame")return
-self end;function ca:multiBlit(da,_b,ab,bb,cb,db,_c)
-self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)
-self._render:textFg(da,_b,ab,bb)end;function ca:textBg(da,_b,ab,bb)
-self._render:textBg(da,_b,ab,bb)end;function ca:blit(da,_b,ab,bb,cb)
+self end
+function ca:multiBlit(da,_b,ab,bb,cb,db,_c)if(da<1)then ab=ab+da-1
+da=1 end;if(_b<1)then bb=bb+_b-1;_b=1 end
+self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -da)da=1 end
+self._render:textFg(da,_b,ab,bb)end;function ca:textBg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -
+da)da=1 end
+self._render:textBg(da,_b,ab,bb)end
+function ca:blit(da,_b,ab,bb,cb)if da<1 then ab=string.sub(ab,1 -
+da)bb=string.sub(bb,1 -da)
+cb=string.sub(cb,1 -da)da=1 end
 self._render:blit(da,_b,ab,bb,cb)end;function ca:setCursor(da,_b,ab,bb)local cb=self.get("term")
 self._render:setCursor(da,_b,ab,bb)end
 function ca:mouse_up(da,_b,ab)
@@ -867,12 +890,12 @@ return self end;return aa end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"text",{default="Button",type="string",canTriggerRender=true})ca.listenTo(ca,"mouse_click")
-ca.listenTo(ca,"mouse_up")
-function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",10)da.set("height",3)da.set("z",5)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Button")end
-function ca:render()aa.render(self)local da=self.get("text")
+ca.defineProperty(ca,"text",{default="Button",type="string",canTriggerRender=true})ca.listenTo(ca,"mouse_click")function ca.new(da,_b)
+local ab=setmetatable({},ca):__init()ab:init(da,_b)ab.set("width",10)ab.set("height",3)
+ab.set("z",5)return ab end;function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","Button")end
+function ca:render()
+aa.render(self)local da=self.get("text")
 local _b,ab=ba(da,self.get("width"),self.get("height"))
 self:textFg(_b,ab,da,self.get("foreground"))end;return ca end
 project["elements/Program.lua"] = function(...) local ba=require("elementManager")
@@ -930,16 +953,27 @@ function _b:render()ca.render(self)local cb=self.get("program")
 if cb then
 local db,_c=cb.window.getSize()for y=1,_c do local ac,bc,cc=cb.window.getLine(y)if ac then
 self:blit(1,y,ac,bc,cc)end end end end;return _b end
-project["elements/Label.lua"] = function(...) local d=require("elementManager")
-local _a=d.getElement("VisualElement")local aa=setmetatable({},_a)aa.__index=aa
-aa.defineProperty(aa,"text",{default="Label",type="string",setter=function(ba,ca)if(type(ca)==
-"function")then ca=ca()end;ba.set("width",#ca)return ca end})
-function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("z",3)ba.set("foreground",colors.black)
-ba.set("backgroundEnabled",false)return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Label")
+project["elements/Label.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/utils").wrapText
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"text",{default="Label",type="string",canTriggerRender=true,setter=function(da,_b)
+if(type(_b)=="function")then _b=_b()end
+if(da.get("autoSize"))then da.set("width",#_b)else da.set("height",#
+ba(_b,da.get("width")))end;return _b end})
+ca.defineProperty(ca,"autoSize",{default=true,type="boolean",canTriggerRender=true,setter=function(da,_b)if(_b)then
+da.set("width",#da.get("text"))else
+da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
+function ca.new()local da=setmetatable({},ca):__init()
+da.set("z",3)da.set("foreground",colors.black)
+da.set("backgroundEnabled",false)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Label")
 return self end
-function aa:render()_a.render(self)
-local ba=self.get("text")self:textFg(1,1,ba,self.get("foreground"))end;return aa end
+function ca:getWrappedText()
+local da=self.get("text")local _b=ba(da,self.get("width"))return _b end
+function ca:render()aa.render(self)local da=self.get("text")
+if
+(self.get("autoSize"))then self:textFg(1,1,da,self.get("foreground"))else
+local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
+self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
 project["elements/Flexbox.lua"] = function(...) local da=require("elementManager")
 local _b=da.getElement("Container")local ab=setmetatable({},_b)ab.__index=ab
 ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
@@ -1040,6 +1074,10 @@ if ac and not bc then ac.set("focused",true,true)if _c.parent then
 _c.parent:setFocusedChild(_c)end end;return ac end})
 bb.defineProperty(bb,"visibleChildren",{default={},type="table"})
 bb.defineProperty(bb,"visibleChildrenEvents",{default={},type="table"})
+bb.defineProperty(bb,"offsetX",{default=0,type="number",canTriggerRender=true,setter=function(_c,ac)_c.set("childrenSorted",false)
+_c.set("childrenEventsSorted",false)return ac end})
+bb.defineProperty(bb,"offsetY",{default=0,type="number",canTriggerRender=true,setter=function(_c,ac)_c.set("childrenSorted",false)
+_c.set("childrenEventsSorted",false)return ac end})
 for _c,ac in pairs(ca:getElementList())do
 local bc=_c:sub(1,1):upper().._c:sub(2)
 if bc~="BaseFrame"then
@@ -1049,10 +1087,11 @@ bb["addDelayed"..bc]=function(cc,dc)_b(1,cc,"table")
 local _d=cc.basalt.create(_c,dc,true,cc)return _d end end end
 function bb.new()local _c=setmetatable({},bb):__init()return _c end
 function bb:init(_c,ac)da.init(self,_c,ac)self.set("type","Container")end
-function bb:isChildVisible(_c)local ac,bc=_c.get("x"),_c.get("y")
-local cc,dc=_c.get("width"),_c.get("height")local _d,ad=self.get("width"),self.get("height")
-return
-ac<=_d and bc<=ad and ac+cc>0 and bc+dc>0 end
+function bb:isChildVisible(_c)local ac,bc=self.get("width"),self.get("height")
+local cc,dc=self.get("offsetX"),self.get("offsetY")local _d,ad=_c.get("x"),_c.get("y")
+local bd,cd=_c.get("width"),_c.get("height")local dd;local __a
+if(_c.get("ignoreOffset"))then dd=_d;__a=ad else dd=_d-cc;__a=ad-dc end;return
+(dd+bd>0)and(dd<=ac)and(__a+cd>0)and(__a<=bc)end
 function bb:addChild(_c)
 if _c==self then error("Cannot add container to itself")end;table.insert(self._values.children,_c)
 _c.parent=self;self.set("childrenSorted",false)
@@ -1106,8 +1145,10 @@ for bc,cc in
 pairs(self._values.children)do if cc.get("name")==ac[1]then
 if#ac==1 then return cc else if(cc:isType("Container"))then return
 cc:find(table.concat(ac,"/",2))end end end end end;return nil end
-local function db(_c,ac,...)local bc={...}if ac:find("mouse_")then local cc,dc,_d=...
-local ad,bd=_c:getRelativePosition(dc,_d)bc={cc,ad,bd}end;return bc end
+local function db(_c,ac,...)local bc={...}
+if ac:find("mouse_")then local cc,dc,_d=...
+local ad,bd=_c.get("offsetX"),_c.get("offsetY")local cd,dd=_c:getRelativePosition(dc+ad,_d+bd)
+bc={cc,cd,dd}end;return bc end
 function bb:callChildrenEvents(_c,ac,...)local bc=_c and self.get("visibleChildrenEvents")or
 self.get("childrenEvents")
 if
@@ -1263,19 +1304,21 @@ self._renderUpdate=true end end;return aa end
 project["elements/Checkbox.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
-d.defineProperty(d,"text",{default="",type="string",canTriggerRender=true})
-d.defineProperty(d,"symbol",{default="x",type="string"})d.listenTo(d,"mouse_click")
-function d.new()
-local _a=setmetatable({},d):__init()_a.set("width",1)_a.set("height",1)return _a end
-function d:init(_a,aa)c.init(self,_a,aa)self.set("type","Checkbox")end
+d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("checkedText")
+local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
+d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
+local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
+d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.listenTo(d,"mouse_click")function d.new()
+local _a=setmetatable({},d):__init()return _a end;function d:init(_a,aa)c.init(self,_a,aa)
+self.set("type","Checkbox")end
 function d:mouse_click(_a,aa,ba)
 if c.mouse_click(self,_a,aa,ba)then
-self.set("checked",not self.get("checked"))
+self.set("checked",
+not self.get("checked"))
 self:fireEvent("change",self.get("checked"))return true end;return false end
-function d:render()c.render(self)local _a=
-self.get("checked")and self.get("symbol")or" "
-self:textFg(1,1,"[".._a.."]",self.get("foreground"))local aa=self.get("text")if#aa>0 then
-self:textFg(4,1,aa,self.get("foreground"))end end;return d end
+function d:render()c.render(self)local _a=self.get("checked")
+local aa=self.get("text")local ba=self.get("checkedText")
+local ca=string.sub(_a and ba or aa,1,self.get("width"))self:textFg(1,1,ca,self.get("foreground"))end;return d end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
@@ -1353,23 +1396,27 @@ if db then
 cb.parent:setFocusedChild(cb)else cb.parent:setFocusedChild(nil)end end;return db end})
 _b.defineProperty(_b,"visible",{default=true,type="boolean",canTriggerRender=true,setter=function(cb,db)
 if(cb.parent~=nil)then
-cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;return db end})_b.combineProperties(_b,"position","x","y")
+cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;return db end})
+_b.defineProperty(_b,"ignoreOffset",{default=false,type="boolean"})_b.combineProperties(_b,"position","x","y")
 _b.combineProperties(_b,"size","width","height")
 _b.combineProperties(_b,"color","foreground","background")_b.listenTo(_b,"focus")_b.listenTo(_b,"blur")
 _b.listenTo(_b,"mouse_enter","mouse_move")_b.listenTo(_b,"mouse_leave","mouse_move")
-local ab,bb=math.max,math.min
-function _b.new()local cb=setmetatable({},_b):__init()return cb end;function _b:init(cb,db)ca.init(self,cb,db)
+_b.listenTo(_b,"mouse_scroll")local ab,bb=math.max,math.min;function _b.new()
+local cb=setmetatable({},_b):__init()return cb end;function _b:init(cb,db)ca.init(self,cb,db)
 self.set("type","VisualElement")end;function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)
-cb=cb+self.get("x")-1;db=db+self.get("y")-1
-self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function _b:textFg(cb,db,_c,ac)cb=cb+
-self.get("x")-1;db=db+self.get("y")-1
-self.parent:textFg(cb,db,_c,ac)end;function _b:textBg(cb,db,_c,ac)cb=cb+
-self.get("x")-1;db=db+self.get("y")-1
-self.parent:textBg(cb,db,_c,ac)end;function _b:blit(cb,db,_c,ac,bc)cb=cb+
-self.get("x")-1;db=db+self.get("y")-1
+local _d,ad=self:calculatePosition()cb=cb+_d-1;db=db+ad-1
+self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function _b:textFg(cb,db,_c,ac)
+local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
+self.parent:textFg(cb,db,_c,ac)end;function _b:textBg(cb,db,_c,ac)
+local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
+self.parent:textBg(cb,db,_c,ac)end;function _b:blit(cb,db,_c,ac,bc)
+local cc,dc=self:calculatePosition()cb=cb+cc-1;db=db+dc-1
 self.parent:blit(cb,db,_c,ac,bc)end
 function _b:isInBounds(cb,db)
-local _c,ac=self.get("x"),self.get("y")local bc,cc=self.get("width"),self.get("height")return
+local _c,ac=self.get("x"),self.get("y")local bc,cc=self.get("width"),self.get("height")if
+(self.get("ignoreOffset"))then
+if(self.parent)then cb=cb-self.parent.get("offsetX")db=
+db-self.parent.get("offsetY")end end;return
 cb>=_c and cb<=
 _c+bc-1 and db>=ac and db<=ac+cc-1 end
 function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self.set("clicked",true)
@@ -1391,14 +1438,18 @@ self:fireEvent("mouse_scroll",cb,self:getRelativePosition(db,_c))return true end
 function _b:mouse_drag(cb,db,_c)if(self.get("clicked"))then
 self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
 self:fireEvent("blur")self:setCursor(1,1,false)end
-function _b:getAbsolutePosition(cb,db)
-local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end
-local bc=self.parent;while bc do local cc,dc=bc.get("x"),bc.get("y")_c=_c+cc-1;ac=ac+dc-1
-bc=bc.parent end;return _c,ac end
+function _b:calculatePosition()
+local cb,db=self.get("x"),self.get("y")
+if not self.get("ignoreOffset")then if self.parent~=nil then
+local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end
+function _b:getAbsolutePosition(cb,db)local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then
+_c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end;local bc=self.parent
+while bc do
+local cc,dc=bc.get("x"),bc.get("y")_c=_c+cc-1;ac=ac+dc-1;bc=bc.parent end;return _c,ac end
 function _b:getRelativePosition(cb,db)if(cb==nil)or(db==nil)then
 cb,db=self.get("x"),self.get("y")end;local _c,ac=1,1;if self.parent then
-_c,ac=self.parent:getRelativePosition()end;local bc=self.get("x")
-local cc=self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
+_c,ac=self.parent:getRelativePosition()end
+local bc,cc=self.get("x"),self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
 function _b:setCursor(cb,db,_c,ac)
 if self.parent then local bc,cc=self:getAbsolutePosition(cb,db)
 bc=ab(self.get("x"),bb(bc,
@@ -1477,23 +1528,23 @@ d.defineProperty(d,"selectedIndex",{default=0,type="number",canTriggerRender=tru
 d.defineProperty(d,"selectable",{default=true,type="boolean"})
 d.defineProperty(d,"offset",{default=0,type="number",canTriggerRender=true})
 d.defineProperty(d,"selectedColor",{default=colors.blue,type="number"})d.listenTo(d,"mouse_click")
-d.listenTo(d,"mouse_scroll")function d.new()local _a=setmetatable({},d):__init()
-_a.set("width",16)_a.set("height",8)
-_a.set("background",colors.gray)return _a end;function d:init(_a,aa)
-c.init(self,_a,aa)self.set("type","List")end
-function d:addItem(_a)
-local aa=self.get("items")table.insert(aa,_a)self:updateRender()return self end;function d:removeItem(_a)local aa=self.get("items")table.remove(aa,_a)
-self:updateRender()return self end;function d:clear()
-self.set("items",{})self.set("selectedIndex",0)self:updateRender()
-return self end
+d.listenTo(d,"mouse_scroll")
+function d.new()local _a=setmetatable({},d):__init()
+_a.set("width",16)_a.set("height",8)_a.set("z",5)
+_a.set("background",colors.gray)return _a end
+function d:init(_a,aa)c.init(self,_a,aa)self.set("type","List")return self end;function d:addItem(_a)local aa=self.get("items")table.insert(aa,_a)
+self:updateRender()return self end
+function d:removeItem(_a)
+local aa=self.get("items")table.remove(aa,_a)self:updateRender()return self end
+function d:clear()self.set("items",{})
+self.set("selectedIndex",0)self:updateRender()return self end
 function d:mouse_click(_a,aa,ba)
-if _a==1 and
-self:isInBounds(aa,ba)and self.get("selectable")then
-local ca,da=self:getRelativePosition(aa,ba)local _b=da+self.get("offset")
-local ab=self.get("items")
-if _b<=#ab then local bb=ab[_b]self.set("selectedIndex",_b)
 if
-type(bb)=="table"and bb.callback then bb.callback(self)end;self:fireEvent("select",_b,bb)self:updateRender()return
+_a==1 and self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
+local _b=da+self.get("offset")local ab=self.get("items")
+if _b<=#ab then local bb=ab[_b]
+self.set("selectedIndex",_b)
+if type(bb)=="table"and bb.callback then bb.callback(self)end;self:fireEvent("select",_b,bb)self:updateRender()return
 true end end;return false end
 function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then local ca=self.get("offset")
