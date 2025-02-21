@@ -551,19 +551,6 @@ function Dropdown:setDropSymbol(dropSymbol)
 end
 
 
----@class Frame
-local Frame = {}
-
---- {width number, height number} Fired when the frame is resized
----@generic Element: Frame
----@param self Element
----@param callback function
----@return Element
-function Frame:onOnResize(callback)
-    return self
-end
-
-
 ---@class Input
 ---@field text string
 ---@field cursorPos number
@@ -745,13 +732,14 @@ end
 
 ---@class List
 ---@field items table
----@field selectedIndex number
 ---@field selectable boolean
+---@field multiSelection boolean
 ---@field offset number
----@field selectedColor color
+---@field selectedBackground color
+---@field selectedForeground color
 local List = {}
 
---- Gets the List of items to display. Items can be strings or tables with properties
+--- Gets the List of items to display. Items can be tables with properties including selected state
 ---@generic Element: List
 ---@param self Element
 ---@return table
@@ -759,31 +747,13 @@ function List:getItems()
     return self.items
 end
 
---- Sets the List of items to display. Items can be strings or tables with properties
+--- Sets the List of items to display. Items can be tables with properties including selected state
 ---@generic Element: List
 ---@param self Element
 ---@param items table
 ---@return Element
 function List:setItems(items)
     self.items = items
-    return self
-end
-
---- Gets the Index of the currently selected item (0 means no selection)
----@generic Element: List
----@param self Element
----@return number
-function List:getSelectedIndex()
-    return self.selectedIndex
-end
-
---- Sets the Index of the currently selected item (0 means no selection)
----@generic Element: List
----@param self Element
----@param selectedIndex number
----@return Element
-function List:setSelectedIndex(selectedIndex)
-    self.selectedIndex = selectedIndex
     return self
 end
 
@@ -805,6 +775,24 @@ function List:setSelectable(selectable)
     return self
 end
 
+--- Gets the Whether multiple items can be selected at once
+---@generic Element: List
+---@param self Element
+---@return boolean
+function List:getMultiSelection()
+    return self.multiSelection
+end
+
+--- Sets the Whether multiple items can be selected at once
+---@generic Element: List
+---@param self Element
+---@param multiSelection boolean
+---@return Element
+function List:setMultiSelection(multiSelection)
+    self.multiSelection = multiSelection
+    return self
+end
+
 --- Gets the Current scroll offset for viewing long lists
 ---@generic Element: List
 ---@param self Element
@@ -823,21 +811,39 @@ function List:setOffset(offset)
     return self
 end
 
---- Gets the Background color for the selected item
+--- Gets the Background color for selected items
 ---@generic Element: List
 ---@param self Element
 ---@return color
-function List:getSelectedColor()
-    return self.selectedColor
+function List:getSelectedBackground()
+    return self.selectedBackground
 end
 
---- Sets the Background color for the selected item
+--- Sets the Background color for selected items
 ---@generic Element: List
 ---@param self Element
----@param selectedColor color
+---@param selectedBackground color
 ---@return Element
-function List:setSelectedColor(selectedColor)
-    self.selectedColor = selectedColor
+function List:setSelectedBackground(selectedBackground)
+    self.selectedBackground = selectedBackground
+    return self
+end
+
+--- Gets the Text color for selected items
+---@generic Element: List
+---@param self Element
+---@return color
+function List:getSelectedForeground()
+    return self.selectedForeground
+end
+
+--- Sets the Text color for selected items
+---@generic Element: List
+---@param self Element
+---@param selectedForeground color
+---@return Element
+function List:setSelectedForeground(selectedForeground)
+    self.selectedForeground = selectedForeground
     return self
 end
 
