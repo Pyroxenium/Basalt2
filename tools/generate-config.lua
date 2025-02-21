@@ -63,42 +63,48 @@ local function parseFile(filePath)
 end
 
 local function categorizeFile(path)
-    if path:match("^elements/") then
+    -- Relativen Pfad verwenden
+    if path:match("/elements/") then
         return "elements", "UI Elements"
-    elseif path:match("^plugins/") then
+    elseif path:match("/plugins/") then
         return "plugins", "Plugins"
-    elseif path:match("^libraries/") then
+    elseif path:match("/libraries/") then
         return "libraries", "Libraries"
-    else
+    elseif path:match("^src/[^/]+%.lua$") then
         return "core", "Core Files"
     end
+    return "other", "Other Files"
 end
 
-local function scanDirectory(baseDir)
+local function scanDirectory(srcPath)
     local files = {}
-    -- Liste aller zu scannenden Ordner
-    local dirs = {
-        baseDir .. "/elements",
-        baseDir .. "/plugins",
-        baseDir .. "/libraries",
-        baseDir -- für Core-Files
-    }
-    
-    for _, dir in ipairs(dirs) do
-        for entry in io.popen('ls -1 "' .. dir .. '"'):lines() do
+    local basePath = srcPath:match("^(.+)/$") or srcPath
+
+    -- Rekursive Funktion zum Scannen von Ordnern
+    local function scanRecursive(dir)
+        local pipe = io.popen('dir "' .. dir .. '" /b')
+        if not pipe then return end
+        
+        for entry in pipe:lines() do
+            local fullPath = dir .. "\\" .. entry
+            
             if entry:match("%.lua$") then
-                local fullPath = dir .. "/" .. entry
                 local config = parseFile(fullPath)
                 if config then
                     config.name = entry:gsub("%.lua$", "")
-                    -- Relativen Pfad erstellen
-                    config.path = fullPath:gsub("^" .. baseDir .. "/", "")
+                    -- Relativen Pfad mit Forward Slashes erstellen
+                    config.path = fullPath:gsub("^" .. basePath .. "\\", ""):gsub("\\", "/")
                     files[fullPath] = config
                 end
+            elseif io.popen('dir "' .. fullPath .. '" /ad'):read("*l") then
+                -- Rekursiv in Unterordner gehen
+                scanRecursive(fullPath)
             end
         end
+        pipe:close()
     end
-    
+
+    scanRecursive(basePath)
     return files
 end
 

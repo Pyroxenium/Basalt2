@@ -1,6 +1,8 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
+---@cofnigDescription This is a button. It is a visual element that can be clicked.
+---@configDefault true
 
 --- This is the button class. It is a visual element that can be clicked.
 ---@class Button : VisualElement
