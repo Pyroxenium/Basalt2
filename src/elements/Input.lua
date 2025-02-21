@@ -1,5 +1,7 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
+---@configDescription A text input field with various features
+---@configDefault true
 
 --- This is the input class. It provides a text input field that can handle user input with various features like
 --- cursor movement, text manipulation, placeholder text, and input validation.
