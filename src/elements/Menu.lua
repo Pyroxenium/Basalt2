@@ -1,8 +1,9 @@
 local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local tHex = require("libraries/colorHex")
+---@configDescription A horizontal menu bar with selectable
 
---- This is the menu class. It provides a horizontal menu bar with selectable items and separators.
+--- This is the menu class. It provides a horizontal menu bar with selectable items.
 --- Menu items are displayed in a single row and can have custom colors and callbacks.
 ---@class Menu : List
 local Menu = setmetatable({}, List)
