@@ -6,11 +6,12 @@ custom item rendering, separators, and selection handling.
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|items|table|{}|List of items to display. Items can be strings or tables with properties
-|selectedIndex|number|0|Index of the currently selected item (0 means no selection)
+|items|table|{}|List of items to display. Items can be tables with properties including selected state
 |selectable|boolean|true|Whether items in the list can be selected
+|multiSelection|boolean|false|Whether multiple items can be selected at once
 |offset|number|0|Current scroll offset for viewing long lists
-|selectedColor|color|blue|Background color for the selected item
+|selectedBackground|color|blue|Background color for selected items
+|selectedForeground|color|white|Text color for selected items
 
 ## Events
 
@@ -25,6 +26,7 @@ custom item rendering, separators, and selection handling.
 |[List.new](#List.new)|List|Creates a new List instance
 |[List:addItem](#List:addItem)|List|Adds an item to the list
 |[List:clear](#List:clear)|List|Clears all items from the list
+|[List:getSelectedItems](#List:getSelectedItems)|table|Gets the currently selected items
 |[List:init](#List:init)|List|Initializes the List instance
 |[List:mouse_click](#List:mouse_click)|boolean|Handles mouse click events
 |[List:mouse_scroll](#List:mouse_scroll)|boolean|Handles mouse scroll events
@@ -67,6 +69,17 @@ Clears all items from the list
 ### Usage
  ```lua
 list:clear()
+```
+
+## List:getSelectedItems()
+Gets the currently selected items
+
+### Returns
+* `table` `selected` List of selected items
+
+### Usage
+ ```lua
+local selected = list:getSelectedItems()
 ```
 
 ## List:init(props, basalt)

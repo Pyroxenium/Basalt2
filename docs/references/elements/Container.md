@@ -48,6 +48,7 @@ like Frames, BaseFrames, and more.
 |[Container:render](#Container:render)|-|Renders the container
 |[Container:sortChildren](#Container:sortChildren)|Container|Sorts the children of the container
 |[Container:sortChildrenEvents](#Container:sortChildrenEvents)|Container|Sorts the children events of the container
+|[Container:textBg](#Container:textBg)|Container|Draws a line of text and bg as color
 |[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
 |[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|Unregisters the children events of the container
 
@@ -251,6 +252,18 @@ Sorts the children events of the container
 
 ### Parameters
 * `eventName` `string` The event name to sort
+
+### Returns
+* `Container` `self` The container instance
+
+## Container:textBg(x, y, text, bg)
+Draws a line of text and bg as color, it is usually used in the render loop
+
+### Parameters
+* `x` `number` The x position to draw the text
+* `y` `number` The y position to draw the text
+* `text` `string` The text to draw
+* `bg` `color` The background color of the text
 
 ### Returns
 * `Container` `self` The container instance

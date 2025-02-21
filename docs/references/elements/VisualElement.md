@@ -61,6 +61,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |[VisualElement:mouse_release](#VisualElement:mouse_release)|-|Handles a mouse release event
 |[VisualElement:mouse_scroll](#VisualElement:mouse_scroll)|-|
 |[VisualElement:mouse_up](#VisualElement:mouse_up)|boolean|Handles a mouse up event
+|[VisualElement:multiBlit](#VisualElement:multiBlit)|-|Multi-character drawing with colors
 |[VisualElement:render](#VisualElement:render)|-|Renders the element
 |[VisualElement:setCursor](#VisualElement:setCursor)|-|Sets the cursor position
 |[VisualElement:textBg](#VisualElement:textBg)|-|Draws text with background color
@@ -168,6 +169,18 @@ Handles a mouse up event
 
 ### Returns
 * `boolean` `release` Whether the element was released on the element
+
+## VisualElement:multiBlit(x, y, width, height, text, fg, bg)
+Draws multiple characters at once with colors
+
+### Parameters
+* `x` `number` The x position to draw
+* `y` `number` The y position to draw
+* `width` `number` The width of the area to draw
+* `height` `number` The height of the area to draw
+* `text` `string` The text to draw
+* `fg` `string` The foreground color
+* `bg` `string` The background color
 
 ## VisualElement:render()
 Renders the element

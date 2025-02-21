@@ -8,14 +8,15 @@ The base class for all UI elements in Basalt
 |type|string|BaseElement|The type identifier of the element
 |id|string|BaseElement|The unique identifier for the element
 |name|string|BaseElement|The name of the element
-|eventCallbacks|table|{}|Table containing all registered event callbacks
+|eventCallbacks|table|BaseElement|The event callbacks for the element
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.listenTo](#BaseElement.listenTo)|-|Registers an event that this class can listen to
+|[BaseElement.defineEvent](#BaseElement.defineEvent)|-|
 |[BaseElement.new](#BaseElement.new)|table|Creates a new BaseElement instance
+|[BaseElement.registerEventCallback](#BaseElement.registerEventCallback)|-|
 |[BaseElement:destroy](#BaseElement:destroy)|-|Destroys the element and cleans up all references
 |[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|Handles all events
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|Triggers an event and calls all registered callbacks
@@ -28,18 +29,7 @@ The base class for all UI elements in Basalt
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
 |[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
 
-## BaseElement.listenTo(class, eventName, event?)
-Registers an event that this class can listen to
-
-### Parameters
-* `class` `table` The class to add the event to
-* `eventName` `string` The name of the event to register
-* `event` *(optional)* `string` The event to handle
-
-### Usage
- ```lua
-BaseElement.listenTo(MyClass, "mouse_click")
-```
+## BaseElement.defineEvent()
 
 ## BaseElement.new(props, basalt)
 Creates a new BaseElement instance
@@ -55,6 +45,8 @@ Creates a new BaseElement instance
  ```lua
 local element = BaseElement.new()
 ```
+
+## BaseElement.registerEventCallback()
 
 ## BaseElement:destroy()
 Destroys the element and cleans up all references

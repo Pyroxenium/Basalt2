@@ -1,12 +1,6 @@
 # Frame : Container
 This is the frame class. It serves as a grouping container for other elements.
 
-## Events
-
-|Event|Parameters|Description|
-|---|---|---|
-|onResize|`width number, height number`|Fired when the frame is resized|
-
 ## Functions
 
 |Method|Returns|Description|

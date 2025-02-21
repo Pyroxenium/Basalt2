@@ -1,5 +1,5 @@
 # Menu : List
-This is the menu class. It provides a horizontal menu bar with selectable items and separators.
+This is the menu class. It provides a horizontal menu bar with selectable items.
 Menu items are displayed in a single row and can have custom colors and callbacks.
 
 ## Properties
