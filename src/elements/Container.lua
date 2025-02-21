@@ -2,6 +2,8 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local expect = require("libraries/expect")
 local split = require("libraries/utils").split
+---@configDescription The container class. It is a visual element that can contain other elements. It is the base class for all containers
+---@configDefault true
 
 --- The container class. It is a visual element that can contain other elements. It is the base class for all containers,
 --- like Frames, BaseFrames, and more.

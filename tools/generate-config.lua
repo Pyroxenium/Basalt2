@@ -77,9 +77,15 @@ end
 local function scanDirectory(baseDir, relativePath)
     local files = {}
     
-    -- Nutze io.popen um Verzeichnis zu scannen
-    local cmd = os.execute('dir "' .. baseDir .. '/' .. relativePath .. '" /b /s')
-    for path in io.popen(cmd):lines() do
+    -- Nutze direkt io.popen für das Directory Listing
+    local cmd = 'dir "' .. baseDir .. '/' .. relativePath .. '" /b /s'
+    local pipe = io.popen(cmd)
+    if not pipe then
+        error("Failed to execute directory scan command")
+        return files
+    end
+    
+    for path in pipe:lines() do
         if path:match("%.lua$") then
             local config = parseFile(path)
             if config then
@@ -90,6 +96,7 @@ local function scanDirectory(baseDir, relativePath)
         end
     end
     
+    pipe:close()
     return files
 end
 
