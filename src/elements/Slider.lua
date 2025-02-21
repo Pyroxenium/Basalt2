@@ -18,9 +18,9 @@ Slider.defineProperty(Slider, "barColor", {default = colors.gray, type = "number
 Slider.defineProperty(Slider, "sliderColor", {default = colors.blue, type = "number", canTriggerRender = true})
 
 ---@event onChange {value number} Fired when the slider value changes
-Slider.listenTo(Slider, "mouse_click")
-Slider.listenTo(Slider, "mouse_drag")
-Slider.listenTo(Slider, "mouse_up")
+Slider.defineEvent(Slider, "mouse_click")
+Slider.defineEvent(Slider, "mouse_drag")
+Slider.defineEvent(Slider, "mouse_up")
 
 --- Creates a new Slider instance
 --- @shortDescription Creates a new Slider instance

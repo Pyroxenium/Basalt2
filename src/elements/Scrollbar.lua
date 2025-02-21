@@ -38,10 +38,10 @@ Scrollbar.defineProperty(Scrollbar, "orientation", {default = "vertical", type =
 ---@property handleSize number 2 Size of the scrollbar handle in characters
 Scrollbar.defineProperty(Scrollbar, "handleSize", {default = 2, type = "number", canTriggerRender = true})
 
-Scrollbar.listenTo(Scrollbar, "mouse_click")
-Scrollbar.listenTo(Scrollbar, "mouse_release")
-Scrollbar.listenTo(Scrollbar, "mouse_drag")
-Scrollbar.listenTo(Scrollbar, "mouse_scroll")
+Scrollbar.defineEvent(Scrollbar, "mouse_click")
+Scrollbar.defineEvent(Scrollbar, "mouse_release")
+Scrollbar.defineEvent(Scrollbar, "mouse_drag")
+Scrollbar.defineEvent(Scrollbar, "mouse_scroll")
 
 --- Creates a new Scrollbar instance
 --- @shortDescription Creates a new Scrollbar instance

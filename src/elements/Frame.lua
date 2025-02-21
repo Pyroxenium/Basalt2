@@ -6,9 +6,6 @@ local Container = elementManager.getElement("Container")
 local Frame = setmetatable({}, Container)
 Frame.__index = Frame
 
----@event onResize {width number, height number} Fired when the frame is resized
-Frame.listenTo(Frame, "resize")
-
 --- Creates a new Frame instance
 --- @shortDescription Creates a new Frame instance
 --- @return Frame self The newly created Frame instance

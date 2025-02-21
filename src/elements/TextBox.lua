@@ -23,10 +23,10 @@ TextBox.defineProperty(TextBox, "syntaxPatterns", {default = {}, type = "table"}
 ---@property cursorColor number nil Color of the cursor
 TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "number"})
 
-TextBox.listenTo(TextBox, "mouse_click")
-TextBox.listenTo(TextBox, "key")
-TextBox.listenTo(TextBox, "char")
-TextBox.listenTo(TextBox, "mouse_scroll")
+TextBox.defineEvent(TextBox, "mouse_click")
+TextBox.defineEvent(TextBox, "key")
+TextBox.defineEvent(TextBox, "char")
+TextBox.defineEvent(TextBox, "mouse_scroll")
 
 function TextBox.new()
     local self = setmetatable({}, TextBox):__init()

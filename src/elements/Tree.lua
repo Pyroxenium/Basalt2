@@ -22,8 +22,8 @@ Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "number"}
 ---@property selectedColor color lightBlue Background color of selected node
 Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "number"})
 
-Tree.listenTo(Tree, "mouse_click")
-Tree.listenTo(Tree, "mouse_scroll")
+Tree.defineEvent(Tree, "mouse_click")
+Tree.defineEvent(Tree, "mouse_scroll")
 
 --- Creates a new Tree instance
 --- @shortDescription Creates a new Tree instance

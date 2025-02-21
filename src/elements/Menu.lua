@@ -63,15 +63,19 @@ function Menu:render()
     VisualElement.render(self)
     local currentX = 1
 
-    for i, item in ipairs(self.get("items")) do
-        local isSelected = i == self.get("selectedIndex")
+    for _, item in ipairs(self.get("items")) do
+        if type(item) == "string" then
+            item = {text = " "..item.." "}
+            self.get("items")[i] = item
+        end
 
+        local isSelected = item.selected
         local fg = item.selectable == false and self.get("separatorColor") or
-            (isSelected and (item.selectedForeground or self.get("foreground")) or
+            (isSelected and (item.selectedForeground or self.get("selectedForeground")) or
             (item.foreground or self.get("foreground")))
 
         local bg = isSelected and
-            (item.selectedBackground or self.get("selectedColor")) or
+            (item.selectedBackground or self.get("selectedBackground")) or
             (item.background or self.get("background"))
 
         self:blit(currentX, 1, item.text,
@@ -97,11 +101,25 @@ function Menu:mouse_click(button, x, y)
     for i, item in ipairs(self.get("items")) do
         if relX >= currentX and relX < currentX + #item.text then
             if item.selectable ~= false then
-                self.set("selectedIndex", i)
-                if type(item) == "table" then
-                    if item.callback then
-                        item.callback(self)
+                if type(item) == "string" then
+                    item = {text = item}
+                    self.get("items")[i] = item
+                end
+
+                -- Wenn kein Multi-Selection, alle anderen deselektieren
+                if not self.get("multiSelection") then
+                    for _, otherItem in ipairs(self.get("items")) do
+                        if type(otherItem) == "table" then
+                            otherItem.selected = false
+                        end
                     end
+                end
+
+                -- Toggle Selection
+                item.selected = not item.selected
+
+                if item.callback then
+                    item.callback(self)
                 end
                 self:fireEvent("select", i, item)
             end

@@ -2,6 +2,8 @@ local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
 local Render = require("render")
 
+
+
 --- This is the base frame class. It is the root element of all elements and the only element without a parent.
 ---@class BaseFrame : Container
 ---@field _render Render The render object

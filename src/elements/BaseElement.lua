@@ -1,5 +1,7 @@
 local PropertySystem = require("propertySystem")
 local uuid = require("libraries/utils").uuid
+---@configDescription The base class for all UI elements in Basalt
+---@configDefault true
 
 --- The base class for all UI elements in Basalt
 --- @class BaseElement : PropertySystem
@@ -27,20 +29,37 @@ BaseElement.defineProperty(BaseElement, "id", {default = "", type = "string", re
 --- @property name string BaseElement The name of the element
 BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 
---- @property eventCallbacks table {} Table containing all registered event callbacks
+--- @property eventCallbacks table BaseElement The event callbacks for the element
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
---- Registers an event that this class can listen to
---- @shortDescription Registers an event that this class can listen to
---- @param class table The class to add the event to
---- @param eventName string The name of the event to register
---- @param event? string The event to handle
---- @usage BaseElement.listenTo(MyClass, "mouse_click")
-function BaseElement.listenTo(class, eventName, event)
-    if not class._events then
-        class._events = {}
+
+function BaseElement.defineEvent(class, eventName, requiredEvent)
+    -- Events auf Klassenebene speichern, wie bei Properties
+    if not rawget(class, '_eventConfigs') then
+        class._eventConfigs = {}
     end
-    class._events[eventName] = {enabled=true, name=eventName, event=event}
+    
+    class._eventConfigs[eventName] = {
+        requires = requiredEvent and requiredEvent or eventName
+    }
+end
+
+function BaseElement.registerEventCallback(class, callbackName, ...)
+    local methodName = callbackName:match("^on") and callbackName or "on"..callbackName
+    local events = {...}  -- Alle Events als varargs
+    local mainEvent = events[1]  -- Erstes Event ist immer das Haupt-Event
+    
+    class[methodName] = function(self, ...)
+        -- Alle Events aktivieren
+        for _, sysEvent in ipairs(events) do
+            if not self._registeredEvents[sysEvent] then
+                self:listenEvent(sysEvent, true)
+            end
+        end
+        -- Callback für das Haupt-Event registrieren
+        self:registerCallback(mainEvent, ...)
+        return self
+    end
 end
 
 --- Creates a new BaseElement instance
@@ -64,18 +83,37 @@ function BaseElement:init(props, basalt)
     self._values.id = uuid()
     self.basalt = basalt
     self._registeredEvents = {}
-    if BaseElement._events then
-        for key,event in pairs(BaseElement._events) do
-            self._registeredEvents[event.event or event.name] = true
-            local handlerName = "on" .. event.name:gsub("_(%l)", function(c)
-                return c:upper()
-            end):gsub("^%l", string.upper)
-            self[handlerName] = function(self, ...)
-                self:registerCallback(event.name, ...)
+
+    local currentClass = getmetatable(self).__index
+    
+    -- Events Sammeln
+    local events = {}
+    currentClass = self
+    
+    while currentClass do
+        if type(currentClass) == "table" and currentClass._eventConfigs then
+            for eventName, config in pairs(currentClass._eventConfigs) do
+                if not events[eventName] then
+                    events[eventName] = config
+                end
+            end
+        end
+        currentClass = getmetatable(currentClass) and getmetatable(currentClass).__index
+    end
+
+    for eventName, config in pairs(events) do
+        self._registeredEvents[config.requires] = true
+    end
+
+    if self._callbacks then
+        for eventName, methodName in pairs(self._callbacks) do
+            self[methodName] = function(self, ...)
+                self:registerCallback(eventName, ...)
                 return self
             end
         end
-    end
+    end 
+
     return self
 end
 
@@ -155,8 +193,8 @@ end
 --- @return table self The BaseElement instance
 --- @usage element:fireEvent("mouse_click", 1, 2)
 function BaseElement:fireEvent(event, ...)
-    if self._values.eventCallbacks[event] then
-        for _, callback in ipairs(self._values.eventCallbacks[event]) do
+    if self.get("eventCallbacks")[event] then
+        for _, callback in ipairs(self.get("eventCallbacks")[event]) do
             local result = callback(self, ...)
             return result
         end

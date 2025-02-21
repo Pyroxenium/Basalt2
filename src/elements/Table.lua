@@ -26,8 +26,8 @@ Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string"})
 ---@property scrollOffset number 0 Current scroll position
 Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
 
-Table.listenTo(Table, "mouse_click")
-Table.listenTo(Table, "mouse_scroll")
+Table.defineEvent(Table, "mouse_click")
+Table.defineEvent(Table, "mouse_scroll")
 
 --- Creates a new Table instance
 --- @shortDescription Creates a new Table instance

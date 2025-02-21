@@ -6,13 +6,11 @@ local function serialize(t, indent)
     local result = "{\n"
     for k, v in pairs(t) do
         result = result .. indent .. "  "
-
         if type(k) == "string" then
             result = result .. "[\"" .. k .. "\"] = "
         else
             result = result .. "[" .. k .. "] = "
         end
-
         if type(v) == "table" then
             result = result .. serialize(v, indent .. "  ")
         elseif type(v) == "string" then
@@ -25,33 +23,84 @@ local function serialize(t, indent)
     return result .. indent .. "}"
 end
 
-local function extractConfigDescription(filePath)
-    local f = io.open(filePath, "r")
-    if not f then return nil end
+local function parseFile(filePath)
+    local file = fs.open(filePath, "r")
+    local content = file.readAll()
+    file.close()
 
-    local content = f:read("*all")
-    f:close()
+    local config = {
+        description = "",
+        default = true,
+        requires = {}
+    }
 
-    return content:match("%-%-%-@configDescription%s*(.-)%s*[\n\r]") or "No description available"
+    -- Description aus @configDescription
+    local description = content:match("%-%-%-@configDescription%s*(.-)%s*\n")
+    if description then
+        config.description = description
+    end
+
+    -- Default aus @configDefault
+    local default = content:match("%-%-%-@configDefault%s*(%w+)")
+    if default then
+        config.default = default == "true"
+    end
+
+    -- Dependencies aus @requires
+    for required in content:gmatch("%-%-%-@requires%s*(%w+)") do
+        table.insert(config.requires, required)
+    end
+
+    -- Dependencies aus @class inheritance
+    local className, parent = content:match("%-%-%-@class%s*([^%s:]+)%s*:%s*([^%s\n]+)")
+    if className and parent and parent ~= "PropertySystem" then
+        table.insert(config.requires, parent)
+    end
+
+    return config
 end
 
 local function categorizeFile(path)
-    if path:match("^src/elements/") then
+    if path:match("^elements/") then
         return "elements", "UI Elements"
-    elseif path:match("^src/plugins/") then
-        return "plugins", "Plugins and Extensions"
-    elseif path:match("^src/libraries/") then
-        return "libraries", "Utility Libraries"
-    elseif path:match("^src/[^/]+%.lua$") then
-        return "core", "Core Framework Files"
+    elseif path:match("^plugins/") then
+        return "plugins", "Plugins"
+    elseif path:match("^libraries/") then
+        return "libraries", "Libraries"
     else
-        return "other", "Other Files"
+        return "core", "Core Files"
     end
 end
 
-local function sortFiles(files)
+local function scanDirectory(baseDir, relativePath)
+    local files = {}
+    local items = fs.list(fs.combine(baseDir, relativePath))
+    
+    for _, item in ipairs(items) do
+        local fullPath = fs.combine(relativePath, item)
+        local absPath = fs.combine(baseDir, fullPath)
+        
+        if fs.isDir(absPath) then
+            for path, config in pairs(scanDirectory(baseDir, fullPath)) do
+                files[path] = config
+            end
+        elseif item:match("%.lua$") then
+            local config = parseFile(absPath)
+            config.name = item:gsub("%.lua$", "")
+            config.path = fullPath
+            files[fullPath] = config
+        end
+    end
+    
+    return files
+end
+
+local function generateConfig(srcPath)
+    local files = scanDirectory(srcPath, "")
     local categories = {}
-    for path, info in pairs(files) do
+    
+    -- Files in Kategorien einordnen
+    for path, fileConfig in pairs(files) do
         local category, categoryDesc = categorizeFile(path)
         if not categories[category] then
             categories[category] = {
@@ -59,61 +108,45 @@ local function sortFiles(files)
                 files = {}
             }
         end
-        table.insert(categories[category].files, {
-            path = path,
-            name = info.name,
-            description = info.description
-        })
+        categories[category].files[fileConfig.name] = {
+            path = fileConfig.path,
+            description = fileConfig.description,
+            default = fileConfig.default,
+            requires = fileConfig.requires
+        }
     end
 
-    for _, cat in pairs(categories) do
-        table.sort(cat.files, function(a, b)
-            return a.name < b.name
-        end)
-    end
-
-    return categories
-end
-
-local function scanDir(dir)
-    local files = {}
-    for file in io.popen('find "'..dir..'" -maxdepth 1 -type f -name "*.lua"'):lines() do
-        local name = file:match("([^/]+)%.lua$")
-        if name then
-            files[file] = {
-                name = name,
-                path = file:gsub("^src/", ""),
-                description = extractConfigDescription(file)
-            }
+    -- Dependencies validieren
+    for catName, cat in pairs(categories) do
+        for fileName, file in pairs(cat.files) do
+            for _, req in ipairs(file.requires or {}) do
+                local found = false
+                for _, checkCat in pairs(categories) do
+                    if checkCat.files[req] then
+                        found = true
+                        break
+                    end
+                end
+                if not found then
+                    error(string.format("Missing dependency %s for %s", req, fileName))
+                end
+            end
         end
     end
 
-    for file in io.popen('find "'..dir..'/elements" "'..dir..'/plugins" "'..dir..'/libraries" -type f -name "*.lua"'):lines() do
-        local name = file:match("([^/]+)%.lua$")
-        if name then
-            files[file] = {
-                name = name,
-                path = file:gsub("^src/", ""),
-                description = extractConfigDescription(file)
-            }
-        end
-    end
-    return files
-end
-
-local sourceFiles = scanDir("src")
-local categories = sortFiles(sourceFiles)
-
-local config = {
-    categories = categories,
-    metadata = {
-        generated = os.date(),
-        version = "2.0"
+    return {
+        categories = categories,
+        metadata = {
+            generated = os.date(),
+            version = "2.0"
+        }
     }
-}
-
-local f = io.open("config.lua", "w")
-if f then
-    f:write("return " .. serialize(config))
-    f:close()
 end
+
+-- Config generieren
+local config = generateConfig("/c:/Users/rjsha/AppData/Roaming/CraftOS-PC/computer/0/Basalt2/src")
+
+-- Config speichern
+local configFile = fs.open("/c:/Users/rjsha/AppData/Roaming/CraftOS-PC/computer/0/Basalt2/config.lua", "w")
+configFile.write("return " .. serialize(config))
+configFile.close()

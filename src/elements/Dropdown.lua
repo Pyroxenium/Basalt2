@@ -2,8 +2,12 @@ local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local tHex = require("libraries/colorHex")
 
+---@configDescription A dropdown menu that shows a list of selectable items
+---@configDefault false
+
 --- This is the dropdown class. It is a visual element that can show a list of selectable items in a dropdown menu.
 ---@class Dropdown : List
+
 local Dropdown = setmetatable({}, List)
 Dropdown.__index = Dropdown
 
@@ -59,26 +63,12 @@ function Dropdown:mouse_click(button, x, y)
         end
         return true
     elseif self.get("isOpen") and relY > 1 then
-        local index = relY - 1 + self.get("offset")
-        local items = self.get("items")
-
-        if index <= #items then
-            local item = items[index]
-            if type(item) == "table" and item.separator then
-                return false
-            end
-
-            self.set("selectedIndex", index)
-            self.set("isOpen", false)
-            self.set("height", 1)
-
-            if type(item) == "table" and item.callback then
-                item.callback(self)
-            end
-
-            self:fireEvent("select", index, item)
-            return true
-        end
+        -- Nutze List's mouse_click für Item-Selektion
+        List.mouse_click(self, button, x, y)
+        -- Nach Selektion Dropdown schließen
+        self.set("isOpen", false)
+        self.set("height", 1)
+        return true
     end
     return false
 end
@@ -88,52 +78,31 @@ end
 function Dropdown:render()
     VisualElement.render(self)
 
+    -- Header rendern
     local text = self.get("selectedText")
-    if #text == 0 and self.get("selectedIndex") > 0 then
-        local item = self.get("items")[self.get("selectedIndex")]
-        text = type(item) == "table" and item.text or tostring(item)
+    if #text == 0 then
+        -- Suche nach selektiertem Item
+        local selectedItems = self:getSelectedItems()
+        if #selectedItems > 0 then
+            local selectedItem = selectedItems[1].item
+            text = selectedItem.text or ""
+        end
     end
 
+    -- Header mit Dropdown Symbol
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (self.get("isOpen") and "\31" or "\17"),
         string.rep(tHex[self.get("foreground")], self.get("width")),
         string.rep(tHex[self.get("background")], self.get("width")))
 
+    -- Liste rendern wenn offen
     if self.get("isOpen") then
-        local items = self.get("items")
-        local offset = self.get("offset")
-        local selected = self.get("selectedIndex")
-        local width = self.get("width")
-
-        for i = 2, self.get("height") do
-            local itemIndex = i - 1 + offset
-            local item = items[itemIndex]
-
-            if item then
-                if type(item) == "table" and item.separator then
-                    local separatorChar = (item.text or "-"):sub(1,1)
-                    local separatorText = string.rep(separatorChar, width)
-                    local fg = item.foreground or self.get("foreground")
-                    local bg = item.background or self.get("background")
-
-                    self:textBg(1, i, string.rep(" ", width), bg)
-                    self:textFg(1, i, separatorText, fg)
-                else
-                    local itemText = type(item) == "table" and item.text or tostring(item)
-                    local isSelected = itemIndex == selected
-
-                    local bg = isSelected and 
-                        (item.selectedBackground or self.get("selectedColor")) or
-                        (item.background or self.get("background"))
-
-                    local fg = isSelected and 
-                        (item.selectedForeground or colors.white) or 
-                        (item.foreground or self.get("foreground"))
-
-                    self:textBg(1, i, string.rep(" ", width), bg)
-                    self:textFg(1, i, itemText, fg)
-                end
-            end
-        end
+        -- Offset um 1 verschieben wegen Header
+        local oldOffset = self.get("offset")
+        self.set("offset", oldOffset + 1)
+        -- Liste ab Zeile 2 rendern
+        List.render(self)
+        -- Offset zurücksetzen
+        self.set("offset", oldOffset)
     end
 end
 

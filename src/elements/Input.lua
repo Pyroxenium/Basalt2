@@ -26,9 +26,9 @@ Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor
 Input.defineProperty(Input, "cursorColor", {default = nil, type = "number"})
 
-Input.listenTo(Input, "mouse_click")
-Input.listenTo(Input, "key")
-Input.listenTo(Input, "char")
+Input.defineEvent(Input, "mouse_click")
+Input.defineEvent(Input, "key")
+Input.defineEvent(Input, "char")
 
 --- Creates a new Input instance
 --- @shortDescription Creates a new Input instance

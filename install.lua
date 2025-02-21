@@ -133,6 +133,10 @@ versionDropdown:onSelect(function(self, index, value)
     end
 end)
 
+instalScreen:addLabel(coloring)
+    :setText("Path:")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
+
 installScreen:addLabel(coloring)
     :setText("Additional Components:")
     :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
@@ -147,21 +151,134 @@ local luaLSCheckbox = installScreen:addCheckbox()
 -- Screen 3: Elements
 local elementsScreen = createScreen(3)
 elementsScreen:addLabel(coloring)
-    :setText("Elements:")
+    :setText("Elements: (white = selected)")
     :setPosition(2, 2)
 
-local elementsList = elementsScreen:addList()
+local elementsList = elementsScreen:addList("elementsList")
+    :setMultiSelection(true)
+    :setSelectedBackground(colors.lightGray)
+    :setForeground(colors.gray)
     :setPosition(2, 4)
-    :setSize("{parent.width - 2}", "{parent.height - 6}")
+    :setSize("{parent.width - 30}", 8)
+
+local elementDesc = elementsScreen:addLabel("elementDesc")
+    :setAutoSize(false)
+    :setWidth("{parent.width - (elementsList.x + elementsList.width) - 2}")
+    :setText("Select an element to see its description.")
+    :setPosition("{elementsList.x + elementsList.width + 1}", 4)
+    :setSize(28, 8)
+    :setBackground(colors.lightGray)
+
+local eleScreenDesc = elementsScreen:addLabel()
+    :setAutoSize(false)
+    :setWidth("{parent.width - 2}")
+    :setText("This screen allows you to select which elements you want to install. You can select multiple elements.")
+    :setPosition(2, "{math.max(elementsList.y + elementsList.height, elementDesc.y + elementDesc.height) + 1}")
+    :setBackground(colors.lightGray)
 
 local function addElements()
     elementsList:clear()
-    for k,v in pairs(getConfig().files)do
-        if(k:match("src/elements/"))then
-            elementsList:addItem(v.name)
-        end
+    for k,v in pairs(getConfig().categories.elements.files)do
+        elementsList:addItem({selected=true, text=v.name, callback=function() elementDesc:setText(v.description) end})
     end
 end
 addElements()
+
+-- Screen 4 Plugins
+local pluginScreen = createScreen(4)
+pluginScreen:addLabel(coloring)
+    :setText("Plugins: (white = selected)")
+    :setPosition(2, 2)
+
+local pluginList = pluginScreen:addList("pluginList")
+    :setMultiSelection(true)
+    :setSelectedBackground(colors.lightGray)
+    :setForeground(colors.gray)
+    :setPosition(2, 4)
+    :setSize("{parent.width - 30}", 8)
+
+local pluginDesc = pluginScreen:addLabel("pluginDesc")
+    :setAutoSize(false)
+    :setWidth("{parent.width - (pluginList.x + pluginList.width) - 2}")
+    :setText("Select a plugin to see its description.")
+    :setPosition("{pluginList.x + pluginList.width + 1}", 4)
+    :setSize(28, 8)
+    :setBackground(colors.lightGray)
+
+local pluScreenDesc = pluginScreen:addLabel()
+    :setAutoSize(false)
+    :setWidth("{parent.width - 2}")
+    :setText("This screen allows you to select which plugins you want to install. You can select multiple plugins.")
+    :setPosition(2, "{math.max(pluginList.y + pluginList.height, pluginDesc.y + pluginDesc.height) + 1}")
+    :setBackground(colors.lightGray)
+
+local function addPlugins()
+    pluginList:clear()
+    for k,v in pairs(getConfig().categories.plugins.files)do
+        pluginList:addItem({selected = true, text= v.name, callback=function() pluginDesc:setText(v.description) end})
+    end
+end
+addPlugins()
+
+-- Screen 5 Installation Progress
+local progressScreen = createScreen(5)
+local progressBar = progressScreen:addProgressBar()
+    :setPosition(2, "{parent.height - 2}")
+    :setSize("{parent.width - 12}", 2)
+
+local log = progressScreen:addList("log")
+    :setPosition(2, 2)
+    :setSize("{parent.width - 2}", "{parent.height - 6}")
+    :addItem("Starting installation...")
+
+local function install()
+    local function logMessage(message)
+        log:addItem(message)
+    end
+
+    local function downloadFile(url, path)
+        logMessage("Downloading " .. url .. "...")
+        local request = http.get(url)
+        if request then
+            local file = fs.open(path, "w")
+            file.write(request.readAll())
+            file.close()
+            request.close()
+            logMessage("Downloaded " .. url .. " to " .. path)
+        else
+            error("Failed to download " .. url)
+        end
+    end
+
+    local function installElement(name, url)
+        logMessage("Installing element: " .. name)
+        --downloadFile(url, "/path/to/install/" .. name)
+    end
+
+    local function installPlugin(name, url)
+        logMessage("Installing plugin: " .. name)
+        --downloadFile(url, "/path/to/install/" .. name)
+    end
+
+    for _, element in ipairs(elementsList:getSelectedItems()) do
+        local item = element.item
+        basalt.LOGGER.debug(item.text)
+        installElement(item.text, getConfig().categories.elements.files[item.text].url)
+    end
+
+    for _, plugin in ipairs(pluginList:getSelectedItems()) do
+        local item = plugin.item
+        installPlugin(item.text, getConfig().categories.plugins.files[item.text].url)
+    end
+
+    progressBar:setProgress(100)
+    logMessage("Installation complete!")
+end
+
+local installButton = progressScreen:addButton()
+    :setText("Install")
+    :setPosition("{parent.width - 9}", "{parent.height - 1}")
+    :setSize(9, 1)
+    :onMouseClick(install)
 
 basalt.run()

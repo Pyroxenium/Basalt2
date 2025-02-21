@@ -411,7 +411,7 @@ end
 ---@private
 function VisualElement.setup(element)
     element.defineProperty(element, "animation", {default = nil, type = "table"})
-    element.listenTo(element, "timer")
+    element.defineEvent(element, "timer")
 end
 
 --- Creates a new Animation Object

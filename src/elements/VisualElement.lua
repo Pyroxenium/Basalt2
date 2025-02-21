@@ -1,6 +1,8 @@
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
+---@configDescription The Visual Element class which is the base class for all visual UI elements
+---@configDefault true
 
 --- This is the visual element class. It serves as the base class for all visual UI elements
 --- and provides core functionality for positioning, sizing, colors, and rendering.
@@ -84,11 +86,16 @@ VisualElement.combineProperties(VisualElement, "color", "foreground", "backgroun
 ---@event onKeyUp {key number, code number} Fired on key release
 ---@event onChar {char string} Fired on character input
 
-VisualElement.listenTo(VisualElement, "focus")
-VisualElement.listenTo(VisualElement, "blur")
-VisualElement.listenTo(VisualElement, "mouse_enter", "mouse_move")
-VisualElement.listenTo(VisualElement, "mouse_leave", "mouse_move")
-VisualElement.listenTo(VisualElement, "mouse_scroll")
+VisualElement.defineEvent(VisualElement, "focus")
+VisualElement.defineEvent(VisualElement, "blur")
+
+VisualElement.registerEventCallback(VisualElement, "MouseClick", "mouse_click", "mouse_up")
+VisualElement.registerEventCallback(VisualElement, "MouseUp", "mouse_up", "mouse_click")
+VisualElement.registerEventCallback(VisualElement, "MouseDrag", "mouse_drag", "mouse_click", "mouse_up")
+VisualElement.registerEventCallback(VisualElement, "MouseScroll", "mouse_scroll")
+VisualElement.registerEventCallback(VisualElement, "MouseEnter", "mouse_enter", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
+VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
 
 local max, min = math.max, math.min
 
@@ -114,7 +121,13 @@ end
 
 --- Draws multiple characters at once with colors
 --- @shortDescription Multi-character drawing with colors
----@protected
+--- @param x number The x position to draw
+--- @param y number The y position to draw
+--- @param width number The width of the area to draw
+--- @param height number The height of the area to draw
+--- @param text string The text to draw
+--- @param fg string The foreground color
+--- @param bg string The background color
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     local xElement, yElement = self:calculatePosition()
     x = x + xElement - 1

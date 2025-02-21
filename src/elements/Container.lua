@@ -418,14 +418,15 @@ function Container:mouse_drag(button, x, y)
 end
 
 function Container:mouse_scroll(direction, x, y)
-    if VisualElement.mouse_scroll(self, direction, x, y) then
-        local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
-        local success, child = self:callChildrenEvents(true, "mouse_scroll", table.unpack(args))
-        if(success)then
-            return true
-        end
-        return false
+    local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
+    local success, child = self:callChildrenEvents(true, "mouse_scroll", table.unpack(args))
+    if(success)then
+        return true
     end
+    if(VisualElement.mouse_scroll(self, direction, x, y))then
+        return true
+    end
+    return false
 end
 
 --- Handles key events
@@ -501,6 +502,27 @@ function Container:textFg(x, y, text, fg)
     if textLen <= 0 then return self end
 
     VisualElement.textFg(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1), fg)
+    return self
+end
+
+--- Draws a line of text and bg as color, it is usually used in the render loop
+--- @shortDescription Draws a line of text and bg as color
+--- @param x number The x position to draw the text
+--- @param y number The y position to draw the text
+--- @param text string The text to draw
+--- @param bg color The background color of the text
+--- @return Container self The container instance
+function Container:textBg(x, y, text, bg)
+    local w, h = self.get("width"), self.get("height")
+
+    if y < 1 or y > h then return self end
+
+    local textStart = x < 1 and (2 - x) or 1
+    local textLen = math.min(#text - textStart + 1, w - math.max(1, x) + 1)
+
+    if textLen <= 0 then return self end
+
+    VisualElement.textBg(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1), bg)
     return self
 end
 

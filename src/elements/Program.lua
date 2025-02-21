@@ -15,14 +15,14 @@ Program.defineProperty(Program, "program", {default = nil, type = "table"})
 Program.defineProperty(Program, "path", {default = "", type = "string"})
 Program.defineProperty(Program, "running", {default = false, type = "boolean"})
 
-Program.listenTo(Program, "key")
-Program.listenTo(Program, "char")
-Program.listenTo(Program, "key_up")
-Program.listenTo(Program, "paste")
-Program.listenTo(Program, "mouse_click")
-Program.listenTo(Program, "mouse_drag")
-Program.listenTo(Program, "mouse_scroll")
-Program.listenTo(Program, "mouse_up")
+Program.defineEvent(Program, "key")
+Program.defineEvent(Program, "char")
+Program.defineEvent(Program, "key_up")
+Program.defineEvent(Program, "paste")
+Program.defineEvent(Program, "mouse_click")
+Program.defineEvent(Program, "mouse_drag")
+Program.defineEvent(Program, "mouse_scroll")
+Program.defineEvent(Program, "mouse_up")
 
 local BasaltProgram = {}
 BasaltProgram.__index = BasaltProgram

@@ -28,7 +28,7 @@ end})
 ---@property autoSize boolean true Whether to automatically size the checkbox
 Checkbox.defineProperty(Checkbox, "autoSize", {default = true, type = "boolean"})
 
-Checkbox.listenTo(Checkbox, "mouse_click")
+Checkbox.defineEvent(Checkbox, "mouse_click")
 
 --- Creates a new Checkbox instance
 --- @shortDescription Creates a new Checkbox instance

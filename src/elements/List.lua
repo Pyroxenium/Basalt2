@@ -6,20 +6,22 @@ local VisualElement = require("elements/VisualElement")
 local List = setmetatable({}, VisualElement)
 List.__index = List
 
----@property items table {} List of items to display. Items can be strings or tables with properties
+---@property items table {} List of items to display. Items can be tables with properties including selected state
 List.defineProperty(List, "items", {default = {}, type = "table", canTriggerRender = true})
----@property selectedIndex number 0 Index of the currently selected item (0 means no selection)
-List.defineProperty(List, "selectedIndex", {default = 0, type = "number", canTriggerRender = true})
 ---@property selectable boolean true Whether items in the list can be selected
 List.defineProperty(List, "selectable", {default = true, type = "boolean"})
+---@property multiSelection boolean false Whether multiple items can be selected at once
+List.defineProperty(List, "multiSelection", {default = false, type = "boolean"})
 ---@property offset number 0 Current scroll offset for viewing long lists
 List.defineProperty(List, "offset", {default = 0, type = "number", canTriggerRender = true})
----@property selectedColor color blue Background color for the selected item
-List.defineProperty(List, "selectedColor", {default = colors.blue, type = "number"})
+---@property selectedBackground color blue Background color for selected items
+List.defineProperty(List, "selectedBackground", {default = colors.blue, type = "number"})
+---@property selectedForeground color white Text color for selected items
+List.defineProperty(List, "selectedForeground", {default = colors.white, type = "number"})
 
 ---@event onSelect {index number, item any} Fired when an item is selected
-List.listenTo(List, "mouse_click")
-List.listenTo(List, "mouse_scroll")
+List.defineEvent(List, "mouse_click")
+List.defineEvent(List, "mouse_scroll")
 
 --- Creates a new List instance
 --- @shortDescription Creates a new List instance
@@ -76,9 +78,22 @@ end
 --- @usage list:clear()
 function List:clear()
     self.set("items", {})
-    self.set("selectedIndex", 0)
     self:updateRender()
     return self
+end
+
+-- Gets the currently selected items
+--- @shortDescription Gets the currently selected items
+--- @return table selected List of selected items
+--- @usage local selected = list:getSelectedItems()
+function List:getSelectedItems()
+    local selected = {}
+    for i, item in ipairs(self.get("items")) do
+        if type(item) == "table" and item.selected then
+            table.insert(selected, {index = i, item = item})
+        end
+    end
+    return selected
 end
 
 --- Handles mouse click events
@@ -90,15 +105,27 @@ end
 function List:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) and self.get("selectable") then
         local _, index = self:getRelativePosition(x, y)
-        
         local adjustedIndex = index + self.get("offset")
         local items = self.get("items")
 
         if adjustedIndex <= #items then
             local item = items[adjustedIndex]
-            self.set("selectedIndex", adjustedIndex)
+            if type(item) == "string" then
+                item = {text = item}
+                items[adjustedIndex] = item
+            end
 
-            if type(item) == "table" and item.callback then
+            if not self.get("multiSelection") then
+                for _, otherItem in ipairs(items) do
+                    if type(otherItem) == "table" then
+                        otherItem.selected = false
+                    end
+                end
+            end
+
+            item.selected = not item.selected
+
+            if item.callback then
                 item.callback(self)
             end
 
@@ -146,7 +173,6 @@ function List:render()
     local items = self.get("items")
     local height = self.get("height")
     local offset = self.get("offset")
-    local selected = self.get("selectedIndex")
     local width = self.get("width")
 
     for i = 1, height do
@@ -154,7 +180,12 @@ function List:render()
         local item = items[itemIndex]
 
         if item then
-            if type(item) == "table" and item.separator then
+            if type(item) == "string" then
+                item = {text = item}
+                items[itemIndex] = item
+            end
+
+            if item.separator then
                 local separatorChar = (item.text or "-"):sub(1,1)
                 local separatorText = string.rep(separatorChar, width)
                 local fg = item.foreground or self.get("foreground")
@@ -163,15 +194,15 @@ function List:render()
                 self:textBg(1, i, string.rep(" ", width), bg)
                 self:textFg(1, i, separatorText, fg)
             else
-                local text = type(item) == "table" and item.text or item
-                local isSelected = itemIndex == selected
+                local text = item.text
+                local isSelected = item.selected
 
                 local bg = isSelected and 
-                    (item.selectedBackground or self.get("selectedColor")) or
+                    (item.selectedBackground or self.get("selectedBackground")) or
                     (item.background or self.get("background"))
 
                 local fg = isSelected and 
-                    (item.selectedForeground or colors.white) or 
+                    (item.selectedForeground or self.get("selectedForeground")) or
                     (item.foreground or self.get("foreground"))
 
                 self:textBg(1, i, string.rep(" ", width), bg)
