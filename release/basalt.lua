@@ -593,7 +593,7 @@ if bb=="timer"then local cb=ab.get("animation")if
 cb then cb:event(bb,...)end;return true end end
 function _b.setup(ab)
 ab.defineProperty(ab,"animation",{default=
-nil,type="table"})ab.listenTo(ab,"timer")end
+nil,type="table"})ab.defineEvent(ab,"timer")end
 function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
 project["plugins/state.lua"] = function(...) local d=require("propertySystem")
 local _a=require("errorManager")local aa={}
@@ -758,8 +758,8 @@ aa.defineProperty(aa,"selectedColor",{default=colors.lightBlue,type="number"})
 aa.defineProperty(aa,"gridColor",{default=colors.gray,type="number"})
 aa.defineProperty(aa,"sortColumn",{default=nil,type="number"})
 aa.defineProperty(aa,"sortDirection",{default="asc",type="string"})
-aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})aa.listenTo(aa,"mouse_click")
-aa.listenTo(aa,"mouse_scroll")
+aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
+aa.defineEvent(aa,"mouse_scroll")
 function aa.new()local ba=setmetatable({},aa):__init()
 ba.set("width",30)ba.set("height",10)ba.set("z",5)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Table")return self end
@@ -861,14 +861,15 @@ if cb.separator then
 table.insert(_b,{text=cb.text or"|",selectable=false})ab=ab+1 else local db=" "..cb.text.." "cb.text=db
 table.insert(_b,cb)ab=ab+#db end end;self.set("width",ab)return aa.setItems(self,_b)end
 function ca:render()_a.render(self)local da=1
-for _b,ab in ipairs(self.get("items"))do local bb=_b==
-self.get("selectedIndex")
+for _b,ab in ipairs(self.get("items"))do if type(ab)==
+"string"then ab={text=" "..ab.." "}
+self.get("items")[i]=ab end;local bb=ab.selected
 local cb=ab.selectable==false and
 self.get("separatorColor")or(bb and
-(ab.selectedForeground or self.get("foreground"))or
+(ab.selectedForeground or self.get("selectedForeground"))or
 (ab.foreground or self.get("foreground")))
 local db=
-bb and(ab.selectedBackground or self.get("selectedColor"))or(ab.background or self.get("background"))
+bb and(ab.selectedBackground or self.get("selectedBackground"))or(ab.background or self.get("background"))
 self:blit(da,1,ab.text,string.rep(ba[cb],#ab.text),string.rep(ba[db],#ab.text))da=da+#ab.text end end
 function ca:mouse_click(da,_b,ab)
 if not _a.mouse_click(self,da,_b,ab)then return false end
@@ -877,25 +878,28 @@ local bb=select(1,self:getRelativePosition(_b,ab))local cb=1
 for db,_c in ipairs(self.get("items"))do
 if
 bb>=cb and bb<cb+#_c.text then
-if _c.selectable~=false then self.set("selectedIndex",db)
+if _c.selectable~=false then if type(_c)=="string"then _c={text=_c}
+self.get("items")[db]=_c end
 if
-type(_c)=="table"then if _c.callback then _c.callback(self)end end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
+not self.get("multiSelection")then for ac,bc in ipairs(self.get("items"))do
+if type(bc)=="table"then bc.selected=false end end end;_c.selected=not _c.selected
+if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
 project["elements/Frame.lua"] = function(...) local d=require("elementManager")
 local _a=d.getElement("Container")local aa=setmetatable({},_a)aa.__index=aa
-aa.listenTo(aa,"resize")
-function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",12)ba.set("height",6)
+function aa.new()
+local ba=setmetatable({},aa):__init()ba.set("width",12)ba.set("height",6)
 ba.set("background",colors.gray)ba.set("z",10)return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Frame")
 return self end;return aa end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"text",{default="Button",type="string",canTriggerRender=true})ca.listenTo(ca,"mouse_click")function ca.new(da,_b)
-local ab=setmetatable({},ca):__init()ab:init(da,_b)ab.set("width",10)ab.set("height",3)
-ab.set("z",5)return ab end;function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","Button")end
-function ca:render()
-aa.render(self)local da=self.get("text")
+ca.defineProperty(ca,"text",{default="Button",type="string",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_up")
+function ca.new()local da=setmetatable({},ca):__init()
+da.set("width",10)da.set("height",3)da.set("z",5)return da end
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Button")end
+function ca:render()aa.render(self)local da=self.get("text")
+da=da:sub(1,self.get("width"))
 local _b,ab=ba(da,self.get("width"),self.get("height"))
 self:textFg(_b,ab,da,self.get("foreground"))end;return ca end
 project["elements/Program.lua"] = function(...) local ba=require("elementManager")
@@ -903,10 +907,10 @@ local ca=ba.getElement("VisualElement")local da=require("errorManager")local _b=
 _b.__index=_b
 _b.defineProperty(_b,"program",{default=nil,type="table"})
 _b.defineProperty(_b,"path",{default="",type="string"})
-_b.defineProperty(_b,"running",{default=false,type="boolean"})_b.listenTo(_b,"key")_b.listenTo(_b,"char")
-_b.listenTo(_b,"key_up")_b.listenTo(_b,"paste")
-_b.listenTo(_b,"mouse_click")_b.listenTo(_b,"mouse_drag")
-_b.listenTo(_b,"mouse_scroll")_b.listenTo(_b,"mouse_up")local ab={}ab.__index=ab
+_b.defineProperty(_b,"running",{default=false,type="boolean"})_b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
+_b.defineEvent(_b,"key_up")_b.defineEvent(_b,"paste")
+_b.defineEvent(_b,"mouse_click")_b.defineEvent(_b,"mouse_drag")
+_b.defineEvent(_b,"mouse_scroll")_b.defineEvent(_b,"mouse_up")local ab={}ab.__index=ab
 local bb=dofile("rom/modules/main/cc/require.lua").make
 function ab.new()local cb=setmetatable({},ab)cb.env={}cb.args={}return cb end
 function ab:run(cb,db,_c)
@@ -1175,10 +1179,9 @@ function bb:mouse_drag(_c,ac,bc)
 if da.mouse_drag(self,_c,ac,bc)then
 local cc=db(self,"mouse_drag",_c,ac,bc)
 local dc,_d=self:callChildrenEvents(true,"mouse_drag",table.unpack(cc))if(dc)then return true end end;return false end
-function bb:mouse_scroll(_c,ac,bc)
-if da.mouse_scroll(self,_c,ac,bc)then
-local cc=db(self,"mouse_scroll",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_scroll",table.unpack(cc))if(dc)then return true end;return false end end;function bb:key(_c)if self.get("focusedChild")then return
+function bb:mouse_scroll(_c,ac,bc)local cc=db(self,"mouse_scroll",_c,ac,bc)
+local dc,_d=self:callChildrenEvents(true,"mouse_scroll",table.unpack(cc))if(dc)then return true end
+if(da.mouse_scroll(self,_c,ac,bc))then return true end;return false end;function bb:key(_c)if self.get("focusedChild")then return
 self.get("focusedChild"):dispatchEvent("key",_c)end
 return true end
 function bb:char(_c)if
@@ -1198,6 +1201,11 @@ ac<1 or ac>_d then return self end;local ad=_c<1 and(2 -_c)or 1
 local bd=math.min(#bc-
 ad+1,dc-math.max(1,_c)+1)if bd<=0 then return self end
 da.textFg(self,math.max(1,_c),math.max(1,ac),bc:sub(ad,ad+bd-1),cc)return self end
+function bb:textBg(_c,ac,bc,cc)local dc,_d=self.get("width"),self.get("height")if
+ac<1 or ac>_d then return self end;local ad=_c<1 and(2 -_c)or 1
+local bd=math.min(#bc-
+ad+1,dc-math.max(1,_c)+1)if bd<=0 then return self end
+da.textBg(self,math.max(1,_c),math.max(1,ac),bc:sub(ad,ad+bd-1),cc)return self end
 function bb:blit(_c,ac,bc,cc,dc)local _d,ad=self.get("width"),self.get("height")if
 ac<1 or ac>ad then return self end;local bd=_c<1 and(2 -_c)or 1
 local cd=math.min(#bc-
@@ -1221,8 +1229,8 @@ d.defineProperty(d,"step",{default=1,type="number",canTriggerRender=true})
 d.defineProperty(d,"max",{default=100,type="number"})
 d.defineProperty(d,"horizontal",{default=true,type="boolean",canTriggerRender=true})
 d.defineProperty(d,"barColor",{default=colors.gray,type="number",canTriggerRender=true})
-d.defineProperty(d,"sliderColor",{default=colors.blue,type="number",canTriggerRender=true})d.listenTo(d,"mouse_click")
-d.listenTo(d,"mouse_drag")d.listenTo(d,"mouse_up")function d.new()
+d.defineProperty(d,"sliderColor",{default=colors.blue,type="number",canTriggerRender=true})d.defineEvent(d,"mouse_click")
+d.defineEvent(d,"mouse_drag")d.defineEvent(d,"mouse_up")function d.new()
 local _a=setmetatable({},d):__init()_a.set("width",8)_a.set("height",1)
 _a.set("backgroundEnabled",false)return _a end;function d:init(_a,aa)
 c.init(self,_a,aa)self.set("type","Slider")end
@@ -1259,18 +1267,26 @@ da~=nil and da<1 then return ba._values.type end;return ba._values.type[
 da or 1]end})
 aa.defineProperty(aa,"id",{default="",type="string",readonly=true})
 aa.defineProperty(aa,"name",{default="",type="string"})
-aa.defineProperty(aa,"eventCallbacks",{default={},type="table"})function aa.listenTo(ba,ca,da)if not ba._events then ba._events={}end
-ba._events[ca]={enabled=true,name=ca,event=da}end;function aa.new()
-local ba=setmetatable({},aa):__init()return ba end
-function aa:init(ba,ca)self._props=ba
-self._values.id=_a()self.basalt=ca;self._registeredEvents={}
-if aa._events then
-for da,_b in pairs(aa._events)do self._registeredEvents[
-_b.event or _b.name]=true
-local ab="on"..
-_b.name:gsub("_(%l)",function(bb)return
-bb:upper()end):gsub("^%l",string.upper)
-self[ab]=function(bb,...)bb:registerCallback(_b.name,...)return bb end end end;return self end
+aa.defineProperty(aa,"eventCallbacks",{default={},type="table"})
+function aa.defineEvent(ba,ca,da)
+if not rawget(ba,'_eventConfigs')then ba._eventConfigs={}end;ba._eventConfigs[ca]={requires=da and da or ca}end
+function aa.registerEventCallback(ba,ca,...)
+local da=ca:match("^on")and ca or"on"..ca;local _b={...}local ab=_b[1]
+ba[da]=function(bb,...)
+for cb,db in ipairs(_b)do if not bb._registeredEvents[db]then
+bb:listenEvent(db,true)end end;bb:registerCallback(ab,...)return bb end end
+function aa.new()local ba=setmetatable({},aa):__init()return ba end
+function aa:init(ba,ca)self._props=ba;self._values.id=_a()self.basalt=ca
+self._registeredEvents={}local da=getmetatable(self).__index;local _b={}da=self
+while da do
+if
+type(da)=="table"and da._eventConfigs then for ab,bb in pairs(da._eventConfigs)do
+if not _b[ab]then _b[ab]=bb end end end
+da=getmetatable(da)and getmetatable(da).__index end
+for ab,bb in pairs(_b)do self._registeredEvents[bb.requires]=true end;if self._callbacks then
+for ab,bb in pairs(self._callbacks)do self[bb]=function(cb,...)
+cb:registerCallback(ab,...)return cb end end end
+return self end
 function aa:postInit()if(self._props)then
 for ba,ca in pairs(self._props)do self.set(ba,ca)end end;self._props=nil;return self end;function aa:isType(ba)
 for ca,da in ipairs(self._values.type)do if da==ba then return true end end;return false end
@@ -1288,8 +1304,8 @@ if
 not self._values.eventCallbacks[ba]then self._values.eventCallbacks[ba]={}end
 table.insert(self._values.eventCallbacks[ba],ca)return self end
 function aa:fireEvent(ba,...)
-if self._values.eventCallbacks[ba]then for ca,da in
-ipairs(self._values.eventCallbacks[ba])do local _b=da(self,...)return _b end end;return self end;function aa:dispatchEvent(ba,...)if self[ba]then return self[ba](self,...)end;return
+if self.get("eventCallbacks")[ba]then for ca,da in
+ipairs(self.get("eventCallbacks")[ba])do local _b=da(self,...)return _b end end;return self end;function aa:dispatchEvent(ba,...)if self[ba]then return self[ba](self,...)end;return
 self:handleEvent(ba,...)end;function aa:handleEvent(ba,...)return
 false end
 function aa:getBaseFrame()if self.parent then return
@@ -1308,7 +1324,7 @@ d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,sette
 local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
 d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
 local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
-d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.listenTo(d,"mouse_click")function d.new()
+d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")function d.new()
 local _a=setmetatable({},d):__init()return _a end;function d:init(_a,aa)c.init(self,_a,aa)
 self.set("type","Checkbox")end
 function d:mouse_click(_a,aa,ba)
@@ -1329,11 +1345,11 @@ aa.defineProperty(aa,"placeholder",{default="...",type="string"})
 aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="number"})
 aa.defineProperty(aa,"focusedColor",{default=colors.blue,type="number"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
-aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})aa.listenTo(aa,"mouse_click")aa.listenTo(aa,"key")
-aa.listenTo(aa,"char")function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",8)ba.set("z",3)return ba end
-function aa:init(ba,ca)
-d.init(self,ba,ca)self.set("type","Input")return self end
+aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})aa.defineEvent(aa,"mouse_click")
+aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
+function aa.new()
+local ba=setmetatable({},aa):__init()ba.set("width",8)ba.set("z",3)return ba end
+function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
 function aa:char(ba)if not self.get("focused")then return false end
 local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
 local ab=self.get("pattern")if _b and#ca>=_b then return end
@@ -1399,9 +1415,14 @@ if(cb.parent~=nil)then
 cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;return db end})
 _b.defineProperty(_b,"ignoreOffset",{default=false,type="boolean"})_b.combineProperties(_b,"position","x","y")
 _b.combineProperties(_b,"size","width","height")
-_b.combineProperties(_b,"color","foreground","background")_b.listenTo(_b,"focus")_b.listenTo(_b,"blur")
-_b.listenTo(_b,"mouse_enter","mouse_move")_b.listenTo(_b,"mouse_leave","mouse_move")
-_b.listenTo(_b,"mouse_scroll")local ab,bb=math.max,math.min;function _b.new()
+_b.combineProperties(_b,"color","foreground","background")_b.defineEvent(_b,"focus")
+_b.defineEvent(_b,"blur")
+_b.registerEventCallback(_b,"MouseClick","mouse_click","mouse_up")
+_b.registerEventCallback(_b,"MouseUp","mouse_up","mouse_click")
+_b.registerEventCallback(_b,"MouseDrag","mouse_drag","mouse_click","mouse_up")
+_b.registerEventCallback(_b,"MouseScroll","mouse_scroll")
+_b.registerEventCallback(_b,"MouseEnter","mouse_enter","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
+_b.registerEventCallback(_b,"Blur","blur","focus")local ab,bb=math.max,math.min;function _b.new()
 local cb=setmetatable({},_b):__init()return cb end;function _b:init(cb,db)ca.init(self,cb,db)
 self.set("type","VisualElement")end;function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)
 local _d,ad=self:calculatePosition()cb=cb+_d-1;db=db+ad-1
@@ -1473,9 +1494,9 @@ ca.defineProperty(ca,"attachedProperty",{default=nil,type="string"})
 ca.defineProperty(ca,"minValue",{default=0,type="number"})
 ca.defineProperty(ca,"maxValue",{default=100,type="number"})
 ca.defineProperty(ca,"orientation",{default="vertical",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true})ca.listenTo(ca,"mouse_click")
-ca.listenTo(ca,"mouse_release")ca.listenTo(ca,"mouse_drag")
-ca.listenTo(ca,"mouse_scroll")
+ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_release")ca.defineEvent(ca,"mouse_drag")
+ca.defineEvent(ca,"mouse_scroll")
 function ca.new()local ab=setmetatable({},ca):__init()
 ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","Scrollbar")return
 self end
@@ -1524,11 +1545,12 @@ self:blit(i,1,db,ba[_c],ba[ac])end end end;return ca end
 project["elements/List.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"items",{default={},type="table",canTriggerRender=true})
-d.defineProperty(d,"selectedIndex",{default=0,type="number",canTriggerRender=true})
 d.defineProperty(d,"selectable",{default=true,type="boolean"})
+d.defineProperty(d,"multiSelection",{default=false,type="boolean"})
 d.defineProperty(d,"offset",{default=0,type="number",canTriggerRender=true})
-d.defineProperty(d,"selectedColor",{default=colors.blue,type="number"})d.listenTo(d,"mouse_click")
-d.listenTo(d,"mouse_scroll")
+d.defineProperty(d,"selectedBackground",{default=colors.blue,type="number"})
+d.defineProperty(d,"selectedForeground",{default=colors.white,type="number"})d.defineEvent(d,"mouse_click")
+d.defineEvent(d,"mouse_scroll")
 function d.new()local _a=setmetatable({},d):__init()
 _a.set("width",16)_a.set("height",8)_a.set("z",5)
 _a.set("background",colors.gray)return _a end
@@ -1536,16 +1558,20 @@ function d:init(_a,aa)c.init(self,_a,aa)self.set("type","List")return self end;f
 self:updateRender()return self end
 function d:removeItem(_a)
 local aa=self.get("items")table.remove(aa,_a)self:updateRender()return self end
-function d:clear()self.set("items",{})
-self.set("selectedIndex",0)self:updateRender()return self end
+function d:clear()self.set("items",{})self:updateRender()return self end
+function d:getSelectedItems()local _a={}for aa,ba in ipairs(self.get("items"))do
+if
+type(ba)=="table"and ba.selected then table.insert(_a,{index=aa,item=ba})end end;return _a end
 function d:mouse_click(_a,aa,ba)
 if
 _a==1 and self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
 local _b=da+self.get("offset")local ab=self.get("items")
-if _b<=#ab then local bb=ab[_b]
-self.set("selectedIndex",_b)
-if type(bb)=="table"and bb.callback then bb.callback(self)end;self:fireEvent("select",_b,bb)self:updateRender()return
-true end end;return false end
+if _b<=#ab then local bb=ab[_b]if type(bb)=="string"then
+bb={text=bb}ab[_b]=bb end;if
+not self.get("multiSelection")then
+for cb,db in ipairs(ab)do if type(db)=="table"then db.selected=false end end end
+bb.selected=not bb.selected;if bb.callback then bb.callback(self)end
+self:fireEvent("select",_b,bb)self:updateRender()return true end end;return false end
 function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then local ca=self.get("offset")
 local da=math.max(0,#
@@ -1553,22 +1579,21 @@ self.get("items")-self.get("height"))ca=math.min(da,math.max(0,ca+_a))
 self.set("offset",ca)return true end;return false end
 function d:onSelect(_a)self:registerCallback("select",_a)return self end
 function d:render()c.render(self)local _a=self.get("items")
-local aa=self.get("height")local ba=self.get("offset")
-local ca=self.get("selectedIndex")local da=self.get("width")
-for i=1,aa do local _b=i+ba;local ab=_a[_b]
-if ab then
-if type(ab)=="table"and
-ab.separator then local bb=(ab.text or"-"):sub(1,1)
-local cb=string.rep(bb,da)local db=ab.foreground or self.get("foreground")local _c=
-ab.background or self.get("background")
-self:textBg(1,i,string.rep(" ",da),_c)self:textFg(1,i,cb,db)else
-local bb=type(ab)=="table"and ab.text or ab;local cb=_b==ca
-local db=cb and
-(ab.selectedBackground or self.get("selectedColor"))or
-(ab.background or self.get("background"))
-local _c=cb and(ab.selectedForeground or colors.white)or(ab.foreground or
-self.get("foreground"))self:textBg(1,i,string.rep(" ",da),db)
-self:textFg(1,i,bb,_c)end end end end;return d end
+local aa=self.get("height")local ba=self.get("offset")local ca=self.get("width")
+for i=1,aa do local da=i+ba
+local _b=_a[da]
+if _b then if type(_b)=="string"then _b={text=_b}_a[da]=_b end
+if
+_b.separator then local ab=(_b.text or"-"):sub(1,1)
+local bb=string.rep(ab,ca)local cb=_b.foreground or self.get("foreground")local db=
+_b.background or self.get("background")
+self:textBg(1,i,string.rep(" ",ca),db)self:textFg(1,i,bb,cb)else local ab=_b.text;local bb=_b.selected
+local cb=bb and(_b.selectedBackground or
+self.get("selectedBackground"))or(_b.background or
+self.get("background"))
+local db=
+bb and(_b.selectedForeground or self.get("selectedForeground"))or(_b.foreground or self.get("foreground"))self:textBg(1,i,string.rep(" ",ca),cb)
+self:textFg(1,i,ab,db)end end end end;return d end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true})
@@ -1577,8 +1602,8 @@ ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=t
 ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
 ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
 ba.defineProperty(ba,"nodeColor",{default=colors.white,type="number"})
-ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="number"})ba.listenTo(ba,"mouse_click")
-ba.listenTo(ba,"mouse_scroll")
+ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="number"})ba.defineEvent(ba,"mouse_click")
+ba.defineEvent(ba,"mouse_scroll")
 function ba.new()local da=setmetatable({},ba):__init()
 da.set("width",30)da.set("height",10)da.set("z",5)return da end
 function ba:init(da,_b)_a.init(self,da,_b)self.set("type","Tree")return self end
@@ -1633,10 +1658,11 @@ _b.defineProperty(_b,"scrollX",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"scrollY",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"editable",{default=true,type="boolean"})
 _b.defineProperty(_b,"syntaxPatterns",{default={},type="table"})
-_b.defineProperty(_b,"cursorColor",{default=nil,type="number"})_b.listenTo(_b,"mouse_click")_b.listenTo(_b,"key")
-_b.listenTo(_b,"char")_b.listenTo(_b,"mouse_scroll")
-function _b.new()
-local _c=setmetatable({},_b):__init()_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
+_b.defineProperty(_b,"cursorColor",{default=nil,type="number"})_b.defineEvent(_b,"mouse_click")
+_b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
+_b.defineEvent(_b,"mouse_scroll")
+function _b.new()local _c=setmetatable({},_b):__init()
+_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
 return self end;function _b:addSyntaxPattern(_c,ac)
 table.insert(self.get("syntaxPatterns"),{pattern=_c,color=ac})return self end
 local function ab(_c,ac)
@@ -1727,37 +1753,16 @@ self.set("isOpen",not self.get("isOpen"))if not self.get("isOpen")then self.set(
 self.set("height",1 +math.min(self.get("dropdownHeight"),
 #self.get("items")))end
 return true elseif self.get("isOpen")and cb>1 then
-local db=cb-1 +self.get("offset")local _c=self.get("items")
-if db<=#_c then local ac=_c[db]if type(ac)=="table"and
-ac.separator then return false end
-self.set("selectedIndex",db)self.set("isOpen",false)self.set("height",1)
-if type(ac)==
-"table"and ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)return true end end;return false end
+aa.mouse_click(self,da,_b,ab)self.set("isOpen",false)self.set("height",1)return true end;return false end
 function ca:render()_a.render(self)local da=self.get("selectedText")
 if
-#da==0 and self.get("selectedIndex")>0 then
-local _b=self.get("items")[self.get("selectedIndex")]
-da=type(_b)=="table"and _b.text or tostring(_b)end
+#da==0 then local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1].item
+da=ab.text or""end end
 self:blit(1,1,da..
 
 string.rep(" ",self.get("width")-#da-1).. (self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
-if self.get("isOpen")then local _b=self.get("items")
-local ab=self.get("offset")local bb=self.get("selectedIndex")local cb=self.get("width")
-for i=2,self.get("height")
-do local db=i-1 +ab;local _c=_b[db]
-if _c then
-if type(_c)=="table"and _c.separator then local ac=(
-_c.text or"-"):sub(1,1)
-local bc=string.rep(ac,cb)local cc=_c.foreground or self.get("foreground")local dc=
-_c.background or self.get("background")
-self:textBg(1,i,string.rep(" ",cb),dc)self:textFg(1,i,bc,cc)else local ac=type(_c)=="table"and _c.text or
-tostring(_c)local bc=db==bb
-local cc=bc and(_c.selectedBackground or
-self.get("selectedColor"))or(_c.background or
-self.get("background"))
-local dc=bc and(_c.selectedForeground or colors.white)or(_c.foreground or
-self.get("foreground"))self:textBg(1,i,string.rep(" ",cb),cc)
-self:textFg(1,i,ac,dc)end end end end end;return ca end
+if self.get("isOpen")then local _b=self.get("offset")
+self.set("offset",_b+1)aa.render(self)self.set("offset",_b)end end;return ca end
 project["render.lua"] = function(...) local _a=require("libraries/colorHex")local aa=require("log")
 local ba={}ba.__index=ba;local ca=string.sub
 function ba.new(da)local _b=setmetatable({},ba)
