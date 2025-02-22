@@ -838,14 +838,15 @@ project["elements/ProgressBar.lua"] = function(...) local c=require("elements/Vi
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"progress",{default=0,type="number",canTriggerRender=true})
 d.defineProperty(d,"showPercentage",{default=false,type="boolean"})
-d.defineProperty(d,"progressColor",{default=colors.lime,type="number"})
+d.defineProperty(d,"progressColor",{default=colors.black,type="number"})
 function d.new()local _a=setmetatable({},d):__init()
 _a.set("width",10)_a.set("height",1)return _a end
 function d:init(_a,aa)c.init(self,_a,aa)self.set("type","ProgressBar")end
 function d:render()c.render(self)local _a=self.get("width")
-local aa=math.min(100,math.max(0,self.get("progress")))local ba=math.floor((_a*aa)/100)
-self:textBg(1,1,string.rep(" ",ba),self.get("progressColor"))if self.get("showPercentage")then local ca=tostring(aa).."%"local da=math.floor(
-(_a-#ca)/2)+1
+local aa=math.min(100,math.max(0,self.get("progress")))local ba=math.floor((_a*aa)/100)for i=1,self.get("height")do
+self:textBg(1,i,string.rep(" ",ba),self.get("progressColor"))end;if self.get("showPercentage")then local ca=
+tostring(aa).."%"
+local da=math.floor((_a-#ca)/2)+1
 self:textFg(da,1,ca,self.get("foreground"))end end;return d end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
@@ -1578,15 +1579,17 @@ local da=math.max(0,#
 self.get("items")-self.get("height"))ca=math.min(da,math.max(0,ca+_a))
 self.set("offset",ca)return true end;return false end
 function d:onSelect(_a)self:registerCallback("select",_a)return self end
-function d:render()c.render(self)local _a=self.get("items")
-local aa=self.get("height")local ba=self.get("offset")local ca=self.get("width")
-for i=1,aa do local da=i+ba
-local _b=_a[da]
-if _b then if type(_b)=="string"then _b={text=_b}_a[da]=_b end
-if
-_b.separator then local ab=(_b.text or"-"):sub(1,1)
-local bb=string.rep(ab,ca)local cb=_b.foreground or self.get("foreground")local db=
-_b.background or self.get("background")
+function d:scrollToBottom()
+local _a=math.max(0,#self.get("items")-self.get("height"))self.set("offset",_a)return self end;function d:scrollToTop()self.set("offset",0)return self end
+function d:render()
+c.render(self)local _a=self.get("items")local aa=self.get("height")
+local ba=self.get("offset")local ca=self.get("width")
+for i=1,aa do local da=i+ba;local _b=_a[da]
+if _b then if
+type(_b)=="string"then _b={text=_b}_a[da]=_b end
+if _b.separator then
+local ab=(_b.text or"-"):sub(1,1)local bb=string.rep(ab,ca)
+local cb=_b.foreground or self.get("foreground")local db=_b.background or self.get("background")
 self:textBg(1,i,string.rep(" ",ca),db)self:textFg(1,i,bb,cb)else local ab=_b.text;local bb=_b.selected
 local cb=bb and(_b.selectedBackground or
 self.get("selectedBackground"))or(_b.background or
@@ -1752,8 +1755,15 @@ if cb==1 then
 self.set("isOpen",not self.get("isOpen"))if not self.get("isOpen")then self.set("height",1)else
 self.set("height",1 +math.min(self.get("dropdownHeight"),
 #self.get("items")))end
-return true elseif self.get("isOpen")and cb>1 then
-aa.mouse_click(self,da,_b,ab)self.set("isOpen",false)self.set("height",1)return true end;return false end
+return true elseif
+self.get("isOpen")and cb>1 and self.get("selectable")then local db=(cb-1)+self.get("offset")
+local _c=self.get("items")
+if db<=#_c then local ac=_c[db]
+if type(ac)=="string"then ac={text=ac}_c[db]=ac end
+if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="table"then
+cc.selected=false end end end;ac.selected=not ac.selected
+if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
+self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
 function ca:render()_a.render(self)local da=self.get("selectedText")
 if
 #da==0 then local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1].item
@@ -1761,8 +1771,23 @@ da=ab.text or""end end
 self:blit(1,1,da..
 
 string.rep(" ",self.get("width")-#da-1).. (self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
-if self.get("isOpen")then local _b=self.get("offset")
-self.set("offset",_b+1)aa.render(self)self.set("offset",_b)end end;return ca end
+if self.get("isOpen")then local _b=self.get("items")
+local ab=self.get("height")-1;local bb=self.get("offset")local cb=self.get("width")
+for i=1,ab do local db=i+bb
+local _c=_b[db]
+if _c then if type(_c)=="string"then _c={text=_c}_b[db]=_c end
+if
+_c.separator then local ac=(_c.text or"-"):sub(1,1)
+local bc=string.rep(ac,cb)local cc=_c.foreground or self.get("foreground")local dc=
+_c.background or self.get("background")self:textBg(1,
+i+1,string.rep(" ",cb),dc)
+self:textFg(1,i+1,bc,cc)else local ac=_c.text;local bc=_c.selected
+local cc=bc and
+(_c.selectedBackground or self.get("selectedBackground"))or
+(_c.background or self.get("background"))
+local dc=
+bc and(_c.selectedForeground or self.get("selectedForeground"))or(_c.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",cb),cc)self:textFg(1,
+i+1,ac,dc)end end end end end;return ca end
 project["render.lua"] = function(...) local _a=require("libraries/colorHex")local aa=require("log")
 local ba={}ba.__index=ba;local ca=string.sub
 function ba.new(da)local _b=setmetatable({},ba)
