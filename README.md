@@ -1,30 +1,28 @@
-# Basalt - A UI Framework for CC:Tweaked
+# Basalt 2 - A UI Framework for CC:Tweaked
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Pyroxenium/Basalt2?style=for-the-badge)
 [![Discord](https://img.shields.io/discord/976905222251233320?label=Discord&style=for-the-badge)](https://discord.gg/yNNnmBVBpE)
 
-This is a complete rework of Basalt. It provides an intuitive way to create complex user interfaces for your CC:Tweaked programs.
+Welcome,
 
-Basalt is intended to be an easy-to-understand UI Framework designed for CC:Tweaked - a popular minecraft mod. For more information about CC:Tweaked, checkout the project's [wiki](https://tweaked.cc/) or [download](https://modrinth.com/mod/cc-tweaked).
-**Note:** Basalt is still under developement and you may find bugs!
+This is a complete rework of [Basalt](https://github.com/Pyroxenium/Basalt). There are many new features, including auto-generated LuaLS annotations and auto-generated documentation, ensuring that everything is always up-to-date.
 
-Check out the [wiki](https://basalt.madefor.cc/) for more information.
-If you have questions, feel free to join the discord server: [discord.gg/yNNnmBVBpE](https://discord.gg/yNNnmBVBpE).
+Basalt is a UI framework designed for [CC:Tweaked](https://tweaked.cc/) - a popular Minecraft mod. For more information about CC:Tweaked, check out the project's [wiki](https://tweaked.cc/) or download it from [Modrinth](https://modrinth.com/mod/cc-tweaked) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/cc-tweaked).
 
 ## Documentation
 
-For detailed documentation, examples and guides, visit [basalt.madefor.cc](https://basalt.madefor.cc/)
+For detailed documentation, examples, and guides, visit our documentation on [basalt.madefor.cc](https://basalt.madefor.cc/).
 
 ## Support
 
 If you need help or have questions:
-- Check the [documentation](https://basalt.madefor.cc/)
-- Join our [Discord](https://discord.gg/yNNnmBVBpE)
-- Report issues on [GitHub](https://github.com/Pyroxenium/Basalt2/issues)
+- Check the [documentation](https://basalt.madefor.cc/).
+- Join our [Discord](https://discord.gg/yNNnmBVBpE).
+- Report issues or contribute on [GitHub](https://github.com/Pyroxenium/Basalt2/issues).
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Demo
 

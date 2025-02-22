@@ -1,4 +1,5 @@
 local basalt = require("src")
+local url = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
 
 local coloring = {foreground=colors.black, background=colors.white}
@@ -135,18 +136,32 @@ end)
 
 installScreen:addLabel(coloring)
     :setText("Path:")
-    :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 5}")
 
 installScreen:addLabel(coloring)
     :setText("Additional Components:")
     :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
 
-local luaLSCheckbox = installScreen:addCheckbox()
-    :setPosition(2, 12)
+    local luaLSCheckbox = installScreen:addCheckbox()
     :setText("[ ] LLS definitions")
     :setCheckedText("[x] LLS definitions")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 2}")
     :setBackground(colors.white)
     :setForeground(colors.black)
+
+local luaMinifyCheckbox = installScreen:addCheckbox()
+    :setText("[ ] Minify Project")
+    :setCheckedText("[x] Minify Project")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 3}")
+    :setBackground(colors.white)
+    :setForeground(colors.black)
+
+local installPathInput = installScreen:addInput()
+    :setPosition(8, "{versionDesc.y + versionDesc.height + 5}")
+    :setPlaceholder("basalt")
+    :setSize(12, 1)
+    :setBackground(colors.black)
+    :setForeground(colors.white)
 
 -- Screen 3: Elements
 local elementsScreen = createScreen(3)
@@ -179,7 +194,13 @@ local eleScreenDesc = elementsScreen:addLabel()
 local function addElements()
     elementsList:clear()
     for k,v in pairs(getConfig().categories.elements.files)do
-        elementsList:addItem({selected=true, text=v.name, callback=function() elementDesc:setText(v.description) end})
+        elementsList:addItem({selected=v.default, text=k, item=v, callback=function()
+            if(v.description)and(v.description~="")then
+                elementDesc:setText(v.description)
+            else
+                elementDesc:setText("No description available.")
+            end
+        end})
     end
 end
 addElements()
@@ -215,10 +236,23 @@ local pluScreenDesc = pluginScreen:addLabel()
 local function addPlugins()
     pluginList:clear()
     for k,v in pairs(getConfig().categories.plugins.files)do
-        pluginList:addItem({selected = true, text= v.name, callback=function() pluginDesc:setText(v.description) end})
+        pluginList:addItem({selected = v.default, text=k, item=v, callback=function()
+            if(v.description)and(v.description~="")then
+                elementDesc:setText(v.description)
+            else
+                elementDesc:setText("No description available.")
+            end
+        end})
+
     end
 end
 addPlugins()
+
+local function tableGet(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count
+end
 
 -- Screen 5 Installation Progress
 local progressScreen = createScreen(5)
@@ -234,7 +268,13 @@ local log = progressScreen:addList("log")
 local function install()
     local function logMessage(message)
         log:addItem(message)
+        log:scrollToBottom()
     end
+
+    local fileCount = tableGet(getConfig().categories.core.files) + tableGet(getConfig().categories.libraries.files)
+    fileCount = fileCount + tableGet(elementsList:getSelectedItems()) + tableGet(pluginList:getSelectedItems())
+    progressBar:setProgress(0)
+    local progressStep = math.ceil(100 / fileCount)
 
     local function downloadFile(url, path)
         logMessage("Downloading " .. url .. "...")
@@ -250,25 +290,43 @@ local function install()
         end
     end
 
-    local function installElement(name, url)
+    local path = installPathInput:getText()
+    if path == "" then
+        path = "basalt"
+    end
+
+    for k, v in pairs(getConfig().categories.core.files) do
+        logMessage("Installing core: " .. k)
+        downloadFile(url..v.path, fs.combine(path, v.path))
+        progressBar:setProgress(progressBar:getProgress() + progressStep)
+    end
+
+    for k, v in pairs(getConfig().categories.libraries.files) do
+        logMessage("Installing library: " .. k)
+        downloadFile(url..v.path, fs.combine(path, v.path))
+        progressBar:setProgress(progressBar:getProgress() + progressStep)
+    end
+
+    local function installElement(name, item)
         logMessage("Installing element: " .. name)
-        --downloadFile(url, "/path/to/install/" .. name)
+        downloadFile(url..item.path, fs.combine(path, item.path))
+        progressBar:setProgress(progressBar:getProgress() + progressStep)
     end
 
-    local function installPlugin(name, url)
+    local function installPlugin(name, item)
         logMessage("Installing plugin: " .. name)
-        --downloadFile(url, "/path/to/install/" .. name)
+        downloadFile(url..item.path, fs.combine(path, item.path))
+        progressBar:setProgress(progressBar:getProgress() + progressStep)
     end
 
-    for _, element in ipairs(elementsList:getSelectedItems()) do
+    for k, element in ipairs(elementsList:getSelectedItems()) do
         local item = element.item
-        basalt.LOGGER.debug(item.text)
-        installElement(item.text, getConfig().categories.elements.files[item.text].url)
+        installElement(item.text, item.item)
     end
 
     for _, plugin in ipairs(pluginList:getSelectedItems()) do
         local item = plugin.item
-        installPlugin(item.text, getConfig().categories.plugins.files[item.text].url)
+        installPlugin(item.text, item.item)
     end
 
     progressBar:setProgress(100)

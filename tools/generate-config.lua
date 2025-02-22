@@ -24,16 +24,20 @@ local function serialize(t, indent)
 end
 
 local function parseFile(filePath)
+    if filePath:match("LuaLS%.lua$") then return nil end
+    
     local file = io.open(filePath, "r")
     if not file then return nil end
     
     local content = file:read("*all")
+    local size = #content
     file:close()
 
     local config = {
         description = "",
         default = true,
-        requires = {}
+        requires = {},
+        size = size
     }
 
     local description = content:match("%-%-%-@configDescription%s*(.-)%s*\n")
@@ -79,11 +83,13 @@ local function scanDirectory(srcPath)
         if not pipe then return end
 
         for path in pipe:lines() do
-            local config = parseFile(path)
-            if config then
-                config.name = path:match("([^/]+)%.lua$")
-                config.path = path:gsub("^" .. srcPath .. "/", "")
-                files[path] = config
+            if(path~="LuaLS.lua")then
+                local config = parseFile(path)
+                if config then
+                    config.name = path:match("([^/]+)%.lua$")
+                    config.path = path:gsub("^" .. srcPath .. "/", "")
+                    files[path] = config
+                end
             end
         end
         pipe:close()
@@ -109,7 +115,8 @@ local function generateConfig(srcPath)
             path = fileConfig.path,
             description = fileConfig.description,
             default = fileConfig.default,
-            requires = fileConfig.requires
+            requires = fileConfig.requires,
+            size = fileConfig.size
         }
     end
 
@@ -139,7 +146,6 @@ local function generateConfig(srcPath)
     }
 end
 
--- Config generieren und speichern
 local config = generateConfig("src")
 local configFile = io.open("config.lua", "w")
 configFile:write("return " .. serialize(config))

@@ -167,6 +167,23 @@ function List:onSelect(callback)
     return self
 end
 
+--- Scrolls the list to the bottom
+--- @shortDescription Scrolls the list to the bottom
+--- @return List self The List instance
+function List:scrollToBottom()
+    local maxOffset = math.max(0, #self.get("items") - self.get("height"))
+    self.set("offset", maxOffset)
+    return self
+end
+
+--- Scrolls the list to the top
+--- @shortDescription Scrolls the list to the top
+--- @return List self The List instance
+function List:scrollToTop()
+    self.set("offset", 0)
+    return self
+end
+
 --- Renders the list
 --- @shortDescription Renders the list
 function List:render()

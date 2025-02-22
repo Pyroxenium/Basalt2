@@ -11,7 +11,7 @@ ProgressBar.defineProperty(ProgressBar, "progress", {default = 0, type = "number
 ---@property showPercentage boolean false Whether to show the percentage text in the center
 ProgressBar.defineProperty(ProgressBar, "showPercentage", {default = false, type = "boolean"})
 ---@property progressColor color lime The color used for the filled portion of the progress bar
-ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.lime, type = "number"})
+ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.black, type = "number"})
 
 --- Creates a new ProgressBar instance
 --- @shortDescription Creates a new ProgressBar instance
@@ -42,7 +42,9 @@ function ProgressBar:render()
     local progress = math.min(100, math.max(0, self.get("progress")))
     local fillWidth = math.floor((width * progress) / 100)
 
-    self:textBg(1, 1, string.rep(" ", fillWidth), self.get("progressColor"))
+    for i = 1, self.get("height") do
+        self:textBg(1, i, string.rep(" ", fillWidth), self.get("progressColor"))
+    end
 
     if self.get("showPercentage") then
         local text = tostring(progress).."%"

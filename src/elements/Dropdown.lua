@@ -62,13 +62,37 @@ function Dropdown:mouse_click(button, x, y)
             self.set("height", 1 + math.min(self.get("dropdownHeight"), #self.get("items")))
         end
         return true
-    elseif self.get("isOpen") and relY > 1 then
-        -- Nutze List's mouse_click für Item-Selektion
-        List.mouse_click(self, button, x, y)
-        -- Nach Selektion Dropdown schließen
-        self.set("isOpen", false)
-        self.set("height", 1)
-        return true
+    elseif self.get("isOpen") and relY > 1 and self.get("selectable") then
+        local itemIndex = (relY - 1) + self.get("offset")
+        local items = self.get("items")
+
+        if itemIndex <= #items then
+            local item = items[itemIndex]
+            if type(item) == "string" then
+                item = {text = item}
+                items[itemIndex] = item
+            end
+
+            if not self.get("multiSelection") then
+                for _, otherItem in ipairs(items) do
+                    if type(otherItem) == "table" then
+                        otherItem.selected = false
+                    end
+                end
+            end
+
+            item.selected = not item.selected
+
+            if item.callback then
+                item.callback(self)
+            end
+
+            self:fireEvent("select", itemIndex, item)
+            self.set("isOpen", false)
+            self.set("height", 1)
+            self:updateRender()
+            return true
+        end
     end
     return false
 end
@@ -78,10 +102,8 @@ end
 function Dropdown:render()
     VisualElement.render(self)
 
-    -- Header rendern
     local text = self.get("selectedText")
     if #text == 0 then
-        -- Suche nach selektiertem Item
         local selectedItems = self:getSelectedItems()
         if #selectedItems > 0 then
             local selectedItem = selectedItems[1].item
@@ -89,20 +111,51 @@ function Dropdown:render()
         end
     end
 
-    -- Header mit Dropdown Symbol
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (self.get("isOpen") and "\31" or "\17"),
         string.rep(tHex[self.get("foreground")], self.get("width")),
         string.rep(tHex[self.get("background")], self.get("width")))
 
-    -- Liste rendern wenn offen
     if self.get("isOpen") then
-        -- Offset um 1 verschieben wegen Header
-        local oldOffset = self.get("offset")
-        self.set("offset", oldOffset + 1)
-        -- Liste ab Zeile 2 rendern
-        List.render(self)
-        -- Offset zurücksetzen
-        self.set("offset", oldOffset)
+        local items = self.get("items")
+        local height = self.get("height") - 1
+        local offset = self.get("offset")
+        local width = self.get("width")
+
+        for i = 1, height do
+            local itemIndex = i + offset
+            local item = items[itemIndex]
+
+            if item then
+                if type(item) == "string" then
+                    item = {text = item}
+                    items[itemIndex] = item
+                end
+
+                if item.separator then
+                    local separatorChar = (item.text or "-"):sub(1,1)
+                    local separatorText = string.rep(separatorChar, width)
+                    local fg = item.foreground or self.get("foreground")
+                    local bg = item.background or self.get("background")
+
+                    self:textBg(1, i + 1, string.rep(" ", width), bg)
+                    self:textFg(1, i + 1, separatorText, fg)
+                else
+                    local text = item.text
+                    local isSelected = item.selected
+
+                    local bg = isSelected and 
+                        (item.selectedBackground or self.get("selectedBackground")) or
+                        (item.background or self.get("background"))
+
+                    local fg = isSelected and 
+                        (item.selectedForeground or self.get("selectedForeground")) or
+                        (item.foreground or self.get("foreground"))
+
+                    self:textBg(1, i + 1, string.rep(" ", width), bg)
+                    self:textFg(1, i + 1, text, fg)
+                end
+            end
+        end
     end
 end
 
