@@ -33,6 +33,8 @@ custom item rendering, separators, and selection handling.
 |[List:onSelect](#List:onSelect)|List|Registers a callback for the select event
 |[List:removeItem](#List:removeItem)|List|Removes an item from the list
 |[List:render](#List:render)|-|Renders the list
+|[List:scrollToBottom](#List:scrollToBottom)|List|Scrolls the list to the bottom
+|[List:scrollToTop](#List:scrollToTop)|List|Scrolls the list to the top
 
 ## List.new()
 Creates a new List instance
@@ -144,5 +146,17 @@ list:removeItem(1)
 
 ## List:render()
 Renders the list
+
+## List:scrollToBottom()
+Scrolls the list to the bottom
+
+### Returns
+* `List` `self` The List instance
+
+## List:scrollToTop()
+Scrolls the list to the top
+
+### Returns
+* `List` `self` The List instance
 
 
