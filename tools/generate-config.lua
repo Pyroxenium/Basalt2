@@ -25,10 +25,10 @@ end
 
 local function parseFile(filePath)
     if filePath:match("LuaLS%.lua$") then return nil end
-    
+
     local file = io.open(filePath, "r")
     if not file then return nil end
-    
+
     local content = file:read("*all")
     local size = #content
     file:close()
