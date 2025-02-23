@@ -1,12 +1,22 @@
-local basalt = require("src")
-local url = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
+local basalt
+local releasePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt.lua"
+local devPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
+local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/LuaLS.lua"
+
+local basaltRequest = http.get(releasePath)
+if not basaltRequest then
+    error("Failed to download Basalt")
+end
+basalt = load(basaltRequest.readAll(), "basalt", "bt", _ENV)()
+
 
 local coloring = {foreground=colors.black, background=colors.white}
 local currentScreen = 1
 local screens = {}
 local main = basalt.getMainFrame():setBackground(colors.black)
 local config
+local skipConfig = true
 
 local function getConfig()
     if not config then
@@ -25,12 +35,35 @@ end
 local function getChildrenHeight(container)
     local height = 0
     for _, child in ipairs(container:getChildren()) do
-        local newHeight = child.get("y") + child.get("height")
-        if newHeight > height then
-            height = newHeight
+        if(child.get("visible"))then
+            local newHeight = child.get("y") + child.get("height")
+            if newHeight > height then
+                height = newHeight
+            end
         end
     end
     return height
+end
+
+local function getScreenPosition(index)
+    if index <= 2 then 
+        return (main:getWidth() * (index - 1)) + 2
+    end
+
+    if index == 5 then
+        if skipConfig then
+            return (main:getWidth() * 2) + 2
+        end
+        return (main:getWidth() * 4) + 2
+    end
+
+    if index == 3 or index == 4 then
+        if skipConfig then
+            return main:getWidth() * 10
+        else
+            return (main:getWidth() * (index - 1)) + 2
+        end
+    end
 end
 
 local function createScreen(index)
@@ -43,25 +76,53 @@ local function createScreen(index)
             self:setOffsetY(scrollOffset)
         end)
         :setSize("{parent.width - 2}", "{parent.height - 4}")
-        if(index==1)then
-            screen:setPosition(2, 2)
-        else
-            screen:setPosition("{parent.width * "..(index-1).." + 2}", 2)
-        end
+
+    screen:setPosition(function()
+        return getScreenPosition(index)
+    end, 2)
+
     screens[index] = screen
     return screen
 end
 
+local backButton
+local nextButton
+
 local function switchScreen(direction)
     local newScreen = currentScreen + direction
+
     if screens[newScreen] then
-        --main:setOffsetX((newScreen - 1) * main:getWidth())
+        if(skipConfig)then
+            if(newScreen==4)then
+                return
+            end
+        end
         main:animate():moveOffset((newScreen - 1) * main:getWidth(), 0, 0.5):start()
         currentScreen = newScreen
     end
+    basalt.schedule(function()
+        sleep(0.1)
+        backButton:setVisible(true)
+        nextButton:setVisible(true)
+        if(newScreen==1)then
+            backButton:setVisible(false)
+            nextButton:setVisible(true)
+        end
+        if(newScreen==5)then
+            nextButton:setVisible(false)
+            backButton:setVisible(true)
+        end
+        if(skipConfig)then
+            if(newScreen==3)then
+                nextButton:setVisible(false)
+                backButton:setVisible(true)
+            end
+        end
+    end)
+
 end
 
-main:addButton()
+nextButton = main:addButton()
     :setBackground("{self.clicked and colors.black or colors.white}")
     :setForeground("{self.clicked and colors.white or colors.black}")
     :setSize(8, 1)
@@ -70,7 +131,7 @@ main:addButton()
     :setIgnoreOffset(true)
     :onMouseClick(function() switchScreen(1) end)
 
-main:addButton()
+backButton = main:addButton()
     :setBackground("{self.clicked and colors.black or colors.white}")
     :setForeground("{self.clicked and colors.white or colors.black}")
     :setSize(8, 1)
@@ -78,6 +139,7 @@ main:addButton()
     :setPosition(2, "{parent.height - 1}")
     :setIgnoreOffset(true)
     :onMouseClick(function() switchScreen(-1) end)
+    :setVisible(false)
 
 -- Screen 1: Welcome
 local welcomeScreen = createScreen(1)
@@ -124,44 +186,69 @@ local versionDesc = installScreen:addLabel("versionDesc")
     :setSize("{parent.width - 4}", 3)
     :setBackground(colors.lightGray)
 
-versionDropdown:onSelect(function(self, index, value)
-    if(value == "Release") then
-        versionDesc:setText("The Release version is the most stable and tested version of Basalt. It is recommended for production use.")
-    elseif(value == "Custom") then
-        versionDesc:setText("The Custom version allows you to specify which elements or plugins you want to install.")
-    else
-        versionDesc:setText("The Dev version is the latest development version of Basalt. It may contain new features and improvements, but it may also have bugs and issues.")
-    end
-end)
-
 installScreen:addLabel(coloring)
     :setText("Path:")
-    :setPosition(2, "{versionDesc.y + versionDesc.height + 5}")
-
-installScreen:addLabel(coloring)
-    :setText("Additional Components:")
     :setPosition(2, "{versionDesc.y + versionDesc.height + 1}")
 
-    local luaLSCheckbox = installScreen:addCheckbox()
+local additionalComponents = installScreen:addLabel(coloring)
+    :setText("Additional Components:")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 3}")
+    :setVisible(false)
+
+local luaLSCheckbox = installScreen:addCheckbox(coloring)
     :setText("[ ] LLS definitions")
     :setCheckedText("[x] LLS definitions")
-    :setPosition(2, "{versionDesc.y + versionDesc.height + 2}")
-    :setBackground(colors.white)
-    :setForeground(colors.black)
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 4}")
+    :setVisible(false)
 
-local luaMinifyCheckbox = installScreen:addCheckbox()
+local luaMinifyCheckbox = installScreen:addCheckbox(coloring)
     :setText("[ ] Minify Project")
     :setCheckedText("[x] Minify Project")
-    :setPosition(2, "{versionDesc.y + versionDesc.height + 3}")
-    :setBackground(colors.white)
-    :setForeground(colors.black)
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 5}")
+    :setVisible(false)
+
+local singleFileProject = installScreen:addCheckbox(coloring)
+    :setText("[ ] Single File Project")
+    :setCheckedText("[x] Single File Project")
+    :setPosition(2, "{versionDesc.y + versionDesc.height + 6}")
+    :setVisible(false)
 
 local installPathInput = installScreen:addInput()
-    :setPosition(8, "{versionDesc.y + versionDesc.height + 5}")
+    :setPosition(8, "{versionDesc.y + versionDesc.height + 1}")
     :setPlaceholder("basalt")
     :setSize(12, 1)
     :setBackground(colors.black)
     :setForeground(colors.white)
+
+versionDropdown:onSelect(function(self, index, item)
+    if(item.text == "Release") then
+        versionDesc:setText("The Release version is the most stable and tested version of Basalt. It is recommended for production use.")
+        additionalComponents:setVisible(false)
+        luaLSCheckbox:setVisible(false)
+        luaMinifyCheckbox:setVisible(false)
+        singleFileProject:setVisible(false)
+    elseif(item.text == "Custom") then
+        versionDesc:setText("The Custom version allows you to specify which elements or plugins you want to install.")
+        additionalComponents:setVisible(true)
+        luaLSCheckbox:setVisible(true)
+        luaMinifyCheckbox:setVisible(true)
+        singleFileProject:setVisible(true)
+    else
+        versionDesc:setText("The Dev version is the latest development version of Basalt. It may contain new features and improvements, but it may also have bugs and issues.")
+        additionalComponents:setVisible(false)
+        luaLSCheckbox:setVisible(false)
+        luaMinifyCheckbox:setVisible(false)
+        singleFileProject:setVisible(false)
+    end
+    
+    -- skipConfig setzen basierend auf Version
+    skipConfig = (item.text ~= "Custom")
+    
+    -- Screens neu positionieren
+    for i, screen in pairs(screens) do
+        screen:setPosition(getScreenPosition(i), 2)
+    end
+end)
 
 -- Screen 3: Elements
 local elementsScreen = createScreen(3)
@@ -248,14 +335,10 @@ local function addPlugins()
 end
 addPlugins()
 
-local function tableGet(t)
-    local count = 0
-    for _ in pairs(t) do count = count + 1 end
-    return count
-end
-
 -- Screen 5 Installation Progress
 local progressScreen = createScreen(5)
+local installButton
+local currentlyInstalling = false
 local progressBar = progressScreen:addProgressBar()
     :setPosition(2, "{parent.height - 2}")
     :setSize("{parent.width - 12}", 2)
@@ -265,78 +348,281 @@ local log = progressScreen:addList("log")
     :setSize("{parent.width - 2}", "{parent.height - 6}")
     :addItem("Starting installation...")
 
-local function install()
-    local function logMessage(message)
-        log:addItem(message)
-        log:scrollToBottom()
+local function logMessage(log, message)
+    log:addItem(message)
+    log:scrollToBottom()
+end
+
+local function updateProgress(progressBar, current, total)
+    progressBar:setProgress(math.ceil((current / total) * 100))
+end
+
+local function installRelease(installPath, log, progressBar)
+    logMessage(log, "Installing Release version...")
+
+    local request = http.get(releasePath)
+    if not request then
+        logMessage(log, "Failed to download release version, aborting installation.")
+        return
     end
 
-    local fileCount = tableGet(getConfig().categories.core.files) + tableGet(getConfig().categories.libraries.files)
-    fileCount = fileCount + tableGet(elementsList:getSelectedItems()) + tableGet(pluginList:getSelectedItems())
-    progressBar:setProgress(0)
-    local progressStep = math.ceil(100 / fileCount)
+    local file = fs.open(installPath, "w")
+    file.write(request.readAll())
+    file.close()
+    request.close()
 
-    local function downloadFile(url, path)
-        logMessage("Downloading " .. url .. "...")
+    progressBar:setProgress(100)
+    logMessage(log, "Release installation complete!")
+end
+
+local function installDev(installPath, log, progressBar)
+    logMessage(log, "Installing Dev version...")
+
+    local config = getConfig()
+    if not config then
+        logMessage(log, "Failed to fetch config")
+        return
+    end
+
+    local function downloadFile(url, path, name, size)
+        logMessage(log, "Downloading " .. name..(size > 0 and " (" .. size/1000 .. " kb)" or ""))
         local request = http.get(url)
         if request then
             local file = fs.open(path, "w")
             file.write(request.readAll())
             file.close()
             request.close()
-            logMessage("Downloaded " .. url .. " to " .. path)
         else
-            error("Failed to download " .. url)
+            error("Failed to download " .. name)
         end
     end
 
-    local path = installPathInput:getText()
-    if path == "" then
-        path = "basalt"
+    local totalFiles = 0
+    for _, category in pairs(config.categories) do
+        totalFiles = totalFiles + #category.files
+    end
+    local currentFile = 0
+
+    for categoryName, category in pairs(config.categories) do
+        for fileName, fileInfo in pairs(category.files) do
+            downloadFile(devPath .. fileInfo.path, fs.combine(installPath, fileInfo.path), fileName, fileInfo.size or 0)
+            currentFile = currentFile + 1
+            updateProgress(progressBar, currentFile, totalFiles)
+        end
     end
 
-    for k, v in pairs(getConfig().categories.core.files) do
-        logMessage("Installing core: " .. k)
-        downloadFile(url..v.path, fs.combine(path, v.path))
-        progressBar:setProgress(progressBar:getProgress() + progressStep)
-    end
-
-    for k, v in pairs(getConfig().categories.libraries.files) do
-        logMessage("Installing library: " .. k)
-        downloadFile(url..v.path, fs.combine(path, v.path))
-        progressBar:setProgress(progressBar:getProgress() + progressStep)
-    end
-
-    local function installElement(name, item)
-        logMessage("Installing element: " .. name)
-        downloadFile(url..item.path, fs.combine(path, item.path))
-        progressBar:setProgress(progressBar:getProgress() + progressStep)
-    end
-
-    local function installPlugin(name, item)
-        logMessage("Installing plugin: " .. name)
-        downloadFile(url..item.path, fs.combine(path, item.path))
-        progressBar:setProgress(progressBar:getProgress() + progressStep)
-    end
-
-    for k, element in ipairs(elementsList:getSelectedItems()) do
-        local item = element.item
-        installElement(item.text, item.item)
-    end
-
-    for _, plugin in ipairs(pluginList:getSelectedItems()) do
-        local item = plugin.item
-        installPlugin(item.text, item.item)
-    end
-
-    progressBar:setProgress(100)
-    logMessage("Installation complete!")
+    logMessage(log, "Dev installation complete!")
 end
 
-local installButton = progressScreen:addButton()
+local function tableGet(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count
+end
+
+local function installCustom(installPath, log, progressBar, selectedElements, selectedPlugins, includeLuaLS, minify, singleFile)
+    logMessage(log, "Installing Custom version...")
+
+    local config = getConfig()
+    if not config then
+        error("Failed to fetch config")
+    end
+    local min
+    local project = {}
+
+    local function downloadFile(url, name, size)
+        logMessage(log, "Downloading " .. name..(size > 0 and " (" .. size/1000 .. " kb)" or ""))
+        local request = http.get(url)
+        if request then
+            local content = request.readAll()
+            request.close()
+            return content
+        else
+            error("Failed to download " .. name)
+        end
+    end
+
+    if(minify)then
+        local request = http.get("https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/tools/minify.lua")
+        if request then
+            min = load(request.readAll())()
+            request.close()
+        else
+            logMessage(log, "Failed to download minify.lua")
+            return
+        end
+    end
+
+    local totalFiles = #selectedElements + #selectedPlugins
+    for _, category in pairs({"core", "libraries"}) do
+        totalFiles = totalFiles + tableGet(config.categories[category].files)
+    end
+    local currentFile = 0
+
+    for fileName, fileInfo in pairs(config.categories.core.files) do
+        if fileName ~= "LuaLS" or includeLuaLS then
+            project[fileInfo.path] = downloadFile(devPath .. fileInfo.path, fileName, fileInfo.size or 0)
+            currentFile = currentFile + 1
+            updateProgress(progressBar, currentFile, totalFiles)
+        end
+    end
+
+    for fileName, fileInfo in pairs(config.categories.libraries.files) do
+        project[fileInfo.path] = downloadFile(devPath .. fileInfo.path, fileName, fileInfo.size or 0)
+        currentFile = currentFile + 1
+        updateProgress(progressBar, currentFile, totalFiles)
+    end
+
+    for _, element in ipairs(selectedElements) do
+        local fileInfo = config.categories.elements.files[element.text]
+        basalt.LOGGER.debug(element.text)
+        project[fileInfo.path] = downloadFile(devPath .. fileInfo.path, element.text, fileInfo.size or 0)
+        currentFile = currentFile + 1
+        updateProgress(progressBar, currentFile, totalFiles)
+    end
+
+    for _, plugin in ipairs(selectedPlugins) do
+        local fileInfo = config.categories.plugins.files[plugin.text]
+        project[fileInfo.path] = downloadFile(devPath .. fileInfo.path, plugin.text, fileInfo.size or 0)
+        currentFile = currentFile + 1
+        updateProgress(progressBar, currentFile, totalFiles)
+    end
+
+    if minify then
+        logMessage(log, "Minifying project...")
+        for path, content in pairs(project) do
+            local success, minifiedContent = min(content)
+            if(success)then
+                project[path] = minifiedContent
+            else
+                logMessage(log, "Failed to minify " .. path)
+                return
+            end
+        end
+    end
+
+    if(singleFile)then
+        installPath = installPath:gsub(".lua", "")..".lua"
+        local output = {
+            'local minified = true\n',
+            'local minified_elementDirectory = {}\n',
+            'local minified_pluginDirectory = {}\n',
+            'local project = {}\n',
+            'local loadedProject = {}\n',
+            'local baseRequire = require\n',
+            'require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end baseRequire(path) end\n'
+        }
+
+        for filePath, content in pairs(project) do
+            local elementName = filePath:match("^elements/(.+)%.lua$")
+            if elementName then
+                table.insert(output, string.format(
+                    'minified_elementDirectory["%s"] = {}\n',
+                    elementName
+                ))
+            end
+
+            local pluginName = filePath:match("^plugins/(.+)%.lua$")
+            if pluginName then
+                table.insert(output, string.format(
+                    'minified_pluginDirectory["%s"] = {}\n',
+                    pluginName
+                ))
+            end
+        end
+
+        for filePath, content in pairs(project) do
+            table.insert(output, string.format(
+                'project["%s"] = function(...) %s end\n',
+                filePath, content
+            ))
+        end
+        table.insert(output, 'return project["main.lua"]()')
+        local out = fs.open(installPath, "w")
+        if(out)then
+            out.write(table.concat(output))
+            out.close()
+            if(includeLuaLS)then
+                local luaLS = downloadFile(luaLSPath, "LuaLS", 0)
+                local luaLSDir = fs.getDir(installPath)
+                local file = fs.open(fs.combine(luaLSDir, "LuaLS.lua"), "w")
+                file.write(luaLS)
+                file.close()
+            end
+        else
+            logMessage(log, "Failed to write to " .. installPath)
+            return
+        end
+    else
+        for filePath, content in pairs(project) do
+            local out = fs.open(fs.combine(installPath, filePath), "w")
+            if(out)then
+                out.write(content)
+                out.close()
+            else
+                logMessage(log, "Failed to write to " .. fs.combine(installPath, filePath))
+                return
+            end
+        end
+        if(includeLuaLS)then
+            local luaLS = downloadFile(luaLSPath, "LuaLS", 0)
+            local luaLSDir = fs.combine(installPath, "LuaLS.lua")
+            local file = fs.open(luaLSDir, "w")
+            file.write(luaLS)
+            file.close()
+        end
+    end
+
+    logMessage(log, "Custom installation complete!")
+end
+
+local function installBasalt()
+    currentlyInstalling = true
+    installButton:setVisible(false)
+    local selection = versionDropdown:getSelectedItems()[1]
+    if(selection==nil)then
+        selection = "Release"
+    else
+        selection = selection.text
+    end
+    local path = installPathInput:getText()
+    if(path=="")then
+        path = "basalt"
+    else
+        path = path:gsub(".lua", "")
+    end
+    if(selection == "Release")then
+        installRelease(path..".lua", log, progressBar)
+    elseif(selection == "Dev")then
+        installDev(path, log, progressBar)
+    else
+        installCustom(path, log, progressBar, elementsList:getSelectedItems(), pluginList:getSelectedItems(), luaLSCheckbox:getChecked(), luaMinifyCheckbox:getChecked(), singleFileProject:getChecked())
+    end
+    currentlyInstalling = false
+    installButton:setVisible(true)
+end
+
+installButton = progressScreen:addButton()
+    :setBackground("{self.clicked and colors.lightGray or colors.black}")
+    :setForeground("{self.clicked and colors.black or colors.lightGray}")
     :setText("Install")
+    :setPosition("{parent.width - 9}", "{parent.height - 3}")
+    :setSize(9, 1)
+    :onMouseClick(function(self)
+        if(currentlyInstalling)then
+            return
+        end
+        basalt.schedule(installBasalt)
+    end)
+
+local closeButton = progressScreen:addButton()
+    :setBackground("{self.clicked and colors.lightGray or colors.black}")
+    :setForeground("{self.clicked and colors.black or colors.lightGray}")
+    :setText("Close")
     :setPosition("{parent.width - 9}", "{parent.height - 1}")
     :setSize(9, 1)
-    :onMouseClick(install)
+    :onMouseClick(function(self)
+        basalt.stop()
+    end)
 
 basalt.run()

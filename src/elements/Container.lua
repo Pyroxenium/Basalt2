@@ -102,6 +102,7 @@ end
 --- @param child table The child to check
 --- @return boolean boolean the child is visible
 function Container:isChildVisible(child)
+    if(child.get("visible") == false)then return false end
     local containerW, containerH = self.get("width"), self.get("height")
     local offsetX, offsetY = self.get("offsetX"), self.get("offsetY")
 
@@ -585,6 +586,7 @@ function Container:destroy()
         child:destroy()
     end
     VisualElement.destroy(self)
+    return self
 end
 
 return Container

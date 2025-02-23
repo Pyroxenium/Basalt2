@@ -63,6 +63,9 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
         self.parent.set("childrenSorted", false)
         self.parent.set("childrenEventsSorted", false)
     end
+    if(value==false)then
+        self.set("clicked", false)
+    end
     return value
 end})
 

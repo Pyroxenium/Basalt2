@@ -169,18 +169,17 @@ local function updateEvent(event, ...)
     if lazyElementsEventHandler(event, ...) then return end
 
     if(mainFrame)then
-        if(mainFrame:dispatchEvent(event, ...))then
-            return
-        end
+        mainFrame:dispatchEvent(event, ...)
     end
 
-    for _, func in ipairs(basalt._schedule) do
-        if(event==func.filter)then
+    for k, func in ipairs(basalt._schedule) do
+        if(event==func.filter)or(func.filter==nil)then
             local ok, result = coroutine.resume(func.coroutine, event, ...)
             if(not ok)then
                 errorManager.header = "Basalt Schedule Error"
                 errorManager.error(result)
             end
+            func.filter = result
         end
         if(coroutine.status(func.coroutine)=="dead")then
             basalt.removeSchedule(func.coroutine)
@@ -213,9 +212,9 @@ end
 --- @shortDescription Stops the Basalt runtime
 --- @usage basalt.stop()
 function basalt.stop()
+    updaterActive = false
     term.clear()
     term.setCursorPos(1,1)
-    updaterActive = false
 end
 
 --- Starts the Basalt runtime
@@ -230,7 +229,9 @@ function basalt.run(isActive)
         renderFrames()
         while updaterActive do
             updateEvent(os.pullEventRaw())
-            renderFrames()
+            if(updaterActive)then
+                renderFrames()
+            end
         end
     end
     while updaterActive do

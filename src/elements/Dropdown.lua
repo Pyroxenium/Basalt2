@@ -106,7 +106,7 @@ function Dropdown:render()
     if #text == 0 then
         local selectedItems = self:getSelectedItems()
         if #selectedItems > 0 then
-            local selectedItem = selectedItems[1].item
+            local selectedItem = selectedItems[1]
             text = selectedItem.text or ""
         end
     end

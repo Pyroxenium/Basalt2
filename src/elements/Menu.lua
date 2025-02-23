@@ -107,7 +107,6 @@ function Menu:mouse_click(button, x, y)
                     self.get("items")[i] = item
                 end
 
-                -- Wenn kein Multi-Selection, alle anderen deselektieren
                 if not self.get("multiSelection") then
                     for _, otherItem in ipairs(self.get("items")) do
                         if type(otherItem) == "table" then
@@ -116,7 +115,6 @@ function Menu:mouse_click(button, x, y)
                     end
                 end
 
-                -- Toggle Selection
                 item.selected = not item.selected
 
                 if item.callback then

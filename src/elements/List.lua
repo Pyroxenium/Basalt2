@@ -92,7 +92,9 @@ function List:getSelectedItems()
     local selected = {}
     for i, item in ipairs(self.get("items")) do
         if type(item) == "table" and item.selected then
-            table.insert(selected, {index = i, item = item})
+            local selectedItem = item
+            selectedItem.index = i
+            table.insert(selected, selectedItem)
         end
     end
     return selected
@@ -211,21 +213,21 @@ function List:render()
                 local bg = item.background or self.get("background")
 
                 self:textBg(1, i, string.rep(" ", width), bg)
-                self:textFg(1, i, separatorText, fg)
+                self:textFg(1, i, separatorText:sub(1, width), fg)
             else
                 local text = item.text
                 local isSelected = item.selected
 
-                local bg = isSelected and 
+                local bg = isSelected and
                     (item.selectedBackground or self.get("selectedBackground")) or
                     (item.background or self.get("background"))
 
-                local fg = isSelected and 
+                local fg = isSelected and
                     (item.selectedForeground or self.get("selectedForeground")) or
                     (item.foreground or self.get("foreground"))
 
                 self:textBg(1, i, string.rep(" ", width), bg)
-                self:textFg(1, i, text, fg)
+                self:textFg(1, i, text:sub(1, width), fg)
             end
         end
     end
