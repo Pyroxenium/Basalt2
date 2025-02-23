@@ -112,10 +112,10 @@ export default defineConfig({
           text: 'plugins', link: 'references/plugins/animations',
           collapsed: false,
           items: [
-            {text: 'Animations', link: 'references/plugins/Animation', collapsed: true,
+            {text: 'Animations', link: 'references/plugins/animation', collapsed: true,
               items: [
-                {text: 'Animation Instance', link: 'references/plugins/Animation_AnimationInstance'},
-                {text: 'VisualElement', link: 'references/plugins/Animation_VisualElement'},
+                {text: 'Animation Instance', link: 'references/plugins/animation_AnimationInstance'},
+                {text: 'VisualElement', link: 'references/plugins/animation_VisualElement'},
               ]
             },
             {text: 'Benchmark', link: 'references/plugins/benchmark', collapsed: true,

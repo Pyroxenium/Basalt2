@@ -10,13 +10,12 @@ wget run https://raw.githubusercontent.com/Pyroxenium/Basalt2/main/install.lua
 ## Features
 
 - **Pre-built Components:** Buttons, Lists, Textboxes, and more
-- **Modern UI:** Animations, themes, and dynamic layouts
+- **Modern UI:** Animations, themes, states, xml
 - **Event System:** Powerful event handling
 - **Plugin System:** Extend Basalt with custom plugins
 - **Developer Friendly:** 
   - Type definitions for better IDE support
   - Extensive documentation
-  - Active community
   - Minification support
 
 ## Quick Start
