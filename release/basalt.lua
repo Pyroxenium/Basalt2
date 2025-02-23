@@ -1889,7 +1889,7 @@ self.width=da;self.height=_b
 for y=1,self.height do
 self.buffer.text[y]=string.rep(" ",self.width)self.buffer.fg[y]=string.rep("0",self.width)
 self.buffer.bg[y]=string.rep("f",self.width)end;return self end;return ba end
-project["log.lua"] = function(...) local aa={}aa._logs={}aa._enabled=true;aa._logToFile=true
+project["log.lua"] = function(...) local aa={}aa._logs={}aa._enabled=false;aa._logToFile=false
 aa._logFile="basalt.log"fs.delete(aa._logFile)
 aa.LEVEL={DEBUG=1,INFO=2,WARN=3,ERROR=4}
 local ba={[aa.LEVEL.DEBUG]="Debug",[aa.LEVEL.INFO]="Info",[aa.LEVEL.WARN]="Warn",[aa.LEVEL.ERROR]="Error"}
