@@ -1,25 +1,53 @@
 # Welcome to The Basalt Wiki
 
-Basalt is a user-friendly UI framework for CC:Tweaked (also known as "ComputerCraft: Tweaked") - a popular Minecraft mod. It was developed to enhance user interaction through visual displays. In this wiki, you'll find information on how to use Basalt as well as examples of functional Basalt code.
+Basalt is a user-friendly UI framework for CC:Tweaked (also known as "ComputerCraft: Tweaked") - a popular Minecraft mod. It was developed to enhance user interaction through visual displays.
 
-## About Basalt
+## Installation
 
-Basalt is an easy-to-understand UI framework designed to improve user interaction with CC:Tweaked. Some of its key features include:
+```lua
+wget run https://raw.githubusercontent.com/Pyroxenium/Basalt2/main/install.lua
+```
+## Features
 
-- A set of pre-built UI components for creating interfaces quickly and easily.
-- A flexible layout system that allows users to create custom designs.
-- A powerful event handling system for managing user input and interaction.
-- Support for multiple screen resolutions and aspect ratios.
-- Extensive documentation and examples to help users get started quickly.
+- **Pre-built Components:** Buttons, Lists, Textboxes, and more
+- **Modern UI:** Animations, themes, and dynamic layouts
+- **Event System:** Powerful event handling
+- **Plugin System:** Extend Basalt with custom plugins
+- **Developer Friendly:** 
+  - Type definitions for better IDE support
+  - Extensive documentation
+  - Active community
+  - Minification support
 
-If you want to learn more about basalt, check out our Guides page. To learn more about Basalt's API you can also check out the [References](/references/main) page.
+## Quick Start
 
-## Quick Demo
+```lua
+local basalt = require("basalt")
+
+-- Create a simple UI
+basalt.getMainFrame()
+    :addButton()
+    :setText("Hello Basalt!")
+    :setPosition(5, 5)
+    :onMouseClick(function()
+        -- Your code here
+    end)
+
+basalt.run()
+```
+
+## Preview
 
 ![Basalt Demo GIF](https://raw.githubusercontent.com/Pyroxenium/Basalt/master/docs/_media/basaltPreview2.gif)
 
-## Questions & Bugs
+## Documentation
 
-Bugs can be reported here: [Github](https://github.com/Pyroxenium/Basalt2/issues) or in our [discord](https://discord.gg/yNNnmBVBpE).
+- [Getting Started Guide](/guides/getting-started)
+- [API Reference](/references/main)
 
-If you have questions about Basalt or how to make use of it, feel free to create a new discussion on [Basalt's Discussion Board (Github)](https://github.com/Pyroxenium/Basalt2/discussions), or ask in our [discord](https://discord.gg/yNNnmBVBpE).
+## Community & Support
+
+- Report bugs on [GitHub](https://github.com/Pyroxenium/Basalt2/issues)
+- Join our [Discord](https://discord.gg/yNNnmBVBpE)
+- Ask questions on [GitHub Discussions](https://github.com/Pyroxenium/Basalt2/discussions)
+- Check out the [FAQ](/guides/faq)

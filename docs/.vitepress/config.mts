@@ -65,6 +65,8 @@ export default defineConfig({
         { text: 'Download', link: '/guides/download' },
         { text: 'Annotations', link: '/guides/annotations' },
         { text: 'Animations', link: '/guides/animations' },
+        { text: 'States', link: '/guides/states' },
+        { text: 'FAQ', link: '/guides/faq' },
       ],
 
       '/references/':[

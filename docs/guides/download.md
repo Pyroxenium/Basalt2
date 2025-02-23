@@ -1,6 +1,6 @@
 # Download
 
-Basalt is available in two versions: the dev version, ideal for develpoement and the release version which is meant for production
+Basalt is available in two versions: the dev version, ideal for develpoement and the release version which is meant for production. Basalt is also available on [PineStore](https://pinestore.cc/projects/15/basalt)
 
 ## Downloading Basalt
 
@@ -29,17 +29,3 @@ This is the default bundle version of Basalt, containing essential files for a U
 ```
 wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua release
 ```
-
-## Update Basalt
-
-The following command will update the project for you
-
-To execute the update command, use the following:
-
-```
-wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua update
-```
-
-::: info
-This [config](https://github.com/Pyroxenium/Basalt2/config.json) file is used to check if a update needs to be done.
-:::
