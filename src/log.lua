@@ -7,8 +7,8 @@
 --- @field LEVEL table The log levels
 local Log = {}
 Log._logs = {}
-Log._enabled = true
-Log._logToFile = true
+Log._enabled = false
+Log._logToFile = false
 Log._logFile = "basalt.log"
 
 fs.delete(Log._logFile)
