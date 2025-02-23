@@ -65,6 +65,7 @@ export default defineConfig({
         { text: 'Download', link: '/guides/download' },
         { text: 'Annotations', link: '/guides/annotations' },
         { text: 'Animations', link: '/guides/animations' },
+        { text: 'Benchmark', link: '/guides/benchmarks' },
         { text: 'States', link: '/guides/states' },
         { text: 'FAQ', link: '/guides/faq' },
       ],
@@ -98,10 +99,10 @@ export default defineConfig({
                   items: [
                     {text: 'Dropdown', link: 'references/elements/Dropdown'},
                     {text: 'Menu', link: 'references/elements/Menu'},
-                    {text: 'Table', link: 'references/elements/Table'},
-                    {text: 'Tree', link: 'references/elements/Tree'},
                   ]
                 },
+                {text: 'Table', link: 'references/elements/Table'},
+                {text: 'Tree', link: 'references/elements/Tree'},
                 {text: 'Slider', link: 'references/elements/Slider'},
                 {text: 'ProgressBar', link: 'references/elements/ProgressBar'},
                 {text: 'Program', link: 'references/elements/Program'},

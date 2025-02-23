@@ -64,7 +64,6 @@ The benchmark results show:
 - Total execution time
 - Number of calls
 - Average execution time
-- Performance impact
 
 ## Best Practices
 
