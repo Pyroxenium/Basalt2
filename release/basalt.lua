@@ -225,19 +225,19 @@ function bd.removeSchedule(_ba)
 for aba,bba in ipairs(bd._schedule)do if(bba.coroutine==_ba)then
 table.remove(bd._schedule,aba)return true end end;return false end
 local function caa(_ba,...)if(_ba=="terminate")then bd.stop()end
-if baa(_ba,...)then return end
-if(cd)then if(cd:dispatchEvent(_ba,...))then return end end
-for aba,bba in ipairs(bd._schedule)do if(_ba==bba.filter)then
+if baa(_ba,...)then return end;if(cd)then cd:dispatchEvent(_ba,...)end
+for aba,bba in
+ipairs(bd._schedule)do
+if(_ba==bba.filter)or(bba.filter==nil)then
 local cba,dba=coroutine.resume(bba.coroutine,_ba,...)
-if(not cba)then dc.header="Basalt Schedule Error"dc.error(dba)end end
-if(
-coroutine.status(bba.coroutine)=="dead")then bd.removeSchedule(bba.coroutine)end end;if bd._events[_ba]then
+if(not cba)then dc.header="Basalt Schedule Error"dc.error(dba)end;bba.filter=dba end;if(coroutine.status(bba.coroutine)=="dead")then
+bd.removeSchedule(bba.coroutine)end end;if bd._events[_ba]then
 for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(cd)then cd:render()end end;function bd.update(...)caa(...)
-daa()end;function bd.stop()term.clear()
-term.setCursorPos(1,1)dd=false end
-function bd.run(_ba)dd=_ba
-if(_ba==nil)then dd=true end;local function aba()daa()
-while dd do caa(os.pullEventRaw())daa()end end
+daa()end;function bd.stop()dd=false;term.clear()
+term.setCursorPos(1,1)end
+function bd.run(_ba)dd=_ba;if(_ba==nil)then dd=true end;local function aba()
+daa()
+while dd do caa(os.pullEventRaw())if(dd)then daa()end end end
 while dd do local bba,cba=pcall(aba)if not(bba)then
 dc.header="Basalt Runtime Error"dc.error(cba)end end end;function bd.getAPI(_ba)return cc.getAPI(_ba)end;return bd end
 project["init.lua"] = function(...) local da={...}local _b=fs.getDir(da[2])local ab=package.path
@@ -1092,10 +1092,11 @@ bb["addDelayed"..bc]=function(cc,dc)_b(1,cc,"table")
 local _d=cc.basalt.create(_c,dc,true,cc)return _d end end end
 function bb.new()local _c=setmetatable({},bb):__init()return _c end
 function bb:init(_c,ac)da.init(self,_c,ac)self.set("type","Container")end
-function bb:isChildVisible(_c)local ac,bc=self.get("width"),self.get("height")
-local cc,dc=self.get("offsetX"),self.get("offsetY")local _d,ad=_c.get("x"),_c.get("y")
-local bd,cd=_c.get("width"),_c.get("height")local dd;local __a
-if(_c.get("ignoreOffset"))then dd=_d;__a=ad else dd=_d-cc;__a=ad-dc end;return
+function bb:isChildVisible(_c)if(_c.get("visible")==false)then return false end
+local ac,bc=self.get("width"),self.get("height")local cc,dc=self.get("offsetX"),self.get("offsetY")
+local _d,ad=_c.get("x"),_c.get("y")local bd,cd=_c.get("width"),_c.get("height")local dd;local __a;if
+(_c.get("ignoreOffset"))then dd=_d;__a=ad else dd=_d-cc;__a=ad-dc end
+return
 (dd+bd>0)and(dd<=ac)and(__a+cd>0)and(__a<=bc)end
 function bb:addChild(_c)
 if _c==self then error("Cannot add container to itself")end;table.insert(self._values.children,_c)
@@ -1221,9 +1222,9 @@ if
 not self.get("childrenEventsSorted")then for _c in pairs(self._values.childrenEvents)do
 self:sortChildrenEvents(_c)end end
 for _c,ac in ipairs(self.get("visibleChildren"))do if ac==self then
-self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;ac:render()end end;function bb:destroy()
-for _c,ac in ipairs(self._values.children)do ac:destroy()end;da.destroy(self)end;return
-bb end
+self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;ac:render()end end
+function bb:destroy()
+for _c,ac in ipairs(self._values.children)do ac:destroy()end;da.destroy(self)return self end;return bb end
 project["elements/Slider.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"step",{default=1,type="number",canTriggerRender=true})
@@ -1413,7 +1414,7 @@ if db then
 cb.parent:setFocusedChild(cb)else cb.parent:setFocusedChild(nil)end end;return db end})
 _b.defineProperty(_b,"visible",{default=true,type="boolean",canTriggerRender=true,setter=function(cb,db)
 if(cb.parent~=nil)then
-cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;return db end})
+cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;if(db==false)then cb.set("clicked",false)end;return db end})
 _b.defineProperty(_b,"ignoreOffset",{default=false,type="boolean"})_b.combineProperties(_b,"position","x","y")
 _b.combineProperties(_b,"size","width","height")
 _b.combineProperties(_b,"color","foreground","background")_b.defineEvent(_b,"focus")
@@ -1562,7 +1563,7 @@ local aa=self.get("items")table.remove(aa,_a)self:updateRender()return self end
 function d:clear()self.set("items",{})self:updateRender()return self end
 function d:getSelectedItems()local _a={}for aa,ba in ipairs(self.get("items"))do
 if
-type(ba)=="table"and ba.selected then table.insert(_a,{index=aa,item=ba})end end;return _a end
+type(ba)=="table"and ba.selected then local ca=ba;ca.index=aa;table.insert(_a,ca)end end;return _a end
 function d:mouse_click(_a,aa,ba)
 if
 _a==1 and self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
@@ -1590,13 +1591,13 @@ type(_b)=="string"then _b={text=_b}_a[da]=_b end
 if _b.separator then
 local ab=(_b.text or"-"):sub(1,1)local bb=string.rep(ab,ca)
 local cb=_b.foreground or self.get("foreground")local db=_b.background or self.get("background")
-self:textBg(1,i,string.rep(" ",ca),db)self:textFg(1,i,bb,cb)else local ab=_b.text;local bb=_b.selected
-local cb=bb and(_b.selectedBackground or
-self.get("selectedBackground"))or(_b.background or
-self.get("background"))
+self:textBg(1,i,string.rep(" ",ca),db)self:textFg(1,i,bb:sub(1,ca),cb)else local ab=_b.text
+local bb=_b.selected
+local cb=
+bb and(_b.selectedBackground or self.get("selectedBackground"))or(_b.background or self.get("background"))
 local db=
 bb and(_b.selectedForeground or self.get("selectedForeground"))or(_b.foreground or self.get("foreground"))self:textBg(1,i,string.rep(" ",ca),cb)
-self:textFg(1,i,ab,db)end end end end;return d end
+self:textFg(1,i,ab:sub(1,ca),db)end end end end;return d end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true})
@@ -1764,13 +1765,13 @@ if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="ta
 cc.selected=false end end end;ac.selected=not ac.selected
 if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
 self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("selectedText")
-if
-#da==0 then local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1].item
+function ca:render()_a.render(self)local da=self.get("selectedText")if
+#da==0 then local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]
 da=ab.text or""end end
-self:blit(1,1,da..
-
-string.rep(" ",self.get("width")-#da-1).. (self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
+self:blit(1,1,
+da..
+string.rep(" ",self.get("width")-#da-1).. (
+self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
 if self.get("isOpen")then local _b=self.get("items")
 local ab=self.get("height")-1;local bb=self.get("offset")local cb=self.get("width")
 for i=1,ab do local db=i+bb
