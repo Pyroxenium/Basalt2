@@ -5,7 +5,6 @@ local getCenteredPosition = require("libraries/utils").getCenteredPosition
 
 --- The Button is a standard button element with click handling and state management.
 ---@class Button : VisualElement
----@configDescription Standard button element with click handling and state management
 local Button = setmetatable({}, VisualElement)
 Button.__index = Button
 
