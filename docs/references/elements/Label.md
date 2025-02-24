@@ -18,6 +18,7 @@ resizes its width based on the text content.
 |[Label:init](#Label:init)|Label|Initializes the Label instance
 |[Label:render](#Label:render)|-|Renders the Label by drawing its text content
 
+
 ## Label.new()
 Creates a new Label instance
 

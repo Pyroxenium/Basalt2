@@ -29,6 +29,7 @@ with customizable colors and value ranges.
 |[Slider:mouse_scroll](#Slider:mouse_scroll)|boolean|Handles mouse release events
 |[Slider:render](#Slider:render)|-|Renders the slider with track and handle
 
+
 ## Slider.new()
 Creates a new Slider instance
 

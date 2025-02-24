@@ -29,6 +29,7 @@ with support for selection and scrolling.
 |[Tree:render](#Tree:render)|-|Renders the tree with nodes, selection and scrolling
 |[Tree:toggleNode](#Tree:toggleNode)|Tree|Toggles between expanded and collapsed state
 
+
 ## Tree.new()
 Creates a new Tree instance
 

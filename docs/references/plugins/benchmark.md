@@ -11,6 +11,7 @@ Benchmark API methods
 |[API.start](#API.start)|-|Starts timing a custom operation
 |[API.stop](#API.stop)|-|Stops timing and logs results
 
+
 ## API.clear(name)
 Clears a specific benchmark
 

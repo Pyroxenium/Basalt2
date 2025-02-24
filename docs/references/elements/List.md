@@ -36,6 +36,7 @@ custom item rendering, separators, and selection handling.
 |[List:scrollToBottom](#List:scrollToBottom)|List|Scrolls the list to the bottom
 |[List:scrollToTop](#List:scrollToTop)|List|Scrolls the list to the top
 
+
 ## List.new()
 Creates a new List instance
 

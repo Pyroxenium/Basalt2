@@ -9,6 +9,7 @@ Container benchmarking methods
 |[Container:logContainerBenchmarks](#Container:logContainerBenchmarks)|Container|Recursively logs benchmark statistics
 |[Container:stopContainerBenchmark](#Container:stopContainerBenchmark)|Container|Recursively stops benchmarking
 
+
 ## Container:benchmarkContainer(methodName)
 Enables benchmarking for a container and all its children
 

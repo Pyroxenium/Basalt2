@@ -52,6 +52,7 @@ like Frames, BaseFrames, and more.
 |[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
 |[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|Unregisters the children events of the container
 
+
 ## Container.new()
 Creates a new Container instance
 

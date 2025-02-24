@@ -34,6 +34,7 @@ A scrollbar element that can be attached to other elements to control their scro
 |[Scrollbar:render](#Scrollbar:render)|-|Renders the scrollbar
 |[Scrollbar:updateAttachedElement](#Scrollbar:updateAttachedElement)|Scrollbar|Updates the attached element's property based on the scrollbar value
 
+
 ## Scrollbar.new()
 Creates a new Scrollbar instance
 

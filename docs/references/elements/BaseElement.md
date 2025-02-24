@@ -29,6 +29,7 @@ The base class for all UI elements in Basalt. This class provides basic properti
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
 |[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
 
+
 ## BaseElement.defineEvent()
 
 ## BaseElement.new(props, basalt)

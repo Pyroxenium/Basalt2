@@ -18,6 +18,7 @@ with optional percentage display and customizable colors.
 |[ProgressBar:init](#ProgressBar:init)|ProgressBar|Initializes the ProgressBar instance
 |[ProgressBar:render](#ProgressBar:render)|-|Renders the progress bar with filled portion and optional percentage text
 
+
 ## ProgressBar.new()
 Creates a new ProgressBar instance
 

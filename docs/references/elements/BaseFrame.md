@@ -27,6 +27,7 @@ This is the base frame class. It is the root element of all elements and the onl
 |[BaseFrame:textBg](#BaseFrame:textBg)|-|Renders a text with a background color to the render Object
 |[BaseFrame:textFg](#BaseFrame:textFg)|-|Renders a text with a foreground color to the render Object
 
+
 ## BaseFrame.new()
 Creates a new Frame instance
 

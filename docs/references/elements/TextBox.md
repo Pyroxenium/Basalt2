@@ -30,6 +30,7 @@ A multi-line text editor component with cursor support and text manipulation fea
 |[TextBox:setText](#TextBox:setText)|TextBox|Sets the text of the TextBox
 |[TextBox:updateViewport](#TextBox:updateViewport)|TextBox|Updates the viewport to keep the cursor in view
 
+
 ## TextBox.new()
 Creates a new TextBox instance
 

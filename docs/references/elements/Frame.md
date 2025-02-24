@@ -8,6 +8,7 @@ This is the frame class. It serves as a grouping container for other elements.
 |[Frame.new](#Frame.new)|Frame|Creates a new Frame instance
 |[Frame:init](#Frame:init)|Frame|Initializes the Frame instance
 
+
 ## Frame.new()
 Creates a new Frame instance
 

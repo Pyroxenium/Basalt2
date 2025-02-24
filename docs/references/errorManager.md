@@ -14,6 +14,7 @@ This is Basalt's error handler. All the errors are handled by this module.
 |---|---|---|
 |[errorHandler.error](#errorHandler.error)|-|
 
+
 ## errorHandler.error(errMsg)
 Handles an error
 

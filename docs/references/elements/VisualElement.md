@@ -70,6 +70,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |[VisualElement:textBg](#VisualElement:textBg)|-|Draws text with background color
 |[VisualElement:textFg](#VisualElement:textFg)|-|Draws text with foreground color
 
+
 ## VisualElement.new(props, basalt)
 Creates a new VisualElement instance
 

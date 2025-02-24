@@ -27,6 +27,7 @@ row selection, and scrolling capabilities.
 |[Table:render](#Table:render)|-|Renders the table with headers, data and scrollbar
 |[Table:sortData](#Table:sortData)|Table|Sorts the table data by the specified column
 
+
 ## Table.new()
 Creates a new Table instance
 

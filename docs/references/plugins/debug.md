@@ -8,6 +8,7 @@ No Description
 |[BaseElement.debug](#BaseElement.debug)|-|Enables debugging for this element
 |[BaseElement.dumpDebug](#BaseElement.dumpDebug)|-|Dumps debug information
 
+
 ## BaseElement.debug(self, level)
 Enables debugging for this element
 
@@ -34,6 +35,7 @@ Dumps debug information for this element
 |[BaseFrame.hideDebugLog](#BaseFrame.hideDebugLog)|-|Hides the debug log frame
 |[BaseFrame.showDebugLog](#BaseFrame.showDebugLog)|-|Shows the debug log frame
 |[BaseFrame.toggleDebugLog](#BaseFrame.toggleDebugLog)|-|Toggles the debug log frame
+
 
 ## BaseFrame.hideDebugLog(self)
 Hides the debug log frame
@@ -64,6 +66,7 @@ Toggles the debug log frame
 |Method|Returns|Description|
 |---|---|---|
 |[Container.debugChildren](#Container.debugChildren)|-|Debug container and children
+
 
 ## Container.debugChildren(self, level)
 Enables debugging for this container and all its children

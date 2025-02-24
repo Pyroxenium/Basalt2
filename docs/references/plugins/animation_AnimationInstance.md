@@ -23,6 +23,7 @@ This is the AnimationInstance class. It represents a single animation instance
 |[AnimationInstance:start](#AnimationInstance:start)|AnimationInstance|Starts the animation
 |[AnimationInstance:update](#AnimationInstance:update)|boolean|Updates the animation
 
+
 ## AnimationInstance.new(element, animType, args, duration, easing)
 Creates a new AnimationInstance
 

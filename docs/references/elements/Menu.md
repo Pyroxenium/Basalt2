@@ -18,6 +18,7 @@ Menu items are displayed in a single row and can have custom colors and callback
 |[Menu:render](#Menu:render)|-|Renders the menu horizontally with proper spacing and colors
 |[Menu:setItems](#Menu:setItems)|Menu|Sets the menu items and calculates total width
 
+
 ## Menu.new()
 Creates a new Menu instance
 

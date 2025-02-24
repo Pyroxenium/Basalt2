@@ -20,6 +20,7 @@ This is the program class. It provides a program that runs in a window.
 |[Program:init](#Program:init)|Program|Initializes the Program instance
 |[Program:render](#Program:render)|-|Renders the program
 
+
 ## Program.new()
 Creates a new Program instance
 

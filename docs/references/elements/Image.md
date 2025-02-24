@@ -26,6 +26,7 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |[Image:setFg](#Image:setFg)|-|
 |[Image:setPixel](#Image:setPixel)|-|
 
+
 ## Image.new()
 
 ## Image:getPixelData(x, y)

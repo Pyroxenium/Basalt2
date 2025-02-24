@@ -21,6 +21,7 @@ The Button is a standard button element with click handling and state management
 |[Button:init](#Button:init)|-|Initializes the Button instance
 |[Button:render](#Button:render)|-|Renders the Button
 
+
 ## Button.new()
 Creates a new Button instance
 

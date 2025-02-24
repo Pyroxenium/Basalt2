@@ -14,6 +14,7 @@ The following methods are available for BaseElement
 |[BaseElement:startProfile](#BaseElement:startProfile)|BaseElement|Starts timing a method call
 |[BaseElement:stopBenchmark](#BaseElement:stopBenchmark)|BaseElement|Disables performance measurement for a method
 
+
 ## BaseElement:benchmark(methodName)
 Enables benchmarking for a method
 

@@ -22,6 +22,7 @@ This is the Flexbox class. It is a container that arranges its children in a fle
 |[Flexbox:removeChild](#Flexbox:removeChild)|Flexbox|Removes a child element from the flexbox
 |[Flexbox:render](#Flexbox:render)|Flexbox|Renders the flexbox and its children
 
+
 ## Flexbox.new()
 Creates a new Flexbox instance
 

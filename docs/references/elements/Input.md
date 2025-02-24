@@ -30,6 +30,7 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |[Input:render](#Input:render)|-|Renders the input element
 |[Input:updateViewport](#Input:updateViewport)|-|Updates the input's viewport
 
+
 ## Input.new()
 Creates a new Input instance
 

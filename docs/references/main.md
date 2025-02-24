@@ -37,6 +37,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.stop](#basalt.stop)|-|Stops the Basalt runtime
 |[basalt.update](#basalt.update)|-|Runs basalt once
 
+
 ## basalt.create(type, properties?)
 Creates and returns a new UI element of the specified type.
 
