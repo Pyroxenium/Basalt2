@@ -1,6 +1,5 @@
 # Button : VisualElement
 The Button is a standard button element with click handling and state management.
-@configDescription Standard button element with click handling and state management
 
 ## Properties
 
