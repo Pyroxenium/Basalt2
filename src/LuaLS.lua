@@ -374,6 +374,14 @@ function Container:addFrame()
     return self
 end
 
+--- Adds a new Image to the container
+---@generic Element: Container
+---@param self Element
+---@return Image
+function Container:addImage()
+    return self
+end
+
 --- Adds a new Input to the container
 ---@generic Element: Container
 ---@param self Element
@@ -547,6 +555,166 @@ end
 ---@return Element
 function Dropdown:setDropSymbol(dropSymbol)
     self.dropSymbol = dropSymbol
+    return self
+end
+
+
+---@class Flexbox
+---@field flexDirection string
+---@field flexSpacing number
+---@field flexJustifyContent string
+---@field flexWrap boolean
+---@field flexUpdateLayout boolean
+local Flexbox = {}
+
+--- Gets the The direction of the flexbox layout "row" or "column"
+---@generic Element: Flexbox
+---@param self Element
+---@return string
+function Flexbox:getFlexDirection()
+    return self.flexDirection
+end
+
+--- Sets the The direction of the flexbox layout "row" or "column"
+---@generic Element: Flexbox
+---@param self Element
+---@param flexDirection string
+---@return Element
+function Flexbox:setFlexDirection(flexDirection)
+    self.flexDirection = flexDirection
+    return self
+end
+
+--- Gets the The spacing between flex items
+---@generic Element: Flexbox
+---@param self Element
+---@return number
+function Flexbox:getFlexSpacing()
+    return self.flexSpacing
+end
+
+--- Sets the The spacing between flex items
+---@generic Element: Flexbox
+---@param self Element
+---@param flexSpacing number
+---@return Element
+function Flexbox:setFlexSpacing(flexSpacing)
+    self.flexSpacing = flexSpacing
+    return self
+end
+
+--- Gets the The alignment of flex items along the main axis
+---@generic Element: Flexbox
+---@param self Element
+---@return string
+function Flexbox:getFlexJustifyContent()
+    return self.flexJustifyContent
+end
+
+--- Sets the The alignment of flex items along the main axis
+---@generic Element: Flexbox
+---@param self Element
+---@param flexJustifyContent string
+---@return Element
+function Flexbox:setFlexJustifyContent(flexJustifyContent)
+    self.flexJustifyContent = flexJustifyContent
+    return self
+end
+
+--- Gets the Whether to wrap flex items onto multiple lines
+---@generic Element: Flexbox
+---@param self Element
+---@return boolean
+function Flexbox:getFlexWrap()
+    return self.flexWrap
+end
+
+--- Sets the Whether to wrap flex items onto multiple lines
+---@generic Element: Flexbox
+---@param self Element
+---@param flexWrap boolean
+---@return Element
+function Flexbox:setFlexWrap(flexWrap)
+    self.flexWrap = flexWrap
+    return self
+end
+
+--- Gets the Whether to update the layout of the flexbox
+---@generic Element: Flexbox
+---@param self Element
+---@return boolean
+function Flexbox:getFlexUpdateLayout()
+    return self.flexUpdateLayout
+end
+
+--- Sets the Whether to update the layout of the flexbox
+---@generic Element: Flexbox
+---@param self Element
+---@param flexUpdateLayout boolean
+---@return Element
+function Flexbox:setFlexUpdateLayout(flexUpdateLayout)
+    self.flexUpdateLayout = flexUpdateLayout
+    return self
+end
+
+
+---@class Image
+---@field bimg table
+---@field currentFrame number
+---@field metadata table
+local Image = {}
+
+--- Gets the The bimg image data
+---@generic Element: Image
+---@param self Element
+---@return table
+function Image:getBimg()
+    return self.bimg
+end
+
+--- Sets the The bimg image data
+---@generic Element: Image
+---@param self Element
+---@param bimg table
+---@return Element
+function Image:setBimg(bimg)
+    self.bimg = bimg
+    return self
+end
+
+--- Gets the Current animation frame
+---@generic Element: Image
+---@param self Element
+---@return number
+function Image:getCurrentFrame()
+    return self.currentFrame
+end
+
+--- Sets the Current animation frame
+---@generic Element: Image
+---@param self Element
+---@param currentFrame number
+---@return Element
+function Image:setCurrentFrame(currentFrame)
+    self.currentFrame = currentFrame
+    return self
+end
+
+--- Gets the Image metadata (version, palette, etc)
+---@generic Element: Image
+---@param self Element
+---@return table
+function Image:getMetadata()
+    return self.metadata
+end
+
+--- Sets the Image metadata (version, palette, etc)
+---@generic Element: Image
+---@param self Element
+---@param metadata table
+---@return Element
+function Image:setMetadata(metadata)
+    self.metadata = metadata
     return self
 end
 
@@ -1923,16 +2091,16 @@ function VisualElement:setIgnoreOffset(ignoreOffset)
     return self
 end
 
---- {button number, x number, y number} Fired on mouse click
+--- {button, x, y} Fired on mouse click
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnMouseClick(callback)
+function VisualElement:onOnClick(callback)
     return self
 end
 
---- {button number, x number, y number} Fired on mouse button release
+--- {button, x, y} Fired on mouse button release
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1941,21 +2109,48 @@ function VisualElement:onOnMouseUp(callback)
     return self
 end
 
---- {button number, x number, y number} Fired when mouse leaves while clicked
+--- {button, x, y} Fired when mouse leaves while clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnMouseRelease(callback)
+function VisualElement:onOnRelease(callback)
     return self
 end
 
---- {button number, x number, y number} Fired when mouse moves while clicked
+--- {button, x, y} Fired when mouse moves while clicked
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnMouseDrag(callback)
+function VisualElement:onOnDrag(callback)
+    return self
+end
+
+--- {direction, x, y} Fired on mouse scroll
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnScroll(callback)
+    return self
+end
+
+--- {-} Fired when mouse enters element
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnEnter(callback)
+    return self
+end
+
+--- {-} Fired when mouse leaves element
+---@generic Element: VisualElement
+---@param self Element
+---@param callback function
+---@return Element
+function VisualElement:onOnLeave(callback)
     return self
 end
 
@@ -1977,7 +2172,7 @@ function VisualElement:onOnBlur(callback)
     return self
 end
 
---- {key number, code number, isRepeat boolean} Fired on key press
+--- {key} Fired on key press
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1986,7 +2181,7 @@ function VisualElement:onOnKey(callback)
     return self
 end
 
---- {key number, code number} Fired on key release
+--- {key} Fired on key release
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
@@ -1995,7 +2190,7 @@ function VisualElement:onOnKeyUp(callback)
     return self
 end
 
---- {char string} Fired on character input
+--- {char} Fired on character input
 ---@generic Element: VisualElement
 ---@param self Element
 ---@param callback function
