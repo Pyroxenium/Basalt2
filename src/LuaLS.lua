@@ -43,15 +43,6 @@ function Button:setText(text)
     return self
 end
 
---- The event that is triggered when the button is clicked
----@generic Element: Button
----@param self Element
----@param callback function
----@return Element
-function Button:onMouseClick(callback)
-    return self
-end
-
 
 ---@class Checkbox
 ---@field checked boolean

@@ -1199,34 +1199,34 @@ local function db(_c,ac,...)local bc={...}
 if ac:find("mouse_")then local cc,dc,_d=...
 local ad,bd=_c.get("offsetX"),_c.get("offsetY")local cd,dd=_c:getRelativePosition(dc+ad,_d+bd)
 bc={cc,cd,dd}end;return bc end
-function bb:callChildrenEvents(_c,ac,...)local bc=_c and self.get("visibleChildrenEvents")or
+function bb:callChildrenEvent(_c,ac,...)local bc=_c and self.get("visibleChildrenEvents")or
 self.get("childrenEvents")
 if
 bc[ac]then local cc=bc[ac]for i=#cc,1,-1 do local dc=cc[i]
 if(dc:dispatchEvent(ac,...))then return true,dc end end end;return false end
 function bb:handleEvent(_c,...)da.handleEvent(self,_c,...)local ac=db(self,_c,...)return
-self:callChildrenEvents(false,_c,table.unpack(ac))end
+self:callChildrenEvent(false,_c,table.unpack(ac))end
 function bb:mouse_click(_c,ac,bc)
 if da.mouse_click(self,_c,ac,bc)then
 local cc=db(self,"mouse_click",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_click",table.unpack(cc))
+local dc,_d=self:callChildrenEvent(true,"mouse_click",table.unpack(cc))
 if(dc)then self.set("focusedChild",_d)return true end;self.set("focusedChild",nil)return true end;return false end
 function bb:mouse_up(_c,ac,bc)
 if da.mouse_up(self,_c,ac,bc)then local cc=db(self,"mouse_up",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_up",table.unpack(cc))if(dc)then return true end end;return false end
+local dc,_d=self:callChildrenEvent(true,"mouse_up",table.unpack(cc))if(dc)then return true end end;return false end
 function bb:mouse_release(_c,ac,bc)da.mouse_release(self,_c,ac,bc)
 local cc=db(self,"mouse_release",_c,ac,bc)
-self:callChildrenEvents(false,"mouse_release",table.unpack(cc))end
+self:callChildrenEvent(false,"mouse_release",table.unpack(cc))end
 function bb:mouse_move(_c,ac,bc)
 if da.mouse_move(self,_c,ac,bc)then
 local cc=db(self,"mouse_move",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_move",table.unpack(cc))if(dc)then return true end end;return false end
+local dc,_d=self:callChildrenEvent(true,"mouse_move",table.unpack(cc))if(dc)then return true end end;return false end
 function bb:mouse_drag(_c,ac,bc)
 if da.mouse_drag(self,_c,ac,bc)then
 local cc=db(self,"mouse_drag",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_drag",table.unpack(cc))if(dc)then return true end end;return false end
+local dc,_d=self:callChildrenEvent(true,"mouse_drag",table.unpack(cc))if(dc)then return true end end;return false end
 function bb:mouse_scroll(_c,ac,bc)local cc=db(self,"mouse_scroll",_c,ac,bc)
-local dc,_d=self:callChildrenEvents(true,"mouse_scroll",table.unpack(cc))if(dc)then return true end
+local dc,_d=self:callChildrenEvent(true,"mouse_scroll",table.unpack(cc))if(dc)then return true end
 if(da.mouse_scroll(self,_c,ac,bc))then return true end;return false end;function bb:key(_c)if self.get("focusedChild")then return
 self.get("focusedChild"):dispatchEvent("key",_c)end
 return true end
@@ -1428,7 +1428,7 @@ local ca=self.get("cursorPos")local da=self.get("viewOffset")
 local _b=#self.get("text")
 if ca-da>ba then self.set("viewOffset",ca-ba)elseif ca<=da then self.set("viewOffset",math.max(0,
 ca-1))end;if da>_b-ba then
-self.set("viewOffset",math.max(0,_b-ba))end end
+self.set("viewOffset",math.max(0,_b-ba))end;return self end
 function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
 local da=self.get("width")local _b=self.get("placeholder")
 local ab=self.get("focusedColor")local bb=self.get("focused")
@@ -1521,7 +1521,7 @@ local bc,cc=self.get("x"),self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac
 function _b:setCursor(cb,db,_c,ac)
 if self.parent then local bc,cc=self:getAbsolutePosition(cb,db)
 bc=ab(self.get("x"),bb(bc,
-self.get("width")+self.get("x")-1))return self.parent:setCursor(bc,cc,_c,ac)end end
+self.get("width")+self.get("x")-1))return self.parent:setCursor(bc,cc,_c,ac)end;return self end
 function _b:render()
 if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
 self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;return _b end
