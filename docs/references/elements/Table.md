@@ -25,8 +25,6 @@ row selection, and scrolling capabilities.
 |[Table:mouse_click](#Table:mouse_click)|boolean|Handles header clicks for sorting and row selection
 |[Table:mouse_scroll](#Table:mouse_scroll)|boolean|Handles scrolling through the table data
 |[Table:render](#Table:render)|-|Renders the table with headers, data and scrollbar
-|[Table:setColumns](#Table:setColumns)|Table|Sets the table columns configuration
-|[Table:setData](#Table:setData)|Table|Sets the table data
 |[Table:sortData](#Table:sortData)|Table|Sorts the table data by the specified column
 
 ## Table.new()
@@ -74,34 +72,6 @@ Handles mouse scroll events
 
 ## Table:render()
 Renders the table
-
-## Table:setColumns(columns)
-Sets the table columns
-
-### Parameters
-* `columns` `table[]` Array of column definitions {name="Name", width=10}
-
-### Returns
-* `Table` `self` The Table instance
-
-### Usage
- ```lua
-table:setColumns({{name="ID", width=4}, {name="Name", width=10}})
-```
-
-## Table:setData(data)
-Sets the table data
-
-### Parameters
-* `data` `table[]` Array of row data arrays
-
-### Returns
-* `Table` `self` The Table instance
-
-### Usage
- ```lua
-table:setData({{"1", "Item One"}, {"2", "Item Two"}})
-```
 
 ## Table:sortData(columnIndex)
 Sorts the table data by column

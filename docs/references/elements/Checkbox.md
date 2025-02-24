@@ -1,5 +1,5 @@
 # Checkbox : VisualElement
-This is the checkbox class. It is a visual element that can be checked.
+The Checkbox is a visual element that can be checked.
 
 ## Properties
 

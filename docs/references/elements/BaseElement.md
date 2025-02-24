@@ -1,5 +1,5 @@
 # BaseElement : PropertySystem
-The base class for all UI elements in Basalt
+The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality.
 
 ## Properties
 

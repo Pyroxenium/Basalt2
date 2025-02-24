@@ -26,7 +26,7 @@ with customizable colors and value ranges.
 |[Slider:getValue](#Slider:getValue)|number|Gets the current value mapped to the max range
 |[Slider:init](#Slider:init)|Slider|Initializes the Slider instance
 |[Slider:mouse_click](#Slider:mouse_click)|boolean|Updates slider position on mouse click
-|[Slider:mouse_scroll](#Slider:mouse_scroll)|-|
+|[Slider:mouse_scroll](#Slider:mouse_scroll)|boolean|Handles mouse release events
 |[Slider:render](#Slider:render)|-|Renders the slider with track and handle
 
 ## Slider.new()
@@ -72,7 +72,16 @@ Handles mouse click events
 ### Returns
 * `boolean` `handled` Whether the event was handled
 
-## Slider:mouse_scroll()
+## Slider:mouse_scroll(button, x, y)
+Handles mouse release events
+
+### Parameters
+* `button` `number` The mouse button that was released
+* `x` `number` The x position of the release
+* `y` `number` The y position of the release
+
+### Returns
+* `boolean` `handled` Whether the event was handled
 
 ## Slider:render()
 Renders the slider

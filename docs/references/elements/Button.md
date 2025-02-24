@@ -1,5 +1,5 @@
 # Button : VisualElement
-This is the button class. It is a visual element that can be clicked.
+The Button is a standard button element with click handling and state management.
 @configDescription Standard button element with click handling and state management
 
 ## Properties

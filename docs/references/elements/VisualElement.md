@@ -32,15 +32,18 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Event|Parameters|Description|
 |---|---|---|
-|onMouseClick|`button number, x number, y number`|Fired on mouse click|
-|onMouseUp|`button number, x number, y number`|Fired on mouse button release|
-|onMouseRelease|`button number, x number, y number`|Fired when mouse leaves while clicked|
-|onMouseDrag|`button number, x number, y number`|Fired when mouse moves while clicked|
+|onClick|`button, x, y`|Fired on mouse click|
+|onMouseUp|`button, x, y`|Fired on mouse button release|
+|onRelease|`button, x, y`|Fired when mouse leaves while clicked|
+|onDrag|`button, x, y`|Fired when mouse moves while clicked|
+|onScroll|`direction, x, y`|Fired on mouse scroll|
+|onEnter|`-`|Fired when mouse enters element|
+|onLeave|`-`|Fired when mouse leaves element|
 |onFocus|`-`|Fired when element receives focus|
 |onBlur|`-`|Fired when element loses focus|
-|onKey|`key number, code number, isRepeat boolean`|Fired on key press|
-|onKeyUp|`key number, code number`|Fired on key release|
-|onChar|`char string`|Fired on character input|
+|onKey|`key`|Fired on key press|
+|onKeyUp|`key`|Fired on key release|
+|onChar|`char`|Fired on character input|
 
 ## Functions
 

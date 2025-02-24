@@ -21,11 +21,9 @@ This is the base frame class. It is the root element of all elements and the onl
 |[BaseFrame.new](#BaseFrame.new)|BaseFrame|Creates a new Frame instance
 |[BaseFrame:blit](#BaseFrame:blit)|-|Renders a text with a foreground and background color to the render Object
 |[BaseFrame:init](#BaseFrame:init)|table|Initializes the Frame instance
-|[BaseFrame:mouse_up](#BaseFrame:mouse_up)|-|
 |[BaseFrame:multiBlit](#BaseFrame:multiBlit)|-|Renders a multiBlit to the render Object
 |[BaseFrame:render](#BaseFrame:render)|-|Renders the Frame
 |[BaseFrame:setCursor](#BaseFrame:setCursor)|-|Sets the cursor position
-|[BaseFrame:term_resize](#BaseFrame:term_resize)|-|
 |[BaseFrame:textBg](#BaseFrame:textBg)|-|Renders a text with a background color to the render Object
 |[BaseFrame:textFg](#BaseFrame:textFg)|-|Renders a text with a foreground color to the render Object
 
@@ -60,8 +58,6 @@ Initializes the Frame instance
 ### Returns
 * `table` `self` The initialized instance
 
-## BaseFrame:mouse_up()
-
 ## BaseFrame:multiBlit(x, y, width, height, text, fg, bg)
 Renders a multiBlit to the render Object
 
@@ -84,8 +80,6 @@ Sets the cursor position
 * `x` `number` The x position to set the cursor to
 * `y` `number` The y position to set the cursor to
 * `blink` `boolean` Whether the cursor should blink
-
-## BaseFrame:term_resize()
 
 ## BaseFrame:textBg(x, y, text, bg)
 Renders a text with a background color to the render Object

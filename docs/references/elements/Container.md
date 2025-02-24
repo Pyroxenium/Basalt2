@@ -24,7 +24,7 @@ like Frames, BaseFrames, and more.
 |[Container.new](#Container.new)|Container|Creates a new Container instance
 |[Container:addChild](#Container:addChild)|Container|Adds a child to the container
 |[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
-|[Container:callChildrenEvents](#Container:callChildrenEvents)|-|
+|[Container:callChildrenEvents](#Container:callChildrenEvents)|boolean|Calls a event on all children
 |[Container:char](#Container:char)|boolean|Handles char events
 |[Container:clear](#Container:clear)|Container|Clears the container
 |[Container:destroy](#Container:destroy)|Container|Destroys the container and its children
@@ -35,10 +35,10 @@ like Frames, BaseFrames, and more.
 |[Container:key](#Container:key)|boolean|Handles key events
 |[Container:key_up](#Container:key_up)|boolean|Handles key up events
 |[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
-|[Container:mouse_drag](#Container:mouse_drag)|-|
-|[Container:mouse_move](#Container:mouse_move)|-|
-|[Container:mouse_release](#Container:mouse_release)|-|
-|[Container:mouse_scroll](#Container:mouse_scroll)|-|
+|[Container:mouse_drag](#Container:mouse_drag)|boolean|Handles mouse drag events
+|[Container:mouse_move](#Container:mouse_move)|boolean|Handles mouse move events
+|[Container:mouse_release](#Container:mouse_release)|-|Handles mouse release events
+|[Container:mouse_scroll](#Container:mouse_scroll)|boolean|Handles mouse scroll events
 |[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
 |[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
 |[Container:registerChildEvent](#Container:registerChildEvent)|Container|Registers the children events of the container
@@ -80,7 +80,17 @@ Draws a line of text and fg and bg as colors, it is usually used in the render l
 ### Returns
 * `Container` `self` The container instance
 
-## Container:callChildrenEvents()
+## Container:callChildrenEvents(visibleOnly, event...)
+Calls a event on all children
+
+### Parameters
+* `visibleOnly` `boolean` Whether to only call the event on visible children
+* `event` `string` The event to call
+* `...` *(vararg)* `any` The event arguments
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+* `table` `child?` The child that handled the event
 
 ## Container:char(char)
 Handles char events
@@ -167,13 +177,46 @@ Handles mouse click events
 ### Returns
 * `boolean` `handled` Whether the event was handled
 
-## Container:mouse_drag()
+## Container:mouse_drag(button, x, y)
+Handles mouse drag events
 
-## Container:mouse_move()
+### Parameters
+* `button` `number` The button that was clicked
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
 
-## Container:mouse_release()
+### Returns
+* `boolean` `handled` Whether the event was handled
 
-## Container:mouse_scroll()
+## Container:mouse_move(_, x, y)
+Handles mouse move events
+
+### Parameters
+* `_` `number` unknown
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## Container:mouse_release(button, x, y)
+Handles mouse release events
+
+### Parameters
+* `button` `number` The button that was clicked
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
+
+## Container:mouse_scroll(direction, x, y)
+Handles mouse scroll events
+
+### Parameters
+* `direction` `number` The direction of the scroll
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
+
+### Returns
+* `boolean` `handled` Whether the event was handled
 
 ## Container:mouse_up(button, x, y)
 Handles mouse up events
