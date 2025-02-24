@@ -23,30 +23,23 @@ custom item rendering, separators, and selection handling.
 
 |Method|Returns|Description|
 |---|---|---|
-|[List.new](#List.new)|List|Creates a new List instance
 |[List:addItem](#List:addItem)|List|Adds an item to the list
 |[List:clear](#List:clear)|List|Clears all items from the list
 |[List:getSelectedItems](#List:getSelectedItems)|table|Gets the currently selected items
-|[List:init](#List:init)|List|Initializes the List instance
-|[List:mouse_click](#List:mouse_click)|boolean|Handles mouse click events
-|[List:mouse_scroll](#List:mouse_scroll)|boolean|Handles mouse scroll events
 |[List:onSelect](#List:onSelect)|List|Registers a callback for the select event
 |[List:removeItem](#List:removeItem)|List|Removes an item from the list
-|[List:render](#List:render)|-|Renders the list
 |[List:scrollToBottom](#List:scrollToBottom)|List|Scrolls the list to the bottom
 |[List:scrollToTop](#List:scrollToTop)|List|Scrolls the list to the top
 
 
-## List.new()
-Creates a new List instance
+## Protected Functions
 
-### Returns
-* `List` `self` The newly created List instance
-
-### Usage
- ```lua
-local list = List.new()
-```
+|Method|Returns|Description|
+|---|---|---|
+|[List:init](#List:init)|List|Initializes the List instance
+|[List:mouse_click](#List:mouse_click)|boolean|Handles mouse click events
+|[List:mouse_scroll](#List:mouse_scroll)|boolean|Handles mouse scroll events
+|[List:render](#List:render)|-|Renders the list
 
 ## List:addItem(text)
 Adds an item to the list
@@ -85,38 +78,6 @@ Gets the currently selected items
 local selected = list:getSelectedItems()
 ```
 
-## List:init(props, basalt)
-Initializes the List instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `List` `self` The initialized instance
-
-## List:mouse_click(button, x, y)
-Handles mouse click events
-
-### Parameters
-* `button` `number` The mouse button that was clicked
-* `x` `number` The x-coordinate of the click
-* `y` `number` The y-coordinate of the click
-
-### Returns
-* `boolean` `Whether` the event was handled
-
-## List:mouse_scroll(direction, x, y)
-Handles mouse scroll events
-
-### Parameters
-* `direction` `number` The direction of the scroll (1 for down, -1 for up)
-* `x` `number` The x-coordinate of the scroll
-* `y` `number` The y-coordinate of the scroll
-
-### Returns
-* `boolean` `Whether` the event was handled
-
 ## List:onSelect(callback)
 Registers a callback for the select event
 
@@ -144,9 +105,6 @@ Removes an item from the list
  ```lua
 list:removeItem(1)
 ```
-
-## List:render()
-Renders the list
 
 ## List:scrollToBottom()
 Scrolls the list to the bottom

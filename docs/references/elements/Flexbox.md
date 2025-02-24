@@ -15,24 +15,17 @@ This is the Flexbox class. It is a container that arranges its children in a fle
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox.new](#Flexbox.new)|Flexbox|Creates a new Flexbox instance
 |[Flexbox:addChild](#Flexbox:addChild)|Flexbox|Adds a child element to the flexbox
 |[Flexbox:addLineBreak](#Flexbox:addLineBreak)|Flexbox|Adds a new line break to the flexbox.
+
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
 |[Flexbox:init](#Flexbox:init)|Flexbox|Initializes the Flexbox instance
 |[Flexbox:removeChild](#Flexbox:removeChild)|Flexbox|Removes a child element from the flexbox
 |[Flexbox:render](#Flexbox:render)|Flexbox|Renders the flexbox and its children
-
-
-## Flexbox.new()
-Creates a new Flexbox instance
-
-### Returns
-* `Flexbox` `object` The newly created Flexbox instance
-
-### Usage
- ```lua
-local element = Flexbox.new("myId", basalt)
-```
 
 ## Flexbox:addChild(element)
 Adds a child element to the flexbox
@@ -51,30 +44,5 @@ Adds a new line break to the flexbox
 
 ### Returns
 * `nil` `nil` nil
-
-## Flexbox:init(props, basalt)
-Initializes the Flexbox instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Flexbox` `self` The initialized instance
-
-## Flexbox:removeChild(element)
-Removes a child element from the flexbox
-
-### Parameters
-* `element` `Element` The child element to remove
-
-### Returns
-* `Flexbox` `self` The flexbox instance
-
-## Flexbox:render()
-Renders the flexbox and its children
-
-### Returns
-* `Flexbox` `self` The flexbox instance
 
 

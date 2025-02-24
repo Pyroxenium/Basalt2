@@ -15,19 +15,21 @@ See: https://github.com/SkyTheCodeMaster/bimg
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image.new](#Image.new)|-|
-|[Image:getPixelData](#Image:getPixelData)|number?|
-|[Image:init](#Image:init)|-|
-|[Image:loadBimg](#Image:loadBimg)|-|
-|[Image:nextFrame](#Image:nextFrame)|-|
-|[Image:render](#Image:render)|-|
-|[Image:setBg](#Image:setBg)|-|
-|[Image:setChar](#Image:setChar)|-|
-|[Image:setFg](#Image:setFg)|-|
-|[Image:setPixel](#Image:setPixel)|-|
+|[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
+|[Image:loadBimg](#Image:loadBimg)|Image|Loads a bimg format image
+|[Image:nextFrame](#Image:nextFrame)|Image|Advances to the next frame in the animation
+|[Image:setBg](#Image:setBg)|-|Sets background color at position
+|[Image:setChar](#Image:setChar)|-|Sets character at position
+|[Image:setFg](#Image:setFg)|-|Sets foreground color at position
+|[Image:setPixel](#Image:setPixel)|-|Sets all properties at position
 
 
-## Image.new()
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|[Image:init](#Image:init)|Image|Initializes the Image instance
+|[Image:render](#Image:render)|-|Renders the Image
 
 ## Image:getPixelData(x, y)
 Gets pixel information at position
@@ -41,17 +43,20 @@ Gets pixel information at position
 * `number?` `bg` Background color
 * `string?` `char` Character at position
 
-## Image:init()
-
 ## Image:loadBimg(bimgData)
 Loads a bimg format image
 
 ### Parameters
 * `bimgData` `table` The bimg image data
 
-## Image:nextFrame()
+### Returns
+* `Image` `self` The Image instance
 
-## Image:render()
+## Image:nextFrame()
+Advances to the next frame in the animation
+
+### Returns
+* `Image` `self` The Image instance
 
 ## Image:setBg(x, y, color)
 Sets background color at position
