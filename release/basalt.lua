@@ -21,6 +21,7 @@ minified_elementDirectory["Frame"] = {}
 minified_elementDirectory["Button"] = {}
 minified_elementDirectory["Program"] = {}
 minified_elementDirectory["Label"] = {}
+minified_elementDirectory["Image"] = {}
 minified_elementDirectory["Flexbox"] = {}
 minified_elementDirectory["Container"] = {}
 minified_elementDirectory["Slider"] = {}
@@ -763,11 +764,10 @@ aa.defineEvent(aa,"mouse_scroll")
 function aa.new()local ba=setmetatable({},aa):__init()
 ba.set("width",30)ba.set("height",10)ba.set("z",5)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Table")return self end
-function aa:setColumns(ba)self.set("columns",ba)return self end;function aa:setData(ba)self.set("data",ba)return self end
-function aa:sortData(ba)
-local ca=self.get("data")local da=self.get("sortDirection")
-table.sort(ca,function(_b,ab)if da=="asc"then return
-_b[ba]<ab[ba]else return _b[ba]>ab[ba]end end)self.set("data",ca)return self end
+function aa:sortData(ba)local ca=self.get("data")
+local da=self.get("sortDirection")
+table.sort(ca,function(_b,ab)
+if da=="asc"then return _b[ba]<ab[ba]else return _b[ba]>ab[ba]end end)self.set("data",ca)return self end
 function aa:mouse_click(ba,ca,da)
 if not d.mouse_click(self,ba,ca,da)then return false end;local _b,ab=self:getRelativePosition(ca,da)
 if ab==1 then local bb=1
@@ -827,13 +827,14 @@ cb=string.sub(cb,1 -da)da=1 end
 self._render:blit(da,_b,ab,bb,cb)end;function ca:setCursor(da,_b,ab,bb)local cb=self.get("term")
 self._render:setCursor(da,_b,ab,bb)end
 function ca:mouse_up(da,_b,ab)
-aa.mouse_up(self,da,_b,ab)aa.mouse_release(self,da,_b,ab)end;function ca:render()
+aa.mouse_up(self,da,_b,ab)aa.mouse_release(self,da,_b,ab)end
+function ca:term_resize()local da,_b=self.get("term").getSize()
+if(da==
+self.get("width")and _b==self.get("height"))then return end;self.set("width",da)self.set("height",_b)
+self._render:setSize(da,_b)self._renderUpdate=true end;function ca:render()
 if(self._renderUpdate)then if self._render~=nil then aa.render(self)
 self._render:render()self._renderUpdate=false end end end
-function ca:term_resize()
-local da,_b=self.get("term").getSize()if
-(da==self.get("width")and _b==self.get("height"))then return end;self.set("width",da)
-self.set("height",_b)self._render:setSize(da,_b)self._renderUpdate=true end;return ca end
+return ca end
 project["elements/ProgressBar.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"progress",{default=0,type="number",canTriggerRender=true})
@@ -940,7 +941,7 @@ da.header="Basalt Program Error"da.error(ac)end;return _c,ac end;function ab:sto
 local cb=setmetatable({},_b):__init()cb.set("z",5)cb.set("width",30)cb.set("height",12)
 return cb end
 function _b:init(cb,db)
-ca.init(self,cb,db)self.set("type","Program")end
+ca.init(self,cb,db)self.set("type","Program")return self end
 function _b:execute(cb)self.set("path",cb)self.set("running",true)
 local db=ab.new()self.set("program",db)
 db:run(cb,self.get("width"),self.get("height"))self:updateRender()return self end
@@ -979,6 +980,53 @@ if
 (self.get("autoSize"))then self:textFg(1,1,da,self.get("foreground"))else
 local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
+project["elements/Image.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"bimg",{default={},type="table",canTriggerRender=true})
+ca.defineProperty(ca,"currentFrame",{default=1,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"metadata",{default={},type="table"})
+function ca.new()local da=setmetatable({},ca):__init()return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Image")
+return self end
+function ca:loadBimg(da)
+if type(da)~="table"then return self end;local _b={}local ab={}for bb,cb in pairs(da)do
+if type(bb)=="number"then _b[bb]=cb else ab[bb]=cb end end;self.set("bimg",_b)
+self.set("metadata",ab)
+if _b[1]and _b[1][1]then
+self.set("width",#_b[1][1][2])self.set("height",#_b[1])end;return self end
+function ca:getPixelData(da,_b)
+local ab=self.get("bimg")[self.get("currentFrame")]if not ab or not ab[_b]then return end;local bb=ab[_b][1]
+local cb=ab[_b][2]local db=ab[_b][3]
+if not bb or not cb or not db then return end;local _c=tonumber(cb:sub(da,da),16)
+local ac=tonumber(db:sub(da,da),16)local bc=bb:sub(da,da)return _c,ac,bc end
+function ca:setChar(da,_b,ab)
+if type(ab)~="string"or#ab~=1 then return self end
+local bb=self.get("bimg")[self.get("currentFrame")]if not bb then bb={{},{},{}}
+self.get("bimg")[self.get("currentFrame")]=bb end
+if not bb[_b]then bb[_b]={"","",""}end;local cb=bb[_b][1]while#cb<da do cb=cb.." "end;bb[_b][1]=
+cb:sub(1,da-1)..ab..cb:sub(da+1)
+self:updateRender()return self end
+function ca:setFg(da,_b,ab)if type(ab)~="number"then return self end
+local bb=self.get("bimg")[self.get("currentFrame")]if not bb then bb={{},{},{}}
+self.get("bimg")[self.get("currentFrame")]=bb end
+if not bb[_b]then bb[_b]={"","",""}end;local cb=bb[_b][2]while#cb<da do cb=cb.."f"end;bb[_b][2]=
+cb:sub(1,da-1)..ba[ab]..cb:sub(da+1)
+self:updateRender()return self end
+function ca:setBg(da,_b,ab)if type(ab)~="number"then return self end
+local bb=self.get("bimg")[self.get("currentFrame")]if not bb then bb={{},{},{}}
+self.get("bimg")[self.get("currentFrame")]=bb end
+if not bb[_b]then bb[_b]={"","",""}end;local cb=bb[_b][3]while#cb<da do cb=cb.."f"end;bb[_b][3]=
+cb:sub(1,da-1)..ba[ab]..cb:sub(da+1)
+self:updateRender()return self end
+function ca:setPixel(da,_b,ab,bb,cb)if ab then self:setChar(da,_b,ab)end;if bb then
+self:setFg(da,_b,bb)end;if cb then self:setBg(da,_b,cb)end;return self end
+function ca:nextFrame()
+if not self.get("metadata").animation then return end;local da=self.get("bimg")local _b=self.get("currentFrame")
+local ab=_b+1;if ab>#da then ab=1 end;self.set("currentFrame",ab)return self end
+function ca:render()aa.render(self)
+local da=self.get("bimg")[self.get("currentFrame")]if not da then return end
+for _b,ab in ipairs(da)do local bb=ab[1]local cb=ab[2]local db=ab[3]if
+bb and cb and db then self:blit(1,_b,bb,cb,db)end end end;return ca end
 project["elements/Flexbox.lua"] = function(...) local da=require("elementManager")
 local _b=da.getElement("Container")local ab=setmetatable({},_b)ab.__index=ab
 ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
@@ -1047,9 +1095,10 @@ bc.set("width",12)bc.set("height",6)
 bc.set("background",colors.blue)bc.set("z",10)
 bc:observe("width",function()
 bc.set("flexUpdateLayout",true)end)
-bc:observe("height",function()bc.set("flexUpdateLayout",true)end)return bc end
-function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","Flexbox")end
-function ab:addChild(bc)_b.addChild(self,bc)
+bc:observe("height",function()bc.set("flexUpdateLayout",true)end)return bc end;function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","Flexbox")
+return self end
+function ab:addChild(bc)
+_b.addChild(self,bc)
 if(bc~=bb)then
 bc:instanceProperty("flexGrow",{default=0,type="number"})
 bc:instanceProperty("flexShrink",{default=0,type="number"})
@@ -1419,11 +1468,12 @@ _b.defineProperty(_b,"ignoreOffset",{default=false,type="boolean"})_b.combinePro
 _b.combineProperties(_b,"size","width","height")
 _b.combineProperties(_b,"color","foreground","background")_b.defineEvent(_b,"focus")
 _b.defineEvent(_b,"blur")
-_b.registerEventCallback(_b,"MouseClick","mouse_click","mouse_up")
+_b.registerEventCallback(_b,"Click","mouse_click","mouse_up")
 _b.registerEventCallback(_b,"MouseUp","mouse_up","mouse_click")
-_b.registerEventCallback(_b,"MouseDrag","mouse_drag","mouse_click","mouse_up")
-_b.registerEventCallback(_b,"MouseScroll","mouse_scroll")
-_b.registerEventCallback(_b,"MouseEnter","mouse_enter","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
+_b.registerEventCallback(_b,"Drag","mouse_drag","mouse_click","mouse_up")
+_b.registerEventCallback(_b,"Scroll","mouse_scroll")
+_b.registerEventCallback(_b,"Enter","mouse_enter","mouse_move")
+_b.registerEventCallback(_b,"LeEave","mouse_leave","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
 _b.registerEventCallback(_b,"Blur","blur","focus")local ab,bb=math.max,math.min;function _b.new()
 local cb=setmetatable({},_b):__init()return cb end;function _b:init(cb,db)ca.init(self,cb,db)
 self.set("type","VisualElement")end;function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)
@@ -1510,7 +1560,8 @@ function ca:updateAttachedElement()local ab=self.get("attachedElement")
 if not ab then return end;local bb=self.get("value")local cb=self.get("minValue")
 local db=self.get("maxValue")if type(cb)=="function"then cb=cb()end;if type(db)=="function"then
 db=db()end;local _c=cb+ (bb/100)* (db-cb)ab.set(self.get("attachedProperty"),math.floor(
-_c+0.5))end;local function da(ab)
+_c+0.5))
+return self end;local function da(ab)
 return
 ab.get("orientation")=="vertical"and ab.get("height")or ab.get("width")end
 local function _b(ab,bb,cb)
@@ -1600,7 +1651,8 @@ bb and(_b.selectedForeground or self.get("selectedForeground"))or(_b.foreground 
 self:textFg(1,i,ab:sub(1,ca),db)end end end end;return d end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
-ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true})
+ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
+da.get("expandedNodes")[_b[1]]=true end;return _b end})
 ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=true})
 ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
 ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
@@ -1610,9 +1662,7 @@ ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="number"})ba
 ba.defineEvent(ba,"mouse_scroll")
 function ba.new()local da=setmetatable({},ba):__init()
 da.set("width",30)da.set("height",10)da.set("z",5)return da end
-function ba:init(da,_b)_a.init(self,da,_b)self.set("type","Tree")return self end
-function ba:setNodes(da)self.set("nodes",da)if#da>0 then
-self.get("expandedNodes")[da[1]]=true end;return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
+function ba:init(da,_b)_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
 self:updateRender()return self end
 function ba:collapseNode(da)self.get("expandedNodes")[da]=
 nil;self:updateRender()return self end;function ba:toggleNode(da)if self.get("expandedNodes")[da]then
@@ -1688,7 +1738,7 @@ local ac=self.get("cursorY")local bc=self.get("scrollX")local cc=self.get("scrol
 local dc=self.get("width")local _d=self.get("height")
 if _c-bc>dc then
 self.set("scrollX",_c-dc)elseif _c-bc<1 then self.set("scrollX",_c-1)end;if ac-cc>_d then self.set("scrollY",ac-_d)elseif ac-cc<1 then
-self.set("scrollY",ac-1)end end
+self.set("scrollY",ac-1)end;return self end
 function _b:char(_c)if
 not self.get("editable")or not self.get("focused")then return false end;ab(self,_c)return true end
 function _b:key(_c)if
