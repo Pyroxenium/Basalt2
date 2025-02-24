@@ -1,9 +1,8 @@
 local PropertySystem = require("propertySystem")
 local uuid = require("libraries/utils").uuid
----@configDescription The base class for all UI elements in Basalt
----@configDefault true
+---@configDescription The base class for all UI elements in Basalt.
 
---- The base class for all UI elements in Basalt
+--- The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality.
 --- @class BaseElement : PropertySystem
 local BaseElement = setmetatable({}, PropertySystem)
 BaseElement.__index = BaseElement
@@ -34,7 +33,6 @@ BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = 
 
 
 function BaseElement.defineEvent(class, eventName, requiredEvent)
-    -- Events auf Klassenebene speichern, wie bei Properties
     if not rawget(class, '_eventConfigs') then
         class._eventConfigs = {}
     end
@@ -46,17 +44,15 @@ end
 
 function BaseElement.registerEventCallback(class, callbackName, ...)
     local methodName = callbackName:match("^on") and callbackName or "on"..callbackName
-    local events = {...}  -- Alle Events als varargs
-    local mainEvent = events[1]  -- Erstes Event ist immer das Haupt-Event
+    local events = {...}
+    local mainEvent = events[1]
     
     class[methodName] = function(self, ...)
-        -- Alle Events aktivieren
         for _, sysEvent in ipairs(events) do
             if not self._registeredEvents[sysEvent] then
                 self:listenEvent(sysEvent, true)
             end
         end
-        -- Callback für das Haupt-Event registrieren
         self:registerCallback(mainEvent, ...)
         return self
     end
@@ -85,11 +81,10 @@ function BaseElement:init(props, basalt)
     self._registeredEvents = {}
 
     local currentClass = getmetatable(self).__index
-    
-    -- Events Sammeln
+
     local events = {}
     currentClass = self
-    
+
     while currentClass do
         if type(currentClass) == "table" and currentClass._eventConfigs then
             for eventName, config in pairs(currentClass._eventConfigs) do
@@ -237,7 +232,6 @@ end
 --- @shortDescription Destroys the element and cleans up all references
 --- @usage element:destroy()
 function BaseElement:destroy()
-    -- Remove from parent if exists
     if self.parent then
         self.parent:removeChild(self)
     end

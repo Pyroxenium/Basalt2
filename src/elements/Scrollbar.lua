@@ -54,6 +54,11 @@ function Scrollbar.new()
     return self
 end
 
+--- Initializes the Scrollbar instance
+--- @shortDescription Initializes the Scrollbar instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Scrollbar self The initialized instance
 function Scrollbar:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Scrollbar")
@@ -61,6 +66,7 @@ function Scrollbar:init(props, basalt)
 end
 
 --- Attaches the scrollbar to an element's property
+--- @shortDescription Attaches the scrollbar to an element's property
 --- @param element BaseElement The element to attach to
 --- @param config table Configuration {property = "propertyName", min = number|function, max = number|function}
 --- @return Scrollbar self The scrollbar instance
@@ -72,6 +78,9 @@ function Scrollbar:attach(element, config)
     return self
 end
 
+--- Updates the attached element's property based on the scrollbar value
+--- @shortDescription Updates the attached element's property based on the scrollbar value
+--- @return Scrollbar self The scrollbar instance
 function Scrollbar:updateAttachedElement()
     local element = self.get("attachedElement")
     if not element then return end
@@ -85,6 +94,7 @@ function Scrollbar:updateAttachedElement()
 
     local mappedValue = min + (value / 100) * (max - min)
     element.set(self.get("attachedProperty"), math.floor(mappedValue + 0.5))
+    return self
 end
 
 local function getScrollbarSize(self)
@@ -96,6 +106,12 @@ local function getRelativeScrollPosition(self, x, y)
     return self.get("orientation") == "vertical" and relY or relX
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events
+--- @param button number The mouse button clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean Whether the event was handled
 function Scrollbar:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local size = getScrollbarSize(self)
@@ -116,6 +132,12 @@ function Scrollbar:mouse_click(button, x, y)
     end
 end
 
+--- Handles mouse drag events
+--- @shortDescription Handles mouse drag events
+--- @param button number The mouse button being dragged
+--- @param x number The x position of the drag
+--- @param y number The y position of the drag
+--- @return boolean Whether the event was handled
 function Scrollbar:mouse_drag(button, x, y)
     if(VisualElement.mouse_drag(self, button, x, y))then
         local size = getScrollbarSize(self)
@@ -134,6 +156,12 @@ function Scrollbar:mouse_drag(button, x, y)
     end
 end
 
+--- Handles mouse scroll events
+--- @shortDescription Handles mouse scroll events
+--- @param direction number The scroll direction (1 for up, -1 for down)
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean Whether the event was handled
 function Scrollbar:mouse_scroll(direction, x, y)
     if not self:isInBounds(x, y) then return false end
     direction = direction > 0 and -1 or 1
@@ -146,6 +174,8 @@ function Scrollbar:mouse_scroll(direction, x, y)
     return true
 end
 
+--- Renders the Scrollbar
+--- @shortDescription Renders the scrollbar
 function Scrollbar:render()
     VisualElement.render(self)
 

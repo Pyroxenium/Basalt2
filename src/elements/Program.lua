@@ -2,17 +2,18 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local errorManager = require("errorManager")
 
---TODO:
--- Rendering optimization (only render when screen changed)
--- Eventsystem improvement
--- Cursor is sometimes not visible on time
+--- @configDescription A program that runs in a window
 
+--- This is the program class. It provides a program that runs in a window.
 ---@class Program : VisualElement
 local Program = setmetatable({}, VisualElement)
 Program.__index = Program
 
+--- @property program table nil The program instance
 Program.defineProperty(Program, "program", {default = nil, type = "table"})
+--- @property path string "" The path to the program
 Program.defineProperty(Program, "path", {default = "", type = "string"})
+--- @property running boolean false Whether the program is running
 Program.defineProperty(Program, "running", {default = false, type = "boolean"})
 
 Program.defineEvent(Program, "key")
@@ -28,6 +29,7 @@ local BasaltProgram = {}
 BasaltProgram.__index = BasaltProgram
 local newPackage = dofile("rom/modules/main/cc/require.lua").make
 
+---@private
 function BasaltProgram.new()
     local self = setmetatable({}, BasaltProgram)
     self.env = {}
@@ -35,6 +37,7 @@ function BasaltProgram.new()
     return self
 end
 
+---@private
 function BasaltProgram:run(path, width, height)
     self.window = window.create(term.current(), 1, 1, width, height, false)
     local pPath = shell.resolveProgram(path)
@@ -79,10 +82,12 @@ function BasaltProgram:run(path, width, height)
     end
 end
 
+---@private
 function BasaltProgram:resize(width, height)
     self.window.reposition(1, 1, width, height)
 end
 
+---@private
 function BasaltProgram:resume(event, ...)
     if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then return end
     if(self.filter~=nil)then
@@ -103,11 +108,13 @@ function BasaltProgram:resume(event, ...)
     return ok, result
 end
 
+---@private
 function BasaltProgram:stop()
 
 end
 
 --- Creates a new Program instance
+--- @shortDescription Creates a new Program instance
 --- @return Program object The newly created Program instance
 --- @usage local element = Program.new("myId", basalt)
 function Program.new()
@@ -118,11 +125,21 @@ function Program.new()
     return self
 end
 
+--- Initializes the Program instanceProperty
+--- @shortDescription Initializes the Program instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Program self The initialized instance
 function Program:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Program")
+    return self
 end
 
+--- Executes a program
+--- @shortDescription Executes a program
+--- @param path string The path to the program
+--- @return Program self The Program instance
 function Program:execute(path)
     self.set("path", path)
     self.set("running", true)
@@ -133,6 +150,11 @@ function Program:execute(path)
     return self
 end
 
+--- Handles all incomming events
+--- @shortDescription Handles all incomming events
+--- @param event string The event to handle
+--- @param ... any The event arguments
+--- @return any result The event result
 function Program:dispatchEvent(event, ...)
     local program = self.get("program")
     local result = VisualElement.dispatchEvent(self, event, ...)
@@ -148,6 +170,8 @@ function Program:dispatchEvent(event, ...)
     return result
 end
 
+--- Gets called when the element gets focused
+--- @shortDescription Gets called when the element gets focused
 function Program:focus()
     if(VisualElement.focus(self))then
         local program = self.get("program")
@@ -159,6 +183,8 @@ function Program:focus()
     end
 end
 
+--- Renders the program
+--- @shortDescription Renders the program
 function Program:render()
     VisualElement.render(self)
     local program = self.get("program")

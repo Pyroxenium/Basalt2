@@ -52,28 +52,6 @@ function Table:init(props, basalt)
     return self
 end
 
---- Sets the table columns
---- @shortDescription Sets the table columns configuration
---- @param columns table[] Array of column definitions {name="Name", width=10}
---- @return Table self The Table instance
---- @usage table:setColumns({{name="ID", width=4}, {name="Name", width=10}})
-function Table:setColumns(columns)
-    -- Columns Format: {{name="ID", width=4}, {name="Name", width=10}}
-    self.set("columns", columns)
-    return self
-end
-
---- Sets the table data
---- @shortDescription Sets the table data
---- @param data table[] Array of row data arrays
---- @return Table self The Table instance
---- @usage table:setData({{"1", "Item One"}, {"2", "Item Two"}})
-function Table:setData(data)
-    -- Data Format: {{"1", "Item One"}, {"2", "Item Two"}}
-    self.set("data", data)
-    return self
-end
-
 --- Sorts the table data by column
 --- @shortDescription Sorts the table data by the specified column
 --- @param columnIndex number The index of the column to sort by

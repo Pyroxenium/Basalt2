@@ -1,6 +1,5 @@
 local VisualElement = require("elements/VisualElement")
 ---@configDescription A scrollable list of selectable items
----@configDefault true
 
 --- This is the list class. It provides a scrollable list of selectable items with support for 
 --- custom item rendering, separators, and selection handling.
@@ -151,7 +150,7 @@ function List:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local offset = self.get("offset")
         local maxOffset = math.max(0, #self.get("items") - self.get("height"))
-        
+
         offset = math.min(maxOffset, math.max(0, offset + direction))
         self.set("offset", offset)
         return true

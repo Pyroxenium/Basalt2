@@ -1,5 +1,6 @@
 local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
+---@configDescription A frame element that serves as a grouping container for other elements.
 
 --- This is the frame class. It serves as a grouping container for other elements.
 ---@class Frame : Container

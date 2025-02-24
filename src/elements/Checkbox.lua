@@ -1,6 +1,7 @@
 local VisualElement = require("elements/VisualElement")
+---@cofnigDescription This is a checkbox. It is a visual element that can be checked.
 
---- This is the checkbox class. It is a visual element that can be checked.
+--- The Checkbox is a visual element that can be checked.
 ---@class Checkbox : VisualElement
 local Checkbox = setmetatable({}, VisualElement)
 Checkbox.__index = Checkbox

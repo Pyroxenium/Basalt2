@@ -68,7 +68,7 @@ end
 
 local function createScreen(index)
     local screen = main:addFrame(coloring)
-        :onMouseScroll(function(self, direction)
+        :onScroll(function(self, direction)
             local height = getChildrenHeight(self)
             local scrollOffset = self:getOffsetY()
             local maxScroll = height - self:getHeight()
@@ -129,7 +129,7 @@ nextButton = main:addButton()
     :setText("Next")
     :setPosition("{parent.width - 9}", "{parent.height - 1}")
     :setIgnoreOffset(true)
-    :onMouseClick(function() switchScreen(1) end)
+    :onClick(function() switchScreen(1) end)
 
 backButton = main:addButton()
     :setBackground("{self.clicked and colors.black or colors.white}")
@@ -138,7 +138,7 @@ backButton = main:addButton()
     :setText("Back")
     :setPosition(2, "{parent.height - 1}")
     :setIgnoreOffset(true)
-    :onMouseClick(function() switchScreen(-1) end)
+    :onClick(function() switchScreen(-1) end)
     :setVisible(false)
 
 -- Screen 1: Welcome
@@ -608,7 +608,7 @@ installButton = progressScreen:addButton()
     :setText("Install")
     :setPosition("{parent.width - 9}", "{parent.height - 3}")
     :setSize(9, 1)
-    :onMouseClick(function(self)
+    :onClick(function(self)
         if(currentlyInstalling)then
             return
         end
@@ -621,7 +621,7 @@ local closeButton = progressScreen:addButton()
     :setText("Close")
     :setPosition("{parent.width - 9}", "{parent.height - 1}")
     :setSize(9, 1)
-    :onMouseClick(function(self)
+    :onClick(function(self)
         basalt.stop()
     end)
 

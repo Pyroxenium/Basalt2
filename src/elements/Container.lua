@@ -330,6 +330,13 @@ local function convertMousePosition(self, event, ...)
     return args
 end
 
+--- Calls a event on all children
+--- @shortDescription Calls a event on all children
+--- @param visibleOnly boolean Whether to only call the event on visible children
+--- @param event string The event to call
+--- @vararg any The event arguments
+--- @return boolean handled Whether the event was handled
+--- @return table child? The child that handled the event
 function Container:callChildrenEvents(visibleOnly, event, ...)
     local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
     if children[event] then
@@ -392,12 +399,23 @@ function Container:mouse_up(button, x, y)
     return false
 end
 
+--- Handles mouse release events
+--- @shortDescription Handles mouse release events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
 function Container:mouse_release(button, x, y)
     VisualElement.mouse_release(self, button, x, y)
     local args = convertMousePosition(self, "mouse_release", button, x, y)
     self:callChildrenEvents(false, "mouse_release", table.unpack(args))
 end
 
+--- Handles mouse move events
+--- @shortDescription Handles mouse move events
+--- @param _ number unknown
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Container:mouse_move(_, x, y)
     if VisualElement.mouse_move(self, _, x, y) then
         local args = convertMousePosition(self, "mouse_move", _, x, y)
@@ -409,6 +427,12 @@ function Container:mouse_move(_, x, y)
     return false
 end
 
+--- Handles mouse drag events
+--- @shortDescription Handles mouse drag events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Container:mouse_drag(button, x, y)
     if VisualElement.mouse_drag(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_drag", button, x, y)
@@ -420,6 +444,12 @@ function Container:mouse_drag(button, x, y)
     return false
 end
 
+--- Handles mouse scroll events
+--- @shortDescription Handles mouse scroll events
+--- @param direction number The direction of the scroll
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Container:mouse_scroll(direction, x, y)
     local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
     local success, child = self:callChildrenEvents(true, "mouse_scroll", table.unpack(args))

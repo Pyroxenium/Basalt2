@@ -1,12 +1,17 @@
 local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
+---@configDescription A flexbox container that arranges its children in a flexible layout.
 
+--- This is the Flexbox class. It is a container that arranges its children in a flexible layout.
 ---@class Flexbox : Container
 local Flexbox = setmetatable({}, Container)
 Flexbox.__index = Flexbox
 
+---@property flexDirection string "row" The direction of the flexbox layout "row" or "column"
 Flexbox.defineProperty(Flexbox, "flexDirection", {default = "row", type = "string"})
+---@property flexSpacing number 1 The spacing between flex items
 Flexbox.defineProperty(Flexbox, "flexSpacing", {default = 1, type = "number"})
+---@property flexJustifyContent string "flex-start" The alignment of flex items along the main axis
 Flexbox.defineProperty(Flexbox, "flexJustifyContent", {
     default = "flex-start",
     type = "string",
@@ -17,6 +22,8 @@ Flexbox.defineProperty(Flexbox, "flexJustifyContent", {
         return value
     end
 })
+---@property flexWrap boolean false Whether to wrap flex items onto multiple lines
+---@property flexUpdateLayout boolean false Whether to update the layout of the flexbox
 Flexbox.defineProperty(Flexbox, "flexWrap", {default = false, type = "boolean"})
 Flexbox.defineProperty(Flexbox, "flexUpdateLayout", {default = false, type = "boolean"})
 
@@ -226,6 +233,7 @@ local function updateLayout(self, direction, spacing, justifyContent, wrap)
 end
 
 --- Creates a new Flexbox instance
+--- @shortDescription Creates a new Flexbox instance
 --- @return Flexbox object The newly created Flexbox instance
 --- @usage local element = Flexbox.new("myId", basalt)
 function Flexbox.new()
@@ -239,11 +247,21 @@ function Flexbox.new()
     return self
 end
 
+--- Initializes the Flexbox instance
+--- @shortDescription Initializes the Flexbox instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Flexbox self The initialized instance
 function Flexbox:init(props, basalt)
     Container.init(self, props, basalt)
     self.set("type", "Flexbox")
+    return self
 end
 
+--- Adds a child element to the flexbox
+--- @shortDescription Adds a child element to the flexbox
+--- @param element Element The child element to add
+--- @return Flexbox self The flexbox instance
 function Flexbox:addChild(element)
     Container.addChild(self, element)
 
@@ -257,6 +275,10 @@ function Flexbox:addChild(element)
     return self
 end
 
+--- Removes a child element from the flexbox
+--- @shortDescription Removes a child element from the flexbox
+--- @param element Element The child element to remove
+--- @return Flexbox self The flexbox instance
 function Flexbox:removeChild(element)
   Container.removeChild(self, element)
 
@@ -276,7 +298,8 @@ function Flexbox:removeChild(element)
   return self
 end
 
---- Adds a new line break to the flexbox.
+--- Adds a new line break to the flexbox
+--- @shortDescription Adds a new line break to the flexbox.
 ---@param self Flexbox The element itself
 ---@return Flexbox
 function Flexbox:addLineBreak()
@@ -284,6 +307,9 @@ function Flexbox:addLineBreak()
   return self
 end
 
+--- Renders the flexbox and its children
+--- @shortDescription Renders the flexbox and its children
+--- @return Flexbox self The flexbox instance
 function Flexbox:render()
   if(self.get("flexUpdateLayout"))then
     updateLayout(self, self.get("flexDirection"), self.get("flexSpacing"), self.get("flexJustifyContent"), self.get("flexWrap"))

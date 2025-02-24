@@ -74,6 +74,12 @@ function Slider:mouse_click(button, x, y)
 end
 Slider.mouse_drag = Slider.mouse_click
 
+--- Handles mouse release events
+--- @shortDescription Handles mouse release events
+--- @param button number The mouse button that was released
+--- @param x number The x position of the release
+--- @param y number The y position of the release
+--- @return boolean handled Whether the event was handled
 function Slider:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local step = self.get("step")

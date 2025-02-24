@@ -7,7 +7,6 @@ local tHex = require("libraries/colorHex")
 
 --- This is the dropdown class. It is a visual element that can show a list of selectable items in a dropdown menu.
 ---@class Dropdown : List
-
 local Dropdown = setmetatable({}, List)
 Dropdown.__index = Dropdown
 

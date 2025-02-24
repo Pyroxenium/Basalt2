@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 local sub = string.sub
+---@cofnigDescription The tree element provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
 
 --- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
 --- with support for selection and scrolling.
@@ -8,7 +9,12 @@ local Tree = setmetatable({}, VisualElement)
 Tree.__index = Tree
 
 ---@property nodes table {} The tree structure containing node objects with {text, children} properties
-Tree.defineProperty(Tree, "nodes", {default = {}, type = "table", canTriggerRender = true})
+Tree.defineProperty(Tree, "nodes", {default = {}, type = "table", canTriggerRender = true, setter = function(self, value)
+    if #value > 0 then
+        self.get("expandedNodes")[value[1]] = true
+    end
+    return value
+end})
 ---@property selectedNode table? nil Currently selected node
 Tree.defineProperty(Tree, "selectedNode", {default = nil, type = "table", canTriggerRender = true})
 ---@property expandedNodes table {} Table of nodes that are currently expanded
@@ -45,19 +51,6 @@ end
 function Tree:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Tree")
-    return self
-end
-
---- Sets the tree nodes
---- @shortDescription Sets the tree nodes and expands the root node
---- @param nodes table[] Array of node objects
---- @return Tree self The Tree instance
---- @usage tree:setNodes({{text="Root", children={{text="Child"}}}})
-function Tree:setNodes(nodes)
-    self.set("nodes", nodes)
-    if #nodes > 0 then
-        self.get("expandedNodes")[nodes[1]] = true
-    end
     return self
 end
 
@@ -107,6 +100,12 @@ local function flattenTree(nodes, expandedNodes, level, result)
     return result
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events for node selection and expansion
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function Tree:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -137,7 +136,12 @@ function Tree:onSelect(callback)
     return self
 end
 
----@private
+--- Handles mouse scroll events
+--- @shortDescription Handles mouse scroll events for vertical scrolling
+--- @param direction number The scroll direction (1 for up, -1 for down)
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean handled Whether the event was handled
 function Tree:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
@@ -163,6 +167,8 @@ function Tree:getNodeSize()
     return width, height
 end
 
+--- Renders the tree
+--- @shortDescription Renders the tree with nodes, selection and scrolling
 function Tree:render()
     VisualElement.render(self)
 

@@ -30,6 +30,9 @@ TextBox.defineEvent(TextBox, "key")
 TextBox.defineEvent(TextBox, "char")
 TextBox.defineEvent(TextBox, "mouse_scroll")
 
+--- Creates a new TextBox instance
+--- @shortDescription Creates a new TextBox instance
+--- @return TextBox self The newly created TextBox instance
 function TextBox.new()
     local self = setmetatable({}, TextBox):__init()
     self.set("width", 20)
@@ -37,6 +40,11 @@ function TextBox.new()
     return self
 end
 
+--- Initializes the TextBox instance
+--- @shortDescription Initializes the TextBox instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return TextBox self The initialized instance
 function TextBox:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "TextBox")
@@ -44,6 +52,7 @@ function TextBox:init(props, basalt)
 end
 
 --- Adds a new syntax highlighting pattern
+--- @shortDescription Adds a new syntax highlighting pattern
 --- @param pattern string The regex pattern to match
 --- @param color colors The color to apply
 function TextBox:addSyntaxPattern(pattern, color)
@@ -98,6 +107,9 @@ local function backspace(self)
     self:updateRender()
 end
 
+--- Updates the viewport to keep the cursor in view
+--- @shortDescription Updates the viewport to keep the cursor in view
+--- @return TextBox self The TextBox instance
 function TextBox:updateViewport()
     local cursorX = self.get("cursorX")
     local cursorY = self.get("cursorY")
@@ -119,14 +131,23 @@ function TextBox:updateViewport()
     elseif cursorY - scrollY < 1 then
         self.set("scrollY", cursorY - 1)
     end
+    return self
 end
 
+--- Handles character input
+--- @shortDescription Handles character input
+--- @param char string The character that was typed
+--- @return boolean handled Whether the event was handled
 function TextBox:char(char)
     if not self.get("editable") or not self.get("focused") then return false end
     insertChar(self, char)
     return true
 end
 
+--- Handles key events
+--- @shortDescription Handles key events
+--- @param key number The key that was pressed
+--- @return boolean handled Whether the event was handled
 function TextBox:key(key)
     if not self.get("editable") or not self.get("focused") then return false end
     local lines = self.get("lines")
@@ -163,6 +184,12 @@ function TextBox:key(key)
     return true
 end
 
+--- Handles mouse scroll events
+--- @shortDescription Handles mouse scroll events
+--- @param direction number The scroll direction
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean handled Whether the event was handled
 function TextBox:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local scrollY = self.get("scrollY")
@@ -172,7 +199,7 @@ function TextBox:mouse_scroll(direction, x, y)
         local maxScroll = math.max(0, #lines - height + 2)
 
         local newScroll = math.max(0, math.min(maxScroll, scrollY + direction))
-        
+
         self.set("scrollY", newScroll)
         self:updateRender()
         return true
@@ -180,6 +207,12 @@ function TextBox:mouse_scroll(direction, x, y)
     return false
 end
 
+--- Handles mouse click events
+--- @shortDescription Handles mouse click events
+--- @param button number The button that was clicked
+--- @param x number The x position of the click
+--- @param y number The y position of the click
+--- @return boolean handled Whether the event was handled
 function TextBox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -199,6 +232,10 @@ function TextBox:mouse_click(button, x, y)
     return false
 end
 
+--- Sets the text of the TextBox
+--- @shortDescription Sets the text of the TextBox
+--- @param text string The text to set
+--- @return TextBox self The TextBox instance
 function TextBox:setText(text)
     local lines = {}
     if text == "" then
@@ -212,6 +249,9 @@ function TextBox:setText(text)
     return self
 end
 
+--- Gets the text of the TextBox
+--- @shortDescription Gets the text of the TextBox
+--- @return string text The text of the TextBox
 function TextBox:getText()
     return table.concat(self.get("lines"), "\n")
 end
@@ -220,7 +260,7 @@ local function applySyntaxHighlighting(self, line)
     local text = line
     local colors = string.rep(tHex[self.get("foreground")], #text)
     local patterns = self.get("syntaxPatterns")
-    
+
     for _, syntax in ipairs(patterns) do
         local start = 1
         while true do
@@ -234,6 +274,8 @@ local function applySyntaxHighlighting(self, line)
     return text, colors
 end
 
+--- Renders the TextBox
+--- @shortDescription Renders the TextBox with syntax highlighting
 function TextBox:render()
     VisualElement.render(self)
 

@@ -2,7 +2,6 @@ local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
 ---@configDescription The Visual Element class which is the base class for all visual UI elements
----@configDefault true
 
 --- This is the visual element class. It serves as the base class for all visual UI elements
 --- and provides core functionality for positioning, sizing, colors, and rendering.
@@ -79,24 +78,28 @@ VisualElement.combineProperties(VisualElement, "size", "width", "height")
 ---@combinedProperty color {foreground background} Combined foreground, background colors
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
----@event onMouseClick {button number, x number, y number} Fired on mouse click
----@event onMouseUp {button number, x number, y number} Fired on mouse button release
----@event onMouseRelease {button number, x number, y number} Fired when mouse leaves while clicked
----@event onMouseDrag {button number, x number, y number} Fired when mouse moves while clicked
+---@event onClick {button, x, y} Fired on mouse click
+---@event onMouseUp {button, x, y} Fired on mouse button release
+---@event onRelease {button, x, y} Fired when mouse leaves while clicked
+---@event onDrag {button, x, y} Fired when mouse moves while clicked
+---@event onScroll {direction, x, y} Fired on mouse scroll
+---@event onEnter {-} Fired when mouse enters element
+---@event onLeave {-} Fired when mouse leaves element
 ---@event onFocus {-} Fired when element receives focus
 ---@event onBlur {-} Fired when element loses focus
----@event onKey {key number, code number, isRepeat boolean} Fired on key press
----@event onKeyUp {key number, code number} Fired on key release
----@event onChar {char string} Fired on character input
+---@event onKey {key} Fired on key press
+---@event onKeyUp {key} Fired on key release
+---@event onChar {char} Fired on character input
 
 VisualElement.defineEvent(VisualElement, "focus")
 VisualElement.defineEvent(VisualElement, "blur")
 
-VisualElement.registerEventCallback(VisualElement, "MouseClick", "mouse_click", "mouse_up")
+VisualElement.registerEventCallback(VisualElement, "Click", "mouse_click", "mouse_up")
 VisualElement.registerEventCallback(VisualElement, "MouseUp", "mouse_up", "mouse_click")
-VisualElement.registerEventCallback(VisualElement, "MouseDrag", "mouse_drag", "mouse_click", "mouse_up")
-VisualElement.registerEventCallback(VisualElement, "MouseScroll", "mouse_scroll")
-VisualElement.registerEventCallback(VisualElement, "MouseEnter", "mouse_enter", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "Drag", "mouse_drag", "mouse_click", "mouse_up")
+VisualElement.registerEventCallback(VisualElement, "Scroll", "mouse_scroll")
+VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "LeEave", "mouse_leave", "mouse_move")
 VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
 VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
 
