@@ -88,10 +88,12 @@ function markdown.parse(content)
                 if(commentType == "desc") then
                     currentBlock.usageIsActive = false
                     table.insert(currentBlock.desc, value)
-                elseif(commentType == "private")or(commentType == "protected")then
+                elseif(commentType == "private")then
                     skipNextFunction = true
                 elseif(commentType == "splitClass")then
                     splitNextClass = true
+                elseif(commentType == "protected")then
+                    currentBlock.protected = true
                 else
                     if(commentType == "module")then
                         currentBlock.usageIsActive = false
@@ -318,7 +320,7 @@ local function markdownClassFunctionList(className)
     end
     local fList = {}
     for _, v in pairs(markdown.blocks) do
-        if(v.type=="function")then
+        if(v.type=="function")and(v.protected~=true)then
             if(v.className==className)then
                 table.insert(fList, v)
             end
@@ -326,6 +328,42 @@ local function markdownClassFunctionList(className)
     end
 
     local output = "\n## Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
+    for _, block in pairs(fList) do
+        if block.type == "function" then
+            output = output .. "|[" .. block.func .. "](#" .. block.func .. ")|"
+            if(block["return"]~=nil)then
+                local returnType = block["return"][1]:match("^(%S+)")
+                output = output .. returnType.."|"
+            else
+                output = output .. "-|"
+            end
+            if(block.shortDescription~=nil)then
+                output = output .. block.shortDescription.."\n"
+            else
+                output = output .. "\n"
+            end
+        end
+    end
+    return output
+end
+
+local function markdownProtectedFunctions(className)
+    if(#markdown.blocks<=0)then
+        return ""
+    end
+    local fList = {}
+    for _, v in pairs(markdown.blocks) do
+        if(v.type=="function")and(v.protected==true)then
+            if(v.className==className)then
+                table.insert(fList, v)
+            end
+        end
+    end
+    if(#fList<=0)then
+        return ""
+    end
+    local output = "Protected functions can be overwritten."
+    output = "\n## Protected Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
     for _, block in pairs(fList) do
         if block.type == "function" then
             output = output .. "|[" .. block.func .. "](#" .. block.func .. ")|"
@@ -368,9 +406,10 @@ local function markdownClass(block)
     output = output .. markdownCombinedProperties(block.className)
     output = output .. markdownEvents(block.className)
     output = output .. markdownClassFunctionList(block.className) .. "\n"
+    output = output .. markdownProtectedFunctions(block.className) .. "\n"
     for k,v in pairs(markdown.blocks) do
         if(v.type=="function")then
-            if(v.className==block.className)then
+            if(v.className==block.className)and(v.protected~=true)then
                 output = output .. markdownFunction(v)
             end
         end

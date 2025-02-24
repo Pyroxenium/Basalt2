@@ -14,7 +14,6 @@ local function processFile(inputFile)
     local outputFile = "build_docs/docs/references/" .. inputFile:match("^src/(.+)"):gsub("%.lua$", "")
 
     ensureDirectory(outputFile)
-    --print(string.format("Processing: %s -> %s", inputFile, outputFile))
 
     markdown.saveToFile(outputFile, md)
 end

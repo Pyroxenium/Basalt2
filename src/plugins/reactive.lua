@@ -1,6 +1,5 @@
 local errorManager = require("errorManager")
 local PropertySystem = require("propertySystem")
-local log = require("log")
 
 local protectedNames = {
     colors = true,
