@@ -110,22 +110,21 @@ local max, min = math.max, math.min
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return VisualElement object The newly created VisualElement instance
---- @usage local element = VisualElement.new("myId", basalt)
+--- @private
 function VisualElement.new()
     local self = setmetatable({}, VisualElement):__init()
     return self
 end
 
---- Initializes the VisualElement instance
 --- @shortDescription Initializes a new visual element with properties
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
+--- @protected
 function VisualElement:init(props, basalt)
     BaseElement.init(self, props, basalt)
     self.set("type", "VisualElement")
 end
 
---- Draws multiple characters at once with colors
 --- @shortDescription Multi-character drawing with colors
 --- @param x number The x position to draw
 --- @param y number The y position to draw
@@ -134,6 +133,7 @@ end
 --- @param text string The text to draw
 --- @param fg string The foreground color
 --- @param bg string The background color
+--- @protected
 function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     local xElement, yElement = self:calculatePosition()
     x = x + xElement - 1
@@ -141,12 +141,12 @@ function VisualElement:multiBlit(x, y, width, height, text, fg, bg)
     self.parent:multiBlit(x, y, width, height, text, fg, bg)
 end
 
---- Draws text with foreground color
 --- @shortDescription Draws text with foreground color
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
 --- @param fg color The foreground color
+--- @protected
 function VisualElement:textFg(x, y, text, fg)
     local xElement, yElement = self:calculatePosition()
     x = x + xElement - 1
@@ -154,12 +154,12 @@ function VisualElement:textFg(x, y, text, fg)
     self.parent:textFg(x, y, text, fg)
 end
 
---- Draws text with background color
 --- @shortDescription Draws text with background color
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
 --- @param bg color The background color
+--- @protected
 function VisualElement:textBg(x, y, text, bg)
     local xElement, yElement = self:calculatePosition()
     x = x + xElement - 1
@@ -167,13 +167,13 @@ function VisualElement:textBg(x, y, text, bg)
     self.parent:textBg(x, y, text, bg)
 end
 
---- Draws text with both foreground and background colors
 --- @shortDescription Draws text with both colors
 --- @param x number The x position to draw
 --- @param y number The y position to draw
 --- @param text string The text char to draw
 --- @param fg string The foreground color
 --- @param bg string The background color
+--- @protected
 function VisualElement:blit(x, y, text, fg, bg)
     local xElement, yElement = self:calculatePosition()
     x = x + xElement - 1
@@ -200,12 +200,12 @@ function VisualElement:isInBounds(x, y)
            y >= yPos and y <= yPos + height - 1
 end
 
---- Handles a mouse click event
 --- @shortDescription Handles a mouse click event
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean clicked Whether the element was clicked
+--- @protected
 function VisualElement:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
         self.set("clicked", true)
@@ -215,12 +215,12 @@ function VisualElement:mouse_click(button, x, y)
     return false
 end
 
---- Handles a mouse up event
 --- @shortDescription Handles a mouse up event
 --- @param button number The button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
 --- @return boolean release Whether the element was released on the element
+--- @protected
 function VisualElement:mouse_up(button, x, y)
     if self:isInBounds(x, y) then
         self.set("clicked", false)
@@ -230,16 +230,22 @@ function VisualElement:mouse_up(button, x, y)
     return false
 end
 
---- Handles a mouse release event
 --- @shortDescription Handles a mouse release event
 --- @param button number The button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
+--- @protected
 function VisualElement:mouse_release(button, x, y)
     self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
     self.set("clicked", false)
 end
 
+---@shortDescription Handles a mouse move event
+---@param _ number unknown
+---@param x number The x position of the mouse
+---@param y number The y position of the mouse
+---@return boolean hover Whether the mouse has moved over the element
+--- @protected
 function VisualElement:mouse_move(_, x, y)
     if(x==nil)or(y==nil)then
         return
@@ -260,6 +266,12 @@ function VisualElement:mouse_move(_, x, y)
     return false
 end
 
+--- @shortDescription Handles a mouse scroll event
+--- @param direction number The scroll direction
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean scroll Whether the element was scrolled
+--- @protected
 function VisualElement:mouse_scroll(direction, x, y)
     if(self:isInBounds(x, y))then
         self:fireEvent("mouse_scroll", direction, self:getRelativePosition(x, y))
@@ -268,6 +280,12 @@ function VisualElement:mouse_scroll(direction, x, y)
     return false
 end
 
+--- @shortDescription Handles a mouse drag event
+--- @param button number The button that was clicked while dragging
+--- @param x number The x position of the drag
+--- @param y number The y position of the drag
+--- @return boolean drag Whether the element was dragged
+--- @protected
 function VisualElement:mouse_drag(button, x, y)
     if(self.get("clicked"))then
         self:fireEvent("mouse_drag", button, self:getRelativePosition(x, y))
@@ -276,19 +294,23 @@ function VisualElement:mouse_drag(button, x, y)
     return false
 end
 
---- Handles a focus event
 --- @shortDescription Handles a focus event
+--- @protected
 function VisualElement:focus()
     self:fireEvent("focus")
 end
 
---- Handles a blur event
 --- @shortDescription Handles a blur event
+--- @protected
 function VisualElement:blur()
     self:fireEvent("blur")
     self:setCursor(1,1, false)
 end
 
+--- Calculates the position of the element relative to its parent
+--- @shortDescription Calculates the position of the element
+--- @return number x The x position
+--- @return number y The y position
 function VisualElement:calculatePosition()
     local x, y = self.get("x"), self.get("y")
     if not self.get("ignoreOffset") then
@@ -305,6 +327,8 @@ end
 --- @shortDescription Returns the absolute position of the element
 ---@param x? number x position
 ---@param y? number y position
+---@return number x The absolute x position
+---@return number y The absolute y position
 function VisualElement:getAbsolutePosition(x, y)
     local xPos, yPos = self.get("x"), self.get("y")
     if(x ~= nil) then
@@ -329,7 +353,8 @@ end
 --- @shortDescription Returns the relative position of the element
 ---@param x? number x position
 ---@param y? number y position
----@return number, number
+---@return number x The relative x position
+---@return number y The relative y position
 function VisualElement:getRelativePosition(x, y)
     if (x == nil) or (y == nil) then
         x, y = self.get("x"), self.get("y")
@@ -345,21 +370,24 @@ function VisualElement:getRelativePosition(x, y)
            y - (elementY - 1) - (parentY - 1)
 end
 
---- Sets the cursor position
 --- @shortDescription Sets the cursor position
 --- @param x number The x position of the cursor
 --- @param y number The y position of the cursor
 --- @param blink boolean Whether the cursor should blink
+--- @param color number The color of the cursor
+--- @return VisualElement self The VisualElement instance
+--- @protected
 function VisualElement:setCursor(x, y, blink, color)
     if self.parent then
         local absX, absY = self:getAbsolutePosition(x, y)
         absX = max(self.get("x"), min(absX, self.get("width") + self.get("x") - 1))
         return self.parent:setCursor(absX, absY, blink, color)
     end
+    return self
 end
 
---- Renders the element
 --- @shortDescription Renders the element
+--- @protected
 function VisualElement:render()
     if(not self.get("backgroundEnabled"))then
         return

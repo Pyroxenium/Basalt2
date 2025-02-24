@@ -232,10 +232,9 @@ local function updateLayout(self, direction, spacing, justifyContent, wrap)
     self.set("flexUpdateLayout", false)
 end
 
---- Creates a new Flexbox instance
 --- @shortDescription Creates a new Flexbox instance
 --- @return Flexbox object The newly created Flexbox instance
---- @usage local element = Flexbox.new("myId", basalt)
+--- @private
 function Flexbox.new()
     local self = setmetatable({}, Flexbox):__init()
     self.set("width", 12)
@@ -247,11 +246,11 @@ function Flexbox.new()
     return self
 end
 
---- Initializes the Flexbox instance
 --- @shortDescription Initializes the Flexbox instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Flexbox self The initialized instance
+--- @protected
 function Flexbox:init(props, basalt)
     Container.init(self, props, basalt)
     self.set("type", "Flexbox")
@@ -275,10 +274,10 @@ function Flexbox:addChild(element)
     return self
 end
 
---- Removes a child element from the flexbox
 --- @shortDescription Removes a child element from the flexbox
 --- @param element Element The child element to remove
 --- @return Flexbox self The flexbox instance
+--- @protected
 function Flexbox:removeChild(element)
   Container.removeChild(self, element)
 
@@ -307,9 +306,9 @@ function Flexbox:addLineBreak()
   return self
 end
 
---- Renders the flexbox and its children
 --- @shortDescription Renders the flexbox and its children
 --- @return Flexbox self The flexbox instance
+--- @protected
 function Flexbox:render()
   if(self.get("flexUpdateLayout"))then
     updateLayout(self, self.get("flexDirection"), self.get("flexSpacing"), self.get("flexJustifyContent"), self.get("flexWrap"))

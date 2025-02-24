@@ -27,7 +27,7 @@ List.defineEvent(List, "mouse_scroll")
 --- Creates a new List instance
 --- @shortDescription Creates a new List instance
 --- @return List self The newly created List instance
---- @usage local list = List.new()
+--- @private
 function List.new()
     local self = setmetatable({}, List):__init()
     self.set("width", 16)
@@ -37,11 +37,11 @@ function List.new()
     return self
 end
 
---- Initializes the List instance
 --- @shortDescription Initializes the List instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return List self The initialized instance
+--- @protected
 function List:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "List")
@@ -99,12 +99,12 @@ function List:getSelectedItems()
     return selected
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events
 --- @param button number The mouse button that was clicked
 --- @param x number The x-coordinate of the click
 --- @param y number The y-coordinate of the click
 --- @return boolean Whether the event was handled
+--- @protected
 function List:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) and self.get("selectable") then
         local _, index = self:getRelativePosition(x, y)
@@ -140,12 +140,12 @@ function List:mouse_click(button, x, y)
     return false
 end
 
---- Handles mouse scroll events
 --- @shortDescription Handles mouse scroll events
 --- @param direction number The direction of the scroll (1 for down, -1 for up)
 --- @param x number The x-coordinate of the scroll
 --- @param y number The y-coordinate of the scroll
 --- @return boolean Whether the event was handled
+--- @protected
 function List:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local offset = self.get("offset")
@@ -185,8 +185,8 @@ function List:scrollToTop()
     return self
 end
 
---- Renders the list
 --- @shortDescription Renders the list
+--- @protected
 function List:render()
     VisualElement.render(self)
 

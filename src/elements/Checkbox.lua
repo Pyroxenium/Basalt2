@@ -31,29 +31,29 @@ Checkbox.defineProperty(Checkbox, "autoSize", {default = true, type = "boolean"}
 
 Checkbox.defineEvent(Checkbox, "mouse_click")
 
---- Creates a new Checkbox instance
 --- @shortDescription Creates a new Checkbox instance
 --- @return Checkbox self The created instance
+--- @protected
 function Checkbox.new()
     local self = setmetatable({}, Checkbox):__init()
     return self
 end
 
---- Initializes the Checkbox instance
 --- @shortDescription Initializes the Checkbox instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
+--- @protected
 function Checkbox:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Checkbox")
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean Clicked Whether the event was handled
+--- @protected
 function Checkbox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         self.set("checked", not self.get("checked"))
@@ -63,8 +63,8 @@ function Checkbox:mouse_click(button, x, y)
     return false
 end
 
---- Renders the Checkbox
 --- @shortDescription Renders the Checkbox
+--- @protected
 function Checkbox:render()
     VisualElement.render(self)
 

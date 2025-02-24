@@ -28,6 +28,7 @@ end})
 --- @shortDescription Creates a new Frame instance
 --- @return BaseFrame object The newly created Frame instance
 --- @usage local element = BaseFrame.new()
+--- @private
 function BaseFrame.new()
     local self = setmetatable({}, BaseFrame):__init()
     self.set("term", term.current())
@@ -35,18 +36,17 @@ function BaseFrame.new()
     return self
 end
 
---- Initializes the Frame instance
 --- @shortDescription Initializes the Frame instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return table self The initialized instance
+--- @protected
 function BaseFrame:init(props, basalt)
     Container.init(self, props, basalt)
     self.set("type", "BaseFrame")
     return self
 end
 
---- Renders a multiBlit to the render Object
 --- @shortDescription Renders a multiBlit to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to
@@ -55,41 +55,42 @@ end
 --- @param text string The text to render
 --- @param fg string The foreground color
 --- @param bg string The background color
+--- @protected
 function BaseFrame:multiBlit(x, y, width, height, text, fg, bg)
     if(x<1)then width = width + x - 1; x = 1 end
     if(y<1)then height = height + y - 1; y = 1 end
     self._render:multiBlit(x, y, width, height, text, fg, bg)
 end
 
---- Renders a text with a foreground color to the render Object
 --- @shortDescription Renders a text with a foreground color to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to
 --- @param text string The text to render
 --- @param fg colors The foreground color
+--- @protected
 function BaseFrame:textFg(x, y, text, fg)
     if x < 1 then text = string.sub(text, 1 - x); x = 1 end
     self._render:textFg(x, y, text, fg)
 end
 
---- Renders a text with a background color to the render Object
 --- @shortDescription Renders a text with a background color to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to
 --- @param text string The text to render
 --- @param bg colors The background color
+--- @protected
 function BaseFrame:textBg(x, y, text, bg)
     if x < 1 then text = string.sub(text, 1 - x); x = 1 end
     self._render:textBg(x, y, text, bg)
 end
 
---- Renders a text with a foreground and background color to the render Object
 --- @shortDescription Renders a text with a foreground and background color to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to
 --- @param text string The text to render
 --- @param fg string The foreground color
 --- @param bg string The background color
+--- @protected
 function BaseFrame:blit(x, y, text, fg, bg)
     if x < 1 then 
         text = string.sub(text, 1 - x)
@@ -109,13 +110,18 @@ function BaseFrame:setCursor(x, y, blink, color)
     self._render:setCursor(x, y, blink, color)
 end
 
----@private
+--- @shortDescription Handles mouse up events
+--- @param button number The button that was released
+--- @param x number The x position of the mouse
+--- @param y number The y position of the mouse
+--- @protected
 function BaseFrame:mouse_up(button, x, y)
     Container.mouse_up(self, button, x, y)
     Container.mouse_release(self, button, x, y)
 end
 
----@private
+--- @shortDescription Resizes the Frame
+--- @protected
 function BaseFrame:term_resize()
     local width, height = self.get("term").getSize()
     if(width == self.get("width") and height == self.get("height")) then
@@ -127,8 +133,8 @@ function BaseFrame:term_resize()
     self._renderUpdate = true
 end
 
---- Renders the Frame
 --- @shortDescription Renders the Frame
+--- @protected
 function BaseFrame:render()
     if(self._renderUpdate) then
         if self._render ~= nil then

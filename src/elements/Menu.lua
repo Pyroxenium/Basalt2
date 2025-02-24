@@ -15,7 +15,7 @@ Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "numb
 --- Creates a new Menu instance
 --- @shortDescription Creates a new Menu instance
 --- @return Menu self The newly created Menu instance
---- @usage local menu = Menu.new()
+--- @private
 function Menu.new()
     local self = setmetatable({}, Menu):__init()
     self.set("width", 30)
@@ -24,11 +24,11 @@ function Menu.new()
     return self
 end
 
---- Initializes the Menu instance
 --- @shortDescription Initializes the Menu instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Menu self The initialized instance
+--- @protected
 function Menu:init(props, basalt)
     List.init(self, props, basalt)
     self.set("type", "Menu")
@@ -58,8 +58,8 @@ function Menu:setItems(items)
     return List.setItems(self, listItems)
 end
 
---- Renders the menu
 --- @shortDescription Renders the menu horizontally with proper spacing and colors
+--- @protected
 function Menu:render()
     VisualElement.render(self)
     local currentX = 1
@@ -87,12 +87,12 @@ function Menu:render()
     end
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events and item selection
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean Whether the event was handled
+--- @protected
 function Menu:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
     if(self.get("selectable") == false) then return false end

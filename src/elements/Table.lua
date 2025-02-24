@@ -32,7 +32,7 @@ Table.defineEvent(Table, "mouse_scroll")
 --- Creates a new Table instance
 --- @shortDescription Creates a new Table instance
 --- @return Table self The newly created Table instance
---- @usage local table = Table.new()
+--- @private
 function Table.new()
     local self = setmetatable({}, Table):__init()
     self.set("width", 30)
@@ -41,11 +41,11 @@ function Table.new()
     return self
 end
 
---- Initializes the Table instance
 --- @shortDescription Initializes the Table instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Table self The initialized instance
+--- @protected
 function Table:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Table")
@@ -72,12 +72,12 @@ function Table:sortData(columnIndex)
     return self
 end
 
---- Handles mouse click events
 --- @shortDescription Handles header clicks for sorting and row selection
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Table:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
@@ -110,12 +110,12 @@ function Table:mouse_click(button, x, y)
     return true
 end
 
---- Handles mouse scroll events
 --- @shortDescription Handles scrolling through the table data
 --- @param direction number The scroll direction (-1 up, 1 down)
 --- @param x number The x position of the scroll
 --- @param y number The y position of the scroll
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Table:mouse_scroll(direction, x, y)
     local data = self.get("data")
     local height = self.get("height")
@@ -127,8 +127,8 @@ function Table:mouse_scroll(direction, x, y)
     return true
 end
 
---- Renders the table
 --- @shortDescription Renders the table with headers, data and scrollbar
+--- @protected
 function Table:render()
     VisualElement.render(self)
 

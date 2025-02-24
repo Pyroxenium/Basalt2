@@ -12,13 +12,12 @@ Button.__index = Button
 ---@property text string Button Button text
 Button.defineProperty(Button, "text", {default = "Button", type = "string", canTriggerRender = true})
 
----@event mouse_click The event that is triggered when the button is clicked
 Button.defineEvent(Button, "mouse_click")
 Button.defineEvent(Button, "mouse_up")
 
---- Creates a new Button instance
 --- @shortDescription Creates a new Button instance
 --- @return table self The created instance
+--- @private
 function Button.new()
     local self = setmetatable({}, Button):__init()
     self.set("width", 10)
@@ -27,17 +26,17 @@ function Button.new()
     return self
 end
 
---- Initializes the Button instance
 --- @shortDescription Initializes the Button instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
+--- @protected
 function Button:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Button")
 end
 
---- Renders the Button
 --- @shortDescription Renders the Button
+--- @protected
 function Button:render()
     VisualElement.render(self)
     local text = self.get("text")

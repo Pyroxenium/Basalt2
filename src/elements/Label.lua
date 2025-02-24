@@ -33,7 +33,7 @@ end})
 --- Creates a new Label instance
 --- @shortDescription Creates a new Label instance
 --- @return Label self The newly created Label instance
---- @usage local label = Label.new()
+--- @private
 function Label.new()
     local self = setmetatable({}, Label):__init()
     self.set("z", 3)
@@ -47,6 +47,7 @@ end
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Label self The initialized instance
+--- @protected
 function Label:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Label")
@@ -62,8 +63,8 @@ function Label:getWrappedText()
     return wrappedText
 end
 
---- Renders the Label
 --- @shortDescription Renders the Label by drawing its text content
+--- @protected
 function Label:render()
     VisualElement.render(self)
     local text = self.get("text")

@@ -16,7 +16,7 @@ ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.black
 --- Creates a new ProgressBar instance
 --- @shortDescription Creates a new ProgressBar instance
 --- @return ProgressBar self The newly created ProgressBar instance
---- @usage local progressBar = ProgressBar.new()
+--- @private
 function ProgressBar.new()
     local self = setmetatable({}, ProgressBar):__init()
     self.set("width", 10)
@@ -24,18 +24,18 @@ function ProgressBar.new()
     return self
 end
 
---- Initializes the ProgressBar instance
 --- @shortDescription Initializes the ProgressBar instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return ProgressBar self The initialized instance
+--- @protected
 function ProgressBar:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "ProgressBar")
 end
 
---- Renders the ProgressBar
 --- @shortDescription Renders the progress bar with filled portion and optional percentage text
+--- @protected
 function ProgressBar:render()
     VisualElement.render(self)
     local width = self.get("width")

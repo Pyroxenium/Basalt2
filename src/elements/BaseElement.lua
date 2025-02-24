@@ -31,22 +31,23 @@ BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 --- @property eventCallbacks table BaseElement The event callbacks for the element
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
-
+---@private
 function BaseElement.defineEvent(class, eventName, requiredEvent)
     if not rawget(class, '_eventConfigs') then
         class._eventConfigs = {}
     end
-    
+
     class._eventConfigs[eventName] = {
         requires = requiredEvent and requiredEvent or eventName
     }
 end
 
+---@private
 function BaseElement.registerEventCallback(class, callbackName, ...)
     local methodName = callbackName:match("^on") and callbackName or "on"..callbackName
     local events = {...}
     local mainEvent = events[1]
-    
+
     class[methodName] = function(self, ...)
         for _, sysEvent in ipairs(events) do
             if not self._registeredEvents[sysEvent] then
@@ -58,22 +59,19 @@ function BaseElement.registerEventCallback(class, callbackName, ...)
     end
 end
 
---- Creates a new BaseElement instance
 --- @shortDescription Creates a new BaseElement instance
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return table The newly created BaseElement instance
---- @usage local element = BaseElement.new()
+---@private
 function BaseElement.new()
     local self = setmetatable({}, BaseElement):__init()
     return self
 end
 
---- Initializes the BaseElement instance
 --- @shortDescription Initializes the BaseElement instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return table self The initialized instance
+---@protected
 function BaseElement:init(props, basalt)
     self._props = props
     self._values.id = uuid()
@@ -112,9 +110,9 @@ function BaseElement:init(props, basalt)
     return self
 end
 
---- Post initialization
 --- @shortDescription Post initialization
 --- @return table self The BaseElement instance
+---@protected
 function BaseElement:postInit()
     if(self._props)then
         for k,v in pairs(self._props)do
@@ -197,11 +195,11 @@ function BaseElement:fireEvent(event, ...)
     return self
 end
 
---- Handles all events
 --- @shortDescription Handles all events
 --- @param event string The event to handle
 --- @vararg any The arguments for the event
 --- @return boolean? handled Whether the event was handled
+--- @protected
 function BaseElement:dispatchEvent(event, ...)
     if self[event] then
         return self[event](self, ...)
@@ -209,11 +207,11 @@ function BaseElement:dispatchEvent(event, ...)
     return self:handleEvent(event, ...)
 end
 
---- The default event handler for all events
 --- @shortDescription The default event handler for all events
 --- @param event string The event to handle
 --- @vararg any The arguments for the event
 --- @return boolean? handled Whether the event was handled
+--- @protected
 function BaseElement:handleEvent(event, ...)
     return false
 end

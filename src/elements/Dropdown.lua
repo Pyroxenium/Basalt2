@@ -22,7 +22,7 @@ Dropdown.defineProperty(Dropdown, "dropSymbol", {default = "\31", type = "string
 --- Creates a new Dropdown instance
 --- @shortDescription Creates a new Dropdown instance
 --- @return Dropdown self The newly created Dropdown instance
---- @usage local dropdown = Dropdown.new()
+--- @private
 function Dropdown.new()
     local self = setmetatable({}, Dropdown):__init()
     self.set("width", 16)
@@ -31,23 +31,23 @@ function Dropdown.new()
     return self
 end
 
---- Initializes the Dropdown instance
 --- @shortDescription Initializes the Dropdown instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Dropdown self The initialized instance
+--- @protected
 function Dropdown:init(props, basalt)
     List.init(self, props, basalt)
     self.set("type", "Dropdown")
     return self
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Dropdown:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
@@ -96,8 +96,8 @@ function Dropdown:mouse_click(button, x, y)
     return false
 end
 
---- Renders the Dropdown
 --- @shortDescription Renders the Dropdown
+--- @protected
 function Dropdown:render()
     VisualElement.render(self)
 

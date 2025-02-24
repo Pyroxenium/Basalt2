@@ -34,7 +34,7 @@ Tree.defineEvent(Tree, "mouse_scroll")
 --- Creates a new Tree instance
 --- @shortDescription Creates a new Tree instance
 --- @return Tree self The newly created Tree instance
---- @usage local tree = Tree.new()
+--- @private
 function Tree.new()
     local self = setmetatable({}, Tree):__init()
     self.set("width", 30)
@@ -48,6 +48,7 @@ end
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Tree self The initialized instance
+--- @protected
 function Tree:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Tree")
@@ -106,6 +107,7 @@ end
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Tree:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -136,12 +138,12 @@ function Tree:onSelect(callback)
     return self
 end
 
---- Handles mouse scroll events
 --- @shortDescription Handles mouse scroll events for vertical scrolling
 --- @param direction number The scroll direction (1 for up, -1 for down)
 --- @param x number The x position of the scroll
 --- @param y number The y position of the scroll
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Tree:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
@@ -167,8 +169,8 @@ function Tree:getNodeSize()
     return width, height
 end
 
---- Renders the tree
 --- @shortDescription Renders the tree with nodes, selection and scrolling
+--- @protected
 function Tree:render()
     VisualElement.render(self)
 

@@ -31,10 +31,9 @@ Input.defineEvent(Input, "mouse_click")
 Input.defineEvent(Input, "key")
 Input.defineEvent(Input, "char")
 
---- Creates a new Input instance
 --- @shortDescription Creates a new Input instance
 --- @return Input object The newly created Input instance
---- @usage local element = Input.new("myId", basalt)
+--- @private
 function Input.new()
     local self = setmetatable({}, Input):__init()
     self.set("width", 8)
@@ -42,21 +41,21 @@ function Input.new()
     return self
 end
 
---- Initializes the Input instance
 --- @shortDescription Initializes the Input instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Input self The initialized instance
+--- @protected
 function Input:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Input")
     return self
 end
 
---- Handles char events
 --- @shortDescription Handles char events
 --- @param char string The character that was typed
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Input:char(char)
     if not self.get("focused") then return false end
     local text = self.get("text")
@@ -74,10 +73,10 @@ function Input:char(char)
     return true
 end
 
---- Handles key events
 --- @shortDescription Handles key events
 --- @param key number The key that was pressed
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Input:key(key)
     if not self.get("focused") then return false end
     local pos = self.get("cursorPos")
@@ -113,26 +112,26 @@ function Input:key(key)
     return true
 end
 
---- Handles focus events
 --- @shortDescription Handles focus events
+--- @protected
 function Input:focus()
     VisualElement.focus(self)
     self:updateRender()
 end
 
---- Handles blur events
 --- @shortDescription Handles blur events
+--- @protected
 function Input:blur()
     VisualElement.blur(self)
     self:updateRender()
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Input:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -145,6 +144,7 @@ end
 
 --- Updates the input's viewport
 --- @shortDescription Updates the input's viewport
+--- @return Input self The updated instance
 function Input:updateViewport()
     local width = self.get("width")
     local cursorPos = self.get("cursorPos")
@@ -161,10 +161,11 @@ function Input:updateViewport()
     if viewOffset > textLength - width then
         self.set("viewOffset", math.max(0, textLength - width))
     end
+    return self
 end
 
---- Renders the input element
 --- @shortDescription Renders the input element
+--- @protected
 function Input:render()
     local text = self.get("text")
     local viewOffset = self.get("viewOffset")

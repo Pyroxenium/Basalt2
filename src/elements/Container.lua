@@ -83,15 +83,16 @@ end
 --- Creates a new Container instance
 --- @shortDescription Creates a new Container instance
 --- @return Container self The new container instance
+--- @private
 function Container.new()
     local self = setmetatable({}, Container):__init()
     return self
 end
 
---- Initializes the Container instance
 --- @shortDescription Initializes the Container instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
+--- @protected
 function Container:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Container")
@@ -337,7 +338,7 @@ end
 --- @vararg any The event arguments
 --- @return boolean handled Whether the event was handled
 --- @return table child? The child that handled the event
-function Container:callChildrenEvents(visibleOnly, event, ...)
+function Container:callChildrenEvent(visibleOnly, event, ...)
     local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
     if children[event] then
         local events = children[event]
@@ -351,27 +352,27 @@ function Container:callChildrenEvents(visibleOnly, event, ...)
     return false
 end
 
---- Default handler for events
 --- @shortDescription Default handler for events
 --- @param event string The event to handle
 --- @vararg any The event arguments
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:handleEvent(event, ...)
     VisualElement.handleEvent(self, event, ...)
     local args = convertMousePosition(self, event, ...)
-    return self:callChildrenEvents(false, event, table.unpack(args))
+    return self:callChildrenEvent(false, event, table.unpack(args))
 end
 
---- Handles mouse click events
 --- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_click", button, x, y)
-        local success, child = self:callChildrenEvents(true, "mouse_click", table.unpack(args))
+        local success, child = self:callChildrenEvent(true, "mouse_click", table.unpack(args))
         if(success)then
             self.set("focusedChild", child)
             return true
@@ -382,16 +383,16 @@ function Container:mouse_click(button, x, y)
     return false
 end
 
---- Handles mouse up events
 --- @shortDescription Handles mouse up events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:mouse_up(button, x, y)
     if VisualElement.mouse_up(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_up", button, x, y)
-        local success, child = self:callChildrenEvents(true, "mouse_up", table.unpack(args))
+        local success, child = self:callChildrenEvent(true, "mouse_up", table.unpack(args))
         if(success)then
             return true
         end
@@ -399,27 +400,27 @@ function Container:mouse_up(button, x, y)
     return false
 end
 
---- Handles mouse release events
 --- @shortDescription Handles mouse release events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
+--- @protected
 function Container:mouse_release(button, x, y)
     VisualElement.mouse_release(self, button, x, y)
     local args = convertMousePosition(self, "mouse_release", button, x, y)
-    self:callChildrenEvents(false, "mouse_release", table.unpack(args))
+    self:callChildrenEvent(false, "mouse_release", table.unpack(args))
 end
 
---- Handles mouse move events
 --- @shortDescription Handles mouse move events
 --- @param _ number unknown
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:mouse_move(_, x, y)
     if VisualElement.mouse_move(self, _, x, y) then
         local args = convertMousePosition(self, "mouse_move", _, x, y)
-        local success, child = self:callChildrenEvents(true, "mouse_move", table.unpack(args))
+        local success, child = self:callChildrenEvent(true, "mouse_move", table.unpack(args))
         if(success)then
             return true
         end
@@ -427,16 +428,16 @@ function Container:mouse_move(_, x, y)
     return false
 end
 
---- Handles mouse drag events
 --- @shortDescription Handles mouse drag events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:mouse_drag(button, x, y)
     if VisualElement.mouse_drag(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_drag", button, x, y)
-        local success, child = self:callChildrenEvents(true, "mouse_drag", table.unpack(args))
+        local success, child = self:callChildrenEvent(true, "mouse_drag", table.unpack(args))
         if(success)then
             return true
         end
@@ -444,15 +445,15 @@ function Container:mouse_drag(button, x, y)
     return false
 end
 
---- Handles mouse scroll events
 --- @shortDescription Handles mouse scroll events
 --- @param direction number The direction of the scroll
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:mouse_scroll(direction, x, y)
     local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
-    local success, child = self:callChildrenEvents(true, "mouse_scroll", table.unpack(args))
+    local success, child = self:callChildrenEvent(true, "mouse_scroll", table.unpack(args))
     if(success)then
         return true
     end
@@ -462,10 +463,10 @@ function Container:mouse_scroll(direction, x, y)
     return false
 end
 
---- Handles key events
 --- @shortDescription Handles key events
 --- @param key number The key that was pressed
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:key(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key", key)
@@ -473,10 +474,10 @@ function Container:key(key)
     return true
 end
 
---- Handles char events
 --- @shortDescription Handles char events
 --- @param char string The character that was pressed
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:char(char)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("char", char)
@@ -484,10 +485,10 @@ function Container:char(char)
     return true
 end
 
---- Handles key up events
 --- @shortDescription Handles key up events
 --- @param key number The key that was released
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Container:key_up(key)
     if self.get("focusedChild") then
         return self.get("focusedChild"):dispatchEvent("key_up", key)
@@ -495,7 +496,6 @@ function Container:key_up(key)
     return true
 end
 
---- Draws multiple lines of text, fg and bg strings, it is usually used in the render loop
 --- @shortDescription Draws multiple lines of text, fg and bg strings
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
@@ -505,6 +505,7 @@ end
 --- @param fg string The foreground color of the text
 --- @param bg string The background color of the text
 --- @return Container self The container instance
+--- @protected
 function Container:multiBlit(x, y, width, height, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
     
@@ -517,13 +518,13 @@ function Container:multiBlit(x, y, width, height, text, fg, bg)
     return self
 end
 
---- Draws a line of text and fg as color, it is usually used in the render loop
 --- @shortDescription Draws a line of text and fg as color
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
 --- @param text string The text to draw
 --- @param fg color The foreground color of the text
 --- @return Container self The container instance
+--- @protected
 function Container:textFg(x, y, text, fg)
     local w, h = self.get("width"), self.get("height")
 
@@ -538,13 +539,13 @@ function Container:textFg(x, y, text, fg)
     return self
 end
 
---- Draws a line of text and bg as color, it is usually used in the render loop
 --- @shortDescription Draws a line of text and bg as color
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
 --- @param text string The text to draw
 --- @param bg color The background color of the text
 --- @return Container self The container instance
+--- @protected
 function Container:textBg(x, y, text, bg)
     local w, h = self.get("width"), self.get("height")
 
@@ -559,7 +560,6 @@ function Container:textBg(x, y, text, bg)
     return self
 end
 
---- Draws a line of text and fg and bg as colors, it is usually used in the render loop
 --- @shortDescription Draws a line of text and fg and bg as colors
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
@@ -567,6 +567,7 @@ end
 --- @param fg string The foreground color of the text
 --- @param bg string The background color of the text
 --- @return Container self The container instance
+--- @protected
 function Container:blit(x, y, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
 
@@ -587,8 +588,8 @@ function Container:blit(x, y, text, fg, bg)
     return self
 end
 
---- Renders the container
 --- @shortDescription Renders the container
+--- @protected
 function Container:render()
     VisualElement.render(self)
     if not self.get("childrenSorted")then
@@ -608,9 +609,7 @@ function Container:render()
     end
 end
 
---- Destroys the container and its children
---- @shortDescription Destroys the container and its children
---- @return Container self The container instance
+--- @private
 function Container:destroy()
     for _, child in ipairs(self._values.children) do
         child:destroy()

@@ -18,11 +18,20 @@ Image.defineProperty(Image, "currentFrame", {default = 1, type = "number", canTr
 ---@property metadata table {} Image metadata (version, palette, etc)
 Image.defineProperty(Image, "metadata", {default = {}, type = "table"})
 
+--- Creates a new Image instance
+--- @shortDescription Creates a new Image instance
+--- @return Image self The newly created Image instance
+--- @private
 function Image.new()
     local self = setmetatable({}, Image):__init()
     return self
 end
 
+--- @shortDescription Initializes the Image instance
+--- @param props table The properties to initialize the element with
+--- @param basalt table The basalt instance
+--- @return Image self The initialized instance
+--- @protected
 function Image:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Image")
@@ -30,7 +39,9 @@ function Image:init(props, basalt)
 end
 
 --- Loads a bimg format image
+--- @shortDescription Loads a bimg format image
 --- @param bimgData table The bimg image data
+--- @return Image self The Image instance
 function Image:loadBimg(bimgData)
     if type(bimgData) ~= "table" then return self end
 
@@ -57,6 +68,7 @@ function Image:loadBimg(bimgData)
 end
 
 --- Gets pixel information at position
+--- @shortDescription Gets pixel information at position
 --- @param x number X position
 --- @param y number Y position
 --- @return number? fg Foreground color
@@ -80,6 +92,7 @@ function Image:getPixelData(x, y)
 end
 
 --- Sets character at position
+--- @shortDescription Sets character at position
 --- @param x number X position
 --- @param y number Y position
 --- @param char string Single character to set
@@ -107,6 +120,7 @@ function Image:setChar(x, y, char)
 end
 
 --- Sets foreground color at position
+--- @shortDescription Sets foreground color at position
 --- @param x number X position
 --- @param y number Y position
 --- @param color number Color value (0-15)
@@ -134,6 +148,7 @@ function Image:setFg(x, y, color)
 end
 
 --- Sets background color at position
+--- @shortDescription Sets background color at position
 --- @param x number X position
 --- @param y number Y position
 --- @param color number Color value (0-15)
@@ -161,6 +176,7 @@ function Image:setBg(x, y, color)
 end
 
 --- Sets all properties at position
+--- @shortDescription Sets all properties at position
 --- @param x number X position
 --- @param y number Y position
 --- @param char string? Character to set (optional)
@@ -173,6 +189,9 @@ function Image:setPixel(x, y, char, fg, bg)
     return self
 end
 
+--- Advances to the next frame in the animation
+--- @shortDescription Advances to the next frame in the animation
+--- @return Image self The Image instance
 function Image:nextFrame()
     if not self.get("metadata").animation then return end
 
@@ -185,6 +204,8 @@ function Image:nextFrame()
     return self
 end
 
+--- @shortDescription Renders the Image
+--- @protected
 function Image:render()
     VisualElement.render(self)
 

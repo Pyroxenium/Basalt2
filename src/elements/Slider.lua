@@ -25,7 +25,7 @@ Slider.defineEvent(Slider, "mouse_up")
 --- Creates a new Slider instance
 --- @shortDescription Creates a new Slider instance
 --- @return Slider self The newly created Slider instance
---- @usage local slider = Slider.new()
+--- @private
 function Slider.new()
     local self = setmetatable({}, Slider):__init()
     self.set("width", 8)
@@ -34,11 +34,11 @@ function Slider.new()
     return self
 end
 
---- Initializes the Slider instance
 --- @shortDescription Initializes the Slider instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Slider self The initialized instance
+--- @protected
 function Slider:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Slider")
@@ -55,12 +55,12 @@ function Slider:getValue()
     return math.floor((step - 1) * (max / (maxSteps - 1)))
 end
 
---- Handles mouse click events
 --- @shortDescription Updates slider position on mouse click
 --- @param button number The mouse button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Slider:mouse_click(button, x, y)
     if button == 1 and self:isInBounds(x, y) then
         local relX, relY = self:getRelativePosition(x, y)
@@ -74,12 +74,12 @@ function Slider:mouse_click(button, x, y)
 end
 Slider.mouse_drag = Slider.mouse_click
 
---- Handles mouse release events
 --- @shortDescription Handles mouse release events
 --- @param button number The mouse button that was released
 --- @param x number The x position of the release
 --- @param y number The y position of the release
 --- @return boolean handled Whether the event was handled
+--- @protected
 function Slider:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
         local step = self.get("step")
@@ -90,8 +90,8 @@ function Slider:mouse_scroll(direction, x, y)
     end
 end
 
---- Renders the slider
 --- @shortDescription Renders the slider with track and handle
+--- @protected
 function Slider:render()
     VisualElement.render(self)
     local width = self.get("width")

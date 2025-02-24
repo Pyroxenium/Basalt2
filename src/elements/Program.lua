@@ -113,10 +113,9 @@ function BasaltProgram:stop()
 
 end
 
---- Creates a new Program instance
 --- @shortDescription Creates a new Program instance
 --- @return Program object The newly created Program instance
---- @usage local element = Program.new("myId", basalt)
+--- @private
 function Program.new()
     local self = setmetatable({}, Program):__init()
     self.set("z", 5)
@@ -125,11 +124,11 @@ function Program.new()
     return self
 end
 
---- Initializes the Program instanceProperty
 --- @shortDescription Initializes the Program instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return Program self The initialized instance
+--- @protected
 function Program:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Program")
@@ -150,11 +149,11 @@ function Program:execute(path)
     return self
 end
 
---- Handles all incomming events
 --- @shortDescription Handles all incomming events
 --- @param event string The event to handle
 --- @param ... any The event arguments
 --- @return any result The event result
+--- @protected
 function Program:dispatchEvent(event, ...)
     local program = self.get("program")
     local result = VisualElement.dispatchEvent(self, event, ...)
@@ -170,8 +169,8 @@ function Program:dispatchEvent(event, ...)
     return result
 end
 
---- Gets called when the element gets focused
 --- @shortDescription Gets called when the element gets focused
+--- @protected
 function Program:focus()
     if(VisualElement.focus(self))then
         local program = self.get("program")
@@ -183,8 +182,8 @@ function Program:focus()
     end
 end
 
---- Renders the program
 --- @shortDescription Renders the program
+--- @protected
 function Program:render()
     VisualElement.render(self)
     local program = self.get("program")
