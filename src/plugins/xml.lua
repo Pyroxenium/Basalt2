@@ -20,7 +20,6 @@ local function parseXML(self, xmlString)
 
     for line in xmlString:gmatch("[^\r\n]+") do
         line = line:match("^%s*(.-)%s*$")
-        self.basalt.LOGGER.debug("Parsing line: " .. line)
 
         if line:match("^<!%[CDATA%[") then
             inCDATA = true
@@ -86,6 +85,9 @@ local function convertValue(value, propertyType, scope)
     end
 
     if propertyType == "number" then
+        if(tonumber(value) == nil) then
+            return value
+        end
         return tonumber(value)
     elseif propertyType == "boolean" then
         return value == "true"

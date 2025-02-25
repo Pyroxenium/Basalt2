@@ -185,14 +185,14 @@ local themeAPI = {}
 --- @shortDescription Sets a new theme
 --- @param newTheme table The theme configuration to set
 function themeAPI.setTheme(newTheme)
-    defaultTheme = newTheme
+    themes.default = newTheme
 end
 
 --- Gets the current theme configuration
 --- @shortDescription Gets the current theme
 --- @return table theme The current theme configuration
 function themeAPI.getTheme()
-    return defaultTheme
+    return themes.default
 end
 
 --- Loads a theme from a JSON file
@@ -203,7 +203,7 @@ function themeAPI.loadTheme(path)
     if file then
         local content = file.readAll()
         file.close()
-        defaultTheme = textutils.unserializeJSON(content)
+        themes.default = textutils.unserializeJSON(content)
     end
 end
 
