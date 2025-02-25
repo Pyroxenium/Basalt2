@@ -358,10 +358,10 @@ return cd end
 function cb:applyTheme()local dc=self:getTheme()if(dc~=nil)then
 for _d,ad in pairs(dc)do self.set(_d,ad)end end end
 function cb:getTheme()local dc=self:____getElementPath()
-local _d=self.get("type")local ad=self.get("name")return bc(ab[bb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)_b=dc end;function cc.getTheme()return _b end
-function cc.loadTheme(dc)
-local _d=fs.open(dc,"r")if _d then local ad=_d.readAll()_d.close()
-_b=textutils.unserializeJSON(ad)end end;return{BaseElement=cb,API=cc} end
+local _d=self.get("type")local ad=self.get("name")return bc(ab[bb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)ab.default=dc end
+function cc.getTheme()return ab.default end
+function cc.loadTheme(dc)local _d=fs.open(dc,"r")if _d then local ad=_d.readAll()_d.close()
+ab.default=textutils.unserializeJSON(ad)end end;return{BaseElement=cb,API=cc} end
 project["plugins/reactive.lua"] = function(...) local ab=require("errorManager")
 local bb=require("propertySystem")local cb={colors=true,math=true,clamp=true,round=true}
 local db={clamp=function(ad,bd,cd)return
@@ -434,7 +434,6 @@ for dc,_d in bc:gmatch('%s(%w+)="([^"]-)"')do cc.attributes[dc]=_d end;return cc
 local function ab(bc,cc)local dc={}local _d={children={}}local ad=_d;local bd=false;local cd=""
 for dd in cc:gmatch("[^\r\n]+")do
 dd=dd:match("^%s*(.-)%s*$")
-bc.basalt.LOGGER.debug("Parsing line: "..dd)
 if dd:match("^<!%[CDATA%[")then bd=true;cd=""elseif dd:match("%]%]>$")and bd then bd=false
 ad.content=cd elseif bd then cd=cd..dd.."\n"elseif dd:match("^<[^/]")then local __a=_b(dd)__a.children={}
 __a.content=""table.insert(ad.children,__a)if not dd:match("/>$")then
@@ -456,9 +455,9 @@ local function cb(bc,cc,dc)if cc=="string"and type(bc)=="string"then if bc:find(
 return bb(bc,dc)end end
 if
 type(bc)=="string"and bc:match("^%${.*}$")then return bb(bc,dc)end
-if cc=="number"then return tonumber(bc)elseif cc=="boolean"then return bc=="true"elseif cc=="color"then return
-colors[bc]elseif cc=="table"then local _d=setmetatable({},{__index=_ENV})local ad=load(
-"return "..bc,nil,"t",_d)if ad then return ad()end end;return bc end
+if cc=="number"then if(tonumber(bc)==nil)then return bc end
+return tonumber(bc)elseif cc=="boolean"then return bc=="true"elseif cc=="color"then return colors[bc]elseif cc=="table"then
+local _d=setmetatable({},{__index=_ENV})local ad=load("return "..bc,nil,"t",_d)if ad then return ad()end end;return bc end
 local function db(bc,cc,dc)
 for _d,ad in pairs(bc.attributes)do
 if _d:match("^on%u")then
