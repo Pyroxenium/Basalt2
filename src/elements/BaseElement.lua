@@ -216,6 +216,16 @@ function BaseElement:handleEvent(event, ...)
     return false
 end
 
+--- Observes a property and calls a callback when it changes
+--- @shortDescription Observes a property and calls a callback when it changes
+--- @param property string The property to observe
+--- @param callback function The callback to call when the property changes
+--- @return table self The BaseElement instance
+function BaseElement:onChange(property, callback)
+    self:observe(property, callback)
+    return self
+end
+
 --- Returns the base frame of the element
 --- @shortDescription Returns the base frame of the element
 --- @return table BaseFrame The base frame of the element
