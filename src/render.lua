@@ -232,7 +232,7 @@ function Render:render()
     self.buffer.dirtyRects = {}
 
     if self.blink then
-        self.terminal.setTextColor(self.cursorColor)
+        self.terminal.setTextColor(self.cursorColor or colors.white)
         self.terminal.setCursorPos(self.xCursor, self.yCursor)
         self.terminal.setCursorBlink(true)
     else

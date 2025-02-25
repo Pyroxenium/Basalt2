@@ -386,6 +386,20 @@ function VisualElement:setCursor(x, y, blink, color)
     return self
 end
 
+--- This function is used to prioritize the element by moving it to the top of its parent's children.
+--- It removes the element from its parent and adds it back, effectively changing its order.
+--- @shortDescription Prioritizes the element by moving it to the top of its parent's children
+--- @return VisualElement self The VisualElement instance
+function VisualElement:prioritize()
+    if(self.parent)then
+        local parent = self.parent
+        parent:removeChild(self)
+        parent:addChild(self)
+        self:updateRender()
+    end
+    return self
+end
+
 --- @shortDescription Renders the element
 --- @protected
 function VisualElement:render()
