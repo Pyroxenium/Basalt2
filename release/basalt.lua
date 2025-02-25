@@ -896,22 +896,23 @@ function ca:mouse_click(da,_b,ab)
 if
 (aa.mouse_click(self,da,_b,ab))then local bb,cb=self:getRelativePosition(_b,ab)
 local db=self.get("draggingMap")
-for _c,ac in ipairs(db)do local bc=ac.width;local cc=ac.height or 1;if type(bc)=="string"and
-bc=="width"then bc=self.get("width")elseif type(bc)=="function"then
-bc=bc(self)end;if type(cc)=="string"and cc==
-"height"then cc=self.get("height")elseif
-type(cc)=="function"then cc=cc(self)end
-local dc=ac.y or 1
-if bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and
-cb<=dc+cc-1 then self.dragStartX=_b-self.get("x")self.dragStartY=
-ab-self.get("y")self.dragging=true;return true end end;return ba.mouse_click(self,da,_b,ab)end end
+for _c,ac in ipairs(db)do local bc=ac.width or 1;local cc=ac.height or 1;if
+type(bc)=="string"and bc=="width"then bc=self.get("width")elseif
+type(bc)=="function"then bc=bc(self)end
+if type(cc)==
+"string"and cc=="height"then cc=self.get("height")elseif
+type(cc)=="function"then cc=cc(self)end;local dc=ac.y or 1
+if
+bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and cb<=dc+cc-1 then
+self.dragStartX=_b-self.get("x")self.dragStartY=ab-self.get("y")self.dragging=true
+return true end end;return ba.mouse_click(self,da,_b,ab)end end
 function ca:mouse_drag(da,_b,ab)
 if self.get("clicked")and self.dragging then
 local bb=_b-self.dragStartX;local cb=ab-self.dragStartY;self.set("x",bb)
 self.set("y",cb)return true end
 if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end
-function ca:mouse_release(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
-ba.mouse_release(self,da,_b,ab)end;return ca end
+function ca:mouse_up(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
+ba.mouse_up(self,da,_b,ab)end;return ca end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
@@ -929,10 +930,7 @@ local ca=ba.getElement("VisualElement")local da=require("errorManager")local _b=
 _b.__index=_b
 _b.defineProperty(_b,"program",{default=nil,type="table"})
 _b.defineProperty(_b,"path",{default="",type="string"})
-_b.defineProperty(_b,"running",{default=false,type="boolean"})_b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
-_b.defineEvent(_b,"key_up")_b.defineEvent(_b,"paste")
-_b.defineEvent(_b,"mouse_click")_b.defineEvent(_b,"mouse_drag")
-_b.defineEvent(_b,"mouse_scroll")_b.defineEvent(_b,"mouse_up")local ab={}ab.__index=ab
+_b.defineProperty(_b,"running",{default=false,type="boolean"})_b.defineEvent(_b,"*")local ab={}ab.__index=ab
 local bb=dofile("rom/modules/main/cc/require.lua").make
 function ab.new()local cb=setmetatable({},ab)cb.env={}cb.args={}return cb end
 function ab:run(cb,db,_c)
@@ -967,14 +965,14 @@ local db=ab.new()self.set("program",db)
 db:run(cb,self.get("width"),self.get("height"))self:updateRender()return self end
 function _b:dispatchEvent(cb,...)local db=self.get("program")
 local _c=ca.dispatchEvent(self,cb,...)
-if db then db:resume(cb,...)if(self.get("focused"))then
+if db then db:resume(cb,...)
+if(self.get("focused"))then
 local ac=db.window.getCursorBlink()local bc,cc=db.window.getCursorPos()
-self:setCursor(bc,cc,ac)end
-self:updateRender()end;return _c end
+self:setCursor(bc,cc,ac,db.window.getTextColor())end;self:updateRender()end;return _c end
 function _b:focus()
 if(ca.focus(self))then local cb=self.get("program")if cb then
 local db=cb.window.getCursorBlink()local _c,ac=cb.window.getCursorPos()
-self:setCursor(_c,ac,db)end end end
+self:setCursor(_c,ac,db,cb.window.getTextColor())end end end
 function _b:render()ca.render(self)local cb=self.get("program")
 if cb then
 local db,_c=cb.window.getSize()for y=1,_c do local ac,bc,cc=cb.window.getLine(y)if ac then
@@ -1228,6 +1226,8 @@ function bb:callChildrenEvent(_c,ac,...)local bc=_c and self.get("visibleChildre
 self.get("childrenEvents")
 if
 bc[ac]then local cc=bc[ac]for i=#cc,1,-1 do local dc=cc[i]
+if(dc:dispatchEvent(ac,...))then return true,dc end end end
+if(bc["*"])then local cc=bc["*"]for i=#cc,1,-1 do local dc=cc[i]
 if(dc:dispatchEvent(ac,...))then return true,dc end end end;return false end
 function bb:handleEvent(_c,...)da.handleEvent(self,_c,...)local ac=db(self,_c,...)return
 self:callChildrenEvent(false,_c,table.unpack(ac))end
@@ -1421,12 +1421,16 @@ aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
 function aa.new()
 local ba=setmetatable({},aa):__init()ba.set("width",8)ba.set("z",3)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
+function aa:setCursor(ba,ca,da,_b)
+ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
 function aa:char(ba)if not self.get("focused")then return false end
 local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
 local ab=self.get("pattern")if _b and#ca>=_b then return end
 if ab and not ba:match(ab)then return end
-self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateRender()
-self:updateViewport()return true end
+self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
+self.get("cursorPos")-self.get("viewOffset")
+self:setCursor(bb,1,true,
+self.get("cursorColor")or self.get("foreground"))return true end
 function aa:key(ba)if not self.get("focused")then return false end
 local ca=self.get("cursorPos")local da=self.get("text")local _b=self.get("viewOffset")
 local ab=self.get("width")
@@ -1440,20 +1444,18 @@ self.set("text",da:sub(1,ca-2)..da:sub(ca))self.set("cursorPos",ca-1)self:update
 self:updateViewport()end end
 local bb=self.get("cursorPos")-self.get("viewOffset")
 self:setCursor(bb,1,true,self.get("cursorColor")or self.get("foreground"))return true end
-function aa:focus()d.focus(self)self:updateRender()end
-function aa:blur()d.blur(self)self:updateRender()end
 function aa:mouse_click(ba,ca,da)
 if d.mouse_click(self,ba,ca,da)then
-local _b,ab=self:getRelativePosition(ca,da)local bb=self.get("text")
-self:setCursor(math.min(_b,#bb+1),ab,true,
-self.get("cursorColor")or self.get("foreground"))
-self:set("cursorPos",_b+self.get("viewOffset"))return true end end
+local _b,ab=self:getRelativePosition(ca,da)local bb=self.get("text")local cb=self.get("viewOffset")
+local db=#bb+1;local _c=math.min(db,cb+_b)self.set("cursorPos",_c)
+local ac=_c-cb
+self:setCursor(ac,1,true,self.get("cursorColor")or self.get("foreground"))return true end;return false end
 function aa:updateViewport()local ba=self.get("width")
 local ca=self.get("cursorPos")local da=self.get("viewOffset")
 local _b=#self.get("text")
-if ca-da>ba then self.set("viewOffset",ca-ba)elseif ca<=da then self.set("viewOffset",math.max(0,
-ca-1))end;if da>_b-ba then
-self.set("viewOffset",math.max(0,_b-ba))end;return self end
+if ca-da>=ba then self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",
+ca-1)end
+self.set("viewOffset",math.max(0,math.min(self.get("viewOffset"),_b-ba+1)))return self end
 function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
 local da=self.get("width")local _b=self.get("placeholder")
 local ab=self.get("focusedColor")local bb=self.get("focused")
@@ -1608,9 +1610,8 @@ cb,db=self.get("x"),self.get("y")end;local _c,ac=1,1;if self.parent then
 _c,ac=self.parent:getRelativePosition()end
 local bc,cc=self.get("x"),self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
 function _b:setCursor(cb,db,_c,ac)
-if self.parent then local bc,cc=self:getAbsolutePosition(cb,db)
-bc=ab(self.get("x"),bb(bc,
-self.get("width")+self.get("x")-1))return self.parent:setCursor(bc,cc,_c,ac)end;return self end
+if self.parent then local bc,cc=self:calculatePosition()return self.parent:setCursor(
+cb+bc-1,db+cc-1,_c,ac)end;return self end
 function _b:prioritize()
 if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
