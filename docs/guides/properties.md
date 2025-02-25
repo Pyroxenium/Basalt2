@@ -1,120 +1,120 @@
 # Properties in Basalt
 
-Properties are the foundation of how Basalt elements store and manage their attributes. Understanding how properties work is key to effectively using Basalt.
+Properties are a core concept in Basalt that control how elements store and access their values.
 
-## Basic Usage
+## Property Initialization
 
-Every element in Basalt has properties that can be accessed and modified:
+You can set properties when creating elements:
 
 ```lua
+-- Initialize multiple properties at creation
+local button = main:addButton({
+    x = 5,
+    y = 5,
+    width = 10,
+    height = 3,
+    text = "Click me"
+})
+
+-- Equivalent to:
 local button = main:addButton()
-    :setPosition(5, 5)      -- Set position property
-    :setSize(10, 3)        -- Set size property
-    :setText("Click me")    -- Set text property
+    :setX(5)
+    :setY(5)
+    :setSize(10, 3)
+    :setText("Click me")
+```
+
+## Accessing Properties
+
+There are three ways to interact with properties, each with different characteristics:
+
+### 1. Method Syntax (Traditional)
+```lua
+element:setX(5)      -- Most validation, observers called
+local x = element:getX()
+```
+- Full validation
+- Type checking
+- Observers called
+- Most overhead
+
+### 2. Direct Access (Convenient)
+```lua
+element.x = 5        -- Convenient, observers called
+local x = element.x
+```
+- Medium validation
+- Observers called
+- Good balance of safety and performance
+
+### 3. Set/Get Function (Performance)
+```lua
+element.set("x", 5)  -- Minimal validation, observers called
+local x = element.get("x")
+```
+- Minimal validation
+- Only calls observers
+- Best performance
+- Use with caution
+
+## Combined Properties
+
+These are special methods that modify multiple properties at once:
+
+```lua
+-- These modify x and y properties together
+element:setPosition(5, 5)
+
+-- These modify width and height properties together
+element:setSize(10, 3)
 ```
 
 ## Dynamic Properties
 
-Properties can be dynamic using strings or functions:
+Any property can be set to a function that gets called on access:
 
 ```lua
--- String-based dynamic properties
-button:setPosition("{parent.width - 10}", 5)  -- 10 pixels from right edge
-
--- Function-based dynamic properties
-button:setPosition(function(self)
+-- Function as property value
+element.x = function(self)
     return self:getParent():getWidth() - 10
-end, 5)
+end
+
+-- Function gets called when accessing x
+local xPos = element.x  -- Calls the function
 ```
 
-## Property Types
+## Reactive Properties (Plugin Required)
 
-### Position Properties
-- `x`, `y` - Element position
-- `width`, `height` - Element size
-- `z` - Layer order (higher numbers = on top)
-
-### Visual Properties
-- `background` - Background color
-- `foreground` - Text color
-- `visible` - Whether element is shown
-- `text` - Element's text content
-
-### State Properties
-- `focused` - Has keyboard focus
-- `clicked` - Currently being clicked
-- `enabled` - Can receive input
-
-## Combined Properties
-
-Some properties can be set together:
+With the reactive plugin, you can use string expressions that automatically update:
 
 ```lua
-button:setSize(10, 3)           -- Individual
-button:setPosition(5, 5)        -- Individual
-
--- OR combined:
-button:setSize({10, 3})         -- Combined
-button:setPosition({5, 5})      -- Combined
+-- Requires reactive plugin
+element:setX("{parent.width - 10}")  -- Updates when parent width changes
 ```
 
-## Property Inheritance
-
-Elements inherit properties from their parent containers:
-
-```lua
-local frame = main:addFrame()
-    :setBackground(colors.blue)  -- All children inherit this background
-    
-frame:addButton()  -- Button has blue background unless overridden
-```
-
-## Property Events
+## Property Observers
 
 You can react to property changes:
 
 ```lua
-button:onChange("text", function(self, newText)
-    -- Called when text property changes
+element:onChange("x", function(self, newX)
+    -- Called when x changes through any method
 end)
 ```
 
-## Tips & Best Practices
+## Tips & Performance
 
-1. **Dynamic Updates**
-   - Use dynamic properties for responsive layouts
-   - Avoid expensive calculations in property functions
-   - Chain property setters for cleaner code
+1. **Choose the Right Access Method**
+   - Use `:setX()` when you need validation
+   - Use `.x` for convenient access
+   - Use `.set()` for maximum performance
 
-2. **Performance**
-   - Only update properties when needed
-   - Use combined setters when changing multiple related properties
-   - Consider using states for complex property management
+2. **Dynamic Properties**
+   - Function properties don't auto-update observers
+   - Reactive strings (with plugin) do update observers
+   - Cache computed values when possible
 
-3. **Organization**
-   - Group related property changes together
-   - Initialize all important properties at creation
-   - Use meaningful values for better readability
-
-## Common Patterns
-
-### Responsive Layout
-```lua
-element:setPosition(2, 2)
-    :setSize("{parent.width - 4}", "{parent.height - 4}")
-```
-
-### Conditional Styling
-```lua
-button:setBackground(function(self)
-    return self.clicked and colors.gray or colors.lightGray
-end)
-```
-
-### Layout Calculations
-```lua
-element:setPosition(function(self)
-    local parent = self:getParent()
-    return math.floor((parent:getWidth() - self:getWidth()) / 2)
-end)
-
+3. **Combined Properties**
+   - `setPosition` modifies x and y
+   - `setSize` modifies width and height
+   - More efficient than setting individually

@@ -66,7 +66,9 @@ export default defineConfig({
         { text: 'Annotations', link: '/guides/annotations' },
         { text: 'Animations', link: '/guides/animations' },
         { text: 'Benchmark', link: '/guides/benchmarks' },
+        { text: 'Properties', link: '/guides/properties' },
         { text: 'States', link: '/guides/states' },
+        { text: 'XML', link: '/guides/xml' },
         { text: 'FAQ', link: '/guides/faq' },
       ],
 
