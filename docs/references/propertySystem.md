@@ -30,6 +30,7 @@ It also allows for properties to have custom getters and setters. This is the ba
 |[PropertySystem:removeObserver](#PropertySystem:removeObserver)|table|
 |[PropertySystem:removeProperty](#PropertySystem:removeProperty)|table|Removes a property from the PropertySystem
 
+
 ## PropertySystem.addSetterHook(hook)
 Adds a setter hook to the PropertySystem. Setter hooks are functions that are called before a property is set.
 

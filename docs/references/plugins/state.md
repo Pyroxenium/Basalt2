@@ -13,6 +13,7 @@ persistent states, computed states, and state sharing between elements.
 |[BaseElement:setState](#BaseElement:setState)|BaseElement|Sets a state value
 |[BaseElement:shareState](#BaseElement:shareState)|BaseElement|Shares state between elements
 
+
 ## BaseElement:computed(self, key, computeFn)
 Creates a computed state that derives its value from other states
 

@@ -36,6 +36,7 @@ functionality. It also has a buffer system to reduce the number of calls
 |[Render:textBg](#Render:textBg)|Render|
 |[Render:textFg](#Render:textFg)|Render|
 
+
 ## Render.new(terminal)
 Creates a new Render object
 

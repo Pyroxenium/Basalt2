@@ -11,6 +11,7 @@ and then applies the plugins to the elements. It also provides a way to get elem
 |[ElementManager.getElementList](#ElementManager.getElementList)|table|
 |[ElementManager.loadElement](#ElementManager.loadElement)|-|
 
+
 ## ElementManager.getAPI(name)
 Gets an Plugin API by name
 

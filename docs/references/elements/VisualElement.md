@@ -32,73 +32,55 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Event|Parameters|Description|
 |---|---|---|
-|onMouseClick|`button number, x number, y number`|Fired on mouse click|
-|onMouseUp|`button number, x number, y number`|Fired on mouse button release|
-|onMouseRelease|`button number, x number, y number`|Fired when mouse leaves while clicked|
-|onMouseDrag|`button number, x number, y number`|Fired when mouse moves while clicked|
+|onClick|`button, x, y`|Fired on mouse click|
+|onMouseUp|`button, x, y`|Fired on mouse button release|
+|onRelease|`button, x, y`|Fired when mouse leaves while clicked|
+|onDrag|`button, x, y`|Fired when mouse moves while clicked|
+|onScroll|`direction, x, y`|Fired on mouse scroll|
+|onEnter|`-`|Fired when mouse enters element|
+|onLeave|`-`|Fired when mouse leaves element|
 |onFocus|`-`|Fired when element receives focus|
 |onBlur|`-`|Fired when element loses focus|
-|onKey|`key number, code number, isRepeat boolean`|Fired on key press|
-|onKeyUp|`key number, code number`|Fired on key release|
-|onChar|`char string`|Fired on character input|
+|onKey|`key`|Fired on key press|
+|onKeyUp|`key`|Fired on key release|
+|onChar|`char`|Fired on character input|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[VisualElement.new](#VisualElement.new)|VisualElement|Creates a new visual element
+|[VisualElement:calculatePosition](#VisualElement:calculatePosition)|number|Calculates the position of the element
+|[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|number|Returns the absolute position of the element
+|[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number|Returns the relative position of the element
+|[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
+
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
 |[VisualElement:blit](#VisualElement:blit)|-|Draws text with both colors
 |[VisualElement:blur](#VisualElement:blur)|-|Handles a blur event
-|[VisualElement:calculatePosition](#VisualElement:calculatePosition)|-|
 |[VisualElement:focus](#VisualElement:focus)|-|Handles a focus event
-|[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|-|Returns the absolute position of the element
-|[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number,|Returns the relative position of the element
 |[VisualElement:init](#VisualElement:init)|-|Initializes a new visual element with properties
-|[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|Handles a mouse click event
-|[VisualElement:mouse_drag](#VisualElement:mouse_drag)|-|
-|[VisualElement:mouse_move](#VisualElement:mouse_move)|-|
+|[VisualElement:mouse_drag](#VisualElement:mouse_drag)|boolean|Handles a mouse drag event
+|[VisualElement:mouse_move](#VisualElement:mouse_move)|boolean|Handles a mouse move event
 |[VisualElement:mouse_release](#VisualElement:mouse_release)|-|Handles a mouse release event
-|[VisualElement:mouse_scroll](#VisualElement:mouse_scroll)|-|
+|[VisualElement:mouse_scroll](#VisualElement:mouse_scroll)|boolean|Handles a mouse scroll event
 |[VisualElement:mouse_up](#VisualElement:mouse_up)|boolean|Handles a mouse up event
 |[VisualElement:multiBlit](#VisualElement:multiBlit)|-|Multi-character drawing with colors
 |[VisualElement:render](#VisualElement:render)|-|Renders the element
-|[VisualElement:setCursor](#VisualElement:setCursor)|-|Sets the cursor position
+|[VisualElement:setCursor](#VisualElement:setCursor)|VisualElement|Sets the cursor position
 |[VisualElement:textBg](#VisualElement:textBg)|-|Draws text with background color
 |[VisualElement:textFg](#VisualElement:textFg)|-|Draws text with foreground color
 
-## VisualElement.new(props, basalt)
-Creates a new VisualElement instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
+## VisualElement:calculatePosition()
+Calculates the position of the element relative to its parent
 
 ### Returns
-* `VisualElement` `object` The newly created VisualElement instance
-
-### Usage
- ```lua
-local element = VisualElement.new("myId", basalt)
-```
-
-## VisualElement:blit(x, y, text, fg, bg)
-Draws text with both foreground and background colors
-
-### Parameters
-* `x` `number` The x position to draw
-* `y` `number` The y position to draw
-* `text` `string` The text char to draw
-* `fg` `string` The foreground color
-* `bg` `string` The background color
-
-## VisualElement:blur()
-Handles a blur event
-
-## VisualElement:calculatePosition()
-
-## VisualElement:focus()
-Handles a focus event
+* `number` `x` The x position
+* `number` `y` The y position
 
 ## VisualElement:getAbsolutePosition(x?, y?)
 Returns the absolute position of the element or the given coordinates.
@@ -106,6 +88,10 @@ Returns the absolute position of the element or the given coordinates.
 ### Parameters
 * `x` *(optional)* `number` x position
 * `y` *(optional)* `number` y position
+
+### Returns
+* `number` `x` The absolute x position
+* `number` `y` The absolute y position
 
 ## VisualElement:getRelativePosition(x?, y?)
 Returns the relative position of the element or the given coordinates.
@@ -115,14 +101,8 @@ Returns the relative position of the element or the given coordinates.
 * `y` *(optional)* `number` y position
 
 ### Returns
-* `nil` `nil` nil
-
-## VisualElement:init(props, basalt)
-Initializes the VisualElement instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
+* `number` `x` The relative x position
+* `number` `y` The relative y position
 
 ## VisualElement:isInBounds(x, y)
 Checks if the specified coordinates are within the bounds of the element
@@ -133,82 +113,5 @@ Checks if the specified coordinates are within the bounds of the element
 
 ### Returns
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
-
-## VisualElement:mouse_click(button, x, y)
-Handles a mouse click event
-
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `clicked` Whether the element was clicked
-
-## VisualElement:mouse_drag()
-
-## VisualElement:mouse_move()
-
-## VisualElement:mouse_release(button, x, y)
-Handles a mouse release event
-
-### Parameters
-* `button` `number` The button that was released
-* `x` `number` The x position of the release
-* `y` `number` The y position of the release
-
-## VisualElement:mouse_scroll()
-
-## VisualElement:mouse_up(button, x, y)
-Handles a mouse up event
-
-### Parameters
-* `button` `number` The button that was released
-* `x` `number` The x position of the release
-* `y` `number` The y position of the release
-
-### Returns
-* `boolean` `release` Whether the element was released on the element
-
-## VisualElement:multiBlit(x, y, width, height, text, fg, bg)
-Draws multiple characters at once with colors
-
-### Parameters
-* `x` `number` The x position to draw
-* `y` `number` The y position to draw
-* `width` `number` The width of the area to draw
-* `height` `number` The height of the area to draw
-* `text` `string` The text to draw
-* `fg` `string` The foreground color
-* `bg` `string` The background color
-
-## VisualElement:render()
-Renders the element
-
-## VisualElement:setCursor(x, y, blink)
-Sets the cursor position
-
-### Parameters
-* `x` `number` The x position of the cursor
-* `y` `number` The y position of the cursor
-* `blink` `boolean` Whether the cursor should blink
-
-## VisualElement:textBg(x, y, text, bg)
-Draws text with background color
-
-### Parameters
-* `x` `number` The x position to draw
-* `y` `number` The y position to draw
-* `text` `string` The text char to draw
-* `bg` `color` The background color
-
-## VisualElement:textFg(x, y, text, fg)
-Draws text with foreground color
-
-### Parameters
-* `x` `number` The x position to draw
-* `y` `number` The y position to draw
-* `text` `string` The text char to draw
-* `fg` `color` The foreground color
 
 

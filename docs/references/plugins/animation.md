@@ -17,6 +17,7 @@ with support for sequences, easing functions, and multiple animation types.
 |[Animation:sequence](#Animation:sequence)|Animation|Creates a new sequence
 |[Animation:start](#Animation:start)|Animation|Starts the animation
 
+
 ## Animation.new(element)
 Creates a new Animation
 

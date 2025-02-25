@@ -22,6 +22,7 @@ Logger module for Basalt. Logs messages to the console and optionally to a file.
 |[Log.setLogToFile](#Log.setLogToFile)|-|Sets if the logger should log to a file
 |[Log.warn](#Log.warn)|-|Sends a warning message
 
+
 ## Log.debug(...)
 Sends a debug message to the logger.
 

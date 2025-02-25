@@ -20,7 +20,13 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Input.new](#Input.new)|Input|Creates a new Input instance
+|[Input:updateViewport](#Input:updateViewport)|Input|Updates the input's viewport
+
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
 |[Input:blur](#Input:blur)|-|Handles blur events
 |[Input:char](#Input:char)|boolean|Handles char events
 |[Input:focus](#Input:focus)|-|Handles focus events
@@ -28,68 +34,11 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |[Input:key](#Input:key)|boolean|Handles key events
 |[Input:mouse_click](#Input:mouse_click)|boolean|Handles mouse click events
 |[Input:render](#Input:render)|-|Renders the input element
-|[Input:updateViewport](#Input:updateViewport)|-|Updates the input's viewport
-
-## Input.new()
-Creates a new Input instance
-
-### Returns
-* `Input` `object` The newly created Input instance
-
-### Usage
- ```lua
-local element = Input.new("myId", basalt)
-```
-
-## Input:blur()
-Handles blur events
-
-## Input:char(char)
-Handles char events
-
-### Parameters
-* `char` `string` The character that was typed
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Input:focus()
-Handles focus events
-
-## Input:init(props, basalt)
-Initializes the Input instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Input` `self` The initialized instance
-
-## Input:key(key)
-Handles key events
-
-### Parameters
-* `key` `number` The key that was pressed
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Input:mouse_click(button, x, y)
-Handles mouse click events
-
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Input:render()
-Renders the input element
 
 ## Input:updateViewport()
 Updates the input's viewport
+
+### Returns
+* `Input` `self` The updated instance
 
 

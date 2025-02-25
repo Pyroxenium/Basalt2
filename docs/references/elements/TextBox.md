@@ -18,19 +18,22 @@ A multi-line text editor component with cursor support and text manipulation fea
 
 |Method|Returns|Description|
 |---|---|---|
-|[TextBox.new](#TextBox.new)|-|
-|[TextBox:addSyntaxPattern](#TextBox:addSyntaxPattern)|-|
-|[TextBox:char](#TextBox:char)|-|
-|[TextBox:getText](#TextBox:getText)|-|
-|[TextBox:init](#TextBox:init)|-|
-|[TextBox:key](#TextBox:key)|-|
-|[TextBox:mouse_click](#TextBox:mouse_click)|-|
-|[TextBox:mouse_scroll](#TextBox:mouse_scroll)|-|
-|[TextBox:render](#TextBox:render)|-|
-|[TextBox:setText](#TextBox:setText)|-|
-|[TextBox:updateViewport](#TextBox:updateViewport)|-|
+|[TextBox:addSyntaxPattern](#TextBox:addSyntaxPattern)|TextBox|Adds a new syntax highlighting pattern
+|[TextBox:getText](#TextBox:getText)|string|Gets the text of the TextBox
+|[TextBox:setText](#TextBox:setText)|TextBox|Sets the text of the TextBox
+|[TextBox:updateViewport](#TextBox:updateViewport)|TextBox|Updates the viewport to keep the cursor in view
 
-## TextBox.new()
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|[TextBox:char](#TextBox:char)|boolean|Handles character input
+|[TextBox:init](#TextBox:init)|TextBox|Initializes the TextBox instance
+|[TextBox:key](#TextBox:key)|boolean|Handles key events
+|[TextBox:mouse_click](#TextBox:mouse_click)|boolean|Handles mouse click events
+|[TextBox:mouse_scroll](#TextBox:mouse_scroll)|boolean|Handles mouse scroll events
+|[TextBox:render](#TextBox:render)|-|Renders the TextBox with syntax highlighting
 
 ## TextBox:addSyntaxPattern(pattern, color)
 Adds a new syntax highlighting pattern
@@ -39,22 +42,28 @@ Adds a new syntax highlighting pattern
 * `pattern` `string` The regex pattern to match
 * `color` `colors` The color to apply
 
-## TextBox:char()
+### Returns
+* `TextBox` `self` The TextBox instance
 
 ## TextBox:getText()
+Gets the text of the TextBox
 
-## TextBox:init()
+### Returns
+* `string` `text` The text of the TextBox
 
-## TextBox:key()
+## TextBox:setText(text)
+Sets the text of the TextBox
 
-## TextBox:mouse_click()
+### Parameters
+* `text` `string` The text to set
 
-## TextBox:mouse_scroll()
-
-## TextBox:render()
-
-## TextBox:setText()
+### Returns
+* `TextBox` `self` The TextBox instance
 
 ## TextBox:updateViewport()
+Updates the viewport to keep the cursor in view
+
+### Returns
+* `TextBox` `self` The TextBox instance
 
 

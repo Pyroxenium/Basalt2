@@ -25,25 +25,19 @@ A scrollbar element that can be attached to other elements to control their scro
 
 |Method|Returns|Description|
 |---|---|---|
-|[Scrollbar.new](#Scrollbar.new)|Scrollbar|Creates a new Scrollbar instance
-|[Scrollbar:attach](#Scrollbar:attach)|Scrollbar|
-|[Scrollbar:init](#Scrollbar:init)|-|
-|[Scrollbar:mouse_click](#Scrollbar:mouse_click)|-|
-|[Scrollbar:mouse_drag](#Scrollbar:mouse_drag)|-|
-|[Scrollbar:mouse_scroll](#Scrollbar:mouse_scroll)|-|
-|[Scrollbar:render](#Scrollbar:render)|-|
-|[Scrollbar:updateAttachedElement](#Scrollbar:updateAttachedElement)|-|
+|[Scrollbar:attach](#Scrollbar:attach)|Scrollbar|Attaches the scrollbar to an element's property
+|[Scrollbar:updateAttachedElement](#Scrollbar:updateAttachedElement)|Scrollbar|Updates the attached element's property based on the scrollbar value
 
-## Scrollbar.new()
-Creates a new Scrollbar instance
 
-### Returns
-* `Scrollbar` `self` The newly created Scrollbar instance
+## Protected Functions
 
-### Usage
- ```lua
-local scrollbar = Scrollbar.new()
-```
+|Method|Returns|Description|
+|---|---|---|
+|[Scrollbar:init](#Scrollbar:init)|Scrollbar|Initializes the Scrollbar instance
+|[Scrollbar:mouse_click](#Scrollbar:mouse_click)|boolean|Handles mouse click events
+|[Scrollbar:mouse_drag](#Scrollbar:mouse_drag)|boolean|Handles mouse drag events
+|[Scrollbar:mouse_scroll](#Scrollbar:mouse_scroll)|boolean|Handles mouse scroll events
+|[Scrollbar:render](#Scrollbar:render)|-|Renders the scrollbar
 
 ## Scrollbar:attach(element, config)
 Attaches the scrollbar to an element's property
@@ -55,16 +49,10 @@ Attaches the scrollbar to an element's property
 ### Returns
 * `Scrollbar` `self` The scrollbar instance
 
-## Scrollbar:init()
-
-## Scrollbar:mouse_click()
-
-## Scrollbar:mouse_drag()
-
-## Scrollbar:mouse_scroll()
-
-## Scrollbar:render()
-
 ## Scrollbar:updateAttachedElement()
+Updates the attached element's property based on the scrollbar value
+
+### Returns
+* `Scrollbar` `self` The scrollbar instance
 
 

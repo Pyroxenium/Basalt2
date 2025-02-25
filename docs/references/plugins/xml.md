@@ -7,6 +7,7 @@ The XML plugin provides XML parsing and UI creation from XML markup
 |---|---|---|
 |[BaseElement:fromXML](#BaseElement:fromXML)|BaseElement|Creates element from XML node
 
+
 ## BaseElement:fromXML(self, node)
 Creates an element from an XML node
 
@@ -28,6 +29,7 @@ Creates an element from an XML node
 |Method|Returns|Description|
 |---|---|---|
 |[Container:loadXML](#Container:loadXML)|Container|Loads UI from XML string
+
 
 ## Container:loadXML(self, content, scope?)
 Loads and creates UI elements from XML content

@@ -21,42 +21,40 @@ like Frames, BaseFrames, and more.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container.new](#Container.new)|Container|Creates a new Container instance
 |[Container:addChild](#Container:addChild)|Container|Adds a child to the container
-|[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
-|[Container:callChildrenEvents](#Container:callChildrenEvents)|-|
-|[Container:char](#Container:char)|boolean|Handles char events
+|[Container:callChildrenEvent](#Container:callChildrenEvent)|boolean|Calls a event on all children
 |[Container:clear](#Container:clear)|Container|Clears the container
-|[Container:destroy](#Container:destroy)|Container|Destroys the container and its children
 |[Container:getChild](#Container:getChild)|Container?|Removes a child from the container
-|[Container:handleEvent](#Container:handleEvent)|boolean|Default handler for events
-|[Container:init](#Container:init)|-|Initializes the Container instance
 |[Container:isChildVisible](#Container:isChildVisible)|boolean|Returns whether a child is visible
-|[Container:key](#Container:key)|boolean|Handles key events
-|[Container:key_up](#Container:key_up)|boolean|Handles key up events
-|[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
-|[Container:mouse_drag](#Container:mouse_drag)|-|
-|[Container:mouse_move](#Container:mouse_move)|-|
-|[Container:mouse_release](#Container:mouse_release)|-|
-|[Container:mouse_scroll](#Container:mouse_scroll)|-|
-|[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
-|[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
 |[Container:registerChildEvent](#Container:registerChildEvent)|Container|Registers the children events of the container
 |[Container:registerChildrenEvents](#Container:registerChildrenEvents)|Container|Registers the children events of the container
 |[Container:removeChild](#Container:removeChild)|Container|Removes a child from the container
 |[Container:removeChildrenEvents](#Container:removeChildrenEvents)|Container|Unregisters the children events of the container
-|[Container:render](#Container:render)|-|Renders the container
 |[Container:sortChildren](#Container:sortChildren)|Container|Sorts the children of the container
 |[Container:sortChildrenEvents](#Container:sortChildrenEvents)|Container|Sorts the children events of the container
-|[Container:textBg](#Container:textBg)|Container|Draws a line of text and bg as color
-|[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
 |[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|Unregisters the children events of the container
 
-## Container.new()
-Creates a new Container instance
 
-### Returns
-* `Container` `self` The new container instance
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
+|[Container:char](#Container:char)|boolean|Handles char events
+|[Container:handleEvent](#Container:handleEvent)|boolean|Default handler for events
+|[Container:init](#Container:init)|-|Initializes the Container instance
+|[Container:key](#Container:key)|boolean|Handles key events
+|[Container:key_up](#Container:key_up)|boolean|Handles key up events
+|[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
+|[Container:mouse_drag](#Container:mouse_drag)|boolean|Handles mouse drag events
+|[Container:mouse_move](#Container:mouse_move)|boolean|Handles mouse move events
+|[Container:mouse_release](#Container:mouse_release)|-|Handles mouse release events
+|[Container:mouse_scroll](#Container:mouse_scroll)|boolean|Handles mouse scroll events
+|[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
+|[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
+|[Container:render](#Container:render)|-|Renders the container
+|[Container:textBg](#Container:textBg)|Container|Draws a line of text and bg as color
+|[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
 
 ## Container:addChild(child)
 Adds a child to the container
@@ -67,38 +65,20 @@ Adds a child to the container
 ### Returns
 * `Container` `self` The container instance
 
-## Container:blit(x, y, text, fg, bg)
-Draws a line of text and fg and bg as colors, it is usually used in the render loop
+## Container:callChildrenEvent(visibleOnly, event...)
+Calls a event on all children
 
 ### Parameters
-* `x` `number` The x position to draw the text
-* `y` `number` The y position to draw the text
-* `text` `string` The text to draw
-* `fg` `string` The foreground color of the text
-* `bg` `string` The background color of the text
-
-### Returns
-* `Container` `self` The container instance
-
-## Container:callChildrenEvents()
-
-## Container:char(char)
-Handles char events
-
-### Parameters
-* `char` `string` The character that was pressed
+* `visibleOnly` `boolean` Whether to only call the event on visible children
+* `event` `string` The event to call
+* `...` *(vararg)* `any` The event arguments
 
 ### Returns
 * `boolean` `handled` Whether the event was handled
+* `table` `child?` The child that handled the event
 
 ## Container:clear()
 Clears the container
-
-### Returns
-* `Container` `self` The container instance
-
-## Container:destroy()
-Destroys the container and its children
 
 ### Returns
 * `Container` `self` The container instance
@@ -112,23 +92,6 @@ Removes a child from the container
 ### Returns
 * `Container?` `self` The container instance
 
-## Container:handleEvent(event...)
-Default handler for events
-
-### Parameters
-* `event` `string` The event to handle
-* `...` *(vararg)* `any` The event arguments
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Container:init(props, basalt)
-Initializes the Container instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
 ## Container:isChildVisible(child)
 Returns whether a child is visible
 
@@ -137,69 +100,6 @@ Returns whether a child is visible
 
 ### Returns
 * `boolean` `boolean` the child is visible
-
-## Container:key(key)
-Handles key events
-
-### Parameters
-* `key` `number` The key that was pressed
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Container:key_up(key)
-Handles key up events
-
-### Parameters
-* `key` `number` The key that was released
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Container:mouse_click(button, x, y)
-Handles mouse click events
-
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Container:mouse_drag()
-
-## Container:mouse_move()
-
-## Container:mouse_release()
-
-## Container:mouse_scroll()
-
-## Container:mouse_up(button, x, y)
-Handles mouse up events
-
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Container:multiBlit(x, y, width, height, text, fg, bg)
-Draws multiple lines of text, fg and bg strings, it is usually used in the render loop
-
-### Parameters
-* `x` `number` The x position to draw the text
-* `y` `number` The y position to draw the text
-* `width` `number` The width of the text
-* `height` `number` The height of the text
-* `text` `string` The text to draw
-* `fg` `string` The foreground color of the text
-* `bg` `string` The background color of the text
-
-### Returns
-* `Container` `self` The container instance
 
 ## Container:registerChildEvent(child, eventName)
 Registers the children events of the container
@@ -238,9 +138,6 @@ Unregisters the children events of the container
 ### Returns
 * `Container` `self` The container instance
 
-## Container:render()
-Renders the container
-
 ## Container:sortChildren()
 Sorts the children of the container
 
@@ -252,30 +149,6 @@ Sorts the children events of the container
 
 ### Parameters
 * `eventName` `string` The event name to sort
-
-### Returns
-* `Container` `self` The container instance
-
-## Container:textBg(x, y, text, bg)
-Draws a line of text and bg as color, it is usually used in the render loop
-
-### Parameters
-* `x` `number` The x position to draw the text
-* `y` `number` The y position to draw the text
-* `text` `string` The text to draw
-* `bg` `color` The background color of the text
-
-### Returns
-* `Container` `self` The container instance
-
-## Container:textFg(x, y, text, fg)
-Draws a line of text and fg as color, it is usually used in the render loop
-
-### Parameters
-* `x` `number` The x position to draw the text
-* `y` `number` The y position to draw the text
-* `text` `string` The text to draw
-* `fg` `color` The foreground color of the text
 
 ### Returns
 * `Container` `self` The container instance

@@ -22,23 +22,17 @@ with customizable colors and value ranges.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Slider.new](#Slider.new)|Slider|Creates a new Slider instance
 |[Slider:getValue](#Slider:getValue)|number|Gets the current value mapped to the max range
+
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
 |[Slider:init](#Slider:init)|Slider|Initializes the Slider instance
 |[Slider:mouse_click](#Slider:mouse_click)|boolean|Updates slider position on mouse click
-|[Slider:mouse_scroll](#Slider:mouse_scroll)|-|
+|[Slider:mouse_scroll](#Slider:mouse_scroll)|boolean|Handles mouse release events
 |[Slider:render](#Slider:render)|-|Renders the slider with track and handle
-
-## Slider.new()
-Creates a new Slider instance
-
-### Returns
-* `Slider` `self` The newly created Slider instance
-
-### Usage
- ```lua
-local slider = Slider.new()
-```
 
 ## Slider:getValue()
 Gets the current value of the slider
@@ -50,31 +44,5 @@ Gets the current value of the slider
  ```lua
 local value = slider:getValue()
 ```
-
-## Slider:init(props, basalt)
-Initializes the Slider instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Slider` `self` The initialized instance
-
-## Slider:mouse_click(button, x, y)
-Handles mouse click events
-
-### Parameters
-* `button` `number` The mouse button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Slider:mouse_scroll()
-
-## Slider:render()
-Renders the slider
 
 

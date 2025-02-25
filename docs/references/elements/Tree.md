@@ -18,27 +18,21 @@ with support for selection and scrolling.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Tree.new](#Tree.new)|Tree|Creates a new Tree instance
 |[Tree:collapseNode](#Tree:collapseNode)|Tree|Collapses a node to hide its children
 |[Tree:expandNode](#Tree:expandNode)|Tree|Expands a node to show its children
 |[Tree:getNodeSize](#Tree:getNodeSize)|number|Gets the size of the tree
-|[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
-|[Tree:mouse_click](#Tree:mouse_click)|-|
 |[Tree:onSelect](#Tree:onSelect)|Tree|Registers a callback for when a node is selected
-|[Tree:render](#Tree:render)|-|
-|[Tree:setNodes](#Tree:setNodes)|Tree|Sets the tree nodes and expands the root node
 |[Tree:toggleNode](#Tree:toggleNode)|Tree|Toggles between expanded and collapsed state
 
-## Tree.new()
-Creates a new Tree instance
 
-### Returns
-* `Tree` `self` The newly created Tree instance
+## Protected Functions
 
-### Usage
- ```lua
-local tree = Tree.new()
-```
+|Method|Returns|Description|
+|---|---|---|
+|[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
+|[Tree:mouse_click](#Tree:mouse_click)|boolean|Handles mouse click events for node selection and expansion
+|[Tree:mouse_scroll](#Tree:mouse_scroll)|boolean|Handles mouse scroll events for vertical scrolling
+|[Tree:render](#Tree:render)|-|Renders the tree with nodes, selection and scrolling
 
 ## Tree:collapseNode(node)
 Collapses a node
@@ -65,18 +59,6 @@ Gets the size of the tree
 * `number` `width` The width of the tree
 * `number` `height` The height of the tree
 
-## Tree:init(props, basalt)
-Initializes the Tree instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Tree` `self` The initialized instance
-
-## Tree:mouse_click()
-
 ## Tree:onSelect(callback)
 Registers a callback for when a node is selected
 
@@ -85,22 +67,6 @@ Registers a callback for when a node is selected
 
 ### Returns
 * `Tree` `self` The Tree instance
-
-## Tree:render()
-
-## Tree:setNodes(nodes)
-Sets the tree nodes
-
-### Parameters
-* `nodes` `table[]` Array of node objects
-
-### Returns
-* `Tree` `self` The Tree instance
-
-### Usage
- ```lua
-tree:setNodes({{text="Root", children={{text="Child"}}}})
-```
 
 ## Tree:toggleNode(node)
 Toggles a node's expanded state
