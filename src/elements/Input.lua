@@ -52,6 +52,11 @@ function Input:init(props, basalt)
     return self
 end
 
+function Input:setCursor(x, y, blink, color)
+    x = math.min(self.get("width"), math.max(1, x))
+    return VisualElement.setCursor(self, x, y, blink, color)
+end
+
 --- @shortDescription Handles char events
 --- @param char string The character that was typed
 --- @return boolean handled Whether the event was handled
@@ -68,8 +73,11 @@ function Input:char(char)
 
     self.set("text", text:sub(1, pos-1) .. char .. text:sub(pos))
     self.set("cursorPos", pos + 1)
-    self:updateRender()
     self:updateViewport()
+
+    local relPos = self.get("cursorPos") - self.get("viewOffset")
+    self:setCursor(relPos, 1, true, self.get("cursorColor") or self.get("foreground"))
+
     return true
 end
 
@@ -112,20 +120,6 @@ function Input:key(key)
     return true
 end
 
---- @shortDescription Handles focus events
---- @protected
-function Input:focus()
-    VisualElement.focus(self)
-    self:updateRender()
-end
-
---- @shortDescription Handles blur events
---- @protected
-function Input:blur()
-    VisualElement.blur(self)
-    self:updateRender()
-end
-
 --- @shortDescription Handles mouse click events
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
@@ -136,10 +130,18 @@ function Input:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
         local text = self.get("text")
-        self:setCursor(math.min(relX, #text + 1), relY, true, self.get("cursorColor") or self.get("foreground"))
-        self:set("cursorPos", relX + self.get("viewOffset"))
+        local viewOffset = self.get("viewOffset")
+
+        local maxPos = #text + 1
+        local targetPos = math.min(maxPos, viewOffset + relX)
+
+        self.set("cursorPos", targetPos)
+        local visualX = targetPos - viewOffset
+        self:setCursor(visualX, 1, true, self.get("cursorColor") or self.get("foreground"))
+
         return true
     end
+    return false
 end
 
 --- Updates the input's viewport
@@ -151,16 +153,14 @@ function Input:updateViewport()
     local viewOffset = self.get("viewOffset")
     local textLength = #self.get("text")
 
-    if cursorPos - viewOffset > width then
-        self.set("viewOffset", cursorPos - width)
+    if cursorPos - viewOffset >= width then
+        self.set("viewOffset", cursorPos - width + 1)
     elseif cursorPos <= viewOffset then
-
-        self.set("viewOffset", math.max(0, cursorPos - 1))
+        self.set("viewOffset", cursorPos - 1)
     end
 
-    if viewOffset > textLength - width then
-        self.set("viewOffset", math.max(0, textLength - width))
-    end
+    self.set("viewOffset", math.max(0, math.min(self.get("viewOffset"), textLength - width + 1)))
+
     return self
 end
 

@@ -55,7 +55,7 @@ function Frame:mouse_click(button, x, y)
         local draggingMap = self.get("draggingMap")
 
         for _, map in ipairs(draggingMap) do
-            local width = map.width
+            local width = map.width or 1
             local height = map.height or 1
 
             if type(width) == "string" and width == "width" then
@@ -109,11 +109,11 @@ end
 --- @param y number The y position of the release
 --- @return boolean handled Whether the event was handled
 --- @protected
-function Frame:mouse_release(button, x, y)
+function Frame:mouse_up(button, x, y)
     self.dragging = false
     self.dragStartX = nil
     self.dragStartY = nil
-    return Container.mouse_release(self, button, x, y)
+    return Container.mouse_up(self, button, x, y)
 end
 
 return Frame

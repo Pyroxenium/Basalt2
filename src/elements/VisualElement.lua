@@ -379,9 +379,8 @@ end
 --- @protected
 function VisualElement:setCursor(x, y, blink, color)
     if self.parent then
-        local absX, absY = self:getAbsolutePosition(x, y)
-        absX = max(self.get("x"), min(absX, self.get("width") + self.get("x") - 1))
-        return self.parent:setCursor(absX, absY, blink, color)
+        local xPos, yPos = self:calculatePosition()
+        return self.parent:setCursor(x + xPos - 1, y + yPos - 1, blink, color)
     end
     return self
 end

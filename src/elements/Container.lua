@@ -337,11 +337,20 @@ end
 --- @param event string The event to call
 --- @vararg any The event arguments
 --- @return boolean handled Whether the event was handled
---- @return table child? The child that handled the event
+--- @return table? child The child that handled the event
 function Container:callChildrenEvent(visibleOnly, event, ...)
     local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
     if children[event] then
         local events = children[event]
+        for i = #events, 1, -1 do
+            local child = events[i]
+            if(child:dispatchEvent(event, ...))then
+                return true, child
+            end
+        end
+    end
+    if(children["*"])then
+        local events = children["*"]
         for i = #events, 1, -1 do
             local child = events[i]
             if(child:dispatchEvent(event, ...))then

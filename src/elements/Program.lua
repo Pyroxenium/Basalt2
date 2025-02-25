@@ -16,14 +16,7 @@ Program.defineProperty(Program, "path", {default = "", type = "string"})
 --- @property running boolean false Whether the program is running
 Program.defineProperty(Program, "running", {default = false, type = "boolean"})
 
-Program.defineEvent(Program, "key")
-Program.defineEvent(Program, "char")
-Program.defineEvent(Program, "key_up")
-Program.defineEvent(Program, "paste")
-Program.defineEvent(Program, "mouse_click")
-Program.defineEvent(Program, "mouse_drag")
-Program.defineEvent(Program, "mouse_scroll")
-Program.defineEvent(Program, "mouse_up")
+Program.defineEvent(Program, "*")
 
 local BasaltProgram = {}
 BasaltProgram.__index = BasaltProgram
@@ -162,7 +155,7 @@ function Program:dispatchEvent(event, ...)
         if(self.get("focused"))then
             local cursorBlink = program.window.getCursorBlink()
             local cursorX, cursorY = program.window.getCursorPos()
-            self:setCursor(cursorX, cursorY, cursorBlink)
+            self:setCursor(cursorX, cursorY, cursorBlink, program.window.getTextColor())
         end
         self:updateRender()
     end
@@ -177,7 +170,7 @@ function Program:focus()
         if program then
             local cursorBlink = program.window.getCursorBlink()
             local cursorX, cursorY = program.window.getCursorPos()
-            self:setCursor(cursorX, cursorY, cursorBlink)
+            self:setCursor(cursorX, cursorY, cursorBlink, program.window.getTextColor())
         end
     end
 end
