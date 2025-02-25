@@ -18,7 +18,7 @@ local main = basalt.getMainFrame()
 main:addButton()
     :setText("Click me!")
     :setPosition(4, 4)
-    :onMouseClick(function()
+    :onClick(function()
         -- Do something when clicked
     end)
 
@@ -63,11 +63,11 @@ element:setForeground(color)     -- Set text color
 
 Elements can respond to user interaction:
 ```lua
-element:onMouseClick(function()
+element:onClick(function()
     -- Called when clicked
 end)
 
-element:onMouseEnter(function()
+element:onEnter(function()
     -- Called when mouse enters the element (only available on CraftOS-PC)
 end)
 

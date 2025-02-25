@@ -23,9 +23,9 @@ container:logContainerBenchmarks(methodName)  -- Show results
 
 -- Common methods to benchmark:
 - "render"      -- Track render performance
-- "mouseClick"  -- Track click handling
-- "mouseUp"     -- Track release handling
-- "mouseDrag"   -- Track drag performance
+- "mouse_click"  -- Track click handling
+- "mouse_up"     -- Track release handling
+- "mouse_drag"   -- Track drag performance
 ```
 
 ## Practical Example
@@ -38,7 +38,7 @@ local main = basalt.getMainFrame()
 main:addButton()
     :setText("Show Benchmarks")
     :setPosition(2, 2)
-    :onMouseClick(function()
+    :onClick(function()
         main:logContainerBenchmarks("render")
     end)
 
