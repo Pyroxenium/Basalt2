@@ -53,6 +53,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|number|Returns the absolute position of the element
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number|Returns the relative position of the element
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
+|[VisualElement:prioritize](#VisualElement:prioritize)|VisualElement|Prioritizes the element by moving it to the top of its parent's children
 
 
 ## Protected Functions
@@ -113,5 +114,12 @@ Checks if the specified coordinates are within the bounds of the element
 
 ### Returns
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
+
+## VisualElement:prioritize()
+This function is used to prioritize the element by moving it to the top of its parent's children.
+It removes the element from its parent and adds it back, effectively changing its order.
+
+### Returns
+* `VisualElement` `self` The VisualElement instance
 
 

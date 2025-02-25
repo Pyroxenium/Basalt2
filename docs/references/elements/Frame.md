@@ -1,6 +1,13 @@
 # Frame : Container
 This is the frame class. It serves as a grouping container for other elements.
 
+## Properties
+
+|Property|Type|Default|Description|
+|---|---|---|---|
+|draggable|boolean|false|Whether the frame is draggable
+|draggingMap|table|{{x=1,|y=1, width="width", height=1}} The map of dragging positions
+
 ## Functions
 
 |Method|Returns|Description|
@@ -12,5 +19,8 @@ This is the frame class. It serves as a grouping container for other elements.
 |Method|Returns|Description|
 |---|---|---|
 |[Frame:init](#Frame:init)|Frame|Initializes the Frame instance
+|[Frame:mouse_click](#Frame:mouse_click)|boolean|Handles mouse click events
+|[Frame:mouse_drag](#Frame:mouse_drag)|boolean|Handles mouse drag events
+|[Frame:mouse_release](#Frame:mouse_release)|boolean|Handles mouse release events
 
 
