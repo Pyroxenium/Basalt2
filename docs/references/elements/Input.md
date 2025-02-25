@@ -20,6 +20,7 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
+|[Input:setCursor](#Input:setCursor)|-|
 |[Input:updateViewport](#Input:updateViewport)|Input|Updates the input's viewport
 
 
@@ -27,13 +28,13 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Input:blur](#Input:blur)|-|Handles blur events
 |[Input:char](#Input:char)|boolean|Handles char events
-|[Input:focus](#Input:focus)|-|Handles focus events
 |[Input:init](#Input:init)|Input|Initializes the Input instance
 |[Input:key](#Input:key)|boolean|Handles key events
 |[Input:mouse_click](#Input:mouse_click)|boolean|Handles mouse click events
 |[Input:render](#Input:render)|-|Renders the input element
+
+## Input:setCursor()
 
 ## Input:updateViewport()
 Updates the input's viewport

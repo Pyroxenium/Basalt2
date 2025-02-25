@@ -75,7 +75,7 @@ Calls a event on all children
 
 ### Returns
 * `boolean` `handled` Whether the event was handled
-* `table` `child?` The child that handled the event
+* `table?` `child` The child that handled the event
 
 ## Container:clear()
 Clears the container
