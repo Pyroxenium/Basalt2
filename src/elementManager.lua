@@ -83,7 +83,7 @@ if(minified)then
                     end
                     table.insert(ElementManager._plugins[k], v)
                 else
-                    ElementManager._APIs[k] = v
+                    ElementManager._APIs[plugName] = v
                 end
             end
         end
