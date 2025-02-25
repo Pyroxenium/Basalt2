@@ -21,6 +21,48 @@ function BaseFrame:setText(text)
 end
 
 
+---@class BigFontText
+---@field text string
+---@field fontSize number
+local BigFontText = {}
+
+--- Gets the BigFont text
+---@generic Element: BigFontText
+---@param self Element
+---@return string
+function BigFontText:getText()
+    return self.text
+end
+
+--- Sets the BigFont text
+---@generic Element: BigFontText
+---@param self Element
+---@param text string
+---@return Element
+function BigFontText:setText(text)
+    self.text = text
+    return self
+end
+
+--- Gets the The font size of the BigFont
+---@generic Element: BigFontText
+---@param self Element
+---@return number
+function BigFontText:getFontSize()
+    return self.fontSize
+end
+
+--- Sets the The font size of the BigFont
+---@generic Element: BigFontText
+---@param self Element
+---@param fontSize number
+---@return Element
+function BigFontText:setFontSize(fontSize)
+    self.fontSize = fontSize
+    return self
+end
+
+
 ---@class Button
 ---@field text string
 local Button = {}
@@ -314,6 +356,14 @@ end
 ---@return Element
 function Container:setOffsetY(offsetY)
     self.offsetY = offsetY
+    return self
+end
+
+--- Adds a new BigFontText to the container
+---@generic Element: Container
+---@param self Element
+---@return BigFontText
+function Container:addBigFontText()
     return self
 end
 
@@ -645,6 +695,48 @@ end
 ---@return Element
 function Flexbox:setFlexUpdateLayout(flexUpdateLayout)
     self.flexUpdateLayout = flexUpdateLayout
+    return self
+end
+
+
+---@class Frame
+---@field draggable boolean
+---@field draggingMap table
+local Frame = {}
+
+--- Gets the Whether the frame is draggable
+---@generic Element: Frame
+---@param self Element
+---@return boolean
+function Frame:getDraggable()
+    return self.draggable
+end
+
+--- Sets the Whether the frame is draggable
+---@generic Element: Frame
+---@param self Element
+---@param draggable boolean
+---@return Element
+function Frame:setDraggable(draggable)
+    self.draggable = draggable
+    return self
+end
+
+--- Gets the y=1, width="width", height=1}} The map of dragging positions
+---@generic Element: Frame
+---@param self Element
+---@return table
+function Frame:getDraggingMap()
+    return self.draggingMap
+end
+
+--- Sets the y=1, width="width", height=1}} The map of dragging positions
+---@generic Element: Frame
+---@param self Element
+---@param draggingMap table
+---@return Element
+function Frame:setDraggingMap(draggingMap)
+    self.draggingMap = draggingMap
     return self
 end
 

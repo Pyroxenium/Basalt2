@@ -27,6 +27,7 @@ minified_elementDirectory["Slider"] = {}
 minified_elementDirectory["BaseElement"] = {}
 minified_elementDirectory["Checkbox"] = {}
 minified_elementDirectory["Input"] = {}
+minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["VisualElement"] = {}
 minified_elementDirectory["Scrollbar"] = {}
 minified_elementDirectory["List"] = {}
@@ -880,12 +881,37 @@ if
 not self.get("multiSelection")then for ac,bc in ipairs(self.get("items"))do
 if type(bc)=="table"then bc.selected=false end end end;_c.selected=not _c.selected
 if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
-project["elements/Frame.lua"] = function(...) local d=require("elementManager")
-local _a=d.getElement("Container")local aa=setmetatable({},_a)aa.__index=aa
-function aa.new()
-local ba=setmetatable({},aa):__init()ba.set("width",12)ba.set("height",6)
-ba.set("background",colors.gray)ba.set("z",10)return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Frame")
-return self end;return aa end
+project["elements/Frame.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=_a.getElement("Container")local ca=setmetatable({},ba)
+ca.__index=ca
+ca.defineProperty(ca,"draggable",{default=false,type="boolean",setter=function(da,_b)
+if _b then da:listenEvent("mouse_click",true)
+da:listenEvent("mouse_up",true)da:listenEvent("mouse_drag",true)end end})
+ca.defineProperty(ca,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
+function ca.new()local da=setmetatable({},ca):__init()
+da.set("width",12)da.set("height",6)
+da.set("background",colors.gray)da.set("z",10)return da end;function ca:init(da,_b)ba.init(self,da,_b)self.set("type","Frame")
+return self end
+function ca:mouse_click(da,_b,ab)
+if
+(aa.mouse_click(self,da,_b,ab))then local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("draggingMap")
+for _c,ac in ipairs(db)do local bc=ac.width;local cc=ac.height or 1;if type(bc)=="string"and
+bc=="width"then bc=self.get("width")elseif type(bc)=="function"then
+bc=bc(self)end;if type(cc)=="string"and cc==
+"height"then cc=self.get("height")elseif
+type(cc)=="function"then cc=cc(self)end
+local dc=ac.y or 1
+if bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and
+cb<=dc+cc-1 then self.dragStartX=_b-self.get("x")self.dragStartY=
+ab-self.get("y")self.dragging=true;return true end end;return ba.mouse_click(self,da,_b,ab)end end
+function ca:mouse_drag(da,_b,ab)
+if self.get("clicked")and self.dragging then
+local bb=_b-self.dragStartX;local cb=ab-self.dragStartY;self.set("x",bb)
+self.set("y",cb)return true end
+if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end
+function ca:mouse_release(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
+ba.mouse_release(self,da,_b,ab)end;return ca end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
@@ -1437,6 +1463,70 @@ self.get("background")])if
 #ba==0 and#_b~=0 and self.get("focused")==false then
 self:textFg(1,1,_b:sub(1,cb),self.get("placeholderColor"))return end
 local _c=ba:sub(ca+1,ca+cb)self:textFg(1,1,_c,self.get("foreground"))end;return aa end
+project["elements/BigFont.lua"] = function(...) local _b=require("libraries/colorHex")
+local ab={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local bb={}local cb={}
+do local dc=0;local _d=#ab[1]local ad=#ab[1][1]
+for i=1,_d,3 do
+for j=1,ad,3 do
+local bd=string.char(dc)local cd={}cd[1]=ab[1][i]:sub(j,j+2)
+cd[2]=ab[1][i+1]:sub(j,j+2)cd[3]=ab[1][i+2]:sub(j,j+2)local dd={}dd[1]=ab[2][i]:sub(j,
+j+2)dd[2]=ab[2][i+1]:sub(j,j+2)dd[3]=ab[2][
+i+2]:sub(j,j+2)cb[bd]={cd,dd}dc=dc+1 end end;bb[1]=cb end
+local function db(dc,_d)local ad={["0"]="1",["1"]="0"}if dc<=#bb then return true end
+for f=#bb+1,dc do local bd={}local cd=bb[
+f-1]
+for char=0,255 do local dd=string.char(char)local __a={}local a_a={}
+local b_a=cd[dd][1]local c_a=cd[dd][2]
+for i=1,#b_a do local d_a,_aa,aaa,baa,caa,daa={},{},{},{},{},{}
+for j=1,#b_a[1]do
+local _ba=cb[b_a[i]:sub(j,j)][1]table.insert(d_a,_ba[1])
+table.insert(_aa,_ba[2])table.insert(aaa,_ba[3])
+local aba=cb[b_a[i]:sub(j,j)][2]
+if c_a[i]:sub(j,j)=="1"then
+table.insert(baa,(aba[1]:gsub("[01]",ad)))
+table.insert(caa,(aba[2]:gsub("[01]",ad)))
+table.insert(daa,(aba[3]:gsub("[01]",ad)))else table.insert(baa,aba[1])
+table.insert(caa,aba[2])table.insert(daa,aba[3])end end;table.insert(__a,table.concat(d_a))
+table.insert(__a,table.concat(_aa))table.insert(__a,table.concat(aaa))
+table.insert(a_a,table.concat(baa))table.insert(a_a,table.concat(caa))
+table.insert(a_a,table.concat(daa))end;bd[dd]={__a,a_a}if _d then _d="Font"..f.."Yeld"..char
+os.queueEvent(_d)os.pullEvent(_d)end end;bb[f]=bd end;return true end
+local function _c(dc,_d,ad,bd,cd)
+if not type(_d)=="string"then error("Not a String",3)end
+local dd=type(ad)=="string"and ad:sub(1,1)or _b[ad]or
+error("Wrong Front Color",3)
+local __a=type(bd)=="string"and bd:sub(1,1)or _b[bd]or
+error("Wrong Back Color",3)if(bb[dc]==nil)then db(3,false)end;local a_a=bb[dc]or
+error("Wrong font size selected",3)if _d==""then
+return{{""},{""},{""}}end;local b_a={}
+for daa in _d:gmatch('.')do table.insert(b_a,daa)end;local c_a={}local d_a=#a_a[b_a[1]][1]
+for nLine=1,d_a do local daa={}for i=1,#b_a do
+daa[i]=
+a_a[b_a[i]]and a_a[b_a[i]][1][nLine]or""end;c_a[nLine]=table.concat(daa)end;local _aa={}local aaa={}local baa={["0"]=dd,["1"]=__a}local caa={["0"]=__a,["1"]=dd}
+for nLine=1,d_a
+do local daa={}local _ba={}
+for i=1,#b_a do local aba=
+a_a[b_a[i]]and a_a[b_a[i]][2][nLine]or""
+daa[i]=aba:gsub("[01]",cd and
+{["0"]=ad:sub(i,i),["1"]=bd:sub(i,i)}or baa)
+_ba[i]=aba:gsub("[01]",
+cd and{["0"]=bd:sub(i,i),["1"]=ad:sub(i,i)}or caa)end;_aa[nLine]=table.concat(daa)
+aaa[nLine]=table.concat(_ba)end;return{c_a,_aa,aaa}end;local ac=require("elementManager")
+local bc=ac.getElement("VisualElement")local cc=setmetatable({},bc)cc.__index=cc
+cc.defineProperty(cc,"text",{default="BigFont",type="string",canTriggerRender=true,setter=function(dc,_d)
+dc.bigfontText=_c(dc.get("fontSize"),_d,dc.get("foreground"),dc.get("background"))return _d end})
+cc.defineProperty(cc,"fontSize",{default=1,type="number",canTriggerRender=true,setter=function(dc,_d)
+dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})
+function cc.new()local dc=setmetatable({},cc):__init()
+dc.set("width",16)dc.set("height",3)dc.set("z",5)return dc end
+function cc:init(dc,_d)bc.init(self,dc,_d)self.set("type","BigFont")end
+function cc:render()bc.render(self)
+if(self.bigfontText)then
+local dc,_d=self.get("x"),self.get("y")
+for i=1,#self.bigfontText[1]do
+local ad=self.bigfontText[1][i]:sub(1,self.get("width"))
+local bd=self.bigfontText[2][i]:sub(1,self.get("width"))
+local cd=self.bigfontText[3][i]:sub(1,self.get("width"))self:blit(dc,_d+i-1,ad,bd,cd)end end end;return cc end
 project["elements/VisualElement.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("BaseElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
@@ -1521,6 +1611,9 @@ function _b:setCursor(cb,db,_c,ac)
 if self.parent then local bc,cc=self:getAbsolutePosition(cb,db)
 bc=ab(self.get("x"),bb(bc,
 self.get("width")+self.get("x")-1))return self.parent:setCursor(bc,cc,_c,ac)end;return self end
+function _b:prioritize()
+if(self.parent)then local cb=self.parent;cb:removeChild(self)
+cb:addChild(self)self:updateRender()end;return self end
 function _b:render()
 if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
 self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;return _b end
@@ -1909,7 +2002,8 @@ self.terminal.blit(self.buffer.text[y]:sub(ab.x,ab.x+ab.width-1),self.buffer.fg[
 ab.x+ab.width-1),self.buffer.bg[y]:sub(ab.x,
 ab.x+ab.width-1))end end end;self.buffer.dirtyRects={}
 if self.blink then
-self.terminal.setTextColor(self.cursorColor)
+self.terminal.setTextColor(self.cursorColor or
+colors.white)
 self.terminal.setCursorPos(self.xCursor,self.yCursor)self.terminal.setCursorBlink(true)else
 self.terminal.setCursorBlink(false)end;return self end
 function ba:rectOverlaps(da,_b)return
