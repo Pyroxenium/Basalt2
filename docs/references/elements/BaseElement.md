@@ -19,6 +19,7 @@ The base class for all UI elements in Basalt. This class provides basic properti
 |[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|Returns the base frame of the element
 |[BaseElement:isType](#BaseElement:isType)|boolean|Checks if the element is a specific type
 |[BaseElement:listenEvent](#BaseElement:listenEvent)|table|Enables or disables event listening for a specific event
+|[BaseElement:onChange](#BaseElement:onChange)|table|Observes a property and calls a callback when it changes
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
 |[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
 
@@ -84,6 +85,16 @@ Enables or disables event listening for a specific event
  ```lua
 element:listenEvent("mouse_click", true)
 ```
+
+## BaseElement:onChange(property, callback)
+Observes a property and calls a callback when it changes
+
+### Parameters
+* `property` `string` The property to observe
+* `callback` `function` The callback to call when the property changes
+
+### Returns
+* `table` `self` The BaseElement instance
 
 ## BaseElement:registerCallback(event, callback)
 Registers a callback function for an event
