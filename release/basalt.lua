@@ -68,7 +68,7 @@ if type(dd)=="table"then
 for __a,a_a in pairs(dd)do
 if(__a~="API")then if(cc._plugins[__a]==nil)then
 cc._plugins[__a]={}end
-table.insert(cc._plugins[__a],a_a)else cc._APIs[__a]=a_a end end end end end
+table.insert(cc._plugins[__a],a_a)else cc._APIs[cd]=a_a end end end end end
 function cc.loadElement(ad)
 if not cc._elements[ad].loaded then
 package.path=bc.."rom/?"local bd=require(fs.combine("elements",ad))
