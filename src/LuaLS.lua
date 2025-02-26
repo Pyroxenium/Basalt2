@@ -722,7 +722,7 @@ function Frame:setDraggable(draggable)
     return self
 end
 
---- Gets the y=1, width="width", height=1}} The map of dragging positions
+--- Gets the The map of dragging positions
 ---@generic Element: Frame
 ---@param self Element
 ---@return table
@@ -730,7 +730,7 @@ function Frame:getDraggingMap()
     return self.draggingMap
 end
 
---- Sets the y=1, width="width", height=1}} The map of dragging positions
+--- Sets the The map of dragging positions
 ---@generic Element: Frame
 ---@param self Element
 ---@param draggingMap table
