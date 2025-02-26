@@ -745,6 +745,9 @@ end
 ---@field bimg table
 ---@field currentFrame number
 ---@field metadata table
+---@field autoResize boolean
+---@field offsetX number
+---@field offsetY number
 local Image = {}
 
 --- Gets the The bimg image data
@@ -798,6 +801,60 @@ end
 ---@return Element
 function Image:setMetadata(metadata)
     self.metadata = metadata
+    return self
+end
+
+--- Gets the Whether to automatically resize the image when content exceeds bounds
+---@generic Element: Image
+---@param self Element
+---@return boolean
+function Image:getAutoResize()
+    return self.autoResize
+end
+
+--- Sets the Whether to automatically resize the image when content exceeds bounds
+---@generic Element: Image
+---@param self Element
+---@param autoResize boolean
+---@return Element
+function Image:setAutoResize(autoResize)
+    self.autoResize = autoResize
+    return self
+end
+
+--- Gets the Horizontal offset for viewing larger images
+---@generic Element: Image
+---@param self Element
+---@return number
+function Image:getOffsetX()
+    return self.offsetX
+end
+
+--- Sets the Horizontal offset for viewing larger images
+---@generic Element: Image
+---@param self Element
+---@param offsetX number
+---@return Element
+function Image:setOffsetX(offsetX)
+    self.offsetX = offsetX
+    return self
+end
+
+--- Gets the Vertical offset for viewing larger images
+---@generic Element: Image
+---@param self Element
+---@return number
+function Image:getOffsetY()
+    return self.offsetY
+end
+
+--- Sets the Vertical offset for viewing larger images
+---@generic Element: Image
+---@param self Element
+---@param offsetY number
+---@return Element
+function Image:setOffsetY(offsetY)
+    self.offsetY = offsetY
     return self
 end
 
