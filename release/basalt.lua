@@ -845,14 +845,14 @@ self:fireEvent("mouse_scroll",cb,self:getRelativePosition(db,_c))return true end
 function _b:mouse_drag(cb,db,_c)if(self.get("clicked"))then
 self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
 self:fireEvent("blur")self:setCursor(1,1,false)end
+function _b:key(cb)if
+(self.get("focused"))then self:fireEvent("key",cb)end end;function _b:key_up(cb)
+if(self.get("focused"))then self:fireEvent("key_up",cb)end end;function _b:char(cb)if(self.get("focused"))then
+self:fireEvent("char",cb)end end
 function _b:calculatePosition()
 local cb,db=self.get("x"),self.get("y")
 if not self.get("ignoreOffset")then if self.parent~=nil then
-local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end;function _b:key(cb)
-if(self.get("focused"))then self:fireEvent("key",cb)end end;function _b:key_up(cb)if(self.get("focused"))then
-self:fireEvent("key_up",cb)end end
-function _b:char(cb)if
-(self.get("focused"))then self:fireEvent("char",cb)end end
+local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end
 function _b:getAbsolutePosition(cb,db)local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then
 _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end;local bc=self.parent
 while bc do
