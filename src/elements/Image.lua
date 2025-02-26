@@ -18,11 +18,14 @@ Image.defineProperty(Image, "currentFrame", {default = 1, type = "number", canTr
 ---@property metadata table {} Image metadata (version, palette, etc)
 Image.defineProperty(Image, "metadata", {default = {}, type = "table"})
 ---@property autoResize boolean false Whether to automatically resize the image when content exceeds bounds
-Image.defineProperty(Image, "autoResize", {default = true, type = "boolean"})
+Image.defineProperty(Image, "autoResize", {default = false, type = "boolean"})
 ---@property offsetX number 0 Horizontal offset for viewing larger images
 Image.defineProperty(Image, "offsetX", {default = 0, type = "number", canTriggerRender = true})
 ---@property offsetY number 0 Vertical offset for viewing larger images
 Image.defineProperty(Image, "offsetY", {default = 0, type = "number", canTriggerRender = true})
+
+---@combinedProperty offset {offsetX offsetY} Combined property for offsetX and offsetY
+Image.combineProperties(Image, "offset", "offsetX", "offsetY")
 
 --- Creates a new Image instance
 --- @shortDescription Creates a new Image instance
@@ -77,6 +80,11 @@ function Image:loadBimg(bimgData)
     return self
 end
 
+--- Resizes the image to the specified width and height
+--- @shortDescription Resizes the image to the specified width and height
+--- @param width number The new width of the image
+--- @param height number The new height of the image
+--- @return Image self The Image instance
 function Image:resizeImage(width, height)
     local frames = self.get("bimg")
 
@@ -106,6 +114,10 @@ function Image:resizeImage(width, height)
     return self
 end
 
+--- Gets the size of the image
+--- @shortDescription Gets the size of the image
+--- @return number width The width of the image
+--- @return number height The height of the image
 function Image:getImageSize()
     local bimg = self.get("bimg")
     if not bimg[1] or not bimg[1][1] then return 0, 0 end
@@ -148,48 +160,118 @@ local function ensureFrame(self, y)
     return frame
 end
 
+local function updateFrameSize(self, neededWidth, neededHeight)
+    if not self.get("autoResize") then return end
+
+    local frames = self.get("bimg")
+
+    local maxWidth = neededWidth
+    local maxHeight = neededHeight
+
+    for _, frame in ipairs(frames) do
+        for y, line in pairs(frame) do
+            maxWidth = math.max(maxWidth, #line[1])
+            maxHeight = math.max(maxHeight, y)
+        end
+    end
+
+    for _, frame in ipairs(frames) do
+        for y = 1, maxHeight do
+            if not frame[y] then
+                frame[y] = {"", "", ""}
+            end
+
+            local line = frame[y]
+            while #line[1] < maxWidth do line[1] = line[1] .. " " end
+            while #line[2] < maxWidth do line[2] = line[2] .. "f" end
+            while #line[3] < maxWidth do line[3] = line[3] .. "0" end
+        end
+    end
+end
+
+--- Sets the text at the specified position
+--- @shortDescription Sets the text at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param text string The text to set
+--- @return Image self The Image instance
 function Image:setText(x, y, text)
-    if type(text) ~= "string" or #text < 1 then return self end
+    if type(text) ~= "string" or #text < 1 or x < 1 or y < 1 then return self end
     local frame = ensureFrame(self, y)
-    
+
+    if self.get("autoResize") then
+        updateFrameSize(self, x + #text - 1, y)
+    else
+        local maxLen = #frame[y][1]
+        if x > maxLen then return self end
+        text = text:sub(1, maxLen - x + 1)
+    end
+
     local currentLine = frame[y][1]
-    while #currentLine < x + #text - 1 do
-        currentLine = currentLine .. " "
-    end
-    
     frame[y][1] = currentLine:sub(1, x-1) .. text .. currentLine:sub(x + #text)
+
     self:updateRender()
     return self
 end
 
+--- Sets the foreground color at the specified position
+--- @shortDescription Sets the foreground color at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param pattern string The foreground color pattern
+--- @return Image self The Image instance
 function Image:setFg(x, y, pattern)
-    if type(pattern) ~= "string" or #pattern < 1 then return self end
+    if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
     local frame = ensureFrame(self, y)
-    
+
+    if self.get("autoResize") then
+        updateFrameSize(self, x + #pattern - 1, y)
+    else
+        local maxLen = #frame[y][2]
+        if x > maxLen then return self end
+        pattern = pattern:sub(1, maxLen - x + 1)
+    end
+
     local currentFg = frame[y][2]
-    while #currentFg < x + #pattern - 1 do
-        currentFg = currentFg .. "f"
-    end
-    
     frame[y][2] = currentFg:sub(1, x-1) .. pattern .. currentFg:sub(x + #pattern)
+
     self:updateRender()
     return self
 end
 
+--- Sets the background color at the specified position
+--- @shortDescription Sets the background color at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param pattern string The background color pattern
+--- @return Image self The Image instance
 function Image:setBg(x, y, pattern)
-    if type(pattern) ~= "string" or #pattern < 1 then return self end
+    if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
     local frame = ensureFrame(self, y)
-    
-    local currentBg = frame[y][3]
-    while #currentBg < x + #pattern - 1 do
-        currentBg = currentBg .. "0"
+
+    if self.get("autoResize") then
+        updateFrameSize(self, x + #pattern - 1, y)
+    else
+        local maxLen = #frame[y][3]
+        if x > maxLen then return self end
+        pattern = pattern:sub(1, maxLen - x + 1)
     end
-    
+
+    local currentBg = frame[y][3]
     frame[y][3] = currentBg:sub(1, x-1) .. pattern .. currentBg:sub(x + #pattern)
+
     self:updateRender()
     return self
 end
 
+--- Sets the pixel at the specified position
+--- @shortDescription Sets the pixel at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param char string The character to set
+--- @param fg string The foreground color pattern
+--- @param bg string The background color pattern
+--- @return Image self The Image instance
 function Image:setPixel(x, y, char, fg, bg)
     if char then self:setText(x, y, char) end
     if fg then self:setFg(x, y, fg) end
@@ -197,21 +279,11 @@ function Image:setPixel(x, y, char, fg, bg)
     return self
 end
 
-function Image:setOffset(x, y)
-    self.set("offsetX", x)
-    self.set("offsetY", y)
-    return self
-end
-
-function Image:getOffset()
-    return self.get("offsetX"), self.get("offsetY")
-end
-
 --- Advances to the next frame in the animation
 --- @shortDescription Advances to the next frame in the animation
 --- @return Image self The Image instance
 function Image:nextFrame()
-    if not self.get("metadata").animation then return end
+    if not self.get("metadata").animation then return self end
 
     local frames = self.get("bimg")
     local current = self.get("currentFrame")
@@ -219,6 +291,22 @@ function Image:nextFrame()
     if next > #frames then next = 1 end
 
     self.set("currentFrame", next)
+    return self
+end
+
+--- Adds a new frame to the image
+--- @shortDescription Adds a new frame to the image
+--- @return Image self The Image instance
+function Image:addFrame()
+    local frames = self.get("bimg")
+    local frame = {}
+    local text = string.rep(" ", self.get("width"))
+    local fg = string.rep("f", self.get("width"))
+    local bg = string.rep("0", self.get("width"))
+    for y = 1, self.get("height") do
+        frame[y] = {text, fg, bg}
+    end
+    table.insert(frames, frame)
     return self
 end
 
@@ -240,12 +328,26 @@ function Image:render()
         local line = frame[frameY]
 
         if line then
-            local text = line[1]:sub(1 + offsetX, elementWidth + offsetX)
-            local fg = line[2]:sub(1 + offsetX, elementWidth + offsetX)
-            local bg = line[3]:sub(1 + offsetX, elementWidth + offsetX)
+            local text = line[1]
+            local fg = line[2]
+            local bg = line[3]
 
-            if text and fg and bg then                
-                self:blit(1 + offsetX, y, text, fg, bg)
+            if text and fg and bg then
+                local remainingWidth = elementWidth - math.max(0, offsetX)
+                if remainingWidth > 0 then
+                    if offsetX < 0 then
+                        local startPos = math.abs(offsetX) + 1
+                        text = text:sub(startPos)
+                        fg = fg:sub(startPos)
+                        bg = bg:sub(startPos)
+                    end
+
+                    text = text:sub(1, remainingWidth)
+                    fg = fg:sub(1, remainingWidth)
+                    bg = bg:sub(1, remainingWidth)
+
+                    self:blit(math.max(1, 1 + offsetX), y, text, fg, bg)
+                end
             end
         end
     end

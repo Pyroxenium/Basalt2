@@ -93,11 +93,11 @@ function PropertySystem.combineProperties(class, name, ...)
     end
     local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
 
-    class["get" .. capitalizedName] = function(self, ...)
+    class["get" .. capitalizedName] = function(self)
         expect(1, self, "element")
         local value = {}
         for _,v in pairs(properties)do
-            value[v] = self.get(v)
+            table.insert(value, self.get(v))
         end
         return table.unpack(value)
     end
