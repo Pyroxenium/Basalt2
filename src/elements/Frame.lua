@@ -16,7 +16,7 @@ Frame.defineProperty(Frame, "draggable", {default = false, type = "boolean", set
         self:listenEvent("mouse_drag", true)
     end
 end})
----@property draggingMap table {{x=1, y=1, width="width", height=1}} The map of dragging positions
+---@property draggingMap table {} The map of dragging positions
 Frame.defineProperty(Frame, "draggingMap", {default = {{x=1, y=1, width="width", height=1}}, type = "table"})
 
 --- Creates a new Frame instance
