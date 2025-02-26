@@ -326,18 +326,27 @@ function VisualElement:calculatePosition()
     return x, y
 end
 
+--- @shortDescription Handles a key event
+--- @param key number The key that was pressed
+--- @protected
 function VisualElement:key(key)
     if(self.get("focused"))then
         self:fireEvent("key", key)
     end
 end
 
+--- @shortDescription Handles a key up event
+--- @param key number The key that was released
+--- @protected
 function VisualElement:key_up(key)
     if(self.get("focused"))then
         self:fireEvent("key_up", key)
     end
 end
 
+--- @shortDescription Handles a character event
+--- @param char string The character that was pressed
+--- @protected
 function VisualElement:char(char)
     if(self.get("focused"))then
         self:fireEvent("char", char)

@@ -133,16 +133,25 @@ function BaseFrame:term_resize()
     self._renderUpdate = true
 end
 
+--- @shortDescription Handles key events
+--- @param key number The key that was pressed
+--- @protected
 function BaseFrame:key(key)
     self:fireEvent("key", key)
     Container.key(self, key)
 end
 
+--- @shortDescription Handles key up events
+--- @param key number The key that was released
+--- @protected
 function BaseFrame:key_up(key)
     self:fireEvent("key_up", key)
     Container.key_up(self, key)
 end
 
+--- @shortDescription Handles character events
+--- @param char string The character that was pressed
+--- @protected
 function BaseFrame:char(char)
     self:fireEvent("char", char)
     Container.char(self, char)
