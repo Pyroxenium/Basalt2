@@ -12,7 +12,8 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |maxLength|number?|nil|Maximum length of input text (optional)
 |placeholder|string|...|Text to display when input is empty
 |placeholderColor|color|gray|Color of the placeholder text
-|focusedColor|color|blue|Background color when input is focused
+|focusedBackground|color|blue|Background color when input is focused
+|focusedForeground|color|white|Foreground color when input is focused
 |pattern|string?|nil|Regular expression pattern for input validation
 |cursorColor|number|nil|Color of the cursor
 
@@ -20,6 +21,8 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
+|[Input:blur](#Input:blur)|-|
+|[Input:focus](#Input:focus)|-|
 |[Input:setCursor](#Input:setCursor)|-|
 |[Input:updateViewport](#Input:updateViewport)|Input|Updates the input's viewport
 
@@ -33,6 +36,10 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |[Input:key](#Input:key)|boolean|Handles key events
 |[Input:mouse_click](#Input:mouse_click)|boolean|Handles mouse click events
 |[Input:render](#Input:render)|-|Renders the input element
+
+## Input:blur()
+
+## Input:focus()
 
 ## Input:setCursor()
 
