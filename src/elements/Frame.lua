@@ -82,6 +82,19 @@ function Frame:mouse_click(button, x, y)
     end
 end
 
+--- @shortDescription Handles mouse release events
+--- @param button number The button that was released
+--- @param x number The x position of the release
+--- @param y number The y position of the release
+--- @return boolean handled Whether the event was handled
+--- @protected
+function Frame:mouse_up(button, x, y)
+    self.dragging = false
+    self.dragStartX = nil
+    self.dragStartY = nil
+    return Container.mouse_up(self, button, x, y)
+end
+
 --- @shortDescription Handles mouse drag events
 --- @param button number The button that was clicked
 --- @param x number The x position of the drag position
@@ -101,19 +114,6 @@ function Frame:mouse_drag(button, x, y)
         return Container.mouse_drag(self, button, x, y)
     end
     return false
-end
-
---- @shortDescription Handles mouse release events
---- @param button number The button that was released
---- @param x number The x position of the release
---- @param y number The y position of the release
---- @return boolean handled Whether the event was handled
---- @protected
-function Frame:mouse_up(button, x, y)
-    self.dragging = false
-    self.dragStartX = nil
-    self.dragStartY = nil
-    return Container.mouse_up(self, button, x, y)
 end
 
 return Frame
