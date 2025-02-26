@@ -50,9 +50,12 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement:calculatePosition](#VisualElement:calculatePosition)|number|Calculates the position of the element
+|[VisualElement:char](#VisualElement:char)|-|
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|number|Returns the absolute position of the element
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number|Returns the relative position of the element
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
+|[VisualElement:key](#VisualElement:key)|-|
+|[VisualElement:key_up](#VisualElement:key_up)|-|
 |[VisualElement:prioritize](#VisualElement:prioritize)|VisualElement|Prioritizes the element by moving it to the top of its parent's children
 
 
@@ -82,6 +85,8 @@ Calculates the position of the element relative to its parent
 ### Returns
 * `number` `x` The x position
 * `number` `y` The y position
+
+## VisualElement:char()
 
 ## VisualElement:getAbsolutePosition(x?, y?)
 Returns the absolute position of the element or the given coordinates.
@@ -114,6 +119,10 @@ Checks if the specified coordinates are within the bounds of the element
 
 ### Returns
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
+
+## VisualElement:key()
+
+## VisualElement:key_up()
 
 ## VisualElement:prioritize()
 This function is used to prioritize the element by moving it to the top of its parent's children.

@@ -18,6 +18,9 @@ This is the base frame class. It is the root element of all elements and the onl
 
 |Method|Returns|Description|
 |---|---|---|
+|[BaseFrame:char](#BaseFrame:char)|-|
+|[BaseFrame:key](#BaseFrame:key)|-|
+|[BaseFrame:key_up](#BaseFrame:key_up)|-|
 |[BaseFrame:setCursor](#BaseFrame:setCursor)|-|Sets the cursor position
 
 
@@ -33,6 +36,12 @@ This is the base frame class. It is the root element of all elements and the onl
 |[BaseFrame:term_resize](#BaseFrame:term_resize)|-|Resizes the Frame
 |[BaseFrame:textBg](#BaseFrame:textBg)|-|Renders a text with a background color to the render Object
 |[BaseFrame:textFg](#BaseFrame:textFg)|-|Renders a text with a foreground color to the render Object
+
+## BaseFrame:char()
+
+## BaseFrame:key()
+
+## BaseFrame:key_up()
 
 ## BaseFrame:setCursor(x, y, blink)
 Sets the cursor position

@@ -10,18 +10,25 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |bimg|table|{}|The bimg image data
 |currentFrame|number|1|Current animation frame
 |metadata|table|{}|Image metadata (version, palette, etc)
+|autoResize|boolean|false|Whether to automatically resize the image when content exceeds bounds
+|offsetX|number|0|Horizontal offset for viewing larger images
+|offsetY|number|0|Vertical offset for viewing larger images
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
+|[Image:getImageSize](#Image:getImageSize)|-|
+|[Image:getOffset](#Image:getOffset)|-|
 |[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
 |[Image:loadBimg](#Image:loadBimg)|Image|Loads a bimg format image
 |[Image:nextFrame](#Image:nextFrame)|Image|Advances to the next frame in the animation
-|[Image:setBg](#Image:setBg)|-|Sets background color at position
-|[Image:setChar](#Image:setChar)|-|Sets character at position
-|[Image:setFg](#Image:setFg)|-|Sets foreground color at position
-|[Image:setPixel](#Image:setPixel)|-|Sets all properties at position
+|[Image:resizeImage](#Image:resizeImage)|-|
+|[Image:setBg](#Image:setBg)|-|
+|[Image:setFg](#Image:setFg)|-|
+|[Image:setOffset](#Image:setOffset)|-|
+|[Image:setPixel](#Image:setPixel)|-|
+|[Image:setText](#Image:setText)|-|
 
 
 ## Protected Functions
@@ -30,6 +37,10 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |---|---|---|
 |[Image:init](#Image:init)|Image|Initializes the Image instance
 |[Image:render](#Image:render)|-|Renders the Image
+
+## Image:getImageSize()
+
+## Image:getOffset()
 
 ## Image:getPixelData(x, y)
 Gets pixel information at position
@@ -58,38 +69,16 @@ Advances to the next frame in the animation
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:setBg(x, y, color)
-Sets background color at position
+## Image:resizeImage()
 
-### Parameters
-* `x` `number` X position
-* `y` `number` Y position
-* `color` `number` Color value (0-15)
+## Image:setBg()
 
-## Image:setChar(x, y, char)
-Sets character at position
+## Image:setFg()
 
-### Parameters
-* `x` `number` X position
-* `y` `number` Y position
-* `char` `string` Single character to set
+## Image:setOffset()
 
-## Image:setFg(x, y, color)
-Sets foreground color at position
+## Image:setPixel()
 
-### Parameters
-* `x` `number` X position
-* `y` `number` Y position
-* `color` `number` Color value (0-15)
-
-## Image:setPixel(x, y, char, fg, bg)
-Sets all properties at position
-
-### Parameters
-* `x` `number` X position
-* `y` `number` Y position
-* `char` `string?` Character to set (optional)
-* `fg` `number?` Foreground color (optional)
-* `bg` `number?` Background color (optional)
+## Image:setText()
 
 
