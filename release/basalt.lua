@@ -86,9 +86,9 @@ function _b.combineProperties(cb,db,...)local _c={...}for bc,cc in pairs(_c)do
 if not cb._properties[cc]then da.error("Property not found: "..
 cc)end end;local ac=
 db:sub(1,1):upper()..db:sub(2)
-cb["get"..ac]=function(bc,...)
-ca(1,bc,"element")local cc={}for dc,_d in pairs(_c)do cc[_d]=bc.get(_d)end;return
-table.unpack(cc)end
+cb["get"..ac]=function(bc)
+ca(1,bc,"element")local cc={}
+for dc,_d in pairs(_c)do table.insert(cc,bc.get(_d))end;return table.unpack(cc)end
 cb["set"..ac]=function(bc,...)ca(1,bc,"element")local cc={...}for dc,_d in pairs(_c)do
 bc.set(_d,cc[dc])end;return bc end end
 function _b.blueprint(cb,db,_c,ac)
@@ -603,73 +603,93 @@ for _c,ac in ipairs(self.get("visibleChildren"))do if ac==self then
 self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;ac:render()end end
 function bb:destroy()
 for _c,ac in ipairs(self._values.children)do ac:destroy()end;da.destroy(self)return self end;return bb end
-project["elements/Image.lua"] = function(...) local aa=require("elementManager")
-local ba=aa.getElement("VisualElement")local ca=require("libraries/colorHex")
-local da=setmetatable({},ba)da.__index=da
-da.defineProperty(da,"bimg",{default={{}},type="table",canTriggerRender=true})
-da.defineProperty(da,"currentFrame",{default=1,type="number",canTriggerRender=true})
-da.defineProperty(da,"metadata",{default={},type="table"})
-da.defineProperty(da,"autoResize",{default=true,type="boolean"})
-da.defineProperty(da,"offsetX",{default=0,type="number",canTriggerRender=true})
-da.defineProperty(da,"offsetY",{default=0,type="number",canTriggerRender=true})
-function da.new()local ab=setmetatable({},da):__init()
-ab.set("width",12)ab.set("height",6)
-ab.set("background",colors.black)ab.set("z",5)return ab end;function da:init(ab,bb)ba.init(self,ab,bb)self.set("type","Image")
+project["elements/Image.lua"] = function(...) local ba=require("elementManager")
+local ca=ba.getElement("VisualElement")local da=require("libraries/colorHex")
+local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"bimg",{default={{}},type="table",canTriggerRender=true})
+_b.defineProperty(_b,"currentFrame",{default=1,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"metadata",{default={},type="table"})
+_b.defineProperty(_b,"autoResize",{default=false,type="boolean"})
+_b.defineProperty(_b,"offsetX",{default=0,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"offsetY",{default=0,type="number",canTriggerRender=true})
+_b.combineProperties(_b,"offset","offsetX","offsetY")
+function _b.new()local cb=setmetatable({},_b):__init()
+cb.set("width",12)cb.set("height",6)
+cb.set("background",colors.black)cb.set("z",5)return cb end;function _b:init(cb,db)ca.init(self,cb,db)self.set("type","Image")
 return self end
-function da:loadBimg(ab)
-if type(ab)~="table"then return self end;local bb={}local cb={}for db,_c in pairs(ab)do
-if type(db)=="number"then bb[db]=_c else cb[db]=_c end end;self.set("bimg",bb)
-self.set("metadata",cb)
-if bb[1]and bb[1][1]then
-self.set("width",#bb[1][1][2])self.set("height",#bb[1])end;return self end
-function da:resizeImage(ab,bb)local cb=self.get("bimg")
-for db,_c in ipairs(cb)do local ac={}
-for y=1,bb do
-local bc=string.rep(" ",ab)local cc=string.rep("f",ab)local dc=string.rep("0",ab)
-if _c[y]and
-_c[y][1]then local _d=_c[y][1]local ad=_c[y][2]local bd=_c[y][3]bc=(_d..
-string.rep(" ",ab)):sub(1,ab)cc=(ad..
-string.rep("f",ab)):sub(1,ab)dc=(bd..
-string.rep("0",ab)):sub(1,ab)end;ac[y]={bc,cc,dc}end;cb[db]=ac end;self:updateRender()return self end
-function da:getImageSize()local ab=self.get("bimg")if not ab[1]or not ab[1][1]then
-return 0,0 end;return#ab[1][1][1],#ab[1]end
-function da:getPixelData(ab,bb)
-local cb=self.get("bimg")[self.get("currentFrame")]if not cb or not cb[bb]then return end;local db=cb[bb][1]
-local _c=cb[bb][2]local ac=cb[bb][3]
-if not db or not _c or not ac then return end;local bc=tonumber(_c:sub(ab,ab),16)
-local cc=tonumber(ac:sub(ab,ab),16)local dc=db:sub(ab,ab)return bc,cc,dc end
-local function _b(ab,bb)
-local cb=ab.get("bimg")[ab.get("currentFrame")]if not cb then cb={}
-ab.get("bimg")[ab.get("currentFrame")]=cb end
-if not cb[bb]then cb[bb]={"","",""}end;return cb end
-function da:setText(ab,bb,cb)
-if type(cb)~="string"or#cb<1 then return self end;local db=_b(self,bb)local _c=db[bb][1]
-while#_c<ab+#cb-1 do _c=_c.." "end
-db[bb][1]=_c:sub(1,ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
-function da:setFg(ab,bb,cb)if type(cb)~="string"or#cb<1 then return self end
-local db=_b(self,bb)local _c=db[bb][2]while#_c<ab+#cb-1 do _c=_c.."f"end
-db[bb][2]=_c:sub(1,
-ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
-function da:setBg(ab,bb,cb)if type(cb)~="string"or#cb<1 then return self end
-local db=_b(self,bb)local _c=db[bb][3]while#_c<ab+#cb-1 do _c=_c.."0"end
-db[bb][3]=_c:sub(1,
-ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
-function da:setPixel(ab,bb,cb,db,_c)if cb then self:setText(ab,bb,cb)end;if db then
-self:setFg(ab,bb,db)end;if _c then self:setBg(ab,bb,_c)end;return self end;function da:setOffset(ab,bb)self.set("offsetX",ab)self.set("offsetY",bb)return
-self end
-function da:getOffset()return
-self.get("offsetX"),self.get("offsetY")end
-function da:nextFrame()
-if not self.get("metadata").animation then return end;local ab=self.get("bimg")local bb=self.get("currentFrame")
-local cb=bb+1;if cb>#ab then cb=1 end;self.set("currentFrame",cb)return self end
-function da:render()ba.render(self)
-local ab=self.get("bimg")[self.get("currentFrame")]if not ab then return end;local bb=self.get("offsetX")
-local cb=self.get("offsetY")local db=self.get("width")local _c=self.get("height")
-for y=1,_c do local ac=y+cb
-local bc=ab[ac]
-if bc then local cc=bc[1]:sub(1 +bb,db+bb)
-local dc=bc[2]:sub(1 +bb,db+bb)local _d=bc[3]:sub(1 +bb,db+bb)if cc and dc and _d then
-self:blit(1 +bb,y,cc,dc,_d)end end end end;return da end
+function _b:loadBimg(cb)
+if type(cb)~="table"then return self end;local db={}local _c={}for ac,bc in pairs(cb)do
+if type(ac)=="number"then db[ac]=bc else _c[ac]=bc end end;self.set("bimg",db)
+self.set("metadata",_c)
+if db[1]and db[1][1]then
+self.set("width",#db[1][1][2])self.set("height",#db[1])end;return self end
+function _b:resizeImage(cb,db)local _c=self.get("bimg")
+for ac,bc in ipairs(_c)do local cc={}
+for y=1,db do
+local dc=string.rep(" ",cb)local _d=string.rep("f",cb)local ad=string.rep("0",cb)
+if bc[y]and
+bc[y][1]then local bd=bc[y][1]local cd=bc[y][2]local dd=bc[y][3]dc=(bd..
+string.rep(" ",cb)):sub(1,cb)_d=(cd..
+string.rep("f",cb)):sub(1,cb)ad=(dd..
+string.rep("0",cb)):sub(1,cb)end;cc[y]={dc,_d,ad}end;_c[ac]=cc end;self:updateRender()return self end
+function _b:getImageSize()local cb=self.get("bimg")if not cb[1]or not cb[1][1]then
+return 0,0 end;return#cb[1][1][1],#cb[1]end
+function _b:getPixelData(cb,db)
+local _c=self.get("bimg")[self.get("currentFrame")]if not _c or not _c[db]then return end;local ac=_c[db][1]
+local bc=_c[db][2]local cc=_c[db][3]
+if not ac or not bc or not cc then return end;local dc=tonumber(bc:sub(cb,cb),16)
+local _d=tonumber(cc:sub(cb,cb),16)local ad=ac:sub(cb,cb)return dc,_d,ad end
+local function ab(cb,db)
+local _c=cb.get("bimg")[cb.get("currentFrame")]if not _c then _c={}
+cb.get("bimg")[cb.get("currentFrame")]=_c end
+if not _c[db]then _c[db]={"","",""}end;return _c end
+local function bb(cb,db,_c)if not cb.get("autoResize")then return end
+local ac=cb.get("bimg")local bc=db;local cc=_c
+for dc,_d in ipairs(ac)do for ad,bd in pairs(_d)do bc=math.max(bc,#bd[1])
+cc=math.max(cc,ad)end end
+for dc,_d in ipairs(ac)do
+for y=1,cc do if not _d[y]then _d[y]={"","",""}end;local ad=_d[y]while#ad[1]<
+bc do ad[1]=ad[1].." "end;while#ad[2]<bc do
+ad[2]=ad[2].."f"end;while#ad[3]<bc do ad[3]=ad[3].."0"end end end end
+function _b:setText(cb,db,_c)if
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+if
+self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][1]
+if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][1]
+ac[db][1]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:setFg(cb,db,_c)if
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+if
+self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][2]
+if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][2]
+ac[db][2]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:setBg(cb,db,_c)if
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+if
+self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][3]
+if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][3]
+ac[db][3]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:setPixel(cb,db,_c,ac,bc)if _c then self:setText(cb,db,_c)end;if ac then
+self:setFg(cb,db,ac)end;if bc then self:setBg(cb,db,bc)end;return self end
+function _b:nextFrame()
+if not self.get("metadata").animation then return self end;local cb=self.get("bimg")local db=self.get("currentFrame")
+local _c=db+1;if _c>#cb then _c=1 end;self.set("currentFrame",_c)return self end
+function _b:addFrame()local cb=self.get("bimg")local db={}
+local _c=string.rep(" ",self.get("width"))local ac=string.rep("f",self.get("width"))
+local bc=string.rep("0",self.get("width"))for y=1,self.get("height")do db[y]={_c,ac,bc}end
+table.insert(cb,db)return self end
+function _b:render()ca.render(self)
+local cb=self.get("bimg")[self.get("currentFrame")]if not cb then return end;local db=self.get("offsetX")
+local _c=self.get("offsetY")local ac=self.get("width")local bc=self.get("height")
+for y=1,bc do local cc=y+_c
+local dc=cb[cc]
+if dc then local _d=dc[1]local ad=dc[2]local bd=dc[3]
+if _d and ad and bd then
+local cd=ac-math.max(0,db)
+if cd>0 then if db<0 then local dd=math.abs(db)+1;_d=_d:sub(dd)ad=ad:sub(dd)
+bd=bd:sub(dd)end;_d=_d:sub(1,cd)
+ad=ad:sub(1,cd)bd=bd:sub(1,cd)
+self:blit(math.max(1,1 +db),y,_d,ad,bd)end end end end end;return _b end
 project["elements/Flexbox.lua"] = function(...) local da=require("elementManager")
 local _b=da.getElement("Container")local ab=setmetatable({},_b)ab.__index=ab
 ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
