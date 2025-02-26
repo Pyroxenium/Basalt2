@@ -18,9 +18,6 @@ This is the base frame class. It is the root element of all elements and the onl
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseFrame:char](#BaseFrame:char)|-|
-|[BaseFrame:key](#BaseFrame:key)|-|
-|[BaseFrame:key_up](#BaseFrame:key_up)|-|
 |[BaseFrame:setCursor](#BaseFrame:setCursor)|-|Sets the cursor position
 
 
@@ -29,19 +26,16 @@ This is the base frame class. It is the root element of all elements and the onl
 |Method|Returns|Description|
 |---|---|---|
 |[BaseFrame:blit](#BaseFrame:blit)|-|Renders a text with a foreground and background color to the render Object
+|[BaseFrame:char](#BaseFrame:char)|-|Handles character events
 |[BaseFrame:init](#BaseFrame:init)|table|Initializes the Frame instance
+|[BaseFrame:key](#BaseFrame:key)|-|Handles key events
+|[BaseFrame:key_up](#BaseFrame:key_up)|-|Handles key up events
 |[BaseFrame:mouse_up](#BaseFrame:mouse_up)|-|Handles mouse up events
 |[BaseFrame:multiBlit](#BaseFrame:multiBlit)|-|Renders a multiBlit to the render Object
 |[BaseFrame:render](#BaseFrame:render)|-|Renders the Frame
 |[BaseFrame:term_resize](#BaseFrame:term_resize)|-|Resizes the Frame
 |[BaseFrame:textBg](#BaseFrame:textBg)|-|Renders a text with a background color to the render Object
 |[BaseFrame:textFg](#BaseFrame:textFg)|-|Renders a text with a foreground color to the render Object
-
-## BaseFrame:char()
-
-## BaseFrame:key()
-
-## BaseFrame:key_up()
 
 ## BaseFrame:setCursor(x, y, blink)
 Sets the cursor position

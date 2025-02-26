@@ -50,12 +50,9 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement:calculatePosition](#VisualElement:calculatePosition)|number|Calculates the position of the element
-|[VisualElement:char](#VisualElement:char)|-|
 |[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|number|Returns the absolute position of the element
 |[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number|Returns the relative position of the element
 |[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
-|[VisualElement:key](#VisualElement:key)|-|
-|[VisualElement:key_up](#VisualElement:key_up)|-|
 |[VisualElement:prioritize](#VisualElement:prioritize)|VisualElement|Prioritizes the element by moving it to the top of its parent's children
 
 
@@ -65,8 +62,11 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |---|---|---|
 |[VisualElement:blit](#VisualElement:blit)|-|Draws text with both colors
 |[VisualElement:blur](#VisualElement:blur)|-|Handles a blur event
+|[VisualElement:char](#VisualElement:char)|-|Handles a character event
 |[VisualElement:focus](#VisualElement:focus)|-|Handles a focus event
 |[VisualElement:init](#VisualElement:init)|-|Initializes a new visual element with properties
+|[VisualElement:key](#VisualElement:key)|-|Handles a key event
+|[VisualElement:key_up](#VisualElement:key_up)|-|Handles a key up event
 |[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|Handles a mouse click event
 |[VisualElement:mouse_drag](#VisualElement:mouse_drag)|boolean|Handles a mouse drag event
 |[VisualElement:mouse_move](#VisualElement:mouse_move)|boolean|Handles a mouse move event
@@ -85,8 +85,6 @@ Calculates the position of the element relative to its parent
 ### Returns
 * `number` `x` The x position
 * `number` `y` The y position
-
-## VisualElement:char()
 
 ## VisualElement:getAbsolutePosition(x?, y?)
 Returns the absolute position of the element or the given coordinates.
@@ -119,10 +117,6 @@ Checks if the specified coordinates are within the bounds of the element
 
 ### Returns
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
-
-## VisualElement:key()
-
-## VisualElement:key_up()
 
 ## VisualElement:prioritize()
 This function is used to prioritize the element by moving it to the top of its parent's children.
