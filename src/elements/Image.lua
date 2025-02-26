@@ -12,11 +12,17 @@ local Image = setmetatable({}, VisualElement)
 Image.__index = Image
 
 ---@property bimg table {} The bimg image data
-Image.defineProperty(Image, "bimg", {default = {}, type = "table", canTriggerRender = true})
+Image.defineProperty(Image, "bimg", {default = {{}}, type = "table", canTriggerRender = true})
 ---@property currentFrame number 1 Current animation frame
 Image.defineProperty(Image, "currentFrame", {default = 1, type = "number", canTriggerRender = true})
 ---@property metadata table {} Image metadata (version, palette, etc)
 Image.defineProperty(Image, "metadata", {default = {}, type = "table"})
+---@property autoResize boolean false Whether to automatically resize the image when content exceeds bounds
+Image.defineProperty(Image, "autoResize", {default = true, type = "boolean"})
+---@property offsetX number 0 Horizontal offset for viewing larger images
+Image.defineProperty(Image, "offsetX", {default = 0, type = "number", canTriggerRender = true})
+---@property offsetY number 0 Vertical offset for viewing larger images
+Image.defineProperty(Image, "offsetY", {default = 0, type = "number", canTriggerRender = true})
 
 --- Creates a new Image instance
 --- @shortDescription Creates a new Image instance
@@ -24,6 +30,10 @@ Image.defineProperty(Image, "metadata", {default = {}, type = "table"})
 --- @private
 function Image.new()
     local self = setmetatable({}, Image):__init()
+    self.set("width", 12)
+    self.set("height", 6)
+    self.set("background", colors.black)
+    self.set("z", 5)
     return self
 end
 
@@ -67,6 +77,41 @@ function Image:loadBimg(bimgData)
     return self
 end
 
+function Image:resizeImage(width, height)
+    local frames = self.get("bimg")
+
+    for frameIndex, frame in ipairs(frames) do
+        local newFrame = {}
+        for y = 1, height do
+            local text = string.rep(" ", width)
+            local fg = string.rep("f", width)
+            local bg = string.rep("0", width)
+
+            if frame[y] and frame[y][1] then
+                local oldText = frame[y][1]
+                local oldFg = frame[y][2]
+                local oldBg = frame[y][3]
+
+                text = (oldText .. string.rep(" ", width)):sub(1, width)
+                fg = (oldFg .. string.rep("f", width)):sub(1, width)
+                bg = (oldBg .. string.rep("0", width)):sub(1, width)
+            end
+
+            newFrame[y] = {text, fg, bg}
+        end
+        frames[frameIndex] = newFrame
+    end
+
+    self:updateRender()
+    return self
+end
+
+function Image:getImageSize()
+    local bimg = self.get("bimg")
+    if not bimg[1] or not bimg[1][1] then return 0, 0 end
+    return #bimg[1][1][1], #bimg[1]
+end
+
 --- Gets pixel information at position
 --- @shortDescription Gets pixel information at position
 --- @param x number X position
@@ -91,102 +136,75 @@ function Image:getPixelData(x, y)
     return fgColor, bgColor, char
 end
 
---- Sets character at position
---- @shortDescription Sets character at position
---- @param x number X position
---- @param y number Y position
---- @param char string Single character to set
-function Image:setChar(x, y, char)
-    if type(char) ~= "string" or #char ~= 1 then return self end
-
+local function ensureFrame(self, y)
     local frame = self.get("bimg")[self.get("currentFrame")]
     if not frame then
-        frame = {{}, {}, {}}
+        frame = {}
         self.get("bimg")[self.get("currentFrame")] = frame
     end
-
     if not frame[y] then
         frame[y] = {"", "", ""}
     end
+    return frame
+end
 
-    local text = frame[y][1]
-    while #text < x do
-        text = text .. " "
+function Image:setText(x, y, text)
+    if type(text) ~= "string" or #text < 1 then return self end
+    local frame = ensureFrame(self, y)
+    
+    local currentLine = frame[y][1]
+    while #currentLine < x + #text - 1 do
+        currentLine = currentLine .. " "
     end
-
-    frame[y][1] = text:sub(1, x-1) .. char .. text:sub(x+1)
+    
+    frame[y][1] = currentLine:sub(1, x-1) .. text .. currentLine:sub(x + #text)
     self:updateRender()
     return self
 end
 
---- Sets foreground color at position
---- @shortDescription Sets foreground color at position
---- @param x number X position
---- @param y number Y position
---- @param color number Color value (0-15)
-function Image:setFg(x, y, color)
-    if type(color) ~= "number" then return self end
+function Image:setFg(x, y, pattern)
+    if type(pattern) ~= "string" or #pattern < 1 then return self end
+    local frame = ensureFrame(self, y)
     
-    local frame = self.get("bimg")[self.get("currentFrame")]
-    if not frame then
-        frame = {{}, {}, {}}
-        self.get("bimg")[self.get("currentFrame")] = frame
+    local currentFg = frame[y][2]
+    while #currentFg < x + #pattern - 1 do
+        currentFg = currentFg .. "f"
     end
     
-    if not frame[y] then
-        frame[y] = {"", "", ""}
-    end
-    
-    local fg = frame[y][2]
-    while #fg < x do
-        fg = fg .. "f"
-    end
-    
-    frame[y][2] = fg:sub(1, x-1) .. tHex[color] .. fg:sub(x+1)
+    frame[y][2] = currentFg:sub(1, x-1) .. pattern .. currentFg:sub(x + #pattern)
     self:updateRender()
     return self
 end
 
---- Sets background color at position
---- @shortDescription Sets background color at position
---- @param x number X position
---- @param y number Y position
---- @param color number Color value (0-15)
-function Image:setBg(x, y, color)
-    if type(color) ~= "number" then return self end
+function Image:setBg(x, y, pattern)
+    if type(pattern) ~= "string" or #pattern < 1 then return self end
+    local frame = ensureFrame(self, y)
     
-    local frame = self.get("bimg")[self.get("currentFrame")]
-    if not frame then
-        frame = {{}, {}, {}}
-        self.get("bimg")[self.get("currentFrame")] = frame
+    local currentBg = frame[y][3]
+    while #currentBg < x + #pattern - 1 do
+        currentBg = currentBg .. "0"
     end
     
-    if not frame[y] then
-        frame[y] = {"", "", ""}
-    end
-    
-    local bg = frame[y][3]
-    while #bg < x do
-        bg = bg .. "f"
-    end
-    
-    frame[y][3] = bg:sub(1, x-1) .. tHex[color] .. bg:sub(x+1)
+    frame[y][3] = currentBg:sub(1, x-1) .. pattern .. currentBg:sub(x + #pattern)
     self:updateRender()
     return self
 end
 
---- Sets all properties at position
---- @shortDescription Sets all properties at position
---- @param x number X position
---- @param y number Y position
---- @param char string? Character to set (optional)
---- @param fg number? Foreground color (optional)
---- @param bg number? Background color (optional)
 function Image:setPixel(x, y, char, fg, bg)
-    if char then self:setChar(x, y, char) end
+    if char then self:setText(x, y, char) end
     if fg then self:setFg(x, y, fg) end
     if bg then self:setBg(x, y, bg) end
     return self
+end
+
+function Image:setOffset(x, y)
+    self.set("offsetX", x)
+    self.set("offsetY", y)
+    return self
+end
+
+function Image:getOffset()
+    return self.get("offsetX"), self.get("offsetY")
 end
 
 --- Advances to the next frame in the animation
@@ -212,13 +230,23 @@ function Image:render()
     local frame = self.get("bimg")[self.get("currentFrame")]
     if not frame then return end
 
-    for y, line in ipairs(frame) do
-        local text = line[1]
-        local fg = line[2]
-        local bg = line[3]
+    local offsetX = self.get("offsetX")
+    local offsetY = self.get("offsetY")
+    local elementWidth = self.get("width")
+    local elementHeight = self.get("height")
 
-        if text and fg and bg then
-            self:blit(1, y, text, fg, bg)
+    for y = 1, elementHeight do
+        local frameY = y + offsetY
+        local line = frame[frameY]
+
+        if line then
+            local text = line[1]:sub(1 + offsetX, elementWidth + offsetX)
+            local fg = line[2]:sub(1 + offsetX, elementWidth + offsetX)
+            local bg = line[3]:sub(1 + offsetX, elementWidth + offsetX)
+
+            if text and fg and bg then                
+                self:blit(1 + offsetX, y, text, fg, bg)
+            end
         end
     end
 end

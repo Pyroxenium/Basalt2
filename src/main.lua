@@ -97,7 +97,7 @@ end
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
     frame:postInit()
-    mainFrame = frame
+    if(mainFrame==nil)then mainFrame = frame end
     return frame
 end
 
@@ -126,6 +126,7 @@ end
 --- @usage basalt.setActiveFrame(myFrame)
 function basalt.setActiveFrame(frame)
     mainFrame = frame
+    mainFrame:updateRender()
 end
 
 --- Schedules a function to run in a coroutine

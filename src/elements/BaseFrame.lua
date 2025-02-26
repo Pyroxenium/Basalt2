@@ -133,6 +133,21 @@ function BaseFrame:term_resize()
     self._renderUpdate = true
 end
 
+function BaseFrame:key(key)
+    self:fireEvent("key", key)
+    Container.key(self, key)
+end
+
+function BaseFrame:key_up(key)
+    self:fireEvent("key_up", key)
+    Container.key_up(self, key)
+end
+
+function BaseFrame:char(char)
+    self:fireEvent("char", char)
+    Container.char(self, char)
+end
+
 --- @shortDescription Renders the Frame
 --- @protected
 function BaseFrame:render()

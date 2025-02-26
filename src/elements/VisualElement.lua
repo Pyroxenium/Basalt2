@@ -102,6 +102,9 @@ VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mous
 VisualElement.registerEventCallback(VisualElement, "LeEave", "mouse_leave", "mouse_move")
 VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
 VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
+VisualElement.registerEventCallback(VisualElement, "Key", "key", "key_up")
+VisualElement.registerEventCallback(VisualElement, "Char", "char")
+VisualElement.registerEventCallback(VisualElement, "KeyUp", "key_up", "key")
 
 local max, min = math.max, math.min
 
@@ -321,6 +324,24 @@ function VisualElement:calculatePosition()
         end
     end
     return x, y
+end
+
+function VisualElement:key(key)
+    if(self.get("focused"))then
+        self:fireEvent("key", key)
+    end
+end
+
+function VisualElement:key_up(key)
+    if(self.get("focused"))then
+        self:fireEvent("key_up", key)
+    end
+end
+
+function VisualElement:char(char)
+    if(self.get("focused"))then
+        self:fireEvent("char", char)
+    end
 end
 
 --- Returns the absolute position of the element or the given coordinates.
