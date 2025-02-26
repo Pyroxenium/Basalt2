@@ -15,6 +15,7 @@ Frame.defineProperty(Frame, "draggable", {default = false, type = "boolean", set
         self:listenEvent("mouse_up", true)
         self:listenEvent("mouse_drag", true)
     end
+    return value
 end})
 ---@property draggingMap table {} The map of dragging positions
 Frame.defineProperty(Frame, "draggingMap", {default = {{x=1, y=1, width="width", height=1}}, type = "table"})
@@ -50,36 +51,39 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_click(button, x, y)
-    if(VisualElement.mouse_click(self, button, x, y)) then
-        local relX, relY = self:getRelativePosition(x, y)
-        local draggingMap = self.get("draggingMap")
+    if VisualElement.mouse_click(self, button, x, y) then
+        if self.get("draggable") then
+            local relX, relY = self:getRelativePosition(x, y)
+            local draggingMap = self.get("draggingMap")
 
-        for _, map in ipairs(draggingMap) do
-            local width = map.width or 1
-            local height = map.height or 1
+            for _, map in ipairs(draggingMap) do
+                local width = map.width or 1
+                local height = map.height or 1
 
-            if type(width) == "string" and width == "width" then
-                width = self.get("width")
-            elseif type(width) == "function" then
-                width = width(self)
-            end
-            if type(height) == "string" and height == "height" then
-                height = self.get("height")
-            elseif type(height) == "function" then
-                height = height(self)
-            end
+                if type(width) == "string" and width == "width" then
+                    width = self.get("width")
+                elseif type(width) == "function" then
+                    width = width(self)
+                end
+                if type(height) == "string" and height == "height" then
+                    height = self.get("height")
+                elseif type(height) == "function" then
+                    height = height(self)
+                end
 
-            local mapY = map.y or 1
-            if relX >= map.x and relX <= map.x + width - 1 and
-            relY >= mapY and relY <= mapY + height - 1 then
-                self.dragStartX = x - self.get("x")
-                self.dragStartY = y - self.get("y")
-                self.dragging = true
-                return true
+                local mapY = map.y or 1
+                if relX >= map.x and relX <= map.x + width - 1 and
+                relY >= mapY and relY <= mapY + height - 1 then
+                    self.dragStartX = x - self.get("x")
+                    self.dragStartY = y - self.get("y")
+                    self.dragging = true
+                    return true
+                end
             end
         end
         return Container.mouse_click(self, button, x, y)
     end
+    return false
 end
 
 --- @shortDescription Handles mouse release events

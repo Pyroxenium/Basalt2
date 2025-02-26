@@ -95,7 +95,7 @@ VisualElement.defineEvent(VisualElement, "focus")
 VisualElement.defineEvent(VisualElement, "blur")
 
 VisualElement.registerEventCallback(VisualElement, "Click", "mouse_click", "mouse_up")
-VisualElement.registerEventCallback(VisualElement, "MouseUp", "mouse_up", "mouse_click")
+VisualElement.registerEventCallback(VisualElement, "ClickUp", "mouse_up", "mouse_click")
 VisualElement.registerEventCallback(VisualElement, "Drag", "mouse_drag", "mouse_click", "mouse_up")
 VisualElement.registerEventCallback(VisualElement, "Scroll", "mouse_scroll")
 VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mouse_move")

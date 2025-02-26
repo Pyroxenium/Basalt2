@@ -20,8 +20,10 @@ Input.defineProperty(Input, "maxLength", {default = nil, type = "number"})
 Input.defineProperty(Input, "placeholder", {default = "...", type = "string"})
 ---@property placeholderColor color gray Color of the placeholder text
 Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "number"})
----@property focusedColor color blue Background color when input is focused
-Input.defineProperty(Input, "focusedColor", {default = colors.blue, type = "number"})
+---@property focusedBackground color blue Background color when input is focused
+Input.defineProperty(Input, "focusedBackground", {default = colors.blue, type = "number"})
+---@property focusedForeground color white Foreground color when input is focused
+Input.defineProperty(Input, "focusedForeground", {default = colors.white, type = "number"})
 ---@property pattern string? nil Regular expression pattern for input validation
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor
@@ -164,6 +166,18 @@ function Input:updateViewport()
     return self
 end
 
+function Input:focus()
+    VisualElement.focus(self)
+    self:setCursor(self.get("cursorPos") - self.get("viewOffset"), 1, true, self.get("cursorColor") or self.get("foreground"))
+    self:updateRender()
+end
+
+function Input:blur()
+    VisualElement.blur(self)
+    self:setCursor(1, 1, false, self.get("cursorColor") or self.get("foreground"))
+    self:updateRender()
+end
+
 --- @shortDescription Renders the input element
 --- @protected
 function Input:render()
@@ -171,10 +185,11 @@ function Input:render()
     local viewOffset = self.get("viewOffset")
     local width = self.get("width")
     local placeholder = self.get("placeholder")
-    local focusedColor = self.get("focusedColor")
+    local focusedBg = self.get("focusedBackground")
+    local focusedFg = self.get("focusedForeground")
     local focused = self.get("focused")
     local width, height = self.get("width"), self.get("height")
-    self:multiBlit(1, 1, width, height, " ", tHex[self.get("foreground")], tHex[focused and focusedColor or self.get("background")])
+    self:multiBlit(1, 1, width, height, " ", tHex[focused and focusedFg or self.get("foreground")], tHex[focused and focusedBg or self.get("background")])
 
     if #text == 0 and #placeholder ~= 0 and self.get("focused") == false then
         self:textFg(1, 1, placeholder:sub(1, width), self.get("placeholderColor"))
