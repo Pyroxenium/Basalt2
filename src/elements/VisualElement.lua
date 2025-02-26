@@ -310,22 +310,6 @@ function VisualElement:blur()
     self:setCursor(1,1, false)
 end
 
---- Calculates the position of the element relative to its parent
---- @shortDescription Calculates the position of the element
---- @return number x The x position
---- @return number y The y position
-function VisualElement:calculatePosition()
-    local x, y = self.get("x"), self.get("y")
-    if not self.get("ignoreOffset") then
-        if self.parent ~= nil then
-            local xO, yO = self.parent.get("offsetX"), self.parent.get("offsetY")
-            x = x - xO
-            y = y - yO
-        end
-    end
-    return x, y
-end
-
 --- @shortDescription Handles a key event
 --- @param key number The key that was pressed
 --- @protected
@@ -351,6 +335,22 @@ function VisualElement:char(char)
     if(self.get("focused"))then
         self:fireEvent("char", char)
     end
+end
+
+--- Calculates the position of the element relative to its parent
+--- @shortDescription Calculates the position of the element
+--- @return number x The x position
+--- @return number y The y position
+function VisualElement:calculatePosition()
+    local x, y = self.get("x"), self.get("y")
+    if not self.get("ignoreOffset") then
+        if self.parent ~= nil then
+            local xO, yO = self.parent.get("offsetX"), self.parent.get("offsetY")
+            x = x - xO
+            y = y - yO
+        end
+    end
+    return x, y
 end
 
 --- Returns the absolute position of the element or the given coordinates.
