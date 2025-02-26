@@ -1197,13 +1197,13 @@ if
 bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and cb<=dc+cc-1 then
 self.dragStartX=_b-self.get("x")self.dragStartY=ab-self.get("y")self.dragging=true
 return true end end;return ba.mouse_click(self,da,_b,ab)end end
+function ca:mouse_up(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
+ba.mouse_up(self,da,_b,ab)end
 function ca:mouse_drag(da,_b,ab)
 if self.get("clicked")and self.dragging then
 local bb=_b-self.dragStartX;local cb=ab-self.dragStartY;self.set("x",bb)
 self.set("y",cb)return true end
-if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end
-function ca:mouse_up(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
-ba.mouse_up(self,da,_b,ab)end;return ca end
+if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end;return ca end
 project["elements/Checkbox.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
