@@ -865,7 +865,8 @@ end
 ---@field viewOffset number
 ---@field placeholder string
 ---@field placeholderColor color
----@field focusedColor color
+---@field focusedBackground color
+---@field focusedForeground color
 ---@field cursorColor number
 local Input = {}
 
@@ -963,17 +964,35 @@ end
 ---@generic Element: Input
 ---@param self Element
 ---@return color
-function Input:getFocusedColor()
-    return self.focusedColor
+function Input:getFocusedBackground()
+    return self.focusedBackground
 end
 
 --- Sets the Background color when input is focused
 ---@generic Element: Input
 ---@param self Element
----@param focusedColor color
+---@param focusedBackground color
 ---@return Element
-function Input:setFocusedColor(focusedColor)
-    self.focusedColor = focusedColor
+function Input:setFocusedBackground(focusedBackground)
+    self.focusedBackground = focusedBackground
+    return self
+end
+
+--- Gets the Foreground color when input is focused
+---@generic Element: Input
+---@param self Element
+---@return color
+function Input:getFocusedForeground()
+    return self.focusedForeground
+end
+
+--- Sets the Foreground color when input is focused
+---@generic Element: Input
+---@param self Element
+---@param focusedForeground color
+---@return Element
+function Input:setFocusedForeground(focusedForeground)
+    self.focusedForeground = focusedForeground
     return self
 end
 

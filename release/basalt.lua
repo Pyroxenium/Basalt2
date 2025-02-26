@@ -801,7 +801,7 @@ _b.combineProperties(_b,"size","width","height")
 _b.combineProperties(_b,"color","foreground","background")_b.defineEvent(_b,"focus")
 _b.defineEvent(_b,"blur")
 _b.registerEventCallback(_b,"Click","mouse_click","mouse_up")
-_b.registerEventCallback(_b,"MouseUp","mouse_up","mouse_click")
+_b.registerEventCallback(_b,"ClickUp","mouse_up","mouse_click")
 _b.registerEventCallback(_b,"Drag","mouse_drag","mouse_click","mouse_up")
 _b.registerEventCallback(_b,"Scroll","mouse_scroll")
 _b.registerEventCallback(_b,"Enter","mouse_enter","mouse_move")
@@ -1030,7 +1030,8 @@ aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
 aa.defineProperty(aa,"placeholder",{default="...",type="string"})
 aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="number"})
-aa.defineProperty(aa,"focusedColor",{default=colors.blue,type="number"})
+aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="number"})
+aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="number"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
 aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
@@ -1072,15 +1073,22 @@ local _b=#self.get("text")
 if ca-da>=ba then self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",
 ca-1)end
 self.set("viewOffset",math.max(0,math.min(self.get("viewOffset"),_b-ba+1)))return self end
+function aa:focus()d.focus(self)
+self:setCursor(self.get("cursorPos")-
+self.get("viewOffset"),1,true,self.get("cursorColor")or self.get("foreground"))self:updateRender()end
+function aa:blur()d.blur(self)
+self:setCursor(1,1,false,self.get("cursorColor")or
+self.get("foreground"))self:updateRender()end
 function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
 local da=self.get("width")local _b=self.get("placeholder")
-local ab=self.get("focusedColor")local bb=self.get("focused")
-local cb,db=self.get("width"),self.get("height")
-self:multiBlit(1,1,cb,db," ",_a[self.get("foreground")],_a[bb and ab or
+local ab=self.get("focusedBackground")local bb=self.get("focusedForeground")
+local cb=self.get("focused")local db,_c=self.get("width"),self.get("height")
+self:multiBlit(1,1,db,_c," ",_a[
+cb and bb or self.get("foreground")],_a[cb and ab or
 self.get("background")])if
 #ba==0 and#_b~=0 and self.get("focused")==false then
-self:textFg(1,1,_b:sub(1,cb),self.get("placeholderColor"))return end
-local _c=ba:sub(ca+1,ca+cb)self:textFg(1,1,_c,self.get("foreground"))end;return aa end
+self:textFg(1,1,_b:sub(1,db),self.get("placeholderColor"))return end
+local ac=ba:sub(ca+1,ca+db)self:textFg(1,1,ac,self.get("foreground"))end;return aa end
 project["elements/BaseFrame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("Container")local ba=require("render")local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"term",{default=
@@ -1177,7 +1185,7 @@ local aa=_a.getElement("VisualElement")local ba=_a.getElement("Container")local 
 ca.__index=ca
 ca.defineProperty(ca,"draggable",{default=false,type="boolean",setter=function(da,_b)
 if _b then da:listenEvent("mouse_click",true)
-da:listenEvent("mouse_up",true)da:listenEvent("mouse_drag",true)end end})
+da:listenEvent("mouse_up",true)da:listenEvent("mouse_drag",true)end;return _b end})
 ca.defineProperty(ca,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
 function ca.new()local da=setmetatable({},ca):__init()
 da.set("width",12)da.set("height",6)
@@ -1185,7 +1193,8 @@ da.set("background",colors.gray)da.set("z",10)return da end;function ca:init(da,
 return self end
 function ca:mouse_click(da,_b,ab)
 if
-(aa.mouse_click(self,da,_b,ab))then local bb,cb=self:getRelativePosition(_b,ab)
+aa.mouse_click(self,da,_b,ab)then
+if self.get("draggable")then local bb,cb=self:getRelativePosition(_b,ab)
 local db=self.get("draggingMap")
 for _c,ac in ipairs(db)do local bc=ac.width or 1;local cc=ac.height or 1;if
 type(bc)=="string"and bc=="width"then bc=self.get("width")elseif
@@ -1196,7 +1205,7 @@ type(cc)=="function"then cc=cc(self)end;local dc=ac.y or 1
 if
 bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and cb<=dc+cc-1 then
 self.dragStartX=_b-self.get("x")self.dragStartY=ab-self.get("y")self.dragging=true
-return true end end;return ba.mouse_click(self,da,_b,ab)end end
+return true end end end;return ba.mouse_click(self,da,_b,ab)end;return false end
 function ca:mouse_up(da,_b,ab)self.dragging=false;self.dragStartX=nil;self.dragStartY=nil;return
 ba.mouse_up(self,da,_b,ab)end
 function ca:mouse_drag(da,_b,ab)
