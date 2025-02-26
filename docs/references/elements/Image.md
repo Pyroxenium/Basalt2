@@ -14,21 +14,26 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |offsetX|number|0|Horizontal offset for viewing larger images
 |offsetY|number|0|Vertical offset for viewing larger images
 
+## Combined Properties
+
+|Name|Properties|Description|
+|---|---|---|
+|offset|`offsetX offsetY`|Combined property for offsetX and offsetY|
+
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image:getImageSize](#Image:getImageSize)|-|
-|[Image:getOffset](#Image:getOffset)|-|
+|[Image:addFrame](#Image:addFrame)|Image|Adds a new frame to the image
+|[Image:getImageSize](#Image:getImageSize)|number|Gets the size of the image
 |[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
 |[Image:loadBimg](#Image:loadBimg)|Image|Loads a bimg format image
 |[Image:nextFrame](#Image:nextFrame)|Image|Advances to the next frame in the animation
-|[Image:resizeImage](#Image:resizeImage)|-|
-|[Image:setBg](#Image:setBg)|-|
-|[Image:setFg](#Image:setFg)|-|
-|[Image:setOffset](#Image:setOffset)|-|
-|[Image:setPixel](#Image:setPixel)|-|
-|[Image:setText](#Image:setText)|-|
+|[Image:resizeImage](#Image:resizeImage)|Image|Resizes the image to the specified width and height
+|[Image:setBg](#Image:setBg)|Image|Sets the background color at the specified position
+|[Image:setFg](#Image:setFg)|Image|Sets the foreground color at the specified position
+|[Image:setPixel](#Image:setPixel)|Image|Sets the pixel at the specified position
+|[Image:setText](#Image:setText)|Image|Sets the text at the specified position
 
 
 ## Protected Functions
@@ -38,9 +43,18 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |[Image:init](#Image:init)|Image|Initializes the Image instance
 |[Image:render](#Image:render)|-|Renders the Image
 
-## Image:getImageSize()
+## Image:addFrame()
+Adds a new frame to the image
 
-## Image:getOffset()
+### Returns
+* `Image` `self` The Image instance
+
+## Image:getImageSize()
+Gets the size of the image
+
+### Returns
+* `number` `width` The width of the image
+* `number` `height` The height of the image
 
 ## Image:getPixelData(x, y)
 Gets pixel information at position
@@ -69,16 +83,60 @@ Advances to the next frame in the animation
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:resizeImage()
+## Image:resizeImage(width, height)
+Resizes the image to the specified width and height
 
-## Image:setBg()
+### Parameters
+* `width` `number` The new width of the image
+* `height` `number` The new height of the image
 
-## Image:setFg()
+### Returns
+* `Image` `self` The Image instance
 
-## Image:setOffset()
+## Image:setBg(x, y, pattern)
+Sets the background color at the specified position
 
-## Image:setPixel()
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `pattern` `string` The background color pattern
 
-## Image:setText()
+### Returns
+* `Image` `self` The Image instance
+
+## Image:setFg(x, y, pattern)
+Sets the foreground color at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `pattern` `string` The foreground color pattern
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:setPixel(x, y, char, fg, bg)
+Sets the pixel at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `char` `string` The character to set
+* `fg` `string` The foreground color pattern
+* `bg` `string` The background color pattern
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:setText(x, y, text)
+Sets the text at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `text` `string` The text to set
+
+### Returns
+* `Image` `self` The Image instance
 
 
