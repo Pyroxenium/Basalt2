@@ -62,6 +62,9 @@ Container.defineProperty(Container, "offsetY", {default = 0, type = "number", ca
     return value
 end})
 
+---@combinedProperty offset {offsetX offsetY} Combined property for offsetX and offsetY
+Container.combineProperties(Container, "offset", "offsetX", "offsetY")
+
 for k, _ in pairs(elementManager:getElementList()) do
     local capitalizedName = k:sub(1,1):upper() .. k:sub(2)
     if capitalizedName ~= "BaseFrame" then

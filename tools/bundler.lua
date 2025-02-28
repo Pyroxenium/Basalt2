@@ -23,7 +23,7 @@ local function bundle()
         'local project = {}\n',
         'local loadedProject = {}\n',
         'local baseRequire = require\n',
-        'require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end baseRequire(path) end\n'
+        'require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end return baseRequire(path) end\n'
     }
 
     for _, file in ipairs(files) do
