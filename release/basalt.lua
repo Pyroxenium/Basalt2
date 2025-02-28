@@ -4,7 +4,7 @@ local minified_pluginDirectory = {}
 local project = {}
 local loadedProject = {}
 local baseRequire = require
-require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end baseRequire(path) end
+require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end return baseRequire(path) end
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["TextBox"] = {}
 minified_elementDirectory["Container"] = {}
@@ -459,6 +459,7 @@ bb.defineProperty(bb,"offsetX",{default=0,type="number",canTriggerRender=true,se
 _c.set("childrenEventsSorted",false)return ac end})
 bb.defineProperty(bb,"offsetY",{default=0,type="number",canTriggerRender=true,setter=function(_c,ac)_c.set("childrenSorted",false)
 _c.set("childrenEventsSorted",false)return ac end})
+bb.combineProperties(bb,"offset","offsetX","offsetY")
 for _c,ac in pairs(ca:getElementList())do
 local bc=_c:sub(1,1):upper().._c:sub(2)
 if bc~="BaseFrame"then
