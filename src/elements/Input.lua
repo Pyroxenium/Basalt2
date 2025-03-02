@@ -19,11 +19,11 @@ Input.defineProperty(Input, "maxLength", {default = nil, type = "number"})
 ---@property placeholder string ... Text to display when input is empty
 Input.defineProperty(Input, "placeholder", {default = "...", type = "string"})
 ---@property placeholderColor color gray Color of the placeholder text
-Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "number"})
+Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "color"})
 ---@property focusedBackground color blue Background color when input is focused
-Input.defineProperty(Input, "focusedBackground", {default = colors.blue, type = "number"})
+Input.defineProperty(Input, "focusedBackground", {default = colors.blue, type = "color"})
 ---@property focusedForeground color white Foreground color when input is focused
-Input.defineProperty(Input, "focusedForeground", {default = colors.white, type = "number"})
+Input.defineProperty(Input, "focusedForeground", {default = colors.white, type = "color"})
 ---@property pattern string? nil Regular expression pattern for input validation
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor

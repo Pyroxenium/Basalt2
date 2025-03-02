@@ -16,9 +16,9 @@ List.defineProperty(List, "multiSelection", {default = false, type = "boolean"})
 ---@property offset number 0 Current scroll offset for viewing long lists
 List.defineProperty(List, "offset", {default = 0, type = "number", canTriggerRender = true})
 ---@property selectedBackground color blue Background color for selected items
-List.defineProperty(List, "selectedBackground", {default = colors.blue, type = "number"})
+List.defineProperty(List, "selectedBackground", {default = colors.blue, type = "color"})
 ---@property selectedForeground color white Text color for selected items
-List.defineProperty(List, "selectedForeground", {default = colors.white, type = "number"})
+List.defineProperty(List, "selectedForeground", {default = colors.white, type = "color"})
 
 ---@event onSelect {index number, item any} Fired when an item is selected
 List.defineEvent(List, "mouse_click")

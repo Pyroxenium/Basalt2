@@ -10,7 +10,7 @@ local Menu = setmetatable({}, List)
 Menu.__index = Menu
 
 ---@property separatorColor color gray The color used for separator items in the menu
-Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "number"})
+Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "color"})
 
 --- Creates a new Menu instance
 --- @shortDescription Creates a new Menu instance

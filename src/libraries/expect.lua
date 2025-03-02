@@ -11,7 +11,7 @@ local function expect(position, value, expectedType)
     end
 
     if expectedType == "color" then
-        if valueType == "number" and value >= 1 and value <= 32768 then
+        if valueType == "number" then
             return true
         end
         if valueType == "string" and colors[value] then

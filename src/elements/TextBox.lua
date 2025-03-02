@@ -23,7 +23,7 @@ TextBox.defineProperty(TextBox, "editable", {default = true, type = "boolean"})
 ---@property syntaxPatterns table {} Syntax highlighting patterns
 TextBox.defineProperty(TextBox, "syntaxPatterns", {default = {}, type = "table"})
 ---@property cursorColor number nil Color of the cursor
-TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "number"})
+TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "color"})
 
 TextBox.defineEvent(TextBox, "mouse_click")
 TextBox.defineEvent(TextBox, "key")

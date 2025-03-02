@@ -42,7 +42,6 @@ function Label.new()
     return self
 end
 
---- Initializes the Label instance
 --- @shortDescription Initializes the Label instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
@@ -50,6 +49,10 @@ end
 --- @protected
 function Label:init(props, basalt)
     VisualElement.init(self, props, basalt)
+    if(self.parent)then
+        self.set("background", self.parent.get("background"))
+        self.set("foreground", self.parent.get("foreground"))
+    end
     self.set("type", "Label")
     return self
 end

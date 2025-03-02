@@ -15,8 +15,6 @@ Image.__index = Image
 Image.defineProperty(Image, "bimg", {default = {{}}, type = "table", canTriggerRender = true})
 ---@property currentFrame number 1 Current animation frame
 Image.defineProperty(Image, "currentFrame", {default = 1, type = "number", canTriggerRender = true})
----@property metadata table {} Image metadata (version, palette, etc)
-Image.defineProperty(Image, "metadata", {default = {}, type = "table"})
 ---@property autoResize boolean false Whether to automatically resize the image when content exceeds bounds
 Image.defineProperty(Image, "autoResize", {default = false, type = "boolean"})
 ---@property offsetX number 0 Horizontal offset for viewing larger images
@@ -48,35 +46,6 @@ end
 function Image:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Image")
-    return self
-end
-
---- Loads a bimg format image
---- @shortDescription Loads a bimg format image
---- @param bimgData table The bimg image data
---- @return Image self The Image instance
-function Image:loadBimg(bimgData)
-    if type(bimgData) ~= "table" then return self end
-
-    local frames = {}
-    local metadata = {}
-
-    for k, v in pairs(bimgData) do
-        if type(k) == "number" then
-            frames[k] = v
-        else
-            metadata[k] = v
-        end
-    end
-
-    self.set("bimg", frames)
-    self.set("metadata", metadata)
-
-    if frames[1] and frames[1][1] then
-        self.set("width", #frames[1][1][2])
-        self.set("height", #frames[1])
-    end
-
     return self
 end
 
@@ -197,6 +166,10 @@ end
 --- @return Image self The Image instance
 function Image:setText(x, y, text)
     if type(text) ~= "string" or #text < 1 or x < 1 or y < 1 then return self end
+    if not self.get("autoResize")then
+        local imgWidth, imgHeight = self:getImageSize()
+        if y > imgHeight then return self end
+    end
     local frame = ensureFrame(self, y)
 
     if self.get("autoResize") then
@@ -214,6 +187,21 @@ function Image:setText(x, y, text)
     return self
 end
 
+function Image:getText(x, y, length)
+    if not x or not y then return end
+    local frame = self.get("bimg")[self.get("currentFrame")]
+    if not frame or not frame[y] then return end
+
+    local text = frame[y][1]
+    if not text then return end
+
+    if length then
+        return text:sub(x, x + length - 1)
+    else
+        return text:sub(x, x)
+    end
+end
+
 --- Sets the foreground color at the specified position
 --- @shortDescription Sets the foreground color at the specified position
 --- @param x number The x position
@@ -222,6 +210,10 @@ end
 --- @return Image self The Image instance
 function Image:setFg(x, y, pattern)
     if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
+    if not self.get("autoResize")then
+        local imgWidth, imgHeight = self:getImageSize()
+        if y > imgHeight then return self end
+    end
     local frame = ensureFrame(self, y)
 
     if self.get("autoResize") then
@@ -239,6 +231,21 @@ function Image:setFg(x, y, pattern)
     return self
 end
 
+function Image:getFg(x, y, length)
+    if not x or not y then return end
+    local frame = self.get("bimg")[self.get("currentFrame")]
+    if not frame or not frame[y] then return end
+
+    local fg = frame[y][2]
+    if not fg then return end
+
+    if length then
+        return fg:sub(x, x + length - 1)
+    else
+        return fg:sub(x)
+    end
+end
+
 --- Sets the background color at the specified position
 --- @shortDescription Sets the background color at the specified position
 --- @param x number The x position
@@ -247,6 +254,10 @@ end
 --- @return Image self The Image instance
 function Image:setBg(x, y, pattern)
     if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
+    if not self.get("autoResize")then
+        local imgWidth, imgHeight = self:getImageSize()
+        if y > imgHeight then return self end
+    end
     local frame = ensureFrame(self, y)
 
     if self.get("autoResize") then
@@ -262,6 +273,21 @@ function Image:setBg(x, y, pattern)
 
     self:updateRender()
     return self
+end
+
+function Image:getBg(x, y, length)
+    if not x or not y then return end
+    local frame = self.get("bimg")[self.get("currentFrame")]
+    if not frame or not frame[y] then return end
+
+    local bg = frame[y][3]
+    if not bg then return end
+
+    if length then
+        return bg:sub(x, x + length - 1)
+    else
+        return bg:sub(x)
+    end
 end
 
 --- Sets the pixel at the specified position
@@ -283,7 +309,7 @@ end
 --- @shortDescription Advances to the next frame in the animation
 --- @return Image self The Image instance
 function Image:nextFrame()
-    if not self.get("metadata").animation then return self end
+    if not self.get("bimg").animation then return self end
 
     local frames = self.get("bimg")
     local current = self.get("currentFrame")
@@ -307,6 +333,43 @@ function Image:addFrame()
         frame[y] = {text, fg, bg}
     end
     table.insert(frames, frame)
+    return self
+end
+
+function Image:updateFrame(frameIndex, frame)
+    local frames = self.get("bimg")
+    frames[frameIndex] = frame
+    self:updateRender()
+    return self
+end
+
+function Image:getFrame(frameIndex)
+    local frames = self.get("bimg")
+    return frames[frameIndex or self.get("currentFrame")]
+end
+
+function Image:getMetadata()
+    local metadata = {}
+    local bimg = self.get("bimg")
+    for k,v in pairs(bimg)do
+        if(type(v)=="string")then
+            metadata[k] = v
+        end
+    end
+    return metadata
+end
+
+function Image:setMetadata(key, value)
+    if(type(key)=="table")then
+        for k,v in pairs(key)do
+            self:setMetadata(k, v)
+        end
+        return self
+    end
+    local bimg = self.get("bimg")
+    if(type(value)=="string")then
+        bimg[key] = value
+    end
     return self
 end
 

@@ -11,7 +11,7 @@ ProgressBar.defineProperty(ProgressBar, "progress", {default = 0, type = "number
 ---@property showPercentage boolean false Whether to show the percentage text in the center
 ProgressBar.defineProperty(ProgressBar, "showPercentage", {default = false, type = "boolean"})
 ---@property progressColor color lime The color used for the filled portion of the progress bar
-ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.black, type = "number"})
+ProgressBar.defineProperty(ProgressBar, "progressColor", {default = colors.black, type = "color"})
 
 --- Creates a new ProgressBar instance
 --- @shortDescription Creates a new ProgressBar instance

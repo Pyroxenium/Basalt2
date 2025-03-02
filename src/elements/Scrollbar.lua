@@ -19,9 +19,9 @@ Scrollbar.defineProperty(Scrollbar, "dragMultiplier", {default = 1, type = "numb
 ---@property symbol string " " Symbol used for the scrollbar handle
 Scrollbar.defineProperty(Scrollbar, "symbol", {default = " ", type = "string", canTriggerRender = true})
 ---@property backgroundSymbol string "\127" Symbol used for the scrollbar background
-Scrollbar.defineProperty(Scrollbar, "symbolColor", {default = colors.gray, type = "number", canTriggerRender = true})
+Scrollbar.defineProperty(Scrollbar, "symbolColor", {default = colors.gray, type = "color", canTriggerRender = true})
 ---@property symbolBackgroundColor color black Background color of the scrollbar handle
-Scrollbar.defineProperty(Scrollbar, "symbolBackgroundColor", {default = colors.black, type = "number", canTriggerRender = true})
+Scrollbar.defineProperty(Scrollbar, "symbolBackgroundColor", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property backgroundSymbol string "\127" Symbol used for the scrollbar background
 Scrollbar.defineProperty(Scrollbar, "backgroundSymbol", {default = "\127", type = "string", canTriggerRender = true})
 ---@property attachedElement table? nil The element this scrollbar is attached to

@@ -13,9 +13,9 @@ Slider.defineProperty(Slider, "max", {default = 100, type = "number"})
 ---@property horizontal boolean true Whether the slider is horizontal (false for vertical)
 Slider.defineProperty(Slider, "horizontal", {default = true, type = "boolean", canTriggerRender = true})
 ---@property barColor color gray Color of the slider track
-Slider.defineProperty(Slider, "barColor", {default = colors.gray, type = "number", canTriggerRender = true})
+Slider.defineProperty(Slider, "barColor", {default = colors.gray, type = "color", canTriggerRender = true})
 ---@property sliderColor color blue Color of the slider handle
-Slider.defineProperty(Slider, "sliderColor", {default = colors.blue, type = "number", canTriggerRender = true})
+Slider.defineProperty(Slider, "sliderColor", {default = colors.blue, type = "color", canTriggerRender = true})
 
 ---@event onChange {value number} Fired when the slider value changes
 Slider.defineEvent(Slider, "mouse_click")

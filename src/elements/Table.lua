@@ -14,11 +14,11 @@ Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRen
 ---@property selectedRow number? nil Currently selected row index
 Table.defineProperty(Table, "selectedRow", {default = nil, type = "number", canTriggerRender = true})
 ---@property headerColor color blue Color of the column headers
-Table.defineProperty(Table, "headerColor", {default = colors.blue, type = "number"})
+Table.defineProperty(Table, "headerColor", {default = colors.blue, type = "color"})
 ---@property selectedColor color lightBlue Background color of selected row
-Table.defineProperty(Table, "selectedColor", {default = colors.lightBlue, type = "number"})
+Table.defineProperty(Table, "selectedColor", {default = colors.lightBlue, type = "color"})
 ---@property gridColor color gray Color of grid lines
-Table.defineProperty(Table, "gridColor", {default = colors.gray, type = "number"})
+Table.defineProperty(Table, "gridColor", {default = colors.gray, type = "color"})
 ---@property sortColumn number? nil Currently sorted column index
 Table.defineProperty(Table, "sortColumn", {default = nil, type = "number"})
 ---@property sortDirection string "asc" Sort direction ("asc" or "desc")

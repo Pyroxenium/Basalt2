@@ -26,9 +26,9 @@ VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "numbe
 ---@property height number 1 The height of the element
 VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
 ---@property background color black The background color
-VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property foreground color white The text/foreground color
-VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "color", canTriggerRender = true})
 ---@property clicked boolean false Whether the element is currently clicked
 VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
 ---@property hover boolean false Whether the mouse is currently hover over the element (Craftos-PC only)

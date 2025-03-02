@@ -24,9 +24,9 @@ Tree.defineProperty(Tree, "scrollOffset", {default = 0, type = "number", canTrig
 ---@property horizontalOffset number 0 Current horizontal scroll position
 Tree.defineProperty(Tree, "horizontalOffset", {default = 0, type = "number", canTriggerRender = true})
 ---@property nodeColor color white Color of unselected nodes
-Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "number"})
+Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "color"})
 ---@property selectedColor color lightBlue Background color of selected node
-Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "number"})
+Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "color"})
 
 Tree.defineEvent(Tree, "mouse_click")
 Tree.defineEvent(Tree, "mouse_scroll")

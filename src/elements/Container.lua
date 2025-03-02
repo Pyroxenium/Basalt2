@@ -278,6 +278,8 @@ function Container:unregisterChildEvent(child, eventName)
                         self.parent:unregisterChildEvent(self, eventName)
                     end
                 end
+                self.set("childrenEventsSorted", false)
+                self:updateRender()
                 break
             end
         end
@@ -298,6 +300,8 @@ function Container:removeChild(child)
         end
     end
     self:removeChildrenEvents(child)
+    self:updateRender()
+    self.set("childrenSorted", false)
     return self
 end
 
