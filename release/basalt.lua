@@ -362,7 +362,7 @@ _b.defineProperty(_b,"scrollX",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"scrollY",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"editable",{default=true,type="boolean"})
 _b.defineProperty(_b,"syntaxPatterns",{default={},type="table"})
-_b.defineProperty(_b,"cursorColor",{default=nil,type="number"})_b.defineEvent(_b,"mouse_click")
+_b.defineProperty(_b,"cursorColor",{default=nil,type="color"})_b.defineEvent(_b,"mouse_click")
 _b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
 _b.defineEvent(_b,"mouse_scroll")
 function _b.new()local _c=setmetatable({},_b):__init()
@@ -518,10 +518,12 @@ self._values.eventListenerCount[ac]-1
 if
 self._values.eventListenerCount[ac]<=0 then
 self._values.childrenEvents[ac]=nil;self._values.eventListenerCount[ac]=nil;if self.parent then
-self.parent:unregisterChildEvent(self,ac)end end;break end end end;return self end
+self.parent:unregisterChildEvent(self,ac)end end;self.set("childrenEventsSorted",false)
+self:updateRender()break end end end;return self end
 function bb:removeChild(_c)
 for ac,bc in ipairs(self._values.children)do if bc==_c then
-table.remove(self._values.children,ac)_c.parent=nil;break end end;self:removeChildrenEvents(_c)return self end
+table.remove(self._values.children,ac)_c.parent=nil;break end end;self:removeChildrenEvents(_c)self:updateRender()
+self.set("childrenSorted",false)return self end
 function bb:getChild(_c)
 if type(_c)=="string"then local ac=ab(_c,"/")
 for bc,cc in
@@ -609,7 +611,6 @@ local ca=ba.getElement("VisualElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
 _b.defineProperty(_b,"bimg",{default={{}},type="table",canTriggerRender=true})
 _b.defineProperty(_b,"currentFrame",{default=1,type="number",canTriggerRender=true})
-_b.defineProperty(_b,"metadata",{default={},type="table"})
 _b.defineProperty(_b,"autoResize",{default=false,type="boolean"})
 _b.defineProperty(_b,"offsetX",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"offsetY",{default=0,type="number",canTriggerRender=true})
@@ -618,21 +619,16 @@ function _b.new()local cb=setmetatable({},_b):__init()
 cb.set("width",12)cb.set("height",6)
 cb.set("background",colors.black)cb.set("z",5)return cb end;function _b:init(cb,db)ca.init(self,cb,db)self.set("type","Image")
 return self end
-function _b:loadBimg(cb)
-if type(cb)~="table"then return self end;local db={}local _c={}for ac,bc in pairs(cb)do
-if type(ac)=="number"then db[ac]=bc else _c[ac]=bc end end;self.set("bimg",db)
-self.set("metadata",_c)
-if db[1]and db[1][1]then
-self.set("width",#db[1][1][2])self.set("height",#db[1])end;return self end
-function _b:resizeImage(cb,db)local _c=self.get("bimg")
+function _b:resizeImage(cb,db)
+local _c=self.get("bimg")
 for ac,bc in ipairs(_c)do local cc={}
-for y=1,db do
-local dc=string.rep(" ",cb)local _d=string.rep("f",cb)local ad=string.rep("0",cb)
-if bc[y]and
-bc[y][1]then local bd=bc[y][1]local cd=bc[y][2]local dd=bc[y][3]dc=(bd..
-string.rep(" ",cb)):sub(1,cb)_d=(cd..
-string.rep("f",cb)):sub(1,cb)ad=(dd..
-string.rep("0",cb)):sub(1,cb)end;cc[y]={dc,_d,ad}end;_c[ac]=cc end;self:updateRender()return self end
+for y=1,db do local dc=string.rep(" ",cb)
+local _d=string.rep("f",cb)local ad=string.rep("0",cb)
+if bc[y]and bc[y][1]then local bd=bc[y][1]
+local cd=bc[y][2]local dd=bc[y][3]
+dc=(bd..string.rep(" ",cb)):sub(1,cb)
+_d=(cd..string.rep("f",cb)):sub(1,cb)
+ad=(dd..string.rep("0",cb)):sub(1,cb)end;cc[y]={dc,_d,ad}end;_c[ac]=cc end;self:updateRender()return self end
 function _b:getImageSize()local cb=self.get("bimg")if not cb[1]or not cb[1][1]then
 return 0,0 end;return#cb[1][1][1],#cb[1]end
 function _b:getPixelData(cb,db)
@@ -653,32 +649,59 @@ for y=1,cc do if not _d[y]then _d[y]={"","",""}end;local ad=_d[y]while#ad[1]<
 bc do ad[1]=ad[1].." "end;while#ad[2]<bc do
 ad[2]=ad[2].."f"end;while#ad[3]<bc do ad[3]=ad[3].."0"end end end end
 function _b:setText(cb,db,_c)if
-type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end
 if
-self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][1]
-if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][1]
+not self.get("autoResize")then local cc,dc=self:getImageSize()if db>dc then return self end end;local ac=ab(self,db)if self.get("autoResize")then
+bb(self,cb+#_c-1,db)else local cc=#ac[db][1]if cb>cc then return self end
+_c=_c:sub(1,cc-cb+1)end
+local bc=ac[db][1]
 ac[db][1]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:getText(cb,db,_c)if not cb or not db then return end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][1]
+if not bc then return end
+if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb,cb)end end
 function _b:setFg(cb,db,_c)if
-type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end
 if
-self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][2]
-if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][2]
+not self.get("autoResize")then local cc,dc=self:getImageSize()if db>dc then return self end end;local ac=ab(self,db)if self.get("autoResize")then
+bb(self,cb+#_c-1,db)else local cc=#ac[db][2]if cb>cc then return self end
+_c=_c:sub(1,cc-cb+1)end
+local bc=ac[db][2]
 ac[db][2]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:getFg(cb,db,_c)if not cb or not db then return end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][2]
+if not bc then return end
+if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb)end end
 function _b:setBg(cb,db,_c)if
-type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end;local ac=ab(self,db)
+type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end
 if
-self.get("autoResize")then bb(self,cb+#_c-1,db)else local cc=#ac[db][3]
-if cb>cc then return self end;_c=_c:sub(1,cc-cb+1)end;local bc=ac[db][3]
+not self.get("autoResize")then local cc,dc=self:getImageSize()if db>dc then return self end end;local ac=ab(self,db)if self.get("autoResize")then
+bb(self,cb+#_c-1,db)else local cc=#ac[db][3]if cb>cc then return self end
+_c=_c:sub(1,cc-cb+1)end
+local bc=ac[db][3]
 ac[db][3]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
+function _b:getBg(cb,db,_c)if not cb or not db then return end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][3]
+if not bc then return end
+if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb)end end
 function _b:setPixel(cb,db,_c,ac,bc)if _c then self:setText(cb,db,_c)end;if ac then
 self:setFg(cb,db,ac)end;if bc then self:setBg(cb,db,bc)end;return self end
 function _b:nextFrame()
-if not self.get("metadata").animation then return self end;local cb=self.get("bimg")local db=self.get("currentFrame")
+if not self.get("bimg").animation then return self end;local cb=self.get("bimg")local db=self.get("currentFrame")
 local _c=db+1;if _c>#cb then _c=1 end;self.set("currentFrame",_c)return self end
 function _b:addFrame()local cb=self.get("bimg")local db={}
 local _c=string.rep(" ",self.get("width"))local ac=string.rep("f",self.get("width"))
 local bc=string.rep("0",self.get("width"))for y=1,self.get("height")do db[y]={_c,ac,bc}end
-table.insert(cb,db)return self end
+table.insert(cb,db)return self end;function _b:updateFrame(cb,db)local _c=self.get("bimg")_c[cb]=db
+self:updateRender()return self end;function _b:getFrame(cb)
+local db=self.get("bimg")
+return db[cb or self.get("currentFrame")]end
+function _b:getMetadata()local cb={}
+local db=self.get("bimg")
+for _c,ac in pairs(db)do if(type(ac)=="string")then cb[_c]=ac end end;return cb end
+function _b:setMetadata(cb,db)if(type(cb)=="table")then
+for ac,bc in pairs(cb)do self:setMetadata(ac,bc)end;return self end
+local _c=self.get("bimg")if(type(db)=="string")then _c[cb]=db end;return self end
 function _b:render()ca.render(self)
 local cb=self.get("bimg")[self.get("currentFrame")]if not cb then return end;local db=self.get("offsetX")
 local _c=self.get("offsetY")local ac=self.get("width")local bc=self.get("height")
@@ -785,8 +808,8 @@ _b.defineProperty(_b,"z",{default=1,type="number",canTriggerRender=true,setter=f
 if cb.parent then cb.parent:sortChildren()end;return db end})
 _b.defineProperty(_b,"width",{default=1,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"height",{default=1,type="number",canTriggerRender=true})
-_b.defineProperty(_b,"background",{default=colors.black,type="number",canTriggerRender=true})
-_b.defineProperty(_b,"foreground",{default=colors.white,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"background",{default=colors.black,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"foreground",{default=colors.white,type="color",canTriggerRender=true})
 _b.defineProperty(_b,"clicked",{default=false,type="boolean"})
 _b.defineProperty(_b,"hover",{default=false,type="boolean"})
 _b.defineProperty(_b,"backgroundEnabled",{default=true,type="boolean",canTriggerRender=true})
@@ -879,8 +902,8 @@ ca.defineProperty(ca,"max",{default=100,type="number",canTriggerRender=true})
 ca.defineProperty(ca,"step",{default=10,type="number"})
 ca.defineProperty(ca,"dragMultiplier",{default=1,type="number"})
 ca.defineProperty(ca,"symbol",{default=" ",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"symbolColor",{default=colors.gray,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"symbolBackgroundColor",{default=colors.black,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"symbolColor",{default=colors.gray,type="color",canTriggerRender=true})
+ca.defineProperty(ca,"symbolBackgroundColor",{default=colors.black,type="color",canTriggerRender=true})
 ca.defineProperty(ca,"backgroundSymbol",{default="\127",type="string",canTriggerRender=true})
 ca.defineProperty(ca,"attachedElement",{default=nil,type="table"})
 ca.defineProperty(ca,"attachedProperty",{default=nil,type="string"})
@@ -944,8 +967,8 @@ ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=t
 ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
 ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
 ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
-ba.defineProperty(ba,"nodeColor",{default=colors.white,type="number"})
-ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="number"})ba.defineEvent(ba,"mouse_click")
+ba.defineProperty(ba,"nodeColor",{default=colors.white,type="color"})
+ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="color"})ba.defineEvent(ba,"mouse_click")
 ba.defineEvent(ba,"mouse_scroll")
 function ba.new()local da=setmetatable({},ba):__init()
 da.set("width",30)da.set("height",10)da.set("z",5)return da end
@@ -1002,14 +1025,16 @@ da.set("width",#da.get("text"))else
 da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
 da.set("z",3)da.set("foreground",colors.black)
-da.set("backgroundEnabled",false)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Label")
-return self end
-function ca:getWrappedText()
-local da=self.get("text")local _b=ba(da,self.get("width"))return _b end
-function ca:render()aa.render(self)local da=self.get("text")
-if
-(self.get("autoSize"))then self:textFg(1,1,da,self.get("foreground"))else
-local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
+da.set("backgroundEnabled",false)return da end
+function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
+self.set("background",self.parent.get("background"))
+self.set("foreground",self.parent.get("foreground"))end
+self.set("type","Label")return self end;function ca:getWrappedText()local da=self.get("text")
+local _b=ba(da,self.get("width"))return _b end
+function ca:render()
+aa.render(self)local da=self.get("text")
+if(self.get("autoSize"))then
+self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
@@ -1030,9 +1055,9 @@ aa.defineProperty(aa,"cursorPos",{default=1,type="number"})
 aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
 aa.defineProperty(aa,"placeholder",{default="...",type="string"})
-aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="number"})
-aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="number"})
-aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="number"})
+aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="color"})
+aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="color"})
+aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="color"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
 aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
@@ -1289,9 +1314,9 @@ local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"columns",{default={},type="table"})
 aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true})
 aa.defineProperty(aa,"selectedRow",{default=nil,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"headerColor",{default=colors.blue,type="number"})
-aa.defineProperty(aa,"selectedColor",{default=colors.lightBlue,type="number"})
-aa.defineProperty(aa,"gridColor",{default=colors.gray,type="number"})
+aa.defineProperty(aa,"headerColor",{default=colors.blue,type="color"})
+aa.defineProperty(aa,"selectedColor",{default=colors.lightBlue,type="color"})
+aa.defineProperty(aa,"gridColor",{default=colors.gray,type="color"})
 aa.defineProperty(aa,"sortColumn",{default=nil,type="number"})
 aa.defineProperty(aa,"sortDirection",{default="asc",type="string"})
 aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
@@ -1346,8 +1371,8 @@ local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"step",{default=1,type="number",canTriggerRender=true})
 d.defineProperty(d,"max",{default=100,type="number"})
 d.defineProperty(d,"horizontal",{default=true,type="boolean",canTriggerRender=true})
-d.defineProperty(d,"barColor",{default=colors.gray,type="number",canTriggerRender=true})
-d.defineProperty(d,"sliderColor",{default=colors.blue,type="number",canTriggerRender=true})d.defineEvent(d,"mouse_click")
+d.defineProperty(d,"barColor",{default=colors.gray,type="color",canTriggerRender=true})
+d.defineProperty(d,"sliderColor",{default=colors.blue,type="color",canTriggerRender=true})d.defineEvent(d,"mouse_click")
 d.defineEvent(d,"mouse_drag")d.defineEvent(d,"mouse_up")function d.new()
 local _a=setmetatable({},d):__init()_a.set("width",8)_a.set("height",1)
 _a.set("backgroundEnabled",false)return _a end;function d:init(_a,aa)
@@ -1380,7 +1405,7 @@ project["elements/ProgressBar.lua"] = function(...) local c=require("elements/Vi
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"progress",{default=0,type="number",canTriggerRender=true})
 d.defineProperty(d,"showPercentage",{default=false,type="boolean"})
-d.defineProperty(d,"progressColor",{default=colors.black,type="number"})
+d.defineProperty(d,"progressColor",{default=colors.black,type="color"})
 function d.new()local _a=setmetatable({},d):__init()
 _a.set("width",10)_a.set("height",1)return _a end
 function d:init(_a,aa)c.init(self,_a,aa)self.set("type","ProgressBar")end
@@ -1396,8 +1421,8 @@ d.defineProperty(d,"items",{default={},type="table",canTriggerRender=true})
 d.defineProperty(d,"selectable",{default=true,type="boolean"})
 d.defineProperty(d,"multiSelection",{default=false,type="boolean"})
 d.defineProperty(d,"offset",{default=0,type="number",canTriggerRender=true})
-d.defineProperty(d,"selectedBackground",{default=colors.blue,type="number"})
-d.defineProperty(d,"selectedForeground",{default=colors.white,type="number"})d.defineEvent(d,"mouse_click")
+d.defineProperty(d,"selectedBackground",{default=colors.blue,type="color"})
+d.defineProperty(d,"selectedForeground",{default=colors.white,type="color"})d.defineEvent(d,"mouse_click")
 d.defineEvent(d,"mouse_scroll")
 function d.new()local _a=setmetatable({},d):__init()
 _a.set("width",16)_a.set("height",8)_a.set("z",5)
@@ -1497,7 +1522,7 @@ i+1,ac,dc)end end end end end;return ca end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="number"})function ca.new()local da=setmetatable({},ca):__init()
+ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})function ca.new()local da=setmetatable({},ca):__init()
 da.set("width",30)da.set("height",1)
 da.set("background",colors.gray)return da end
 function ca:init(da,_b)
@@ -1605,8 +1630,8 @@ project["libraries/expect.lua"] = function(...) local c=require("errorManager")
 local function d(_a,aa,ba)local ca=type(aa)
 if ba=="element"then if ca=="table"and
 aa.get("type")~=nil then return true end end
-if ba=="color"then
-if ca=="number"and aa>=1 and aa<=32768 then return true end;if ca=="string"and colors[aa]then return true end end;if ca~=ba then c.header="Basalt Type Error"
+if ba=="color"then if ca=="number"then return true end;if
+ca=="string"and colors[aa]then return true end end;if ca~=ba then c.header="Basalt Type Error"
 c.error(string.format("Bad argument #%d: expected %s, got %s",_a,ba,ca))end;return true end;return d end
 project["plugins/xml.lua"] = function(...) local da=require("errorManager")
 local function _b(bc)local cc={attributes={}}

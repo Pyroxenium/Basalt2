@@ -744,7 +744,6 @@ end
 ---@class Image
 ---@field bimg table
 ---@field currentFrame number
----@field metadata table
 ---@field autoResize boolean
 ---@field offsetX number
 ---@field offsetY number
@@ -783,24 +782,6 @@ end
 ---@return Element
 function Image:setCurrentFrame(currentFrame)
     self.currentFrame = currentFrame
-    return self
-end
-
---- Gets the Image metadata (version, palette, etc)
----@generic Element: Image
----@param self Element
----@return table
-function Image:getMetadata()
-    return self.metadata
-end
-
---- Sets the Image metadata (version, palette, etc)
----@generic Element: Image
----@param self Element
----@param metadata table
----@return Element
-function Image:setMetadata(metadata)
-    self.metadata = metadata
     return self
 end
 
