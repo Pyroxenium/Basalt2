@@ -9,7 +9,6 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |---|---|---|---|
 |bimg|table|{}|The bimg image data
 |currentFrame|number|1|Current animation frame
-|metadata|table|{}|Image metadata (version, palette, etc)
 |autoResize|boolean|false|Whether to automatically resize the image when content exceeds bounds
 |offsetX|number|0|Horizontal offset for viewing larger images
 |offsetY|number|0|Vertical offset for viewing larger images
@@ -25,15 +24,21 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |Method|Returns|Description|
 |---|---|---|
 |[Image:addFrame](#Image:addFrame)|Image|Adds a new frame to the image
+|[Image:getBg](#Image:getBg)|-|
+|[Image:getFg](#Image:getFg)|-|
+|[Image:getFrame](#Image:getFrame)|-|
 |[Image:getImageSize](#Image:getImageSize)|number|Gets the size of the image
+|[Image:getMetadata](#Image:getMetadata)|-|
 |[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
-|[Image:loadBimg](#Image:loadBimg)|Image|Loads a bimg format image
+|[Image:getText](#Image:getText)|-|
 |[Image:nextFrame](#Image:nextFrame)|Image|Advances to the next frame in the animation
 |[Image:resizeImage](#Image:resizeImage)|Image|Resizes the image to the specified width and height
 |[Image:setBg](#Image:setBg)|Image|Sets the background color at the specified position
 |[Image:setFg](#Image:setFg)|Image|Sets the foreground color at the specified position
+|[Image:setMetadata](#Image:setMetadata)|-|
 |[Image:setPixel](#Image:setPixel)|Image|Sets the pixel at the specified position
 |[Image:setText](#Image:setText)|Image|Sets the text at the specified position
+|[Image:updateFrame](#Image:updateFrame)|-|
 
 
 ## Protected Functions
@@ -49,12 +54,20 @@ Adds a new frame to the image
 ### Returns
 * `Image` `self` The Image instance
 
+## Image:getBg()
+
+## Image:getFg()
+
+## Image:getFrame()
+
 ## Image:getImageSize()
 Gets the size of the image
 
 ### Returns
 * `number` `width` The width of the image
 * `number` `height` The height of the image
+
+## Image:getMetadata()
 
 ## Image:getPixelData(x, y)
 Gets pixel information at position
@@ -68,14 +81,7 @@ Gets pixel information at position
 * `number?` `bg` Background color
 * `string?` `char` Character at position
 
-## Image:loadBimg(bimgData)
-Loads a bimg format image
-
-### Parameters
-* `bimgData` `table` The bimg image data
-
-### Returns
-* `Image` `self` The Image instance
+## Image:getText()
 
 ## Image:nextFrame()
 Advances to the next frame in the animation
@@ -115,6 +121,8 @@ Sets the foreground color at the specified position
 ### Returns
 * `Image` `self` The Image instance
 
+## Image:setMetadata()
+
 ## Image:setPixel(x, y, char, fg, bg)
 Sets the pixel at the specified position
 
@@ -138,5 +146,7 @@ Sets the text at the specified position
 
 ### Returns
 * `Image` `self` The Image instance
+
+## Image:updateFrame()
 
 
