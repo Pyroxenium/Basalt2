@@ -417,7 +417,11 @@ local function parsePropertyTag(node, element, scope)
                     local entry = {}
 
                     for attr, value in pairs(child.attributes) do
-                        entry[attr] = convertValue(value, "string", scope)
+                        if(colors[value])then
+                            entry[attr] = colors[value]
+                        else
+                            entry[attr] = convertValue(value, "string", scope)
+                        end
                     end
 
                     for _, prop in ipairs(child.children) do
