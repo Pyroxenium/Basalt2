@@ -28,6 +28,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.create](#basalt.create)|table|Creates a new UI element
 |[basalt.createFrame](#basalt.createFrame)|table|Creates a new BaseFrame
 |[basalt.getAPI](#basalt.getAPI)|table|Returns a Plugin API
+|[basalt.getElementClass](#basalt.getElementClass)|table|Returns an element class
 |[basalt.getElementManager](#basalt.getElementManager)|table|Returns the element manager
 |[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|Gets or creates the main frame
 |[basalt.removeSchedule](#basalt.removeSchedule)|boolean|Removes a scheduled update
@@ -72,6 +73,15 @@ Returns a Plugin API
 
 ### Returns
 * `table` `Plugin` The plugin API
+
+## basalt.getElementClass(name)
+Returns an element class
+
+### Parameters
+* `name` `string` The name of the element
+
+### Returns
+* `table` `Element` The element class
 
 ## basalt.getElementManager()
 Returns the element manager instance
