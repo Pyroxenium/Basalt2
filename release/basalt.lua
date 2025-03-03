@@ -887,8 +887,13 @@ cb,db=self.get("x"),self.get("y")end;local _c,ac=1,1;if self.parent then
 _c,ac=self.parent:getRelativePosition()end
 local bc,cc=self.get("x"),self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
 function _b:setCursor(cb,db,_c,ac)
-if self.parent then local bc,cc=self:calculatePosition()return self.parent:setCursor(
-cb+bc-1,db+cc-1,_c,ac)end;return self end
+if self.parent then local bc,cc=self:calculatePosition()
+if
+(cb+bc-1 <1)or(
+cb+bc-1 >self.parent.get("width"))or(db+cc-1 <1)or(db+cc-1 >
+self.parent.get("height"))then return self.parent:setCursor(
+cb+bc-1,db+cc-1,false)end
+return self.parent:setCursor(cb+bc-1,db+cc-1,_c,ac)end;return self end
 function _b:prioritize()
 if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
@@ -1114,7 +1119,9 @@ self:multiBlit(1,1,db,_c," ",_a[
 cb and bb or self.get("foreground")],_a[cb and ab or
 self.get("background")])if
 #ba==0 and#_b~=0 and self.get("focused")==false then
-self:textFg(1,1,_b:sub(1,db),self.get("placeholderColor"))return end
+self:textFg(1,1,_b:sub(1,db),self.get("placeholderColor"))return end;if(cb)then
+self:setCursor(
+self.get("cursorPos")-ca,1,true,self.get("cursorColor")or self.get("foreground"))end
 local ac=ba:sub(ca+1,ca+db)self:textFg(1,1,ac,self.get("foreground"))end;return aa end
 project["elements/BaseFrame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("Container")local ba=require("render")local ca=setmetatable({},aa)ca.__index=ca
@@ -1659,66 +1666,152 @@ aa.get("type")~=nil then return true end end
 if ba=="color"then if ca=="number"then return true end;if
 ca=="string"and colors[aa]then return true end end;if ca~=ba then c.header="Basalt Type Error"
 c.error(string.format("Bad argument #%d: expected %s, got %s",_a,ba,ca))end;return true end;return d end
-project["plugins/xml.lua"] = function(...) local da=require("errorManager")
-local function _b(bc)local cc={attributes={}}
-cc.name=bc:match("<(%w+)")
-for dc,_d in bc:gmatch('%s(%w+)="([^"]-)"')do cc.attributes[dc]=_d end;return cc end
-local function ab(bc,cc)local dc={}local _d={children={}}local ad=_d;local bd=false;local cd=""
-for dd in cc:gmatch("[^\r\n]+")do
-dd=dd:match("^%s*(.-)%s*$")
-if dd:match("^<!%[CDATA%[")then bd=true;cd=""elseif dd:match("%]%]>$")and bd then bd=false
-ad.content=cd elseif bd then cd=cd..dd.."\n"elseif dd:match("^<[^/]")then local __a=_b(dd)__a.children={}
-__a.content=""table.insert(ad.children,__a)if not dd:match("/>$")then
-table.insert(dc,ad)ad=__a end elseif dd:match("^</")then
-ad=table.remove(dc)end end;return _d end
-local function bb(bc,cc)
-if not bc:match("^%${.*}$")then
+project["plugins/xml.lua"] = function(...) local cb=require("errorManager")local db={}
+local _c={TAG_OPEN="TAG_OPEN",TAG_CLOSE="TAG_CLOSE",TAG_SELF_CLOSE="TAG_SELF_CLOSE",ATTRIBUTE="ATTRIBUTE",TEXT="TEXT",CDATA="CDATA",COMMENT="COMMENT"}
+local function ac(__a)local a_a={}local b_a=1;local c_a=1
+while b_a<=#__a do local d_a=__a:sub(b_a,b_a)
+if d_a:match("%s")then b_a=
+b_a+1 elseif __a:sub(b_a,b_a+8)=="<![CDATA["then
+local _aa=__a:find("]]>",b_a+9)
+if not _aa then cb.error("Unclosed CDATA section")end
+table.insert(a_a,{type=_c.CDATA,value=__a:sub(b_a+9,_aa-1)})b_a=_aa+3 elseif __a:sub(b_a,b_a+3)=="<!--"then
+local _aa=__a:find("-->",b_a+4)if not _aa then cb.error("Unclosed comment")end
+table.insert(a_a,{type=_c.COMMENT,value=__a:sub(
+b_a+4,_aa-1)})b_a=_aa+3 elseif d_a=="<"then
+if __a:sub(b_a+1,b_a+1)=="/"then
+local _aa=__a:find(">",b_a)if not _aa then cb.error("Unclosed tag")end
+table.insert(a_a,{type=_c.TAG_CLOSE,value=__a:sub(
+b_a+2,_aa-1):match("^%s*(.-)%s*$")})b_a=_aa+1 else local _aa=""b_a=b_a+1;local aaa=false
+while b_a<=#__a do d_a=__a:sub(b_a,b_a)
+if
+d_a==">"then
+table.insert(a_a,{type=aaa and _c.TAG_SELF_CLOSE or _c.TAG_OPEN,value=_aa:match("^%s*(.-)%s*$")})b_a=b_a+1;break elseif
+d_a=="/"and __a:sub(b_a+1,b_a+1)==">"then
+table.insert(a_a,{type=_c.TAG_SELF_CLOSE,value=_aa:match("^%s*(.-)%s*$")})b_a=b_a+2;break elseif
+d_a=="/"and __a:sub(b_a-1,b_a-1):match("%s")then aaa=true else _aa=_aa..d_a end;b_a=b_a+1 end end else local _aa=""
+while b_a<=#__a and __a:sub(b_a,b_a)~="<"do _aa=_aa..
+__a:sub(b_a,b_a)b_a=b_a+1 end;if _aa:match("%S")then
+table.insert(a_a,{type=_c.TEXT,value=_aa:match("^%s*(.-)%s*$")})end end;if d_a=="\n"then c_a=c_a+1 end end;return a_a end
+local function bc(__a)local a_a={name="root",children={},attributes={}}local b_a={a_a}local c_a=a_a;local d_a=1
+while
+d_a<=#__a do local _aa=__a[d_a]
+if _aa.type==_c.TAG_OPEN then
+local aaa,baa=_aa.value:match("(%S+)(.*)")
+local caa={name=aaa,attributes={},children={},parent=c_a,line=_aa.line}
+for daa,_ba in baa:gmatch('%s(%w+)="([^"]-)"')do caa.attributes[daa]=_ba end;table.insert(c_a.children,caa)
+table.insert(b_a,caa)c_a=caa elseif _aa.type==_c.TAG_SELF_CLOSE then
+local aaa,baa=_aa.value:match("(%S+)(.*)")
+local caa={name=aaa,attributes={},children={},parent=c_a,line=_aa.line}
+for daa,_ba in baa:gmatch('%s(%w+)="([^"]-)"')do caa.attributes[daa]=_ba end;table.insert(c_a.children,caa)elseif _aa.type==_c.TAG_CLOSE then if
+c_a.name~=_aa.value then
+cb.error(string.format("Mismatched closing tag: expected </%s>, got </%s>",c_a.name,_aa.value))end
+table.remove(b_a)c_a=b_a[#b_a]elseif _aa.type==_c.TEXT then
+table.insert(c_a.children,{name="#text",value=_aa.value,line=_aa.line})elseif _aa.type==_c.CDATA then
+table.insert(c_a.children,{name="#cdata",value=_aa.value,line=_aa.line})elseif _aa.type==_c.COMMENT then
+table.insert(c_a.children,{name="#comment",value=_aa.value,line=_aa.line})end;d_a=d_a+1 end;return a_a end;function db.parse(__a)local a_a=ac(__a)return bc(a_a)end
+local function cc(__a,a_a)
+if not __a then return __a end
+if __a:match("^%${.*}$")then local b_a=__a:match("^%${(.*)}$")
+if
+b_a:match("^[%w_]+$")then if a_a and a_a[b_a]then return a_a[b_a]else
+cb.error(string.format('Variable "%s" not found in scope',b_a))return __a end end
+local c_a=setmetatable({},{__index=function(caa,daa)if a_a and a_a[daa]then return a_a[daa]elseif _ENV[daa]then return _ENV[daa]else
+error(string.format('Variable "%s" not found in scope',daa))end end})local d_a,_aa=load("return "..b_a,"expression","t",c_a)if
+not d_a then
+cb.error("Failed to parse expression: ".._aa)return __a end;local aaa,baa=pcall(d_a)if not aaa then cb.error(
+"Failed to evaluate expression: "..baa)
+return __a end;return baa end
 return
-bc:gsub("%${(.-)}",function(bd)
-local cd=setmetatable({},{__index=function(a_a,b_a)return
-cc and cc[b_a]or _ENV[b_a]end})local dd,__a=load("return "..bd,"expression","t",cd)
-if not dd then da.error(
-"Failed to parse expression: "..__a)end;return tostring(dd())end)end;bc=bc:match("^%${(.*)}$")
-local dc=setmetatable({},{__index=function(bd,cd)
-return cc and cc[cd]or _ENV[cd]end})local _d,ad=load("return "..bc,"expression","t",dc)
-if not _d then da.error(
-"Failed to parse expression: "..ad)end;return _d()end
-local function cb(bc,cc,dc)if cc=="string"and type(bc)=="string"then if bc:find("${")then
-return bb(bc,dc)end end
+__a:gsub("%${([^}]+)}",function(b_a)
+if b_a:match("^[%w_]+$")then if a_a and a_a[b_a]then
+return tostring(a_a[b_a])else
+cb.error(string.format('Variable "%s" not found in scope',b_a))return b_a end end
+local c_a=setmetatable({},{__index=function(aaa,baa)return a_a and a_a[baa]or _ENV[baa]end})local d_a,_aa=load("return "..b_a,"expression","t",c_a)if
+not d_a then
+cb.error("Failed to parse expression: ".._aa)return b_a end;return tostring(d_a())end)end
+local function dc(__a,a_a,b_a)
+if a_a=="string"and type(__a)=="string"then if __a:find("${")then return
+cc(__a,b_a)end end;if type(__a)=="string"and __a:match("^%${.*}$")then
+return cc(__a,b_a)end
+if a_a=="number"then if(tonumber(__a)==nil)then
+return __a end;return tonumber(__a)elseif a_a=="boolean"then return __a=="true"elseif
+a_a=="color"then return colors[__a]elseif a_a=="table"then
+local c_a=setmetatable({},{__index=_ENV})local d_a=load("return "..__a,nil,"t",c_a)
+if d_a then return d_a()end end;return __a end
+local _d={setProperty=function(__a,a_a,b_a)
+return
+function(...)local c_a=__a.attributes.target or"self"local d_a;if c_a=="self"then
+d_a=a_a elseif c_a=="parent"then d_a=a_a.parent else
+d_a=a_a:getBaseFrame():getChild(c_a)end;if not d_a then
+cb.error(string.format('Target "%s" not found',c_a))return end
+local _aa=__a.attributes.property;local aaa=d_a:getPropertyConfig(_aa)if not aaa then
+cb.error(string.format('Unknown property "%s"',_aa))return end
+local baa=dc(__a.attributes.value,aaa.type,b_a)d_a.set(_aa,baa)end end,execute=function(__a,a_a,b_a)
+return
+function(...)
+local c_a=__a.attributes["function"]if not b_a[c_a]then
+cb.error(string.format('Function "%s" not found in scope',c_a))return end
+b_a[c_a](a_a,...)end end,setValue=function(__a,a_a,b_a)
+return function(...)
+local c_a=__a.attributes.name;local d_a=dc(__a.attributes.value,"string",b_a)
+b_a[c_a]=d_a end end}
+local ad={onClick={"self","button","x","y"},onScroll={"self","direction","x","y"},onDrag={"self","button","x","y"},onKey={"self","key"},onChar={"self","char"},onKeyUp={"self","key"}}
+local function bd(__a,a_a,b_a)local c_a=__a.name:match("^on%u")if not c_a then return end;local d_a=
+__a.name:sub(3,3):lower()..__a.name:sub(4)local _aa={}
+for aaa,baa in ipairs(
+__a.children or{})do
+if baa.name=="#cdata"then if not c_a then
+cb.error("CDATA blocks can only be used inside event tags")return end
+local caa=__a.name:sub(3)local daa=ad["on"..caa]or{"self"}
+local _ba=table.concat(daa,", ")
+local aba=[[
+                return function(%s)
+                    %s
+                end
+            ]]local bba={}
+if b_a then for bca,cca in pairs(b_a)do bba[bca]=cca end end;bba.colors=colors;bba.term=term;bba.math=math
+local cba=baa.value:gsub("^%s+",""):gsub("%s+$","")local dba=string.format(aba,_ba,cba)
+local _ca,aca=load(dba,"event","t",bba)
+if aca then
+cb.error("Failed to parse event: "..aca)elseif _ca then
+local bca=__a.name:sub(3,3):lower()..__a.name:sub(4)
+a_a["on"..bca:sub(1,1):upper()..bca:sub(2)](a_a,_ca())end elseif baa.name~="#text"then local caa=_d[baa.name]if not caa then
+cb.error(string.format('Unknown action tag "%s"',baa.name))return end
+table.insert(_aa,caa(baa,a_a,b_a))end end;if#_aa>0 then
+a_a["on"..d_a:sub(1,1):upper()..d_a:sub(2)](a_a,function(...)for aaa,baa in
+ipairs(_aa)do baa(...)end end)end end
+local function cd(__a,a_a,b_a)local c_a=a_a:getPropertyConfig(__a.name)
+if c_a then
+if c_a.type=="table"then
+local d_a={}
+for _aa,aaa in ipairs(__a.children)do
+if aaa.name=="item"or aaa.name=="entry"then
+local baa={}
+for caa,daa in pairs(aaa.attributes)do baa[caa]=dc(daa,"string",b_a)end
+for caa,daa in ipairs(aaa.children)do
 if
-type(bc)=="string"and bc:match("^%${.*}$")then return bb(bc,dc)end
-if cc=="number"then if(tonumber(bc)==nil)then return bc end
-return tonumber(bc)elseif cc=="boolean"then return bc=="true"elseif cc=="color"then return colors[bc]elseif cc=="table"then
-local _d=setmetatable({},{__index=_ENV})local ad=load("return "..bc,nil,"t",_d)if ad then return ad()end end;return bc end
-local function db(bc,cc,dc)
-for _d,ad in pairs(bc.attributes)do
-if _d:match("^on%u")then
-local bd=_d:sub(3,3):lower().._d:sub(4)if dc[ad]then
-cc["on"..bd:sub(1,1):upper()..bd:sub(2)](cc,dc[ad])end end end
-for _d,ad in ipairs(bc.children or{})do
+daa.name~="#text"and daa.name~="#cdata"then
+if daa.children and#daa.children>0 then local _ba=daa.children[1]
 if
-ad.name and ad.name:match("^on%u")then
-local bd=ad.name:sub(3,3):lower()..ad.name:sub(4)
-if ad.content then
-local cd=ad.content:gsub("^%s+",""):gsub("%s+$","")
-local dd,__a=load(string.format([[
-                    return %s
-                ]],cd),"event","t",dc)if __a then
-da.error("Failed to parse event: "..__a)elseif dd then
-cc["on"..bd:sub(1,1):upper()..bd:sub(2)](cc,dd())end end end end end;local _c={}
-function _c:fromXML(bc)
-for cc,dc in pairs(bc.attributes)do
-local _d=self:getPropertyConfig(cc)if _d then local ad=cb(dc,_d.type)self.set(cc,ad)end end;return self end;local ac={}
-function ac:loadXML(bc,cc)local dc=ab(self,bc)
-local function _d(ad,bd,cd)
-for dd,__a in ipairs(ad.children)do
-if not
-__a.name:match("^on")then local a_a=__a.name:sub(1,1):upper()..
-__a.name:sub(2)
-local b_a=bd["add"..a_a](bd,__a.attributes.name)
-for c_a,d_a in pairs(__a.attributes)do local _aa=b_a:getPropertyConfig(c_a)if _aa then
-local aaa=cb(d_a,_aa.type,cd)b_a.set(c_a,aaa)end end;db(__a,b_a,cd)
-if#__a.children>0 then _d(__a,b_a,cd)end end end end;_d(dc,self,cc)return self end;return{BaseElement=_c,Container=ac} end
+_ba.name=="#text"then baa[daa.name]=dc(_ba.value,"string",b_a)end else local _ba={}
+for aba,bba in pairs(daa.attributes)do _ba[aba]=dc(bba,"string",b_a)end;baa[daa.name]=next(_ba)and _ba or""end end end;table.insert(d_a,baa)end end;a_a.set(__a.name,d_a)return true else local d_a=__a.children[1]if d_a and
+d_a.name=="#text"then
+a_a.set(__a.name,dc(d_a.value,c_a.type,b_a))return true end end end;return false end;local dd={}
+function dd:loadXML(__a,a_a)a_a=a_a or{}local b_a=db.parse(__a)
+local function c_a(d_a,_aa,aaa)
+for baa,caa in ipairs(d_a.children)do
+if
+caa.name:sub(1,1)~="#"then
+if caa.name:match("^on")then bd(caa,_aa,aaa)else
+local daa=cd(caa,_aa,aaa)
+if not daa then
+local _ba=caa.name:sub(1,1):upper()..caa.name:sub(2)local aba="add".._ba
+if not _aa[aba]then
+local cba=_aa.get and _aa.get("type")or"Unknown"
+cb.error(string.format('Tag <%s> is not valid inside <%s>',caa.name,cba:lower()))return end;local bba=_aa[aba](_aa,caa.attributes.name)
+for cba,dba in
+pairs(caa.attributes)do local _ca=bba:getPropertyConfig(cba)if _ca then
+local aca=dc(dba,_ca.type,aaa)bba.set(cba,aca)end end;if#caa.children>0 then c_a(caa,bba,aaa)end end end end end end;c_a(b_a,self,a_a)return self end;return{Container=dd} end
 project["plugins/state.lua"] = function(...) local d=require("propertySystem")
 local _a=require("errorManager")local aa={}
 function aa.setup(ba)
