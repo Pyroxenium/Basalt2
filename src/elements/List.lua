@@ -99,6 +99,19 @@ function List:getSelectedItems()
     return selected
 end
 
+--- Gets first selected item
+--- @shortDescription Gets first selected item
+--- @return table? selected The first item
+function List:getSelectedItem()
+    local items = self.get("items")
+    for i, item in ipairs(items) do
+        if type(item) == "table" and item.selected then
+            return item
+        end
+    end
+    return nil
+end
+
 --- @shortDescription Handles mouse click events
 --- @param button number The mouse button that was clicked
 --- @param x number The x-coordinate of the click

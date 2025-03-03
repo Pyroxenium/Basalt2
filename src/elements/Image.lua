@@ -325,11 +325,13 @@ end
 --- @return Image self The Image instance
 function Image:addFrame()
     local frames = self.get("bimg")
+    local width = frames.width or #frames[1][1][1]
+    local height = frames.height or #frames[1]
     local frame = {}
-    local text = string.rep(" ", self.get("width"))
-    local fg = string.rep("f", self.get("width"))
-    local bg = string.rep("0", self.get("width"))
-    for y = 1, self.get("height") do
+    local text = string.rep(" ", width)
+    local fg = string.rep("f", width)
+    local bg = string.rep("0", width)
+    for y = 1, height do
         frame[y] = {text, fg, bg}
     end
     table.insert(frames, frame)

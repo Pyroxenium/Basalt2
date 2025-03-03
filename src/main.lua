@@ -244,6 +244,14 @@ function basalt.run(isActive)
     end
 end
 
+--- Returns an element class
+--- @shortDescription Returns an element class
+--- @param name string The name of the element
+--- @return table Element The element class
+function basalt.getElementClass(name)
+    return elementManager.getElement(name)
+end
+
 --- Returns a Plugin API
 --- @shortDescription Returns a Plugin API
 --- @param name string The name of the plugin
