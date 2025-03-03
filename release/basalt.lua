@@ -18,6 +18,7 @@ minified_elementDirectory["Button"] = {}
 minified_elementDirectory["Input"] = {}
 minified_elementDirectory["BaseFrame"] = {}
 minified_elementDirectory["BaseElement"] = {}
+minified_elementDirectory["Graph"] = {}
 minified_elementDirectory["Frame"] = {}
 minified_elementDirectory["Checkbox"] = {}
 minified_elementDirectory["Program"] = {}
@@ -689,10 +690,10 @@ self:setFg(cb,db,ac)end;if bc then self:setBg(cb,db,bc)end;return self end
 function _b:nextFrame()
 if not self.get("bimg").animation then return self end;local cb=self.get("bimg")local db=self.get("currentFrame")
 local _c=db+1;if _c>#cb then _c=1 end;self.set("currentFrame",_c)return self end
-function _b:addFrame()local cb=self.get("bimg")local db={}
-local _c=string.rep(" ",self.get("width"))local ac=string.rep("f",self.get("width"))
-local bc=string.rep("0",self.get("width"))for y=1,self.get("height")do db[y]={_c,ac,bc}end
-table.insert(cb,db)return self end;function _b:updateFrame(cb,db)local _c=self.get("bimg")_c[cb]=db
+function _b:addFrame()local cb=self.get("bimg")
+local db=cb.width or#cb[1][1][1]local _c=cb.height or#cb[1]local ac={}local bc=string.rep(" ",db)
+local cc=string.rep("f",db)local dc=string.rep("0",db)for y=1,_c do ac[y]={bc,cc,dc}end
+table.insert(cb,ac)return self end;function _b:updateFrame(cb,db)local _c=self.get("bimg")_c[cb]=db
 self:updateRender()return self end;function _b:getFrame(cb)
 local db=self.get("bimg")
 return db[cb or self.get("currentFrame")]end
@@ -1206,6 +1207,27 @@ nil;self._values=nil;self.basalt=nil;self.parent=nil
 self.__index=nil;setmetatable(self,nil)end
 function aa:updateRender()if(self.parent)then self.parent:updateRender()else
 self._renderUpdate=true end end;return aa end
+project["elements/Graph.lua"] = function(...) local d=require("elementManager")
+local _a=d.getElement("elements/VisualElement")local aa=setmetatable({},_a)aa.__index=aa
+aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true})
+aa.defineProperty(aa,"minValue",{default=0,type="number",canTriggerRender=true})
+aa.defineProperty(aa,"maxValue",{default=100,type="number",canTriggerRender=true})
+aa.defineProperty(aa,"graphColor",{default=colors.yellow,type="color",canTriggerRender=true})
+aa.defineProperty(aa,"graphSymbol",{default="\127",type="string",canTriggerRender=true})
+function aa.new()local ba=setmetatable({},aa):__init()return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Graph")
+return self end
+function aa:setPoint(ba,ca)
+local da=self.get("data")da[ba]=ca;self:updateRender()end;function aa:addPoint(ba)local ca=self.get("data")table.insert(ca,ba)while#ca>
+self.get("width")do table.remove(ca,1)end
+self:updateRender()end
+function aa:render()
+_a.render(self)local ba=self.get("data")local ca=self.get("width")
+local da=self.get("height")local _b=self.get("minValue")local ab=self.get("maxValue")
+local bb=self.get("graphSymbol")local cb=self.get("graphColor")
+for x=1,ca do
+if ba[x]then
+local db=(ba[x]-_b)/ (ab-_b)local _c=math.floor(da- (db* (da-1)))
+_c=math.max(1,math.min(_c,da))self:textFg(x,_c,bb,cb)end end end;return aa end
 project["elements/Frame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=_a.getElement("Container")local ca=setmetatable({},ba)
 ca.__index=ca
@@ -1435,6 +1457,9 @@ function d:clear()self.set("items",{})self:updateRender()return self end
 function d:getSelectedItems()local _a={}for aa,ba in ipairs(self.get("items"))do
 if
 type(ba)=="table"and ba.selected then local ca=ba;ca.index=aa;table.insert(_a,ca)end end;return _a end
+function d:getSelectedItem()local _a=self.get("items")for aa,ba in ipairs(_a)do if
+type(ba)=="table"and ba.selected then return ba end end;return
+nil end
 function d:mouse_click(_a,aa,ba)
 if
 _a==1 and self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
@@ -1600,7 +1625,8 @@ function bd.run(_ba)dd=_ba;if(_ba==nil)then dd=true end;local function aba()
 daa()
 while dd do caa(os.pullEventRaw())if(dd)then daa()end end end
 while dd do local bba,cba=pcall(aba)if not(bba)then
-dc.header="Basalt Runtime Error"dc.error(cba)end end end;function bd.getAPI(_ba)return cc.getAPI(_ba)end;return bd end
+dc.header="Basalt Runtime Error"dc.error(cba)end end end;function bd.getElementClass(_ba)return cc.getElement(_ba)end;function bd.getAPI(_ba)return
+cc.getAPI(_ba)end;return bd end
 project["libraries/colorHex.lua"] = function(...) local b={}for i=0,15 do b[2 ^i]=("%x"):format(i)
 b[("%x"):format(i)]=2 ^i end;return b end
 project["libraries/utils.lua"] = function(...) local d,_a=math.floor,string.len;local aa={}
