@@ -1787,7 +1787,8 @@ local d_a={}
 for _aa,aaa in ipairs(__a.children)do
 if aaa.name=="item"or aaa.name=="entry"then
 local baa={}
-for caa,daa in pairs(aaa.attributes)do baa[caa]=dc(daa,"string",b_a)end
+for caa,daa in pairs(aaa.attributes)do if(colors[daa])then baa[caa]=colors[daa]else
+baa[caa]=dc(daa,"string",b_a)end end
 for caa,daa in ipairs(aaa.children)do
 if
 daa.name~="#text"and daa.name~="#cdata"then
