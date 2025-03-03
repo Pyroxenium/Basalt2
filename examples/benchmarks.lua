@@ -1,4 +1,4 @@
-local basalt = require("src")
+local basalt = require("basalt")
 local main = basalt.getMainFrame()
 
 local btn = main:addButton()

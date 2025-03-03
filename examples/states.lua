@@ -1,4 +1,4 @@
-local basalt = require("src")
+local basalt = require("basalt")
 
 -- Create main frame
 local main = basalt.getMainFrame()

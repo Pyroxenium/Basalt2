@@ -410,6 +410,10 @@ end
 function VisualElement:setCursor(x, y, blink, color)
     if self.parent then
         local xPos, yPos = self:calculatePosition()
+        if(x + xPos - 1<1)or(x + xPos - 1>self.parent.get("width"))or
+        (y + yPos - 1<1)or(y + yPos - 1>self.parent.get("height"))then
+            return self.parent:setCursor(x + xPos - 1, y + yPos - 1, false)
+        end
         return self.parent:setCursor(x + xPos - 1, y + yPos - 1, blink, color)
     end
     return self

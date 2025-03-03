@@ -196,6 +196,10 @@ function Input:render()
         return
     end
 
+    if(focused) then
+        self:setCursor(self.get("cursorPos") - viewOffset, 1, true, self.get("cursorColor") or self.get("foreground"))
+    end
+
     local visibleText = text:sub(viewOffset + 1, viewOffset + width)
     self:textFg(1, 1, visibleText, self.get("foreground"))
 end
