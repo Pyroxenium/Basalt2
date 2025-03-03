@@ -1,27 +1,3 @@
-# BaseElement
-The XML plugin provides XML parsing and UI creation from XML markup
-
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-|[BaseElement:fromXML](#BaseElement:fromXML)|BaseElement|Creates element from XML node
-
-
-## BaseElement:fromXML(self, node)
-Creates an element from an XML node
-
-### Parameters
-* `self` `BaseElement` The element instance
-* `node` `table` The XML node to create from
-
-### Returns
-* `BaseElement` `self` The element instance
-
-
----
-<br>
-
 # Container
 
 ## Functions
