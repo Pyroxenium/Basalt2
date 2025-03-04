@@ -1,5 +1,4 @@
 local function parseProperty(line)
-
     local name, type, default, description = line:match("%-%-%-@property%s+(%w+)%s+(%w+)%s+(.-)%s+(.*)")
 
     if name and type then
@@ -38,33 +37,60 @@ end
     end
 end
 
-local input = [[
----@property x number 1 The x position of the element
----@property y number 1 The y position of the element
-]]
+local function parseCombinedProperty(line)
+    local name, props, description = line:match("%-%-%-@combinedProperty%s+(%w+)%s+{(.-)%}%s+(.*)")
+    if name and props then
+        local propList = {}
+        for prop in props:gmatch("(%w+)") do
+            table.insert(propList, prop)
+        end
 
-for line in input:gmatch("[^\r\n]+") do
-    parseProperty(line)
+        local paramList = table.concat(propList, ", ")
+        local returnList = paramList
+        local assignList = {}
+        for _, prop in ipairs(propList) do
+            table.insert(assignList, string.format("    self.%s = %s", prop, prop))
+        end
+
+        local getterDoc = string.format([[
+--- Gets the %s
+---@generic T: %s
+---@param self T
+---@return %s
+]], description, "VisualElement", table.concat(propList, " "))
+
+        local getterFunc = string.format([[
+function VisualElement:get%s()
+    return self.%s
+end
+]], name:sub(1,1):upper() .. name:sub(2), returnList)
+
+        local setterDoc = string.format([[
+--- Sets the %s
+---@generic T: %s
+---@param self T
+%s
+---@return T
+]], description, "VisualElement", 
+table.concat(propList:map(function(prop)
+    return string.format("---@param %s any", prop)
+end), "\n"))
+
+        local setterFunc = string.format([[
+function VisualElement:set%s(%s)
+%s
+    return self
+end
+]], name:sub(1,1):upper() .. name:sub(2), 
+   paramList,
+   table.concat(assignList, "\n"))
+
+        return getterDoc .. getterFunc .. setterDoc .. setterFunc
+    end
 end
 
 local function findClassName(content)
     return content:match("%-%-%-@class%s+(%w+)")
-end
-
-local function parseProperties(content)
-    local properties = {}
-    for line in content:gmatch("[^\r\n]+") do
-        local name, type, default, desc = line:match("%-%-%-@property%s+(%w+)%s+(%w+)%s+(.-)%s+(.*)")
-        if name and type then
-            properties[#properties + 1] = {
-                name = name,
-                type = type,
-                default = default,
-                description = desc
-            }
-        end
-    end
-    return properties
 end
 
 local function parseEvents(content)
@@ -105,7 +131,7 @@ local function collectAllClassNames(folder)
     return classes
 end
 
-local function generateClassContent(className, properties, events, allClasses)
+local function generateClassContent(className, properties, combinedProperties, events, allClasses)
     if #properties == 0 and #events == 0 and className ~= "Container" then
         return nil
     end
@@ -149,6 +175,45 @@ local function generateClassContent(className, properties, events, allClasses)
         table.insert(content, "")
     end
 
+    for _, prop in ipairs(combinedProperties) do
+        local paramList = table.concat(prop.properties, ", ")
+
+        table.insert(content, string.format("--- Gets the %s", prop.description))
+        table.insert(content, string.format("---@generic Element: %s", className))
+        table.insert(content, "---@param self Element")
+        table.insert(content, string.format("---@return %s", table.concat(prop.properties, " ")))
+        table.insert(content, string.format("function %s:get%s()", 
+            className,
+            prop.name:sub(1,1):upper() .. prop.name:sub(2)
+        ))
+        table.insert(content, string.format("    return %s", 
+            table.concat(prop.properties:map(function(p) 
+                return "self." .. p 
+            end), ", ")
+        ))
+        table.insert(content, "end")
+        table.insert(content, "")
+
+        table.insert(content, string.format("--- Sets the %s", prop.description))
+        table.insert(content, string.format("---@generic Element: %s", className))
+        table.insert(content, "---@param self Element")
+        for _, p in ipairs(prop.properties) do
+            table.insert(content, string.format("---@param %s any", p))
+        end
+        table.insert(content, "---@return Element")
+        table.insert(content, string.format("function %s:set%s(%s)", 
+            className,
+            prop.name:sub(1,1):upper() .. prop.name:sub(2),
+            paramList
+        ))
+        for _, p in ipairs(prop.properties) do
+            table.insert(content, string.format("    self.%s = %s", p, p))
+        end
+        table.insert(content, "    return self")
+        table.insert(content, "end")
+        table.insert(content, "")
+    end
+
     for _, event in ipairs(events) do
         table.insert(content, string.format([[
 --- %s
@@ -171,7 +236,15 @@ end]], event.description, className, className, event.functionName))
 ---@return %s
 function Container:add%s()
     return self
-end]], cls, cls, cls))
+end
+
+--- Adds a new delayed %s to the container
+---@generic Element: Container
+---@param self Element
+---@return %s
+function Container:addDelayed%s()
+    return self
+end]], cls, cls, cls, cls, cls, cls))
             table.insert(content, "")
         end
     end
@@ -192,9 +265,24 @@ local function parseFolder(folder, destinationFile)
 
                 local className = findClassName(content)
                 if className then
-                    local properties = parseProperties(content)
+                    local properties = {}
+                    local combinedProperties = {}
+
+                    for line in content:gmatch("[^\r\n]+") do
+
+                        local propResult = parseProperty(line)
+                        if propResult then
+                            table.insert(properties, propResult)
+                        end
+
+                        local combResult = parseCombinedProperty(line)
+                        if combResult then
+                            table.insert(combinedProperties, combResult)
+                        end
+                    end
+
                     local events = parseEvents(content)
-                    local classContent = generateClassContent(className, properties, events, allClasses)
+                    local classContent = generateClassContent(className, properties, combinedProperties, events, allClasses)
                     if classContent then
                         table.insert(allContent, classContent)
                     end
