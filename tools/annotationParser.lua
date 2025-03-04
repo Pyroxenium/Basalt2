@@ -44,11 +44,12 @@ end
 local function parseEvents(content)
     local events = {}
     for line in content:gmatch("[^\r\n]+") do
-
         local name, description = line:match("%-%-%-@event%s+([%w_]+)%s+(.+)")
         if name then
-            local functionName = name:gsub("_(%w)", function(c) return c:upper() end)
-            functionName = "on" .. functionName:sub(1,1):upper() .. functionName:sub(2)
+            -- Entferne das "on" Präfix falls vorhanden
+            local baseName = name:match("^on(.+)") or name
+            -- Konvertiere erste Buchstabe zu Großbuchstaben
+            local functionName = "on" .. baseName:sub(1,1):upper() .. baseName:sub(2)
 
             events[#events + 1] = {
                 name = name,
@@ -127,11 +128,9 @@ local function generateClassContent(className, properties, combinedProperties, e
         table.insert(content, string.format("--- Gets the %s", combinedProp.description))
         table.insert(content, string.format("---@generic Element: %s", className))
         table.insert(content, "---@param self Element")
-        local returns = {}
         for _, prop in ipairs(combinedProp.properties) do
-            table.insert(returns, prop.type)
+            table.insert(content, string.format("---@return %s %s", prop.type, prop.name))
         end
-        table.insert(content, string.format("---@return %s", table.concat(returns, " ")))
         table.insert(content, string.format("function %s:get%s()",
             className,
             combinedProp.name:sub(1,1):upper() .. combinedProp.name:sub(2)

@@ -200,13 +200,20 @@ local function renderFrames()
     end
 end
 
---- Runs basalt once
+--- Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 --- @shortDescription Runs basalt once
 --- @vararg any The event to run with
 --- @usage basalt.update()
 function basalt.update(...)
-    updateEvent(...)
-    renderFrames()
+    local f = function(...)
+        updateEvent(...)
+        renderFrames()
+    end
+    local ok, err = pcall(f, ...)
+    if not(ok)then
+        errorManager.header = "Basalt Runtime Error"
+        errorManager.error(err)
+    end
 end
 
 --- Stops the Basalt runtime
