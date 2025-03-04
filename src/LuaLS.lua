@@ -362,7 +362,7 @@ end
 --- Gets the Combined property for offsetX and offsetY
 ---@generic Element: Container
 ---@param self Element
----@return offsetY
+---@return offsetY offsetX
 function Container:getOffset()
     return self.offsetX
 end
@@ -1020,7 +1020,7 @@ end
 --- Gets the Combined property for offsetX and offsetY
 ---@generic Element: Image
 ---@param self Element
----@return offsetY
+---@return offsetY offsetX
 function Image:getOffset()
     return self.offsetX
 end
@@ -1356,7 +1356,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function List:onOnSelect(callback)
+function List:onSelect(callback)
     return self
 end
 
@@ -1761,7 +1761,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function Slider:onOnChange(callback)
+function Slider:onChange(callback)
     return self
 end
 
@@ -2430,7 +2430,8 @@ end
 --- Gets the Combined x, y position
 ---@generic Element: VisualElement
 ---@param self Element
----@return number number
+---@return number x
+---@return number y
 function VisualElement:getPosition()
     return self.x, self.y
 end
@@ -2450,7 +2451,8 @@ end
 --- Gets the Combined width, height
 ---@generic Element: VisualElement
 ---@param self Element
----@return number number
+---@return number width
+---@return number height
 function VisualElement:getSize()
     return self.width, self.height
 end
@@ -2470,7 +2472,8 @@ end
 --- Gets the Combined foreground, background colors
 ---@generic Element: VisualElement
 ---@param self Element
----@return number number
+---@return number foreground
+---@return number background
 function VisualElement:getColor()
     return self.foreground, self.background
 end
@@ -2492,7 +2495,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnClick(callback)
+function VisualElement:onClick(callback)
     return self
 end
 
@@ -2501,7 +2504,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnMouseUp(callback)
+function VisualElement:onMouseUp(callback)
     return self
 end
 
@@ -2510,7 +2513,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnRelease(callback)
+function VisualElement:onRelease(callback)
     return self
 end
 
@@ -2519,7 +2522,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnDrag(callback)
+function VisualElement:onDrag(callback)
     return self
 end
 
@@ -2528,7 +2531,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnScroll(callback)
+function VisualElement:onScroll(callback)
     return self
 end
 
@@ -2537,7 +2540,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnEnter(callback)
+function VisualElement:onEnter(callback)
     return self
 end
 
@@ -2546,7 +2549,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnLeave(callback)
+function VisualElement:onLeave(callback)
     return self
 end
 
@@ -2555,7 +2558,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnFocus(callback)
+function VisualElement:onFocus(callback)
     return self
 end
 
@@ -2564,7 +2567,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnBlur(callback)
+function VisualElement:onBlur(callback)
     return self
 end
 
@@ -2573,7 +2576,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnKey(callback)
+function VisualElement:onKey(callback)
     return self
 end
 
@@ -2582,7 +2585,7 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnKeyUp(callback)
+function VisualElement:onKeyUp(callback)
     return self
 end
 
@@ -2591,6 +2594,6 @@ end
 ---@param self Element
 ---@param callback function
 ---@return Element
-function VisualElement:onOnChar(callback)
+function VisualElement:onChar(callback)
     return self
 end

@@ -1686,14 +1686,16 @@ if(_ba==bba.filter)or(bba.filter==nil)then
 local cba,dba=coroutine.resume(bba.coroutine,_ba,...)
 if(not cba)then dc.header="Basalt Schedule Error"dc.error(dba)end;bba.filter=dba end;if(coroutine.status(bba.coroutine)=="dead")then
 bd.removeSchedule(bba.coroutine)end end;if bd._events[_ba]then
-for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(cd)then cd:render()end end;function bd.update(...)caa(...)
-daa()end;function bd.stop()dd=false;term.clear()
-term.setCursorPos(1,1)end
-function bd.run(_ba)dd=_ba;if(_ba==nil)then dd=true end;local function aba()
-daa()
-while dd do caa(os.pullEventRaw())if(dd)then daa()end end end
-while dd do local bba,cba=pcall(aba)if not(bba)then
-dc.header="Basalt Runtime Error"dc.error(cba)end end end;function bd.getElementClass(_ba)return cc.getElement(_ba)end;function bd.getAPI(_ba)return
+for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(cd)then cd:render()end end
+function bd.update(...)local _ba=function(...)caa(...)
+daa()end;local aba,bba=pcall(_ba,...)if not(aba)then
+dc.header="Basalt Runtime Error"dc.error(bba)end end
+function bd.stop()dd=false;term.clear()term.setCursorPos(1,1)end
+function bd.run(_ba)dd=_ba;if(_ba==nil)then dd=true end
+local function aba()daa()while dd do
+caa(os.pullEventRaw())if(dd)then daa()end end end
+while dd do local bba,cba=pcall(aba)if not(bba)then dc.header="Basalt Runtime Error"
+dc.error(cba)end end end;function bd.getElementClass(_ba)return cc.getElement(_ba)end;function bd.getAPI(_ba)return
 cc.getAPI(_ba)end;return bd end
 project["libraries/colorHex.lua"] = function(...) local b={}for i=0,15 do b[2 ^i]=("%x"):format(i)
 b[("%x"):format(i)]=2 ^i end;return b end
