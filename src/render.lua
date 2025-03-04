@@ -267,6 +267,7 @@ function Render:mergeRects(target, source)
     target.y = y1
     target.width = x2 - x1
     target.height = y2 - y1
+    return self
 end
 
 --- Sets the cursor position
@@ -311,6 +312,10 @@ function Render:getSize()
     return self.width, self.height
 end
 
+--- Sets the size of the render
+--- @param width number The width of the render
+--- @param height number The height of the render
+--- @return Render
 function Render:setSize(width, height)
     self.width = width
     self.height = height
