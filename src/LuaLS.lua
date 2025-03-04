@@ -1155,7 +1155,7 @@ function List:setSelectedForeground(selectedForeground)
     return self
 end
 
---- {index number, item any} Fired when an item is selected
+--- {index number, item table} Fired when an item is selected
 ---@generic Element: List
 ---@param self Element
 ---@param callback function

@@ -1571,30 +1571,28 @@ if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="ta
 cc.selected=false end end end;ac.selected=not ac.selected
 if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
 self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("selectedText")if
-#da==0 then local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]
-da=ab.text or""end end
-self:blit(1,1,
-da..
-string.rep(" ",self.get("width")-#da-1).. (
+function ca:render()_a.render(self)local da=self.get("selectedText")
+local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""end
+self:blit(1,1,da..string.rep(" ",
+self.get("width")-#da-1).. (
 self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
-if self.get("isOpen")then local _b=self.get("items")
-local ab=self.get("height")-1;local bb=self.get("offset")local cb=self.get("width")
-for i=1,ab do local db=i+bb
-local _c=_b[db]
-if _c then if type(_c)=="string"then _c={text=_c}_b[db]=_c end
+if self.get("isOpen")then local ab=self.get("items")
+local bb=self.get("height")-1;local cb=self.get("offset")local db=self.get("width")
+for i=1,bb do local _c=i+cb
+local ac=ab[_c]
+if ac then if type(ac)=="string"then ac={text=ac}ab[_c]=ac end
 if
-_c.separator then local ac=(_c.text or"-"):sub(1,1)
-local bc=string.rep(ac,cb)local cc=_c.foreground or self.get("foreground")local dc=
-_c.background or self.get("background")self:textBg(1,
-i+1,string.rep(" ",cb),dc)
-self:textFg(1,i+1,bc,cc)else local ac=_c.text;local bc=_c.selected
-local cc=bc and
-(_c.selectedBackground or self.get("selectedBackground"))or
-(_c.background or self.get("background"))
-local dc=
-bc and(_c.selectedForeground or self.get("selectedForeground"))or(_c.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",cb),cc)self:textFg(1,
-i+1,ac,dc)end end end end end;return ca end
+ac.separator then local bc=(ac.text or"-"):sub(1,1)
+local cc=string.rep(bc,db)local dc=ac.foreground or self.get("foreground")local _d=
+ac.background or self.get("background")self:textBg(1,
+i+1,string.rep(" ",db),_d)
+self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected
+local dc=cc and
+(ac.selectedBackground or self.get("selectedBackground"))or
+(ac.background or self.get("background"))
+local _d=
+cc and(ac.selectedForeground or self.get("selectedForeground"))or(ac.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",db),dc)self:textFg(1,
+i+1,bc,_d)end end end end end;return ca end
 project["elements/BarChart.lua"] = function(...) local aa=require("elementManager")
 local ba=aa.getElement("VisualElement")local ca=aa.getElement("Graph")
 local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b;function _b.new()
