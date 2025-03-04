@@ -24,9 +24,9 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Name|Properties|Description|
 |---|---|---|
-|position|`x y`|Combined x, y position|
-|size|`width height`|Combined width, height|
-|color|`foreground background`|Combined foreground, background colors|
+|position|`x number, y number`|Combined x, y position|
+|size|`width number, height number`|Combined width, height|
+|color|`foreground number, background number`|Combined foreground, background colors|
 
 ## Events
 
