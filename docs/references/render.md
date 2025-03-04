@@ -31,7 +31,7 @@ functionality. It also has a buffer system to reduce the number of calls
 |[Render:rectOverlaps](#Render:rectOverlaps)|boolean|
 |[Render:render](#Render:render)|Render|
 |[Render:setCursor](#Render:setCursor)|Render|
-|[Render:setSize](#Render:setSize)|-|
+|[Render:setSize](#Render:setSize)|Render|
 |[Render:text](#Render:text)|Render|
 |[Render:textBg](#Render:textBg)|Render|
 |[Render:textFg](#Render:textFg)|Render|
@@ -173,7 +173,15 @@ Sets the cursor position
 ### Returns
 * `nil` `nil` nil
 
-## Render:setSize()
+## Render:setSize(width, height)
+Sets the size of the render
+
+### Parameters
+* `width` `number` The width of the render
+* `height` `number` The height of the render
+
+### Returns
+* `nil` `nil` nil
 
 ## Render:text(x, y, text)
 Blits text to the screen

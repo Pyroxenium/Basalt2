@@ -75,7 +75,7 @@ Returns a Plugin API
 * `table` `Plugin` The plugin API
 
 ## basalt.getElementClass(name)
-Returns an element class
+Returns an element's class without creating a instance
 
 ### Parameters
 * `name` `string` The name of the element
