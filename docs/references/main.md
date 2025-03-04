@@ -165,7 +165,7 @@ basalt.stop()
 ```
 
 ## basalt.update(...)
-Runs basalt once
+Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 
 ### Parameters
 * `...` *(vararg)* `any` The event to run with
