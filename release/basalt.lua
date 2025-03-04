@@ -7,6 +7,7 @@ local baseRequire = require
 require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end return baseRequire(path) end
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["TextBox"] = {}
+minified_elementDirectory["LineChart"] = {}
 minified_elementDirectory["Container"] = {}
 minified_elementDirectory["Image"] = {}
 minified_elementDirectory["Flexbox"] = {}
@@ -27,6 +28,7 @@ minified_elementDirectory["Slider"] = {}
 minified_elementDirectory["ProgressBar"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Dropdown"] = {}
+minified_elementDirectory["BarChart"] = {}
 minified_elementDirectory["Menu"] = {}
 minified_pluginDirectory["xml"] = {}
 minified_pluginDirectory["state"] = {}
@@ -440,6 +442,28 @@ if self.get("focused")then local bd=self.get("cursorX")-ac;local cd=
 self.get("cursorY")-bc;if
 bd>=1 and bd<=cc and cd>=1 and cd<=dc then
 self:setCursor(bd,cd,true,self.get("cursorColor")or self.get("foreground"))end end end;return _b end
+project["elements/LineChart.lua"] = function(...) local ba=require("elementManager")
+local ca=ba.getElement("VisualElement")local da=ba.getElement("Graph")
+local _b=require("libraries/colorHex")local ab=setmetatable({},da)ab.__index=ab;function ab.new()
+local cb=setmetatable({},ab):__init()return cb end;function ab:init(cb,db)da.init(self,cb,db)
+self.set("type","LineChart")return self end
+local function bb(cb,db,_c,ac,bc,cc,dc,_d)local ad=ac-db;local bd=bc-_c
+local cd=math.max(math.abs(ad),math.abs(bd))
+for i=0,cd do local dd=cd==0 and 0 or i/cd
+local __a=math.floor(db+ad*dd)local a_a=math.floor(_c+bd*dd)
+if
+
+__a>=1 and __a<=cb.get("width")and a_a>=1 and a_a<=cb.get("height")then cb:blit(__a,a_a,cc,_b[dc],_b[_d])end end end
+function ab:render()ca.render(self)local cb=self.get("width")
+local db=self.get("height")local _c=self.get("minValue")local ac=self.get("maxValue")
+local bc=self.get("series")
+for cc,dc in pairs(bc)do
+if(dc.visible)then local _d,ad;local bd=#dc.data
+local cd=(cb-1)/math.max((bd-1),1)
+for dd,__a in ipairs(dc.data)do local a_a=math.floor(( (dd-1)*cd)+1)local b_a=
+(__a-_c)/ (ac-_c)
+local c_a=math.floor(db- (b_a* (db-1)))c_a=math.max(1,math.min(c_a,db))if _d then
+bb(self,_d,ad,a_a,c_a,dc.symbol,dc.bgColor,dc.fgColor)end;_d,ad=a_a,c_a end end end end;return ab end
 project["elements/Container.lua"] = function(...) local ca=require("elementManager")
 local da=ca.getElement("VisualElement")local _b=require("libraries/expect")
 local ab=require("libraries/utils").split;local bb=setmetatable({},da)bb.__index=bb
@@ -1214,27 +1238,47 @@ nil;self._values=nil;self.basalt=nil;self.parent=nil
 self.__index=nil;setmetatable(self,nil)end
 function aa:updateRender()if(self.parent)then self.parent:updateRender()else
 self._renderUpdate=true end end;return aa end
-project["elements/Graph.lua"] = function(...) local d=require("elementManager")
-local _a=d.getElement("elements/VisualElement")local aa=setmetatable({},_a)aa.__index=aa
-aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true})
-aa.defineProperty(aa,"minValue",{default=0,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"maxValue",{default=100,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"graphColor",{default=colors.yellow,type="color",canTriggerRender=true})
-aa.defineProperty(aa,"graphSymbol",{default="\127",type="string",canTriggerRender=true})
-function aa.new()local ba=setmetatable({},aa):__init()return ba end;function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Graph")
-return self end
-function aa:setPoint(ba,ca)
-local da=self.get("data")da[ba]=ca;self:updateRender()end;function aa:addPoint(ba)local ca=self.get("data")table.insert(ca,ba)while#ca>
-self.get("width")do table.remove(ca,1)end
-self:updateRender()end
-function aa:render()
-_a.render(self)local ba=self.get("data")local ca=self.get("width")
-local da=self.get("height")local _b=self.get("minValue")local ab=self.get("maxValue")
-local bb=self.get("graphSymbol")local cb=self.get("graphColor")
-for x=1,ca do
-if ba[x]then
-local db=(ba[x]-_b)/ (ab-_b)local _c=math.floor(da- (db* (da-1)))
-_c=math.max(1,math.min(_c,da))self:textFg(x,_c,bb,cb)end end end;return aa end
+project["elements/Graph.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"minValue",{default=0,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"maxValue",{default=100,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"series",{default={},type="table",canTriggerRender=true})
+function ca.new()local da=setmetatable({},ca):__init()return da end
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Graph")
+self.set("width",20)self.set("height",10)return self end
+function ca:addSeries(da,_b,ab,bb,cb)local db=self.get("series")
+table.insert(db,{name=da,symbol=_b or" ",bgColor=ab or colors.white,fgColor=
+bb or colors.black,pointCount=cb or self.get("width"),data={},visible=true})self:updateRender()return self end
+function ca:removeSeries(da)local _b=self.get("series")for ab,bb in ipairs(_b)do if bb.name==da then
+table.remove(_b,ab)break end end
+self:updateRender()return self end
+function ca:getSeries(da)local _b=self.get("series")for ab,bb in ipairs(_b)do
+if bb.name==da then return bb end end;return nil end
+function ca:changeSeriesVisibility(da,_b)local ab=self.get("series")for bb,cb in ipairs(ab)do if cb.name==da then
+cb.visible=_b;break end end
+self:updateRender()return self end
+function ca:addPoint(da,_b)local ab=self.get("series")
+for bb,cb in ipairs(ab)do if cb.name==da then
+table.insert(cb.data,_b)
+while#cb.data>cb.pointCount do table.remove(cb.data,1)end;break end end;self:updateRender()return self end
+function ca:focusSeries(da)local _b=self.get("series")
+for ab,bb in ipairs(_b)do if bb.name==da then
+table.remove(_b,ab)table.insert(_b,bb)break end end;self:updateRender()return self end
+function ca:setSeriesPointCount(da,_b)local ab=self.get("series")
+for bb,cb in ipairs(ab)do if cb.name==da then
+cb.pointCount=_b;while#cb.data>_b do table.remove(cb.data,1)end
+break end end;self:updateRender()return self end
+function ca:render()aa.render(self)local da=self.get("width")
+local _b=self.get("height")local ab=self.get("minValue")local bb=self.get("maxValue")
+local cb=self.get("series")
+for db,_c in pairs(cb)do
+if(_c.visible)then local ac=#_c.data
+local bc=(da-1)/math.max((ac-1),1)
+for cc,dc in ipairs(_c.data)do local _d=math.floor(( (cc-1)*bc)+1)local ad=
+(dc-ab)/ (bb-ab)
+local bd=math.floor(_b- (ad* (_b-1)))bd=math.max(1,math.min(bd,_b))
+self:blit(_d,bd,_c.symbol,ba[_c.bgColor],ba[_c.fgColor])end end end end;return ca end
 project["elements/Frame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=_a.getElement("Container")local ca=setmetatable({},ba)
 ca.__index=ca
@@ -1551,6 +1595,25 @@ local cc=bc and
 local dc=
 bc and(_c.selectedForeground or self.get("selectedForeground"))or(_c.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",cb),cc)self:textFg(1,
 i+1,ac,dc)end end end end end;return ca end
+project["elements/BarChart.lua"] = function(...) local aa=require("elementManager")
+local ba=aa.getElement("VisualElement")local ca=aa.getElement("Graph")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b;function _b.new()
+local ab=setmetatable({},_b):__init()return ab end;function _b:init(ab,bb)ca.init(self,ab,bb)
+self.set("type","BarChart")return self end
+function _b:render()
+ba.render(self)local ab=self.get("width")local bb=self.get("height")
+local cb=self.get("minValue")local db=self.get("maxValue")local _c=self.get("series")local ac=0
+local bc={}
+for ad,bd in pairs(_c)do if(bd.visible)then
+if#bd.data>0 then ac=ac+1;table.insert(bc,bd)end end end;local cc=ac;local dc=1
+local _d=math.min(bc[1]and bc[1].pointCount or 0,math.floor((ab+dc)/ (
+cc+dc)))
+for groupIndex=1,_d do local ad=( (groupIndex-1)* (cc+dc))+1
+for bd,cd in ipairs(bc)do
+local dd=cd.data[groupIndex]
+if dd then local __a=ad+ (bd-1)local a_a=(dd-cb)/ (db-cb)
+local b_a=math.floor(bb- (a_a* (bb-1)))b_a=math.max(1,math.min(b_a,bb))for barY=b_a,bb do
+self:blit(__a,barY,cd.symbol,da[cd.fgColor],da[cd.bgColor])end end end end end;return _b end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca

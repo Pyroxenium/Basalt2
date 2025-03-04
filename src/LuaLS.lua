@@ -415,14 +415,6 @@ function Container:addFrame()
     return self
 end
 
---- Adds a new Graph to the container
----@generic Element: Container
----@param self Element
----@return Graph
-function Container:addGraph()
-    return self
-end
-
 --- Adds a new Image to the container
 ---@generic Element: Container
 ---@param self Element
