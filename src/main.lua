@@ -244,7 +244,7 @@ function basalt.run(isActive)
     end
 end
 
---- Returns an element class
+--- Returns an element's class without creating a instance
 --- @shortDescription Returns an element class
 --- @param name string The name of the element
 --- @return table Element The element class
