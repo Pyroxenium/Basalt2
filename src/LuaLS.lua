@@ -362,20 +362,21 @@ end
 --- Gets the Combined property for offsetX and offsetY
 ---@generic Element: Container
 ---@param self Element
----@return nil
+---@return offsetY
 function Container:getOffset()
-    return self.offset
+    return self.offsetX
 end
 
 --- Sets the Combined property for offsetX and offsetY
 ---@generic Element: Container
 ---@param self Element
----@param offset nil
+---@param offsetX offsetY
 ---@return Element
-function Container:setOffset(offset)
-    self.offset = offset
+function Container:setOffset(offsetX)
+    self.offsetX = offsetX
     return self
 end
+
 --- Adds a new BigFontText to the container
 ---@generic Element: Container
 ---@param self Element
@@ -1019,20 +1020,21 @@ end
 --- Gets the Combined property for offsetX and offsetY
 ---@generic Element: Image
 ---@param self Element
----@return nil
+---@return offsetY
 function Image:getOffset()
-    return self.offset
+    return self.offsetX
 end
 
 --- Sets the Combined property for offsetX and offsetY
 ---@generic Element: Image
 ---@param self Element
----@param offset nil
+---@param offsetX offsetY
 ---@return Element
-function Image:setOffset(offset)
-    self.offset = offset
+function Image:setOffset(offsetX)
+    self.offsetX = offsetX
     return self
 end
+
 
 ---@class Input
 ---@field text string
@@ -2428,54 +2430,63 @@ end
 --- Gets the Combined x, y position
 ---@generic Element: VisualElement
 ---@param self Element
----@return nil
+---@return number number
 function VisualElement:getPosition()
-    return self.position
+    return self.x, self.y
 end
 
 --- Sets the Combined x, y position
 ---@generic Element: VisualElement
 ---@param self Element
----@param position nil
+---@param x number
+---@param y number
 ---@return Element
-function VisualElement:setPosition(position)
-    self.position = position
+function VisualElement:setPosition(x, y)
+    self.x = x
+    self.y = y
     return self
 end
+
 --- Gets the Combined width, height
 ---@generic Element: VisualElement
 ---@param self Element
----@return nil
+---@return number number
 function VisualElement:getSize()
-    return self.size
+    return self.width, self.height
 end
 
 --- Sets the Combined width, height
 ---@generic Element: VisualElement
 ---@param self Element
----@param size nil
+---@param width number
+---@param height number
 ---@return Element
-function VisualElement:setSize(size)
-    self.size = size
+function VisualElement:setSize(width, height)
+    self.width = width
+    self.height = height
     return self
 end
+
 --- Gets the Combined foreground, background colors
 ---@generic Element: VisualElement
 ---@param self Element
----@return nil
+---@return number number
 function VisualElement:getColor()
-    return self.color
+    return self.foreground, self.background
 end
 
 --- Sets the Combined foreground, background colors
 ---@generic Element: VisualElement
 ---@param self Element
----@param color nil
+---@param foreground number
+---@param background number
 ---@return Element
-function VisualElement:setColor(color)
-    self.color = color
+function VisualElement:setColor(foreground, background)
+    self.foreground = foreground
+    self.background = background
     return self
 end
+
 --- {button, x, y} Fired on mouse click
 ---@generic Element: VisualElement
 ---@param self Element
