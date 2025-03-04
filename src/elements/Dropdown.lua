@@ -102,12 +102,10 @@ function Dropdown:render()
     VisualElement.render(self)
 
     local text = self.get("selectedText")
-    if #text == 0 then
-        local selectedItems = self:getSelectedItems()
-        if #selectedItems > 0 then
-            local selectedItem = selectedItems[1]
-            text = selectedItem.text or ""
-        end
+    local selectedItems = self:getSelectedItems()
+    if #selectedItems > 0 then
+        local selectedItem = selectedItems[1]
+        text = selectedItem.text or ""
     end
 
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (self.get("isOpen") and "\31" or "\17"),

@@ -20,7 +20,7 @@ List.defineProperty(List, "selectedBackground", {default = colors.blue, type = "
 ---@property selectedForeground color white Text color for selected items
 List.defineProperty(List, "selectedForeground", {default = colors.white, type = "color"})
 
----@event onSelect {index number, item any} Fired when an item is selected
+---@event onSelect {index number, item table} Fired when an item is selected
 List.defineEvent(List, "mouse_click")
 List.defineEvent(List, "mouse_scroll")
 
