@@ -17,7 +17,7 @@ custom item rendering, separators, and selection handling.
 
 |Event|Parameters|Description|
 |---|---|---|
-|onSelect|`index number, item any`|Fired when an item is selected|
+|onSelect|`index number, item table`|Fired when an item is selected|
 
 ## Functions
 
