@@ -24,9 +24,13 @@ local function parseCombinedProperty(content)
         local name, props, desc = line:match("%-%-%-@combinedProperty%s+(%w+)%s+{(.-)%}%s+(.*)")
         if name and props then
             local propList = {}
-            for prop in props:gmatch("(%w+)") do
-                table.insert(propList, prop)
+            for prop, typ in props:gmatch("(%w+)%s*(%w*)")do
+                table.insert(propList, {
+                    name = prop,
+                    type = typ ~= "" and typ or "any"
+                })
             end
+
             combinedProperties[#combinedProperties + 1] = {
                 name = name,
                 properties = propList,
@@ -119,32 +123,51 @@ local function generateClassContent(className, properties, combinedProperties, e
         table.insert(content, "")
     end
 
-    for _, combinedProp in ipairs(combinedProperties)do
+    for _, combinedProp in ipairs(combinedProperties) do
         table.insert(content, string.format("--- Gets the %s", combinedProp.description))
         table.insert(content, string.format("---@generic Element: %s", className))
         table.insert(content, "---@param self Element")
-        table.insert(content, string.format("---@return %s", combinedProp.type))
-        table.insert(content, string.format("function %s:get%s()", 
+        local returns = {}
+        for _, prop in ipairs(combinedProp.properties) do
+            table.insert(returns, prop.type)
+        end
+        table.insert(content, string.format("---@return %s", table.concat(returns, " ")))
+        table.insert(content, string.format("function %s:get%s()",
             className,
             combinedProp.name:sub(1,1):upper() .. combinedProp.name:sub(2)
         ))
-        table.insert(content, string.format("    return self.%s", combinedProp.name))
+        local returnValues = {}
+        for _, prop in ipairs(combinedProp.properties) do
+            table.insert(returnValues, "self." .. prop.name)
+        end
+        table.insert(content, string.format("    return %s", table.concat(returnValues, ", ")))
         table.insert(content, "end")
         table.insert(content, "")
 
         table.insert(content, string.format("--- Sets the %s", combinedProp.description))
         table.insert(content, string.format("---@generic Element: %s", className))
         table.insert(content, "---@param self Element")
-        table.insert(content, string.format("---@param %s %s", combinedProp.name, combinedProp.type))
+        for _, prop in ipairs(combinedProp.properties) do
+            table.insert(content, string.format("---@param %s %s", prop.name, prop.type))
+        end
         table.insert(content, "---@return Element")
-        table.insert(content, string.format("function %s:set%s(%s)", 
+
+        local params = {}
+        for _, prop in ipairs(combinedProp.properties) do
+            table.insert(params, prop.name)
+        end
+        table.insert(content, string.format("function %s:set%s(%s)",
             className,
             combinedProp.name:sub(1,1):upper() .. combinedProp.name:sub(2),
-            combinedProp.name
+            table.concat(params, ", ")
         ))
-        table.insert(content, string.format("    self.%s = %s", combinedProp.name, combinedProp.name))
+
+        for _, prop in ipairs(combinedProp.properties) do
+            table.insert(content, string.format("    self.%s = %s", prop.name, prop.name))
+        end
         table.insert(content, "    return self")
         table.insert(content, "end")
+        table.insert(content, "")
     end
 
     for _, event in ipairs(events) do

@@ -71,11 +71,11 @@ end})
 ---@property ignoreOffset boolean false Whether to ignore the parent's offset
 VisualElement.defineProperty(VisualElement, "ignoreOffset", {default = false, type = "boolean"})
 
----@combinedProperty position {x y} Combined x, y position
+---@combinedProperty position {x number, y number} Combined x, y position
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
----@combinedProperty size {width height} Combined width, height
+---@combinedProperty size {width number, height number} Combined width, height
 VisualElement.combineProperties(VisualElement, "size", "width", "height")
----@combinedProperty color {foreground background} Combined foreground, background colors
+---@combinedProperty color {foreground number, background number} Combined foreground, background colors
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
 ---@event onClick {button, x, y} Fired on mouse click
