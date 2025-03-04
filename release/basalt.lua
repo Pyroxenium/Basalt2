@@ -261,7 +261,7 @@ _b.y+_b.height<=da.y)end
 function ba:mergeRects(da,_b)local ab=math.min(da.x,_b.x)
 local bb=math.min(da.y,_b.y)
 local cb=math.max(da.x+da.width,_b.x+_b.width)
-local db=math.max(da.y+da.height,_b.y+_b.height)da.x=ab;da.y=bb;da.width=cb-ab;da.height=db-bb end
+local db=math.max(da.y+da.height,_b.y+_b.height)da.x=ab;da.y=bb;da.width=cb-ab;da.height=db-bb;return self end
 function ba:setCursor(da,_b,ab,bb)
 if bb~=nil then self.terminal.setTextColor(bb)end;self.terminal.setCursorPos(da,_b)
 self.terminal.setCursorBlink(ab)self.xCursor=da;self.yCursor=_b;self.blink=ab;self.cursorColor=bb

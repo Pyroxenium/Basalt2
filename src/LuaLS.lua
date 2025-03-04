@@ -359,11 +359,36 @@ function Container:setOffsetY(offsetY)
     return self
 end
 
+--- Gets the Combined property for offsetX and offsetY
+---@generic Element: Container
+---@param self Element
+---@return nil
+function Container:getOffset()
+    return self.offset
+end
+
+--- Sets the Combined property for offsetX and offsetY
+---@generic Element: Container
+---@param self Element
+---@param offset nil
+---@return Element
+function Container:setOffset(offset)
+    self.offset = offset
+    return self
+end
 --- Adds a new BigFontText to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return BigFontText
 function Container:addBigFontText()
+    return self
+end
+
+--- Adds a new delayed BigFontText to the container
+---@generic Element: Container
+---@param self Element
+---@return BigFontText
+function Container:addDelayedBigFontText()
     return self
 end
 
@@ -375,11 +400,27 @@ function Container:addButton()
     return self
 end
 
+--- Adds a new delayed Button to the container
+---@generic Element: Container
+---@param self Element
+---@return Button
+function Container:addDelayedButton()
+    return self
+end
+
 --- Adds a new Checkbox to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Checkbox
 function Container:addCheckbox()
+    return self
+end
+
+--- Adds a new delayed Checkbox to the container
+---@generic Element: Container
+---@param self Element
+---@return Checkbox
+function Container:addDelayedCheckbox()
     return self
 end
 
@@ -391,11 +432,27 @@ function Container:addContainer()
     return self
 end
 
+--- Adds a new delayed Container to the container
+---@generic Element: Container
+---@param self Element
+---@return Container
+function Container:addDelayedContainer()
+    return self
+end
+
 --- Adds a new Dropdown to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Dropdown
 function Container:addDropdown()
+    return self
+end
+
+--- Adds a new delayed Dropdown to the container
+---@generic Element: Container
+---@param self Element
+---@return Dropdown
+function Container:addDelayedDropdown()
     return self
 end
 
@@ -407,11 +464,27 @@ function Container:addFlexbox()
     return self
 end
 
+--- Adds a new delayed Flexbox to the container
+---@generic Element: Container
+---@param self Element
+---@return Flexbox
+function Container:addDelayedFlexbox()
+    return self
+end
+
 --- Adds a new Frame to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Frame
 function Container:addFrame()
+    return self
+end
+
+--- Adds a new delayed Frame to the container
+---@generic Element: Container
+---@param self Element
+---@return Frame
+function Container:addDelayedFrame()
     return self
 end
 
@@ -423,11 +496,27 @@ function Container:addImage()
     return self
 end
 
+--- Adds a new delayed Image to the container
+---@generic Element: Container
+---@param self Element
+---@return Image
+function Container:addDelayedImage()
+    return self
+end
+
 --- Adds a new Input to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Input
 function Container:addInput()
+    return self
+end
+
+--- Adds a new delayed Input to the container
+---@generic Element: Container
+---@param self Element
+---@return Input
+function Container:addDelayedInput()
     return self
 end
 
@@ -439,11 +528,27 @@ function Container:addLabel()
     return self
 end
 
+--- Adds a new delayed Label to the container
+---@generic Element: Container
+---@param self Element
+---@return Label
+function Container:addDelayedLabel()
+    return self
+end
+
 --- Adds a new List to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return List
 function Container:addList()
+    return self
+end
+
+--- Adds a new delayed List to the container
+---@generic Element: Container
+---@param self Element
+---@return List
+function Container:addDelayedList()
     return self
 end
 
@@ -455,11 +560,27 @@ function Container:addMenu()
     return self
 end
 
+--- Adds a new delayed Menu to the container
+---@generic Element: Container
+---@param self Element
+---@return Menu
+function Container:addDelayedMenu()
+    return self
+end
+
 --- Adds a new Program to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Program
 function Container:addProgram()
+    return self
+end
+
+--- Adds a new delayed Program to the container
+---@generic Element: Container
+---@param self Element
+---@return Program
+function Container:addDelayedProgram()
     return self
 end
 
@@ -471,11 +592,27 @@ function Container:addProgressBar()
     return self
 end
 
+--- Adds a new delayed ProgressBar to the container
+---@generic Element: Container
+---@param self Element
+---@return ProgressBar
+function Container:addDelayedProgressBar()
+    return self
+end
+
 --- Adds a new Scrollbar to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Scrollbar
 function Container:addScrollbar()
+    return self
+end
+
+--- Adds a new delayed Scrollbar to the container
+---@generic Element: Container
+---@param self Element
+---@return Scrollbar
+function Container:addDelayedScrollbar()
     return self
 end
 
@@ -487,11 +624,27 @@ function Container:addSlider()
     return self
 end
 
+--- Adds a new delayed Slider to the container
+---@generic Element: Container
+---@param self Element
+---@return Slider
+function Container:addDelayedSlider()
+    return self
+end
+
 --- Adds a new Table to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return Table
 function Container:addTable()
+    return self
+end
+
+--- Adds a new delayed Table to the container
+---@generic Element: Container
+---@param self Element
+---@return Table
+function Container:addDelayedTable()
     return self
 end
 
@@ -503,6 +656,14 @@ function Container:addTextBox()
     return self
 end
 
+--- Adds a new delayed TextBox to the container
+---@generic Element: Container
+---@param self Element
+---@return TextBox
+function Container:addDelayedTextBox()
+    return self
+end
+
 --- Adds a new Tree to the container
 ---@generic Element: Container
 ---@param self Element
@@ -511,11 +672,27 @@ function Container:addTree()
     return self
 end
 
+--- Adds a new delayed Tree to the container
+---@generic Element: Container
+---@param self Element
+---@return Tree
+function Container:addDelayedTree()
+    return self
+end
+
 --- Adds a new VisualElement to the container
 ---@generic Element: Container
 ---@param self Element
 ---@return VisualElement
 function Container:addVisualElement()
+    return self
+end
+
+--- Adds a new delayed VisualElement to the container
+---@generic Element: Container
+---@param self Element
+---@return VisualElement
+function Container:addDelayedVisualElement()
     return self
 end
 
@@ -839,6 +1016,23 @@ function Image:setOffsetY(offsetY)
     return self
 end
 
+--- Gets the Combined property for offsetX and offsetY
+---@generic Element: Image
+---@param self Element
+---@return nil
+function Image:getOffset()
+    return self.offset
+end
+
+--- Sets the Combined property for offsetX and offsetY
+---@generic Element: Image
+---@param self Element
+---@param offset nil
+---@return Element
+function Image:setOffset(offset)
+    self.offset = offset
+    return self
+end
 
 ---@class Input
 ---@field text string
@@ -2231,6 +2425,57 @@ function VisualElement:setIgnoreOffset(ignoreOffset)
     return self
 end
 
+--- Gets the Combined x, y position
+---@generic Element: VisualElement
+---@param self Element
+---@return nil
+function VisualElement:getPosition()
+    return self.position
+end
+
+--- Sets the Combined x, y position
+---@generic Element: VisualElement
+---@param self Element
+---@param position nil
+---@return Element
+function VisualElement:setPosition(position)
+    self.position = position
+    return self
+end
+--- Gets the Combined width, height
+---@generic Element: VisualElement
+---@param self Element
+---@return nil
+function VisualElement:getSize()
+    return self.size
+end
+
+--- Sets the Combined width, height
+---@generic Element: VisualElement
+---@param self Element
+---@param size nil
+---@return Element
+function VisualElement:setSize(size)
+    self.size = size
+    return self
+end
+--- Gets the Combined foreground, background colors
+---@generic Element: VisualElement
+---@param self Element
+---@return nil
+function VisualElement:getColor()
+    return self.color
+end
+
+--- Sets the Combined foreground, background colors
+---@generic Element: VisualElement
+---@param self Element
+---@param color nil
+---@return Element
+function VisualElement:setColor(color)
+    self.color = color
+    return self
+end
 --- {button, x, y} Fired on mouse click
 ---@generic Element: VisualElement
 ---@param self Element
