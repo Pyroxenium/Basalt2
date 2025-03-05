@@ -177,6 +177,12 @@ end
 function BigFont:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "BigFont")
+    self:observe("background", function(self, value)
+        self.bigfontText = makeText(self.get("fontSize"), self.get("text"), self.get("foreground"), value)
+    end)
+    self:observe("foreground", function(self, value)
+        self.bigfontText = makeText(self.get("fontSize"), self.get("text"), value, self.get("background"))
+    end)
 end
 
 --- @shortDescription Renders the BigFont
