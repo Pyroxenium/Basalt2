@@ -3,13 +3,12 @@ local errorManager = require("errorManager")
 local propertySystem = require("propertySystem")
 local expect = require("libraries/expect")
 
-
 --- This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
 ---
 --- Before you can access Basalt, you need to add the following code on top of your file:
 --- @usage local basalt = require("basalt")
 --- What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt".
---- @class Basalt
+--- @class basalt
 --- @field traceback boolean Whether to show a traceback on errors
 --- @field _events table A table of events and their callbacks
 --- @field _schedule function[] A table of scheduled functions
@@ -92,7 +91,7 @@ end
 
 --- Creates and returns a new BaseFrame
 --- @shortDescription Creates a new BaseFrame
---- @return table BaseFrame The created frame instance
+--- @return BaseFrame BaseFrame The created frame instance
 --- @usage local mainFrame = basalt.createFrame()
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
@@ -111,7 +110,7 @@ end
 
 --- Gets or creates the main frame
 --- @shortDescription Gets or creates the main frame
---- @return BaseFrame table The main frame instance
+--- @return BaseFrame BaseFrame The main frame instance
 --- @usage local frame = basalt.getMainFrame()
 function basalt.getMainFrame()
     if(mainFrame == nil)then

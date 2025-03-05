@@ -2,6 +2,10 @@ local function findClassName(content)
     return content:match("%-%-%-@class%s+(%w+)")
 end
 
+local function findParentClass(content)
+    return content:match("%-%-%-@class%s+%w+%s*:%s*(%w+)")
+end
+
 local function parseProperties(content)
     local properties = {}
     for line in content:gmatch("[^\r\n]+") do
@@ -80,7 +84,40 @@ local function collectAllClassNames(folder)
     return classes
 end
 
+local function getParentProperties(parentClass, allClasses)
+    -- Rekursiv alle Properties der Elternklasse(n) holen
+    local properties = {}
+    if parentClass then
+        for _, classContent in pairs(allClasses) do
+            if classContent.name == parentClass then
+                -- Properties der Elternklasse kopieren
+                for _, prop in ipairs(classContent.properties) do
+                    table.insert(properties, prop)
+                end
+                -- Auch von der Elternklasse der Elternklasse holen
+                if classContent.parent then
+                    local parentProps = getParentProperties(classContent.parent, allClasses)
+                    for _, prop in ipairs(parentProps) do
+                        table.insert(properties, prop) 
+                    end
+                end
+                break
+            end
+        end
+    end
+    return properties
+end
+
 local function generateClassContent(className, properties, combinedProperties, events, allClasses)
+    -- Parent-Klasse finden
+    local parentClass = findParentClass(content)
+    -- Properties der Elternklasse(n) holen
+    local inheritedProps = getParentProperties(parentClass, allClasses)
+    -- Mit eigenen Properties kombinieren
+    for _, prop in ipairs(inheritedProps) do
+        table.insert(properties, prop)
+    end
+
     if #properties == 0 and #events == 0 and className ~= "Container" then
         return nil
     end

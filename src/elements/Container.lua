@@ -62,7 +62,7 @@ Container.defineProperty(Container, "offsetY", {default = 0, type = "number", ca
     return value
 end})
 
----@combinedProperty offset {offsetX offsetY} Combined property for offsetX and offsetY
+---@combinedProperty offset {offsetX number, offsetY number} Combined property for offsetX and offsetY
 Container.combineProperties(Container, "offset", "offsetX", "offsetY")
 
 for k, _ in pairs(elementManager:getElementList()) do

@@ -196,8 +196,7 @@ end
 
 ---@splitClass
 
---- Container benchmarking methods
----@class Container
+---@class Container : VisualElement
 local Container = {}
 
 --- Enables benchmarking for a container and all its children
