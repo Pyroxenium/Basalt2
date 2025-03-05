@@ -144,29 +144,6 @@ local function createTableFromNode(node, scope)
     return list
 end
 
-local Container = {}
-function Container:loadXML(content, scope)
-    scope = scope or {}
-    local nodes = XMLParser.parseText(content)
-    self:fromXML(nodes, scope)
-end
-
-local baseFromXml
-function Container.setup()
-    baseFromXml = require("elementManager").getElement("BaseElement").fromXML
-end
-
-function Container:fromXML(content, scope)
-    baseFromXml(self, content, scope)
-    for _, node in ipairs(content) do
-        local capitalizedName = node.tag:sub(1,1):upper() .. node.tag:sub(2)
-        if self["add"..capitalizedName] then
-            local element = self["add"..capitalizedName](self)
-            element:fromXML(node, scope)
-        end
-    end
-end
-
 local BaseElement = {}
 function BaseElement:fromXML(node, scope)
     if(node.attributes)then
@@ -206,8 +183,6 @@ function BaseElement:fromXML(node, scope)
                             table.insert(args, convertValue(child.value, scope))
                         elseif (child.tag == "table")then
                             table.insert(args, createTableFromNode(child, scope))
-                        else
-                            errorManager.error("XMLParser: unknown child '" .. child.tag .. "' in element '" .. self:getType() .. "'")
                         end
                     end
                 end
@@ -220,9 +195,36 @@ function BaseElement:fromXML(node, scope)
                     else
                         self[child.tag](self)
                     end
-                else
-                    errorManager.error("XMLParser: method '" .. child.tag .. "' not found in element '" .. self:getType() .. "'")
                 end
+            end
+        end
+    end
+end
+
+local Container = {}
+function Container:loadXML(content, scope)
+    scope = scope or {}
+    local nodes = XMLParser.parseText(content)
+    self:fromXML(nodes, scope)
+    if(nodes)then
+        for _, node in ipairs(nodes) do
+            local capitalizedName = node.tag:sub(1,1):upper() .. node.tag:sub(2)
+            if self["add"..capitalizedName] then
+                local element = self["add"..capitalizedName](self)
+                element:fromXML(node, scope)
+            end
+        end
+    end
+end
+
+function Container:fromXML(nodes, scope)
+    BaseElement.fromXML(self, nodes, scope)
+    if(nodes.children)then
+        for _, node in ipairs(nodes.children) do
+            local capitalizedName = node.tag:sub(1,1):upper() .. node.tag:sub(2)
+            if self["add"..capitalizedName] then
+                local element = self["add"..capitalizedName](self)
+                element:fromXML(node, scope)
             end
         end
     end
