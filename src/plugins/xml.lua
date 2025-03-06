@@ -199,6 +199,7 @@ function BaseElement:fromXML(node, scope)
             end
         end
     end
+    return self
 end
 
 local Container = {}
@@ -215,6 +216,7 @@ function Container:loadXML(content, scope)
             end
         end
     end
+    return self
 end
 
 function Container:fromXML(nodes, scope)
@@ -228,6 +230,7 @@ function Container:fromXML(nodes, scope)
             end
         end
     end
+    return self
 end
 
 return {

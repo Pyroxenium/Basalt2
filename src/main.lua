@@ -28,6 +28,7 @@ else
 end
 
 local mainFrame = nil
+local activeFrame = nil
 local updaterActive = false
 local _type = type
 
@@ -96,7 +97,10 @@ end
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
     frame:postInit()
-    if(mainFrame==nil)then mainFrame = frame end
+    if(mainFrame==nil)then 
+        mainFrame = frame
+        activeFrame = frame
+    end
     return frame
 end
 
@@ -115,17 +119,26 @@ end
 function basalt.getMainFrame()
     if(mainFrame == nil)then
         mainFrame = basalt.createFrame()
+        activeFrame = mainFrame
     end
     return mainFrame
 end
 
 --- Sets the active frame
 --- @shortDescription Sets the active frame
---- @param frame table The frame to set as active
+--- @param frame BaseFrame The frame to set as active
 --- @usage basalt.setActiveFrame(myFrame)
 function basalt.setActiveFrame(frame)
-    mainFrame = frame
-    mainFrame:updateRender()
+    activeFrame = frame
+    activeFrame:updateRender()
+end
+
+--- Returns the active frame
+--- @shortDescription Returns the active frame
+--- @return BaseFrame? BaseFrame The frame to set as active
+--- @usage local frame = basalt.getActiveFrame()
+function basalt.getActiveFrame()
+    return activeFrame
 end
 
 --- Schedules a function to run in a coroutine
@@ -168,8 +181,8 @@ local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
     if lazyElementsEventHandler(event, ...) then return end
 
-    if(mainFrame)then
-        mainFrame:dispatchEvent(event, ...)
+    if(activeFrame)then
+        activeFrame:dispatchEvent(event, ...)
     end
 
     for k, func in ipairs(basalt._schedule) do
@@ -194,8 +207,8 @@ local function updateEvent(event, ...)
 end
 
 local function renderFrames()
-    if(mainFrame)then
-        mainFrame:render()
+    if(activeFrame)then
+        activeFrame:render()
     end
 end
 
