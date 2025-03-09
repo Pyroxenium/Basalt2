@@ -13,6 +13,7 @@ local expect = require("libraries/expect")
 --- @field _events table A table of events and their callbacks
 --- @field _schedule function[] A table of scheduled functions
 --- @field _plugins table A table of plugins
+--- @field isRunning boolean Whether the Basalt runtime is active
 --- @field LOGGER Log The logger instance
 --- @field path string The path to the Basalt library
 local basalt = {}
@@ -20,6 +21,7 @@ basalt.traceback = true
 basalt._events = {}
 basalt._schedule = {}
 basalt._plugins = {}
+basalt.isRunning = false
 basalt.LOGGER = require("log")
 if(minified)then
     basalt.path = fs.getDir(shell.getRunningProgram())
@@ -29,7 +31,6 @@ end
 
 local mainFrame = nil
 local activeFrame = nil
-local updaterActive = false
 local _type = type
 
 local lazyElements = {}
@@ -232,7 +233,7 @@ end
 --- @shortDescription Stops the Basalt runtime
 --- @usage basalt.stop()
 function basalt.stop()
-    updaterActive = false
+    basalt.isRunning = false
     term.clear()
     term.setCursorPos(1,1)
 end
@@ -243,18 +244,22 @@ end
 --- @usage basalt.run()
 --- @usage basalt.run(false)
 function basalt.run(isActive)
-    updaterActive = isActive
-    if(isActive==nil)then updaterActive = true end
+    if(basalt.isRunning)then errorManager.error("Basalt is already running") end
+    if(isActive==nil)then 
+        basalt.isRunning = true
+    else
+        basalt.isRunning = isActive
+    end
     local function f()
         renderFrames()
-        while updaterActive do
+        while basalt.isRunning do
             updateEvent(os.pullEventRaw())
-            if(updaterActive)then
+            if(basalt.isRunning)then
                 renderFrames()
             end
         end
     end
-    while updaterActive do
+    while basalt.isRunning do
         local ok, err = pcall(f)
         if not(ok)then
             errorManager.header = "Basalt Runtime Error"
