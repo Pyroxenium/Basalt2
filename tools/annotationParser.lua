@@ -109,11 +109,8 @@ local function getParentProperties(parentClass, allClasses)
 end
 
 local function generateClassContent(className, properties, combinedProperties, events, allClasses)
-    -- Parent-Klasse finden
     local parentClass = findParentClass(content)
-    -- Properties der Elternklasse(n) holen
     local inheritedProps = getParentProperties(parentClass, allClasses)
-    -- Mit eigenen Properties kombinieren
     for _, prop in ipairs(inheritedProps) do
         table.insert(properties, prop)
     end

@@ -6,3 +6,4 @@ ascii.lua
 tests
 testWorkflows
 .vscode
+generate-annotations.lua

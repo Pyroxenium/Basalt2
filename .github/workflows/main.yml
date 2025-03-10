@@ -29,10 +29,7 @@ jobs:
         run: |
           lua tools/generate-config.lua
 
-      # Step 2: Generate LuaLS Definitions
-      - name: Generate LuaLS
-        run: |
-          lua tools/annotationParser.lua src/elements src/LuaLS.lua
+
 
       # Step 3: Bundle and Minify
       - name: Bundle and Minify
