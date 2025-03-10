@@ -348,7 +348,11 @@ cc.defineProperty(cc,"fontSize",{default=1,type="number",canTriggerRender=true,s
 dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})
 function cc.new()local dc=setmetatable({},cc):__init()
 dc.set("width",16)dc.set("height",3)dc.set("z",5)return dc end
-function cc:init(dc,_d)bc.init(self,dc,_d)self.set("type","BigFont")end
+function cc:init(dc,_d)bc.init(self,dc,_d)self.set("type","BigFont")
+self:observe("background",function(ad,bd)
+ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),ad.get("foreground"),bd)end)
+self:observe("foreground",function(ad,bd)
+ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),bd,ad.get("background"))end)end
 function cc:render()bc.render(self)
 if(self.bigfontText)then
 local dc,_d=self.get("x"),self.get("y")
@@ -1652,9 +1656,9 @@ if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;retur
 project["main.lua"] = function(...) local cc=require("elementManager")
 local dc=require("errorManager")local _d=require("propertySystem")
 local ad=require("libraries/expect")local bd={}bd.traceback=true;bd._events={}bd._schedule={}bd._plugins={}
-bd.LOGGER=require("log")
+bd.isRunning=false;bd.LOGGER=require("log")
 if(minified)then
-bd.path=fs.getDir(shell.getRunningProgram())else bd.path=fs.getDir(select(2,...))end;local cd=nil;local dd=false;local __a=type;local a_a={}local b_a=10;local c_a=0;local d_a=false;local function _aa()if(d_a)then return end
+bd.path=fs.getDir(shell.getRunningProgram())else bd.path=fs.getDir(select(2,...))end;local cd=nil;local dd=nil;local __a=type;local a_a={}local b_a=10;local c_a=0;local d_a=false;local function _aa()if(d_a)then return end
 c_a=os.startTimer(0.2)d_a=true end;local function aaa(_ba)
 for _=1,_ba do local aba=a_a[1]if(aba)then
 aba:create()end;table.remove(a_a,1)end end
@@ -1667,11 +1671,11 @@ if(bba)then
 local _ca=_d.blueprint(dba,aba,bd,cba)table.insert(a_a,_ca)_aa()return _ca else local _ca=dba.new()
 _ca:init(aba,bd)return _ca end end
 function bd.createFrame()local _ba=bd.create("BaseFrame")_ba:postInit()if(cd==nil)then
-cd=_ba end;return _ba end;function bd.getElementManager()return cc end;function bd.getMainFrame()if(cd==nil)then
-cd=bd.createFrame()end;return cd end;function bd.setActiveFrame(_ba)
-cd=_ba;cd:updateRender()end
-function bd.schedule(_ba)
-ad(1,_ba,"function")local aba=coroutine.create(_ba)
+cd=_ba;dd=_ba end;return _ba end;function bd.getElementManager()return cc end;function bd.getMainFrame()if(cd==nil)then
+cd=bd.createFrame()dd=cd end;return cd end;function bd.setActiveFrame(_ba)
+dd=_ba;dd:updateRender()end
+function bd.getActiveFrame()return dd end
+function bd.schedule(_ba)ad(1,_ba,"function")local aba=coroutine.create(_ba)
 local bba,cba=coroutine.resume(aba)
 if(bba)then
 table.insert(bd._schedule,{coroutine=aba,filter=cba})else dc.header="Basalt Schedule Error"dc.error(cba)end;return aba end
@@ -1679,22 +1683,24 @@ function bd.removeSchedule(_ba)
 for aba,bba in ipairs(bd._schedule)do if(bba.coroutine==_ba)then
 table.remove(bd._schedule,aba)return true end end;return false end
 local function caa(_ba,...)if(_ba=="terminate")then bd.stop()end
-if baa(_ba,...)then return end;if(cd)then cd:dispatchEvent(_ba,...)end
+if baa(_ba,...)then return end;if(dd)then dd:dispatchEvent(_ba,...)end
 for aba,bba in
 ipairs(bd._schedule)do
 if(_ba==bba.filter)or(bba.filter==nil)then
 local cba,dba=coroutine.resume(bba.coroutine,_ba,...)
 if(not cba)then dc.header="Basalt Schedule Error"dc.error(dba)end;bba.filter=dba end;if(coroutine.status(bba.coroutine)=="dead")then
 bd.removeSchedule(bba.coroutine)end end;if bd._events[_ba]then
-for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(cd)then cd:render()end end
+for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(dd)then dd:render()end end
 function bd.update(...)local _ba=function(...)caa(...)
 daa()end;local aba,bba=pcall(_ba,...)if not(aba)then
-dc.header="Basalt Runtime Error"dc.error(bba)end end
-function bd.stop()dd=false;term.clear()term.setCursorPos(1,1)end
-function bd.run(_ba)dd=_ba;if(_ba==nil)then dd=true end
-local function aba()daa()while dd do
-caa(os.pullEventRaw())if(dd)then daa()end end end
-while dd do local bba,cba=pcall(aba)if not(bba)then dc.header="Basalt Runtime Error"
+dc.header="Basalt Runtime Error"dc.error(bba)end end;function bd.stop()bd.isRunning=false;term.clear()
+term.setCursorPos(1,1)end
+function bd.run(_ba)if(bd.isRunning)then
+dc.error("Basalt is already running")end
+if(_ba==nil)then bd.isRunning=true else bd.isRunning=_ba end
+local function aba()daa()while bd.isRunning do caa(os.pullEventRaw())
+if(bd.isRunning)then daa()end end end
+while bd.isRunning do local bba,cba=pcall(aba)if not(bba)then dc.header="Basalt Runtime Error"
 dc.error(cba)end end end;function bd.getElementClass(_ba)return cc.getElement(_ba)end;function bd.getAPI(_ba)return
 cc.getAPI(_ba)end;return bd end
 project["libraries/colorHex.lua"] = function(...) local b={}for i=0,15 do b[2 ^i]=("%x"):format(i)
@@ -1729,153 +1735,86 @@ aa.get("type")~=nil then return true end end
 if ba=="color"then if ca=="number"then return true end;if
 ca=="string"and colors[aa]then return true end end;if ca~=ba then c.header="Basalt Type Error"
 c.error(string.format("Bad argument #%d: expected %s, got %s",_a,ba,ca))end;return true end;return d end
-project["plugins/xml.lua"] = function(...) local cb=require("errorManager")local db={}
-local _c={TAG_OPEN="TAG_OPEN",TAG_CLOSE="TAG_CLOSE",TAG_SELF_CLOSE="TAG_SELF_CLOSE",ATTRIBUTE="ATTRIBUTE",TEXT="TEXT",CDATA="CDATA",COMMENT="COMMENT"}
-local function ac(__a)local a_a={}local b_a=1;local c_a=1
-while b_a<=#__a do local d_a=__a:sub(b_a,b_a)
-if d_a:match("%s")then b_a=
-b_a+1 elseif __a:sub(b_a,b_a+8)=="<![CDATA["then
-local _aa=__a:find("]]>",b_a+9)
-if not _aa then cb.error("Unclosed CDATA section")end
-table.insert(a_a,{type=_c.CDATA,value=__a:sub(b_a+9,_aa-1)})b_a=_aa+3 elseif __a:sub(b_a,b_a+3)=="<!--"then
-local _aa=__a:find("-->",b_a+4)if not _aa then cb.error("Unclosed comment")end
-table.insert(a_a,{type=_c.COMMENT,value=__a:sub(
-b_a+4,_aa-1)})b_a=_aa+3 elseif d_a=="<"then
-if __a:sub(b_a+1,b_a+1)=="/"then
-local _aa=__a:find(">",b_a)if not _aa then cb.error("Unclosed tag")end
-table.insert(a_a,{type=_c.TAG_CLOSE,value=__a:sub(
-b_a+2,_aa-1):match("^%s*(.-)%s*$")})b_a=_aa+1 else local _aa=""b_a=b_a+1;local aaa=false
-while b_a<=#__a do d_a=__a:sub(b_a,b_a)
-if
-d_a==">"then
-table.insert(a_a,{type=aaa and _c.TAG_SELF_CLOSE or _c.TAG_OPEN,value=_aa:match("^%s*(.-)%s*$")})b_a=b_a+1;break elseif
-d_a=="/"and __a:sub(b_a+1,b_a+1)==">"then
-table.insert(a_a,{type=_c.TAG_SELF_CLOSE,value=_aa:match("^%s*(.-)%s*$")})b_a=b_a+2;break elseif
-d_a=="/"and __a:sub(b_a-1,b_a-1):match("%s")then aaa=true else _aa=_aa..d_a end;b_a=b_a+1 end end else local _aa=""
-while b_a<=#__a and __a:sub(b_a,b_a)~="<"do _aa=_aa..
-__a:sub(b_a,b_a)b_a=b_a+1 end;if _aa:match("%S")then
-table.insert(a_a,{type=_c.TEXT,value=_aa:match("^%s*(.-)%s*$")})end end;if d_a=="\n"then c_a=c_a+1 end end;return a_a end
-local function bc(__a)local a_a={name="root",children={},attributes={}}local b_a={a_a}local c_a=a_a;local d_a=1
+project["plugins/xml.lua"] = function(...) local ab=require("errorManager")local bb=require("log")
+local cb={new=function(ad)
+return
+{tag=ad,value=nil,attributes={},children={},addChild=function(bd,cd)
+table.insert(bd.children,cd)end,addAttribute=function(bd,cd,dd)bd.attributes[cd]=dd end}end}
+local db=function(ad,bd)
+local cd,dd=string.gsub(bd,"(%w+)=([\"'])(.-)%2",function(b_a,c_a,d_a)
+ad:addAttribute(b_a,"\""..d_a.."\"")end)
+local __a,a_a=string.gsub(bd,"(%w+)={(.-)}",function(b_a,c_a)ad:addAttribute(b_a,c_a)end)end
+local _c={parseText=function(ad)local bd={}local cd=cb.new()table.insert(bd,cd)local dd,__a,a_a,b_a,c_a;local d_a,_aa=1,1
 while
-d_a<=#__a do local _aa=__a[d_a]
-if _aa.type==_c.TAG_OPEN then
-local aaa,baa=_aa.value:match("(%S+)(.*)")
-local caa={name=aaa,attributes={},children={},parent=c_a,line=_aa.line}
-for daa,_ba in baa:gmatch('%s(%w+)="([^"]-)"')do caa.attributes[daa]=_ba end;table.insert(c_a.children,caa)
-table.insert(b_a,caa)c_a=caa elseif _aa.type==_c.TAG_SELF_CLOSE then
-local aaa,baa=_aa.value:match("(%S+)(.*)")
-local caa={name=aaa,attributes={},children={},parent=c_a,line=_aa.line}
-for daa,_ba in baa:gmatch('%s(%w+)="([^"]-)"')do caa.attributes[daa]=_ba end;table.insert(c_a.children,caa)elseif _aa.type==_c.TAG_CLOSE then if
-c_a.name~=_aa.value then
-cb.error(string.format("Mismatched closing tag: expected </%s>, got </%s>",c_a.name,_aa.value))end
-table.remove(b_a)c_a=b_a[#b_a]elseif _aa.type==_c.TEXT then
-table.insert(c_a.children,{name="#text",value=_aa.value,line=_aa.line})elseif _aa.type==_c.CDATA then
-table.insert(c_a.children,{name="#cdata",value=_aa.value,line=_aa.line})elseif _aa.type==_c.COMMENT then
-table.insert(c_a.children,{name="#comment",value=_aa.value,line=_aa.line})end;d_a=d_a+1 end;return a_a end;function db.parse(__a)local a_a=ac(__a)return bc(a_a)end
-local function cc(__a,a_a)
-if not __a then return __a end
-if __a:match("^%${.*}$")then local b_a=__a:match("^%${(.*)}$")
+true do
+dd,_aa,__a,a_a,b_a,c_a=string.find(ad,"<(%/?)([%w_:]+)(.-)(%/?)>",d_a)if not dd then break end;local baa=string.sub(ad,d_a,dd-1)if not
+string.find(baa,"^%s*$")then local caa=(cd.value or"")..baa
+bd[#bd].value=caa end
+if c_a=="/"then local caa=cb.new(a_a)
+db(caa,b_a)cd:addChild(caa)elseif __a==""then local caa=cb.new(a_a)db(caa,b_a)
+table.insert(bd,caa)cd=caa else local caa=table.remove(bd)cd=bd[#bd]
+if#bd<1 then ab.error(
+"XMLParser: nothing to close with "..a_a)end;if caa.tag~=a_a then
+ab.error("XMLParser: trying to close "..caa.tag.." with "..a_a)end;cd:addChild(caa)end;d_a=_aa+1 end;local aaa=string.sub(ad,d_a)if#bd>1 then
+error("XMLParser: unclosed "..bd[#bd].tag)end;return cd.children end}local ac=require("log").debug
+local function bc(ad,bd)if ad:sub(1,1)=="\""and
+ad:sub(-1)=="\""then ad=ad:sub(2,-2)end
 if
-b_a:match("^[%w_]+$")then if a_a and a_a[b_a]then return a_a[b_a]else
-cb.error(string.format('Variable "%s" not found in scope',b_a))return __a end end
-local c_a=setmetatable({},{__index=function(caa,daa)if a_a and a_a[daa]then return a_a[daa]elseif _ENV[daa]then return _ENV[daa]else
-error(string.format('Variable "%s" not found in scope',daa))end end})local d_a,_aa=load("return "..b_a,"expression","t",c_a)if
-not d_a then
-cb.error("Failed to parse expression: ".._aa)return __a end;local aaa,baa=pcall(d_a)if not aaa then cb.error(
-"Failed to evaluate expression: "..baa)
-return __a end;return baa end
-return
-__a:gsub("%${([^}]+)}",function(b_a)
-if b_a:match("^[%w_]+$")then if a_a and a_a[b_a]then
-return tostring(a_a[b_a])else
-cb.error(string.format('Variable "%s" not found in scope',b_a))return b_a end end
-local c_a=setmetatable({},{__index=function(aaa,baa)return a_a and a_a[baa]or _ENV[baa]end})local d_a,_aa=load("return "..b_a,"expression","t",c_a)if
-not d_a then
-cb.error("Failed to parse expression: ".._aa)return b_a end;return tostring(d_a())end)end
-local function dc(__a,a_a,b_a)
-if a_a=="string"and type(__a)=="string"then if __a:find("${")then return
-cc(__a,b_a)end end;if type(__a)=="string"and __a:match("^%${.*}$")then
-return cc(__a,b_a)end
-if a_a=="number"then if(tonumber(__a)==nil)then
-return __a end;return tonumber(__a)elseif a_a=="boolean"then return __a=="true"elseif
-a_a=="color"then return colors[__a]elseif a_a=="table"then
-local c_a=setmetatable({},{__index=_ENV})local d_a=load("return "..__a,nil,"t",c_a)
-if d_a then return d_a()end end;return __a end
-local _d={setProperty=function(__a,a_a,b_a)
-return
-function(...)local c_a=__a.attributes.target or"self"local d_a;if c_a=="self"then
-d_a=a_a elseif c_a=="parent"then d_a=a_a.parent else
-d_a=a_a:getBaseFrame():getChild(c_a)end;if not d_a then
-cb.error(string.format('Target "%s" not found',c_a))return end
-local _aa=__a.attributes.property;local aaa=d_a:getPropertyConfig(_aa)if not aaa then
-cb.error(string.format('Unknown property "%s"',_aa))return end
-local baa=dc(__a.attributes.value,aaa.type,b_a)d_a.set(_aa,baa)end end,execute=function(__a,a_a,b_a)
-return
-function(...)
-local c_a=__a.attributes["function"]if not b_a[c_a]then
-cb.error(string.format('Function "%s" not found in scope',c_a))return end
-b_a[c_a](a_a,...)end end,setValue=function(__a,a_a,b_a)
-return function(...)
-local c_a=__a.attributes.name;local d_a=dc(__a.attributes.value,"string",b_a)
-b_a[c_a]=d_a end end}
-local ad={onClick={"self","button","x","y"},onScroll={"self","direction","x","y"},onDrag={"self","button","x","y"},onKey={"self","key"},onChar={"self","char"},onKeyUp={"self","key"}}
-local function bd(__a,a_a,b_a)local c_a=__a.name:match("^on%u")if not c_a then return end;local d_a=
-__a.name:sub(3,3):lower()..__a.name:sub(4)local _aa={}
-for aaa,baa in ipairs(
-__a.children or{})do
-if baa.name=="#cdata"then if not c_a then
-cb.error("CDATA blocks can only be used inside event tags")return end
-local caa=__a.name:sub(3)local daa=ad["on"..caa]or{"self"}
-local _ba=table.concat(daa,", ")
-local aba=[[
-                return function(%s)
-                    %s
-                end
-            ]]local bba={}
-if b_a then for bca,cca in pairs(b_a)do bba[bca]=cca end end;bba.colors=colors;bba.term=term;bba.math=math
-local cba=baa.value:gsub("^%s+",""):gsub("%s+$","")local dba=string.format(aba,_ba,cba)
-local _ca,aca=load(dba,"event","t",bba)
-if aca then
-cb.error("Failed to parse event: "..aca)elseif _ca then
-local bca=__a.name:sub(3,3):lower()..__a.name:sub(4)
-a_a["on"..bca:sub(1,1):upper()..bca:sub(2)](a_a,_ca())end elseif baa.name~="#text"then local caa=_d[baa.name]if not caa then
-cb.error(string.format('Unknown action tag "%s"',baa.name))return end
-table.insert(_aa,caa(baa,a_a,b_a))end end;if#_aa>0 then
-a_a["on"..d_a:sub(1,1):upper()..d_a:sub(2)](a_a,function(...)for aaa,baa in
-ipairs(_aa)do baa(...)end end)end end
-local function cd(__a,a_a,b_a)local c_a=a_a:getPropertyConfig(__a.name)
-if c_a then
-if c_a.type=="table"then
-local d_a={}
-for _aa,aaa in ipairs(__a.children)do
-if aaa.name=="item"or aaa.name=="entry"then
-local baa={}
-for caa,daa in pairs(aaa.attributes)do if(colors[daa])then baa[caa]=colors[daa]else
-baa[caa]=dc(daa,"string",b_a)end end
-for caa,daa in ipairs(aaa.children)do
+ad:sub(1,2)=="${"and ad:sub(-1)=="}"then ad=ad:sub(3,-2)if
+(bd[ad])then return bd[ad]else
+ab.error("XMLParser: variable '"..ad.."' not found in scope")end end
+if ad:match("^%s*<!%[CDATA%[.*%]%]>%s*$")then
+local cd=ad:match("<!%[CDATA%[(.*)%]%]>")local dd=_ENV;for __a,a_a in pairs(bd)do dd[__a]=a_a end;return
+load("return "..cd,nil,"bt",dd)()end
+if ad=="true"then return true elseif ad=="false"then return false elseif colors[ad]then return colors[ad]elseif tonumber(ad)then return
+tonumber(ad)else return ad end end
+local function cc(ad,bd)local cd={}
+for dd,__a in pairs(ad.children)do
+if __a.tag=="item"or __a.tag=="entry"then
+local a_a={}
+for b_a,c_a in pairs(__a.attributes)do a_a[b_a]=bc(c_a,bd)end;for b_a,c_a in pairs(__a.children)do
+if c_a.value then a_a[c_a.tag]=bc(c_a.value,bd)elseif#
+c_a.children>0 then a_a[c_a.tag]=cc(c_a)end end
+table.insert(cd,a_a)else if __a.value then cd[__a.tag]=bc(__a.value,bd)elseif#__a.children>0 then
+cd[__a.tag]=cc(__a)end end end;return cd end;local dc={}
+function dc:fromXML(ad,bd)
+if(ad.attributes)then
+for cd,dd in pairs(ad.attributes)do
+if(self._properties[cd])then
+self.set(cd,bc(dd,bd))elseif self[cd]then
+if(cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")if(bd[__a])then
+self[cd](self,bd[__a])else
+ab.error("XMLParser: variable '"..dd.."' not found in scope")end else
+ab.error("XMLParser: property '"..
+cd..
+"' not found in element '"..self:getType().."'")end else
+ab.error("XMLParser: property '"..cd..
+"' not found in element '"..self:getType().."'")end end end
+if(ad.children)then
+for cd,dd in pairs(ad.children)do
+if(self._properties[dd.tag])then if(
+self._properties[dd.tag].type=="table")then self.set(dd.tag,cc(dd,bd))else
+self.set(dd.tag,bc(dd.value,bd))end else local __a={}
+if(dd.children)then
+for a_a,b_a in
+pairs(dd.children)do
+if(b_a.tag=="param")then
+table.insert(__a,bc(b_a.value,bd))elseif(b_a.tag=="table")then table.insert(__a,cc(b_a,bd))end end end
+if(self[dd.tag])then if(#__a>0)then
+self[dd.tag](self,table.unpack(__a))elseif(dd.value)then self[dd.tag](self,bc(dd.value,bd))else
+self[dd.tag](self)end end end end end;return self end;local _d={}
+function _d:loadXML(ad,bd)bd=bd or{}local cd=_c.parseText(ad)
+self:fromXML(cd,bd)
+if(cd)then
+for dd,__a in ipairs(cd)do
+local a_a=__a.tag:sub(1,1):upper()..__a.tag:sub(2)if self["add"..a_a]then local b_a=self["add"..a_a](self)
+b_a:fromXML(__a,bd)end end end;return self end
+function _d:fromXML(ad,bd)dc.fromXML(self,ad,bd)
+if(ad.children)then
+for cd,dd in ipairs(ad.children)do local __a=
+dd.tag:sub(1,1):upper()..dd.tag:sub(2)
 if
-daa.name~="#text"and daa.name~="#cdata"then
-if daa.children and#daa.children>0 then local _ba=daa.children[1]
-if
-_ba.name=="#text"then baa[daa.name]=dc(_ba.value,"string",b_a)end else local _ba={}
-for aba,bba in pairs(daa.attributes)do _ba[aba]=dc(bba,"string",b_a)end;baa[daa.name]=next(_ba)and _ba or""end end end;table.insert(d_a,baa)end end;a_a.set(__a.name,d_a)return true else local d_a=__a.children[1]if d_a and
-d_a.name=="#text"then
-a_a.set(__a.name,dc(d_a.value,c_a.type,b_a))return true end end end;return false end;local dd={}
-function dd:loadXML(__a,a_a)a_a=a_a or{}local b_a=db.parse(__a)
-local function c_a(d_a,_aa,aaa)
-for baa,caa in ipairs(d_a.children)do
-if
-caa.name:sub(1,1)~="#"then
-if caa.name:match("^on")then bd(caa,_aa,aaa)else
-local daa=cd(caa,_aa,aaa)
-if not daa then
-local _ba=caa.name:sub(1,1):upper()..caa.name:sub(2)local aba="add".._ba
-if not _aa[aba]then
-local cba=_aa.get and _aa.get("type")or"Unknown"
-cb.error(string.format('Tag <%s> is not valid inside <%s>',caa.name,cba:lower()))return end;local bba=_aa[aba](_aa,caa.attributes.name)
-for cba,dba in
-pairs(caa.attributes)do local _ca=bba:getPropertyConfig(cba)if _ca then
-local aca=dc(dba,_ca.type,aaa)bba.set(cba,aca)end end;if#caa.children>0 then c_a(caa,bba,aaa)end end end end end end;c_a(b_a,self,a_a)return self end;return{Container=dd} end
+self["add"..__a]then local a_a=self["add"..__a](self)a_a:fromXML(dd,bd)end end end;return self end;return{API=_c,Container=_d,BaseElement=dc} end
 project["plugins/state.lua"] = function(...) local d=require("propertySystem")
 local _a=require("errorManager")local aa={}
 function aa.setup(ba)
