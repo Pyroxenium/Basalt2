@@ -21,7 +21,7 @@ like Frames, BaseFrames, and more.
 
 |Name|Properties|Description|
 |---|---|---|
-|offset|`offsetX offsetY`|Combined property for offsetX and offsetY|
+|offset|`offsetX number, offsetY number`|Combined property for offsetX and offsetY|
 
 ## Functions
 
