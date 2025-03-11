@@ -74,19 +74,43 @@ local XMLParser = {
     end
 }
 
-local log = require("log").debug
+local function findExpressions(text)
+    local expressions = {}
+    local lastIndex = 1
+    
+    while true do
+        local startPos, endPos, expr = text:find("%${([^}]+)}", lastIndex)
+        if not startPos then break end
+        
+        table.insert(expressions, {
+            start = startPos,
+            ending = endPos, 
+            expression = expr,
+            raw = text:sub(startPos, endPos)
+        })
+        
+        lastIndex = endPos + 1
+    end
+    
+    return expressions
+end
 
 local function convertValue(value, scope)
     if value:sub(1,1) == "\"" and value:sub(-1) == "\"" then
         value = value:sub(2, -2)
     end
 
-    if value:sub(1,2) == "${" and value:sub(-1) == "}" then
-        value = value:sub(3, -2)
-        if(scope[value])then
-            return scope[value]
+    local expressions = findExpressions(value)
+
+    for _, expr in ipairs(expressions) do
+        local expression = expr.expression
+        local startPos = expr.start - 1
+        local endPos = expr.ending + 1
+
+        if scope[expression] then
+            value = value:sub(1, startPos) .. tostring(scope[expression]) .. value:sub(endPos)
         else
-            errorManager.error("XMLParser: variable '" .. value .. "' not found in scope")
+            errorManager.error("XMLParser: variable '" .. expression .. "' not found in scope")
         end
     end
 
@@ -154,9 +178,12 @@ function BaseElement:fromXML(node, scope)
                 if(k:sub(1,2)=="on")then
                     local val = v:gsub("\"", "")
                     if(scope[val])then
+                        if(type(scope[val]) ~= "function")then
+                            errorManager.error("XMLParser: variable '" .. val .. "' is not a function for element '" .. self:getType() .. "' "..k)
+                        end
                         self[k](self, scope[val])
                     else
-                        errorManager.error("XMLParser: variable '" .. v .. "' not found in scope")
+                        errorManager.error("XMLParser: variable '" .. val .. "' not found in scope")
                     end
                 else
                     errorManager.error("XMLParser: property '" .. k .. "' not found in element '" .. self:getType() .. "'")
