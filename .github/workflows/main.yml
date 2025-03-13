@@ -30,7 +30,7 @@ jobs:
           lua tools/generate-config.lua
 
 
-
+          
       # Step 3: Bundle and Minify
       - name: Bundle and Minify
         run: |
