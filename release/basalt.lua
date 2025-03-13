@@ -1756,16 +1756,21 @@ table.insert(bd,caa)cd=caa else local caa=table.remove(bd)cd=bd[#bd]
 if#bd<1 then ab.error(
 "XMLParser: nothing to close with "..a_a)end;if caa.tag~=a_a then
 ab.error("XMLParser: trying to close "..caa.tag.." with "..a_a)end;cd:addChild(caa)end;d_a=_aa+1 end;local aaa=string.sub(ad,d_a)if#bd>1 then
-error("XMLParser: unclosed "..bd[#bd].tag)end;return cd.children end}local ac=require("log").debug
-local function bc(ad,bd)if ad:sub(1,1)=="\""and
-ad:sub(-1)=="\""then ad=ad:sub(2,-2)end
-if
-ad:sub(1,2)=="${"and ad:sub(-1)=="}"then ad=ad:sub(3,-2)if
-(bd[ad])then return bd[ad]else
-ab.error("XMLParser: variable '"..ad.."' not found in scope")end end
+error("XMLParser: unclosed "..bd[#bd].tag)end;return cd.children end}
+local function ac(ad)local bd={}local cd=1
+while true do local dd,__a,a_a=ad:find("%${([^}]+)}",cd)
+if not dd then break end
+table.insert(bd,{start=dd,ending=__a,expression=a_a,raw=ad:sub(dd,__a)})cd=__a+1 end;return bd end
+local function bc(ad,bd)if ad:sub(1,1)=="\""and ad:sub(-1)=="\""then
+ad=ad:sub(2,-2)end;local cd=ac(ad)
+for dd,__a in ipairs(cd)do local a_a=__a.expression;local b_a=
+__a.start-1;local c_a=__a.ending+1;if bd[a_a]then ad=ad:sub(1,b_a)..
+tostring(bd[a_a])..ad:sub(c_a)else
+ab.error(
+"XMLParser: variable '"..a_a.."' not found in scope")end end
 if ad:match("^%s*<!%[CDATA%[.*%]%]>%s*$")then
-local cd=ad:match("<!%[CDATA%[(.*)%]%]>")local dd=_ENV;for __a,a_a in pairs(bd)do dd[__a]=a_a end;return
-load("return "..cd,nil,"bt",dd)()end
+local dd=ad:match("<!%[CDATA%[(.*)%]%]>")local __a=_ENV;for a_a,b_a in pairs(bd)do __a[a_a]=b_a end;return
+load("return "..dd,nil,"bt",__a)()end
 if ad=="true"then return true elseif ad=="false"then return false elseif colors[ad]then return colors[ad]elseif tonumber(ad)then return
 tonumber(ad)else return ad end end
 local function cc(ad,bd)local cd={}
@@ -1782,11 +1787,15 @@ if(ad.attributes)then
 for cd,dd in pairs(ad.attributes)do
 if(self._properties[cd])then
 self.set(cd,bc(dd,bd))elseif self[cd]then
-if(cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")if(bd[__a])then
+if(cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")
+if(bd[__a])then if(
+type(bd[__a])~="function")then
+ab.error("XMLParser: variable '"..
+__a.."' is not a function for element '"..self:getType()..
+"' "..cd)end
 self[cd](self,bd[__a])else
-ab.error("XMLParser: variable '"..dd.."' not found in scope")end else
-ab.error("XMLParser: property '"..
-cd..
+ab.error("XMLParser: variable '"..__a.."' not found in scope")end else
+ab.error("XMLParser: property '"..cd..
 "' not found in element '"..self:getType().."'")end else
 ab.error("XMLParser: property '"..cd..
 "' not found in element '"..self:getType().."'")end end end
