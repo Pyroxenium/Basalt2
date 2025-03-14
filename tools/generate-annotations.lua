@@ -290,10 +290,10 @@ local function parseFiles(files)
     end
 
     local lualsContent = generateLuaLS(finalContent)
-    local outFile = fs.open("LuaLS.lua", "w")
+    local outFile = io.open("LuaLS.lua", "w")
     if outFile then
-        outFile.write(lualsContent)
-        outFile.close()
+        outFile:write(lualsContent)
+        outFile:close()
     end
 end
 
