@@ -32,7 +32,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Event|Parameters|Description|
 |---|---|---|
-|onClick|`button, x, y`|Fired on mouse click|
+|onClick|`button string, x number, y number`|Fired on mouse click|
 |onMouseUp|`button, x, y`|Fired on mouse button release|
 |onRelease|`button, x, y`|Fired when mouse leaves while clicked|
 |onDrag|`button, x, y`|Fired when mouse moves while clicked|
