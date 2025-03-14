@@ -350,6 +350,10 @@ function Image:updateFrame(frameIndex, frame)
     return self
 end
 
+--- Gets the specified frame
+--- @shortDescription Gets the specified frame
+--- @param frameIndex number The index of the frame to get
+--- @return table frame The frame data
 function Image:getFrame(frameIndex)
     local frames = self.get("bimg")
     return frames[frameIndex or self.get("currentFrame")]
