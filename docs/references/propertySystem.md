@@ -27,7 +27,7 @@ It also allows for properties to have custom getters and setters. This is the ba
 |[PropertySystem:instanceProperty](#PropertySystem:instanceProperty)|table|Adds a property to the PropertySystem on instance level
 |[PropertySystem:observe](#PropertySystem:observe)|table|Observers a property
 |[PropertySystem:removeAllObservers](#PropertySystem:removeAllObservers)|table|Removes all observers from a property
-|[PropertySystem:removeObserver](#PropertySystem:removeObserver)|table|
+|[PropertySystem:removeObserver](#PropertySystem:removeObserver)|table|Removes an observer from a property
 |[PropertySystem:removeProperty](#PropertySystem:removeProperty)|table|Removes a property from the PropertySystem
 
 
@@ -128,7 +128,6 @@ Removes all observers from a property
 
 ## PropertySystem:removeObserver(name, callback)
 Removes an observer from a property
-@NshortDescription Removes an observer from a property
 
 ### Parameters
 * `name` `string` The name of the property

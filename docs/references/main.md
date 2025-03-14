@@ -1,4 +1,4 @@
-# Basalt
+# basalt
 This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
 
 Before you can access Basalt, you need to add the following code on top of your file:
@@ -18,6 +18,7 @@ What this code does is it loads basalt into the project, and you can access it b
 |_events|`table`|A table of events and their callbacks|
 |_schedule|`function[]`|A table of scheduled functions|
 |_plugins|`table`|A table of plugins|
+|isRunning|`boolean`|Whether the Basalt runtime is active|
 |LOGGER|`Log`|The logger instance|
 |path|`string`|The path to the Basalt library|
 
@@ -26,8 +27,10 @@ What this code does is it loads basalt into the project, and you can access it b
 |Method|Returns|Description|
 |---|---|---|
 |[basalt.create](#basalt.create)|table|Creates a new UI element
-|[basalt.createFrame](#basalt.createFrame)|table|Creates a new BaseFrame
+|[basalt.createFrame](#basalt.createFrame)|BaseFrame|Creates a new BaseFrame
 |[basalt.getAPI](#basalt.getAPI)|table|Returns a Plugin API
+|[basalt.getActiveFrame](#basalt.getActiveFrame)|BaseFrame?|Returns the active frame
+|[basalt.getElementClass](#basalt.getElementClass)|table|Returns an element class
 |[basalt.getElementManager](#basalt.getElementManager)|table|Returns the element manager
 |[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|Gets or creates the main frame
 |[basalt.removeSchedule](#basalt.removeSchedule)|boolean|Removes a scheduled update
@@ -57,7 +60,7 @@ local button = basalt.create("Button")
 Creates and returns a new BaseFrame
 
 ### Returns
-* `table` `BaseFrame` The created frame instance
+* `BaseFrame` `BaseFrame` The created frame instance
 
 ### Usage
  ```lua
@@ -72,6 +75,26 @@ Returns a Plugin API
 
 ### Returns
 * `table` `Plugin` The plugin API
+
+## basalt.getActiveFrame()
+Returns the active frame
+
+### Returns
+* `BaseFrame?` `BaseFrame` The frame to set as active
+
+### Usage
+ ```lua
+local frame = basalt.getActiveFrame()
+```
+
+## basalt.getElementClass(name)
+Returns an element's class without creating a instance
+
+### Parameters
+* `name` `string` The name of the element
+
+### Returns
+* `table` `Element` The element class
 
 ## basalt.getElementManager()
 Returns the element manager instance
@@ -88,7 +111,7 @@ local manager = basalt.getElementManager()
 Gets or creates the main frame
 
 ### Returns
-* `BaseFrame` `table` The main frame instance
+* `BaseFrame` `BaseFrame` The main frame instance
 
 ### Usage
  ```lua
@@ -139,7 +162,7 @@ local id = basalt.scheduleUpdate(myFunction)
 Sets the active frame
 
 ### Parameters
-* `frame` `table` The frame to set as active
+* `frame` `BaseFrame` The frame to set as active
 
 ### Usage
  ```lua
@@ -155,7 +178,7 @@ basalt.stop()
 ```
 
 ## basalt.update(...)
-Runs basalt once
+Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 
 ### Parameters
 * `...` *(vararg)* `any` The event to run with

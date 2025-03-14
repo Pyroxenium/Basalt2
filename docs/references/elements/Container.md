@@ -17,6 +17,12 @@ like Frames, BaseFrames, and more.
 |offsetX|number|0|Horizontal content offset
 |offsetY|number|0|Vertical content offset
 
+## Combined Properties
+
+|Name|Properties|Description|
+|---|---|---|
+|offset|`offsetX number, offsetY number`|Combined property for offsetX and offsetY|
+
 ## Functions
 
 |Method|Returns|Description|

@@ -14,6 +14,8 @@ The base class for all UI elements in Basalt. This class provides basic properti
 
 |Method|Returns|Description|
 |---|---|---|
+|[BaseElement.defineEvent](#BaseElement.defineEvent)|-|
+|[BaseElement.registerEventCallback](#BaseElement.registerEventCallback)|-|
 |[BaseElement:destroy](#BaseElement:destroy)|-|Destroys the element and cleans up all references
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|Triggers an event and calls all registered callbacks
 |[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|Returns the base frame of the element
@@ -32,6 +34,12 @@ The base class for all UI elements in Basalt. This class provides basic properti
 |[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|The default event handler for all events
 |[BaseElement:init](#BaseElement:init)|table|Initializes the BaseElement instance
 |[BaseElement:postInit](#BaseElement:postInit)|table|Post initialization
+
+## BaseElement.defineEvent()
+Registers a new event listener for the element (on class level)
+
+## BaseElement.registerEventCallback()
+Registers a new event callback for the element (on class level)
 
 ## BaseElement:destroy()
 Destroys the element and cleans up all references

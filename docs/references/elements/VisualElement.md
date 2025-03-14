@@ -24,15 +24,15 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Name|Properties|Description|
 |---|---|---|
-|position|`x y`|Combined x, y position|
-|size|`width height`|Combined width, height|
-|color|`foreground background`|Combined foreground, background colors|
+|position|`x number, y number`|Combined x, y position|
+|size|`width number, height number`|Combined width, height|
+|color|`foreground number, background number`|Combined foreground, background colors|
 
 ## Events
 
 |Event|Parameters|Description|
 |---|---|---|
-|onClick|`button, x, y`|Fired on mouse click|
+|onClick|`button string, x number, y number`|Fired on mouse click|
 |onMouseUp|`button, x, y`|Fired on mouse button release|
 |onRelease|`button, x, y`|Fired when mouse leaves while clicked|
 |onDrag|`button, x, y`|Fired when mouse moves while clicked|
@@ -119,8 +119,7 @@ Checks if the specified coordinates are within the bounds of the element
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
 
 ## VisualElement:prioritize()
-This function is used to prioritize the element by moving it to the top of its parent's children.
-It removes the element from its parent and adds it back, effectively changing its order.
+This function is used to prioritize the element by moving it to the top of its parent's children. It removes the element from its parent and adds it back, effectively changing its order.
 
 ### Returns
 * `VisualElement` `self` The VisualElement instance

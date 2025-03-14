@@ -17,7 +17,7 @@ custom item rendering, separators, and selection handling.
 
 |Event|Parameters|Description|
 |---|---|---|
-|onSelect|`index number, item any`|Fired when an item is selected|
+|onSelect|`index number, item table`|Fired when an item is selected|
 
 ## Functions
 
@@ -25,6 +25,7 @@ custom item rendering, separators, and selection handling.
 |---|---|---|
 |[List:addItem](#List:addItem)|List|Adds an item to the list
 |[List:clear](#List:clear)|List|Clears all items from the list
+|[List:getSelectedItem](#List:getSelectedItem)|table?|Gets first selected item
 |[List:getSelectedItems](#List:getSelectedItems)|table|Gets the currently selected items
 |[List:onSelect](#List:onSelect)|List|Registers a callback for the select event
 |[List:removeItem](#List:removeItem)|List|Removes an item from the list
@@ -66,6 +67,12 @@ Clears all items from the list
  ```lua
 list:clear()
 ```
+
+## List:getSelectedItem()
+Gets first selected item
+
+### Returns
+* `table?` `selected` The first item
 
 ## List:getSelectedItems()
 Gets the currently selected items
