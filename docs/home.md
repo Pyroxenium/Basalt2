@@ -1,12 +1,12 @@
 # Welcome to The Basalt Wiki
 
-Basalt is a user-friendly UI framework for CC:Tweaked (also known as "ComputerCraft: Tweaked") - a popular Minecraft mod. It was developed to enhance user interaction through visual displays.
+Welcome to Basalt 2, a complete reimagining of the Basalt UI framework for ComputerCraft. After maintaining the original Basalt, i identified several areas that needed fundamental improvements. This led to the decision to rebuild Basalt from the ground up, focusing on three key aspects:
 
-## Installation
+- Improved error handling to help developers quickly identify and resolve issues
+- Auto-generated documentation that stays in sync with the codebase
+- IDE support through automatically generated LuaLS annotations
+- New ways to access properties
 
-```lua
-wget run https://raw.githubusercontent.com/Pyroxenium/Basalt2/main/install.lua
-```
 ## Features
 
 - **Pre-built Components:** Buttons, Lists, Textboxes, and more
@@ -28,7 +28,8 @@ basalt.getMainFrame()
     :addButton()
     :setText("Hello Basalt!")
     :setPosition(5, 5)
-    :onMouseClick(function()
+    :setSize(14, 3)
+    :onClick(function()
         -- Your code here
     end)
 
