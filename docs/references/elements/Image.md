@@ -38,7 +38,7 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |[Image:setMetadata](#Image:setMetadata)|-|
 |[Image:setPixel](#Image:setPixel)|Image|Sets the pixel at the specified position
 |[Image:setText](#Image:setText)|Image|Sets the text at the specified position
-|[Image:updateFrame](#Image:updateFrame)|Image|Updates the specified frame with the provided data
+|[Image:updateFrame](#Image:updateFrame)|-|
 
 
 ## Protected Functions
@@ -154,14 +154,6 @@ Sets the text at the specified position
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:updateFrame(frameIndex, frame)
-Updates the specified frame with the provided data
-
-### Parameters
-* `frameIndex` `number` The index of the frame to update
-* `frame` `table` The new frame data
-
-### Returns
-* `Image` `self` The Image instance
+## Image:updateFrame()
 
 
