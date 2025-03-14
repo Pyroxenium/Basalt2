@@ -686,9 +686,9 @@ bb(self,cb+#_c-1,db)else local cc=#ac[db][1]if cb>cc then return self end
 _c=_c:sub(1,cc-cb+1)end
 local bc=ac[db][1]
 ac[db][1]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
-function _b:getText(cb,db,_c)if not cb or not db then return end
-local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][1]
-if not bc then return end
+function _b:getText(cb,db,_c)if not cb or not db then return""end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return""end;local bc=ac[db][1]if not bc then
+return""end
 if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb,cb)end end
 function _b:setFg(cb,db,_c)if
 type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end
@@ -698,9 +698,9 @@ bb(self,cb+#_c-1,db)else local cc=#ac[db][2]if cb>cc then return self end
 _c=_c:sub(1,cc-cb+1)end
 local bc=ac[db][2]
 ac[db][2]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
-function _b:getFg(cb,db,_c)if not cb or not db then return end
-local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][2]
-if not bc then return end
+function _b:getFg(cb,db,_c)if not cb or not db then return""end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return""end;local bc=ac[db][2]if not bc then
+return""end
 if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb)end end
 function _b:setBg(cb,db,_c)if
 type(_c)~="string"or#_c<1 or cb<1 or db<1 then return self end
@@ -710,9 +710,9 @@ bb(self,cb+#_c-1,db)else local cc=#ac[db][3]if cb>cc then return self end
 _c=_c:sub(1,cc-cb+1)end
 local bc=ac[db][3]
 ac[db][3]=bc:sub(1,cb-1).._c..bc:sub(cb+#_c)self:updateRender()return self end
-function _b:getBg(cb,db,_c)if not cb or not db then return end
-local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return end;local bc=ac[db][3]
-if not bc then return end
+function _b:getBg(cb,db,_c)if not cb or not db then return""end
+local ac=self.get("bimg")[self.get("currentFrame")]if not ac or not ac[db]then return""end;local bc=ac[db][3]if not bc then
+return""end
 if _c then return bc:sub(cb,cb+_c-1)else return bc:sub(cb)end end
 function _b:setPixel(cb,db,_c,ac,bc)if _c then self:setText(cb,db,_c)end;if ac then
 self:setFg(cb,db,ac)end;if bc then self:setBg(cb,db,bc)end;return self end
@@ -1024,13 +1024,13 @@ local db=ca(self.get("nodes"),self.get("expandedNodes"))local _c=cb+self.get("sc
 if db[_c]then local ac=db[_c]
 local bc=ac.node
 if bb<=ac.level*2 +2 then self:toggleNode(bc)end;self.set("selectedNode",bc)
-self:fireEvent("node_select",bc)end;return true end end
+self:fireEvent("node_select",bc)end;return true end;return false end
 function ba:onSelect(da)self:registerCallback("node_select",da)return self end
 function ba:mouse_scroll(da,_b,ab)
 if _a.mouse_scroll(self,da,_b,ab)then
 local bb=ca(self.get("nodes"),self.get("expandedNodes"))
 local cb=math.max(0,#bb-self.get("height"))
-local db=math.min(cb,math.max(0,self.get("scrollOffset")+da))self.set("scrollOffset",db)return true end end
+local db=math.min(cb,math.max(0,self.get("scrollOffset")+da))self.set("scrollOffset",db)return true end;return false end
 function ba:getNodeSize()local da,_b=0,0
 local ab=ca(self.get("nodes"),self.get("expandedNodes"))for bb,cb in ipairs(ab)do
 da=math.max(da,cb.level+#cb.node.text)end;_b=#ab;return da,_b end
@@ -1103,8 +1103,8 @@ function aa:setCursor(ba,ca,da,_b)
 ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
 function aa:char(ba)if not self.get("focused")then return false end
 local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
-local ab=self.get("pattern")if _b and#ca>=_b then return end
-if ab and not ba:match(ab)then return end
+local ab=self.get("pattern")if _b and#ca>=_b then return false end;if ab and not ba:match(ab)then return
+false end
 self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
 self.get("cursorPos")-self.get("viewOffset")
 self:setCursor(bb,1,true,
