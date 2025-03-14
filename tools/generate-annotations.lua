@@ -280,7 +280,6 @@ local function mergeTables(t1, t2)
     return merged
 end
 
-local log = require(".Basalt2/src/log")
 local function parseFiles(files)
     local finalContent = {}
     for k,v in pairs(files)do
