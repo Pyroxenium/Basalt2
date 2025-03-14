@@ -1508,9 +1508,9 @@ cb(db,1,1,bc,cc)end
 self._window.getPosition=function(db)return db.get("x"),db.get("y")end
 self._window.setVisible=function(db,_c)db.set("visible",_c)end
 self._window.isVisible=function(db)return db.get("visible")end
-self:observe("width",function(db,_c)local ac=db.get("window")if ac then
+self:observe("width",function(db,_c)local ac=db._window;if ac then
 ac.reposition(1,1,_c,db.get("height"))end end)
-self:observe("height",function(db,_c)local ac=db.get("window")if ac then
+self:observe("height",function(db,_c)local ac=db._window;if ac then
 ac.reposition(1,1,db.get("width"),_c)end end)end;function _b:getWindow()return self._window end
 function _b:render()
 ba.render(self)local ab=self._window;local bb,cb=ab.getSize()
@@ -2217,7 +2217,7 @@ if dd then for __a,a_a in pairs(dd)do
 if type(a_a)~="table"then cd[__a]=a_a end end end;if next(cd)==nil then cd=_c(dc,ad)end;ac(cd,dc,ad,bd,dd)
 return cd end
 function cb:applyTheme()local dc=self:getTheme()if(dc~=nil)then
-for _d,ad in pairs(dc)do self.set(_d,ad)end end end
+for _d,ad in pairs(dc)do self.set(_d,ad)end end;return self end
 function cb:getTheme()local dc=self:____getElementPath()
 local _d=self.get("type")local ad=self.get("name")return bc(ab[bb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)ab.default=dc end
 function cc.getTheme()return ab.default end
