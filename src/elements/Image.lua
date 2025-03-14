@@ -338,11 +338,7 @@ function Image:addFrame()
     return self
 end
 
---- Updates the specified frame with the provided data
---- @shortDescription Updates the specified frame with the provided data
---- @param frameIndex number The index of the frame to update
---- @param frame table The new frame data
---- @return Image self The Image instance
+
 function Image:updateFrame(frameIndex, frame)
     local frames = self.get("bimg")
     frames[frameIndex] = frame

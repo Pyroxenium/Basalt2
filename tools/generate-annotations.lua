@@ -48,10 +48,10 @@ end
 
 local function getFilesInLua(path)
     local files = {}
-
+    
     local function scanDir(dir)
-        local p = io.popen('dir "'..dir..'" /b /s')
-        if not p then return end
+        local p = io.popen('find "'..dir..'" -name "*.lua"')
+        if not p then print("Couldn't find "..dir) return end
 
         for file in p:lines() do
             if file:match("%.lua$") then
