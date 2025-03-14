@@ -163,6 +163,7 @@ function BaseElement:applyTheme()
             self.set(prop, value)
         end
     end
+    return self
 end
 
 --- Gets the theme properties for this element
@@ -179,26 +180,26 @@ end
 
 --- The Theme API provides methods for managing themes globally
 ---@class ThemeAPI
-local themeAPI = {}
+local ThemeAPI = {}
 
 --- Sets the current theme
 --- @shortDescription Sets a new theme
 --- @param newTheme table The theme configuration to set
-function themeAPI.setTheme(newTheme)
+function ThemeAPI.setTheme(newTheme)
     themes.default = newTheme
 end
 
 --- Gets the current theme configuration
 --- @shortDescription Gets the current theme
 --- @return table theme The current theme configuration
-function themeAPI.getTheme()
+function ThemeAPI.getTheme()
     return themes.default
 end
 
 --- Loads a theme from a JSON file
 --- @shortDescription Loads theme from JSON file
 --- @param path string Path to the theme JSON file
-function themeAPI.loadTheme(path)
+function ThemeAPI.loadTheme(path)
     local file = fs.open(path, "r")
     if file then
         local content = file.readAll()
@@ -209,5 +210,5 @@ end
 
 return {
     BaseElement = BaseElement,
-    API = themeAPI
+    API = ThemeAPI
 }

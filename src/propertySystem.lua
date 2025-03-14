@@ -375,7 +375,7 @@ function PropertySystem:observe(name, callback)
 end
 
 --- Removes an observer from a property
---- @NshortDescription Removes an observer from a property
+--- @shortDescription Removes an observer from a property
 --- @param name string The name of the property
 --- @param callback function The callback function to remove
 --- @return table self The PropertySystem

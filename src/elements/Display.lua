@@ -51,19 +51,22 @@ function Display:init(props, basalt)
     end
 
     self:observe("width", function(self, width)
-        local window = self.get("window")
+        local window = self._window
         if window then
             window.reposition(1, 1, width, self.get("height"))
         end
     end)
     self:observe("height", function(self, height)
-        local window = self.get("window")
+        local window = self._window
         if window then
             window.reposition(1, 1, self.get("width"), height)
         end
     end)
 end
 
+--- Returns the current window object
+--- @shortDescription Returns the current window object
+--- @return table window The current window object
 function Display:getWindow()
     return self._window
 end
