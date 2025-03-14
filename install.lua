@@ -2,7 +2,7 @@ local basalt
 local releasePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt.lua"
 local devPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
-local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/LuaLS.lua"
+local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/LuaLS.lua"
 
 local basaltRequest = http.get(releasePath)
 if not basaltRequest then
