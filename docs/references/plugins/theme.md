@@ -39,24 +39,24 @@ The Theme API provides methods for managing themes globally
 
 |Method|Returns|Description|
 |---|---|---|
-|[themeAPI.getTheme](#themeAPI.getTheme)|table|Gets the current theme
-|[themeAPI.loadTheme](#themeAPI.loadTheme)|-|Loads theme from JSON file
-|[themeAPI.setTheme](#themeAPI.setTheme)|-|Sets a new theme
+|[ThemeAPI.getTheme](#ThemeAPI.getTheme)|table|Gets the current theme
+|[ThemeAPI.loadTheme](#ThemeAPI.loadTheme)|-|Loads theme from JSON file
+|[ThemeAPI.setTheme](#ThemeAPI.setTheme)|-|Sets a new theme
 
 
-## themeAPI.getTheme()
+## ThemeAPI.getTheme()
 Gets the current theme configuration
 
 ### Returns
 * `table` `theme` The current theme configuration
 
-## themeAPI.loadTheme(path)
+## ThemeAPI.loadTheme(path)
 Loads a theme from a JSON file
 
 ### Parameters
 * `path` `string` Path to the theme JSON file
 
-## themeAPI.setTheme(newTheme)
+## ThemeAPI.setTheme(newTheme)
 Sets the current theme
 
 ### Parameters

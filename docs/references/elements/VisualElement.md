@@ -119,8 +119,7 @@ Checks if the specified coordinates are within the bounds of the element
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
 
 ## VisualElement:prioritize()
-This function is used to prioritize the element by moving it to the top of its parent's children.
-It removes the element from its parent and adds it back, effectively changing its order.
+This function is used to prioritize the element by moving it to the top of its parent's children. It removes the element from its parent and adds it back, effectively changing its order.
 
 ### Returns
 * `VisualElement` `self` The VisualElement instance

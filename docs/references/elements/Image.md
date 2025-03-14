@@ -26,7 +26,7 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |[Image:addFrame](#Image:addFrame)|Image|Adds a new frame to the image
 |[Image:getBg](#Image:getBg)|-|
 |[Image:getFg](#Image:getFg)|-|
-|[Image:getFrame](#Image:getFrame)|-|
+|[Image:getFrame](#Image:getFrame)|table|Gets the specified frame
 |[Image:getImageSize](#Image:getImageSize)|number|Gets the size of the image
 |[Image:getMetadata](#Image:getMetadata)|-|
 |[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
@@ -38,7 +38,7 @@ See: https://github.com/SkyTheCodeMaster/bimg
 |[Image:setMetadata](#Image:setMetadata)|-|
 |[Image:setPixel](#Image:setPixel)|Image|Sets the pixel at the specified position
 |[Image:setText](#Image:setText)|Image|Sets the text at the specified position
-|[Image:updateFrame](#Image:updateFrame)|-|
+|[Image:updateFrame](#Image:updateFrame)|Image|Updates the specified frame with the provided data
 
 
 ## Protected Functions
@@ -58,7 +58,14 @@ Adds a new frame to the image
 
 ## Image:getFg()
 
-## Image:getFrame()
+## Image:getFrame(frameIndex)
+Gets the specified frame
+
+### Parameters
+* `frameIndex` `number` The index of the frame to get
+
+### Returns
+* `table` `frame` The frame data
 
 ## Image:getImageSize()
 Gets the size of the image
@@ -147,6 +154,14 @@ Sets the text at the specified position
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:updateFrame()
+## Image:updateFrame(frameIndex, frame)
+Updates the specified frame with the provided data
+
+### Parameters
+* `frameIndex` `number` The index of the frame to update
+* `frame` `table` The new frame data
+
+### Returns
+* `Image` `self` The Image instance
 
 
