@@ -26,6 +26,7 @@ minified_elementDirectory["Program"] = {}
 minified_elementDirectory["Table"] = {}
 minified_elementDirectory["Slider"] = {}
 minified_elementDirectory["ProgressBar"] = {}
+minified_elementDirectory["Display"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Dropdown"] = {}
 minified_elementDirectory["BarChart"] = {}
@@ -1492,6 +1493,29 @@ self:textBg(1,i,string.rep(" ",ba),self.get("progressColor"))end;if self.get("sh
 tostring(aa).."%"
 local da=math.floor((_a-#ca)/2)+1
 self:textFg(da,1,ca,self.get("foreground"))end end;return d end
+project["elements/Display.lua"] = function(...) local aa=require("elementManager")
+local ba=aa.getElement("VisualElement")
+local ca=require("libraries/utils").getCenteredPosition;local da=require("libraries/utils").deepcopy
+local _b=setmetatable({},ba)_b.__index=_b;function _b.new()
+local ab=setmetatable({},_b):__init()ab.set("width",25)ab.set("height",8)ab.set("z",5)
+return ab end
+function _b:init(ab,bb)
+ba.init(self,ab,bb)self.set("type","Display")
+self._window=window.create(bb.getActiveFrame():getTerm(),1,1,self.get("width"),self.get("height"),false)local cb=self._window.reposition
+self._window.reposition=function(db,_c,ac,bc,cc)
+db.set("x",_c)db.set("y",ac)db.set("width",bc)db.set("height",cc)
+cb(db,1,1,bc,cc)end
+self._window.getPosition=function(db)return db.get("x"),db.get("y")end
+self._window.setVisible=function(db,_c)db.set("visible",_c)end
+self._window.isVisible=function(db)return db.get("visible")end
+self:observe("width",function(db,_c)local ac=db.get("window")if ac then
+ac.reposition(1,1,_c,db.get("height"))end end)
+self:observe("height",function(db,_c)local ac=db.get("window")if ac then
+ac.reposition(1,1,db.get("width"),_c)end end)end;function _b:getWindow()return self._window end
+function _b:render()
+ba.render(self)local ab=self._window;local bb,cb=ab.getSize()
+if ab then for y=1,cb do local db,_c,ac=ab.getLine(y)
+self:blit(1,y,db,_c,ac)end end end;return _b end
 project["elements/List.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"items",{default={},type="table",canTriggerRender=true})
