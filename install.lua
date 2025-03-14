@@ -2,7 +2,7 @@ local basalt
 local releasePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt.lua"
 local devPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
-local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/LuaLS.lua"
+local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/BasaltLS.lua"
 
 local basaltRequest = http.get(releasePath)
 if not basaltRequest then
@@ -545,7 +545,7 @@ local function installCustom(installPath, log, progressBar, selectedElements, se
             if(includeLuaLS)then
                 local luaLS = downloadFile(luaLSPath, "LuaLS", 0)
                 local luaLSDir = fs.getDir(installPath)
-                local file = fs.open(fs.combine(luaLSDir, "LuaLS.lua"), "w")
+                local file = fs.open("BasaltLS.lua", "w")
                 file.write(luaLS)
                 file.close()
             end
@@ -566,8 +566,7 @@ local function installCustom(installPath, log, progressBar, selectedElements, se
         end
         if(includeLuaLS)then
             local luaLS = downloadFile(luaLSPath, "LuaLS", 0)
-            local luaLSDir = fs.combine(installPath, "LuaLS.lua")
-            local file = fs.open(luaLSDir, "w")
+            local file = fs.open("BasaltLS.lua", "w")
             file.write(luaLS)
             file.close()
         end

@@ -31,7 +31,7 @@ BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 --- @property eventCallbacks table BaseElement The event callbacks for the element
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
----@private
+--- Registers a new event listener for the element (on class level)
 function BaseElement.defineEvent(class, eventName, requiredEvent)
     if not rawget(class, '_eventConfigs') then
         class._eventConfigs = {}
@@ -42,7 +42,7 @@ function BaseElement.defineEvent(class, eventName, requiredEvent)
     }
 end
 
----@private
+--- Registers a new event callback for the element (on class level)
 function BaseElement.registerEventCallback(class, callbackName, ...)
     local methodName = callbackName:match("^on") and callbackName or "on"..callbackName
     local events = {...}

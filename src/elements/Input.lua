@@ -70,8 +70,8 @@ function Input:char(char)
     local maxLength = self.get("maxLength")
     local pattern = self.get("pattern")
 
-    if maxLength and #text >= maxLength then return end
-    if pattern and not char:match(pattern) then return end
+    if maxLength and #text >= maxLength then return false end
+    if pattern and not char:match(pattern) then return false end
 
     self.set("text", text:sub(1, pos-1) .. char .. text:sub(pos))
     self.set("cursorPos", pos + 1)

@@ -4,8 +4,8 @@ local tHex = require("libraries/colorHex")
 ---@configDescription An element that displays an image in bimg format
 ---@configDefault false
 
---- This is the Image element class which can be used to display bimg format images.
---- The bimg format is a universal ComputerCraft image format.
+--- This is the Image element class which can be used to display bimg formatted images.
+--- Bimg is a universal ComputerCraft image format.
 --- See: https://github.com/SkyTheCodeMaster/bimg
 ---@class Image : VisualElement
 local Image = setmetatable({}, VisualElement)
@@ -187,13 +187,19 @@ function Image:setText(x, y, text)
     return self
 end
 
+--- Gets the text at the specified position
+--- @shortDescription Gets the text at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param length number The length of the text to get
+--- @return string text The text at the specified position
 function Image:getText(x, y, length)
-    if not x or not y then return end
+    if not x or not y then return "" end
     local frame = self.get("bimg")[self.get("currentFrame")]
-    if not frame or not frame[y] then return end
+    if not frame or not frame[y] then return "" end
 
     local text = frame[y][1]
-    if not text then return end
+    if not text then return "" end
 
     if length then
         return text:sub(x, x + length - 1)
@@ -231,13 +237,19 @@ function Image:setFg(x, y, pattern)
     return self
 end
 
+--- Gets the foreground color at the specified position
+--- @shortDescription Gets the foreground color at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param length number The length of the foreground color pattern to get
+--- @return string fg The foreground color pattern
 function Image:getFg(x, y, length)
-    if not x or not y then return end
+    if not x or not y then return "" end
     local frame = self.get("bimg")[self.get("currentFrame")]
-    if not frame or not frame[y] then return end
+    if not frame or not frame[y] then return "" end
 
     local fg = frame[y][2]
-    if not fg then return end
+    if not fg then return "" end
 
     if length then
         return fg:sub(x, x + length - 1)
@@ -275,13 +287,19 @@ function Image:setBg(x, y, pattern)
     return self
 end
 
+--- Gets the background color at the specified position
+--- @shortDescription Gets the background color at the specified position
+--- @param x number The x position
+--- @param y number The y position
+--- @param length number The length of the background color pattern to get
+--- @return string bg The background color pattern
 function Image:getBg(x, y, length)
-    if not x or not y then return end
+    if not x or not y then return "" end
     local frame = self.get("bimg")[self.get("currentFrame")]
-    if not frame or not frame[y] then return end
+    if not frame or not frame[y] then return "" end
 
     local bg = frame[y][3]
-    if not bg then return end
+    if not bg then return "" end
 
     if length then
         return bg:sub(x, x + length - 1)
@@ -338,7 +356,11 @@ function Image:addFrame()
     return self
 end
 
-
+--- Updates the specified frame with the provided data
+--- @shortDescription Updates the specified frame with the provided data
+--- @param frameIndex number The index of the frame to update
+--- @param frame table The new frame data
+--- @return Image self The Image instance
 function Image:updateFrame(frameIndex, frame)
     local frames = self.get("bimg")
     frames[frameIndex] = frame
@@ -355,6 +377,9 @@ function Image:getFrame(frameIndex)
     return frames[frameIndex or self.get("currentFrame")]
 end
 
+--- Gets the metadata of the image
+--- @shortDescription Gets the metadata of the image
+--- @return table metadata The metadata of the image
 function Image:getMetadata()
     local metadata = {}
     local bimg = self.get("bimg")
@@ -366,6 +391,11 @@ function Image:getMetadata()
     return metadata
 end
 
+--- Sets the metadata of the image
+--- @shortDescription Sets the metadata of the image
+--- @param key string The key of the metadata to set
+--- @param value string The value of the metadata to set
+--- @return Image self The Image instance
 function Image:setMetadata(key, value)
     if(type(key)=="table")then
         for k,v in pairs(key)do

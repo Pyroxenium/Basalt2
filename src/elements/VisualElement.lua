@@ -78,7 +78,7 @@ VisualElement.combineProperties(VisualElement, "size", "width", "height")
 ---@combinedProperty color {foreground number, background number} Combined foreground, background colors
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
----@event onClick {button, x, y} Fired on mouse click
+---@event onClick {button string, x number, y number} Fired on mouse click
 ---@event onMouseUp {button, x, y} Fired on mouse button release
 ---@event onRelease {button, x, y} Fired when mouse leaves while clicked
 ---@event onDrag {button, x, y} Fired when mouse moves while clicked
@@ -110,8 +110,6 @@ local max, min = math.max, math.min
 
 --- Creates a new VisualElement instance
 --- @shortDescription Creates a new visual element
---- @param props table The properties to initialize the element with
---- @param basalt table The basalt instance
 --- @return VisualElement object The newly created VisualElement instance
 --- @private
 function VisualElement.new()

@@ -127,6 +127,7 @@ function Tree:mouse_click(button, x, y)
         end
         return true
     end
+    return false
 end
 
 --- Registers a callback for when a node is selected
@@ -153,6 +154,7 @@ function Tree:mouse_scroll(direction, x, y)
         self.set("scrollOffset", newScroll)
         return true
     end
+    return false
 end
 
 --- Gets the size of the tree

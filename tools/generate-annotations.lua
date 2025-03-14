@@ -129,6 +129,18 @@ local function getClassName(content)
     return split(content:gsub("^%s*", ""):gsub("%s*$", ""):gsub(" ", ""), ":")
 end
 
+local function parseEventParams(content)
+    local eventName, paramStr, desc = content:match("^([%w_]+)%s*{([^}]+)}%s*(.*)$")
+    if eventName then
+        local params = {}
+        for name, typ in paramStr:gmatch("([%w_]+)%s+([%w_]+)") do
+            table.insert(params, {name=name, type=typ})
+        end
+        return eventName, params, desc
+    end
+    return nil, nil, nil
+end
+
 local function parseFile(content)
     local fileContent = {}
     local class = {functions = {}, properties = {}, events = {}, fields = {}}
@@ -194,6 +206,28 @@ local function parseFile(content)
                         class.functions[class.class..":get" .. propertyName] = {params={{name="self", type=class.class, desc="self"}}, returns={{type=propertyType, desc=propertyDesc or ""}}, desc="Gets the value of the " .. propertyName .. " property.\n"}
                         class.functions[class.class..":set" .. propertyName] = {params={{name="self", type=class.class, desc="self"}, {name=propertyName, type=propertyType, desc=propertyDesc:gsub("^%S+%s*", "") or ""}}, returns={}, desc="Sets the value of the " .. propertyName .. " property.\n"}
                     end
+                elseif(commentType=="combinedProperty")then
+                    local propertyName, propertyType, propertyDesc = content:match("^%s*([%w_]+)%s+([%w_]+)%s*(.*)$")
+                    if propertyName then
+                        class.fields[propertyName] = {type=propertyType, desc=propertyDesc:gsub("^%S+%s*", "") or ""}
+                        propertyName = propertyName:sub(1,1):upper() .. propertyName:sub(2)
+                        class.functions[class.class..":get" .. propertyName] = {params={{name="self", type=class.class, desc="self"}}, returns={{type=propertyType, desc=propertyDesc or ""}}, desc="Gets the value of the " .. propertyName .. " property.\n"}
+                        class.functions[class.class..":set" .. propertyName] = {params={{name="self", type=class.class, desc="self"}, {name=propertyName, type=propertyType, desc=propertyDesc:gsub("^%S+%s*", "") or ""}}, returns={}, desc="Sets the value of the " .. propertyName .. " property.\n"}
+                    end
+                elseif(commentType=="event")then
+                    local eventName, params, eventDesc = parseEventParams(content)
+                    if eventName then
+                        class.events[eventName] = {params=params, desc=eventDesc or ""}
+                        local paramStr = ""
+                        for _, param in ipairs(params) do
+                            paramStr = paramStr .. string.format("---@param %s %s\n", param.name, param.type)
+                        end
+                        class.functions[class.class..":on" .. eventName:sub(1,1):upper() .. eventName:sub(2)] = {
+                            params={{name="self", type=class.class, desc="self"}, {name="func", type="function", desc="The function to be called when the event fires"}},
+                            returns={},
+                            desc="Registers a function to handle the " .. eventName .. " event.\n" .. paramStr
+                        }
+                    end
                 end
 
             else
@@ -238,7 +272,7 @@ local function generateLuaLS(finalContent)
                     table.insert(output, string.format("---%s", funcData.desc))
                 end
                 if(funcData.protected)then
-                    table.insert(output, string.format("---This function is protected und should not be called outside of basalt, however you can overwrite it if you know what you're doing.\n"))
+                    table.insert(output, string.format("---This function is protected and should not be called outside of basalt, however you can overwrite it if you know what you're doing.\n"))
                 end
                 for _, param in ipairs(funcData.params) do
                     table.insert(output, string.format("---@param %s %s %s\n", (param.optional and param.name.."?" or param.name), param.type, param.desc))
@@ -290,7 +324,7 @@ local function parseFiles(files)
     end
 
     local lualsContent = generateLuaLS(finalContent)
-    local outFile = io.open("LuaLS.lua", "w")
+    local outFile = io.open("BasaltLS.lua", "w")
     if outFile then
         outFile:write(lualsContent)
         outFile:close()

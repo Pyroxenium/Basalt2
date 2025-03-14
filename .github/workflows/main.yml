@@ -77,6 +77,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua LuaLS.lua release/basalt.lua CHANGELOG.md
-          git commit -m "Update config, LuaLS definitions, bundle and changelog" || exit 0
+          git add config.lua BasaltLS.lua release/basalt.lua CHANGELOG.md
+          git commit -m "Update config, BasaltLS definitions, bundle and changelog" || exit 0
           git push
