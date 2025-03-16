@@ -29,7 +29,7 @@ Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor
 Input.defineProperty(Input, "cursorColor", {default = nil, type = "number"})
 ---@property replaceChar string nil Character to replace the input with (for password fields)
-Input.defineProperty(Input, "replaceChar", {default = nil, type = "string"})
+Input.defineProperty(Input, "replaceChar", {default = nil, type = "string", canTriggerRender = true})
 
 Input.defineEvent(Input, "mouse_click")
 Input.defineEvent(Input, "key")
