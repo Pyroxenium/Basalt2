@@ -88,6 +88,7 @@ export default defineConfig({
           collapsed: false,
           items: [
               {text: 'VisualElement', link: 'references/elements/VisualElement', collapsed: false, items: [
+                {text: 'BigFont', link: 'references/elements/BigFont'},
                 {text: 'Button', link: 'references/elements/Button'},
                 {text: 'Checkbox', link: 'references/elements/Checkbox'},
                 {text: 'Container', link: 'references/elements/Container', collapsed: true, items: [
@@ -95,6 +96,7 @@ export default defineConfig({
                   {text: 'Flexbox', link: 'references/elements/Flexbox'},
                   {text: 'Frame', link: 'references/elements/Frame'},
                 ]},
+                {text: 'Display', link: 'references/elements/Display'},
                 {text: 'Graph', link: 'references/elements/Graph', collapsed: true, items: [
                   {text: 'BarChart', link: 'references/elements/BarChart'},
                   {text: 'LineChart', link: 'references/elements/LineChart'},
@@ -111,7 +113,7 @@ export default defineConfig({
                 {text: 'Scrollbar', link: 'references/elements/Scrollbar'},
                 {text: 'Slider', link: 'references/elements/Slider'},
                 {text: 'Table', link: 'references/elements/Table'},
-                {text: 'Textfield', link: 'references/elements/Textfield'},
+                {text: 'TextBox', link: 'references/elements/TextBox'},
                 {text: 'Tree', link: 'references/elements/Tree'},
               ]},
           ]
