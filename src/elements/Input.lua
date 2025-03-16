@@ -28,6 +28,8 @@ Input.defineProperty(Input, "focusedForeground", {default = colors.white, type =
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor
 Input.defineProperty(Input, "cursorColor", {default = nil, type = "number"})
+---@property replaceChar string nil Character to replace the input with (for password fields)
+Input.defineProperty(Input, "replaceChar", {default = nil, type = "string"})
 
 Input.defineEvent(Input, "mouse_click")
 Input.defineEvent(Input, "key")
@@ -189,6 +191,7 @@ function Input:render()
     local focusedFg = self.get("focusedForeground")
     local focused = self.get("focused")
     local width, height = self.get("width"), self.get("height")
+    local replaceChar = self.get("replaceChar")
     self:multiBlit(1, 1, width, height, " ", tHex[focused and focusedFg or self.get("foreground")], tHex[focused and focusedBg or self.get("background")])
 
     if #text == 0 and #placeholder ~= 0 and self.get("focused") == false then
@@ -201,6 +204,9 @@ function Input:render()
     end
 
     local visibleText = text:sub(viewOffset + 1, viewOffset + width)
+    if replaceChar and #replaceChar > 0 then
+        visibleText = replaceChar:rep(#visibleText)
+    end
     self:textFg(1, 1, visibleText, self.get("foreground"))
 end
 
