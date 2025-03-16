@@ -16,6 +16,7 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |focusedForeground|color|white|Foreground color when input is focused
 |pattern|string?|nil|Regular expression pattern for input validation
 |cursorColor|number|nil|Color of the cursor
+|replaceChar|string|nil|Character to replace the input with (for password fields)
 
 ## Functions
 
