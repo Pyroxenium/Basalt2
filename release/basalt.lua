@@ -1094,7 +1094,8 @@ aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="color"})
 aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="color"})
 aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="color"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
-aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})aa.defineEvent(aa,"mouse_click")
+aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})
+aa.defineProperty(aa,"replaceChar",{default=nil,type="string"})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
 function aa.new()
 local ba=setmetatable({},aa):__init()ba.set("width",8)ba.set("z",3)return ba end
@@ -1144,14 +1145,15 @@ function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
 local da=self.get("width")local _b=self.get("placeholder")
 local ab=self.get("focusedBackground")local bb=self.get("focusedForeground")
 local cb=self.get("focused")local db,_c=self.get("width"),self.get("height")
-self:multiBlit(1,1,db,_c," ",_a[
-cb and bb or self.get("foreground")],_a[cb and ab or
-self.get("background")])if
+local ac=self.get("replaceChar")
+self:multiBlit(1,1,db,_c," ",_a[cb and bb or self.get("foreground")],_a[
+cb and ab or self.get("background")])if
 #ba==0 and#_b~=0 and self.get("focused")==false then
 self:textFg(1,1,_b:sub(1,db),self.get("placeholderColor"))return end;if(cb)then
 self:setCursor(
 self.get("cursorPos")-ca,1,true,self.get("cursorColor")or self.get("foreground"))end
-local ac=ba:sub(ca+1,ca+db)self:textFg(1,1,ac,self.get("foreground"))end;return aa end
+local bc=ba:sub(ca+1,ca+db)if ac and#ac>0 then bc=ac:rep(#bc)end
+self:textFg(1,1,bc,self.get("foreground"))end;return aa end
 project["elements/BaseFrame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("Container")local ba=require("render")local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"term",{default=
