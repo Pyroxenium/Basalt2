@@ -1095,7 +1095,7 @@ aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="color"})
 aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="color"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
 aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})
-aa.defineProperty(aa,"replaceChar",{default=nil,type="string"})aa.defineEvent(aa,"mouse_click")
+aa.defineProperty(aa,"replaceChar",{default=nil,type="string",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
 function aa.new()
 local ba=setmetatable({},aa):__init()ba.set("width",8)ba.set("z",3)return ba end
