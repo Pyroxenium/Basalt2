@@ -7,11 +7,6 @@ The Button is a standard button element with click handling and state management
 |---|---|---|---|
 |text|string|Button|Button text
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 

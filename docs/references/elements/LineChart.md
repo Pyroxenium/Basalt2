@@ -1,11 +1,6 @@
 # LineChart : Graph
 This is the line chart class. It is based on the graph element. It draws lines between points.
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 

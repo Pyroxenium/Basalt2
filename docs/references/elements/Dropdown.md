@@ -10,11 +10,6 @@ This is the dropdown class. It is a visual element that can show a list of selec
 |selectedText|string|""|The text to show when no item is selected
 |dropSymbol|string|"\31"|The symbol to show for dropdown indication
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 

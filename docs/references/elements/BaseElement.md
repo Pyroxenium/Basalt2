@@ -14,16 +14,16 @@ The base class for all UI elements in Basalt. This class provides basic properti
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.defineEvent](#BaseElement.defineEvent)|-|
-|[BaseElement.registerEventCallback](#BaseElement.registerEventCallback)|-|
+|[BaseElement.defineEvent](#BaseElement.defineEvent)|-|Registers a new event listener for the element (on class level)
+|[BaseElement.registerEventCallback](#BaseElement.registerEventCallback)|-|Registers a new event callback for the element (on class level)
 |[BaseElement:destroy](#BaseElement:destroy)|-|Destroys the element and cleans up all references
 |[BaseElement:fireEvent](#BaseElement:fireEvent)|table|Triggers an event and calls all registered callbacks
-|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|table|Returns the base frame of the element
+|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|BaseFrame|Returns the base frame of the element
 |[BaseElement:isType](#BaseElement:isType)|boolean|Checks if the element is a specific type
 |[BaseElement:listenEvent](#BaseElement:listenEvent)|table|Enables or disables event listening for a specific event
 |[BaseElement:onChange](#BaseElement:onChange)|table|Observes a property and calls a callback when it changes
 |[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
-|[BaseElement:updateRender](#BaseElement:updateRender)|-|Requests a render update for this element
+|[BaseElement:updateRender](#BaseElement:updateRender)|table|Requests a render update for this element
 
 
 ## Protected Functions
@@ -35,19 +35,24 @@ The base class for all UI elements in Basalt. This class provides basic properti
 |[BaseElement:init](#BaseElement:init)|table|Initializes the BaseElement instance
 |[BaseElement:postInit](#BaseElement:postInit)|table|Post initialization
 
-## BaseElement.defineEvent()
+## BaseElement.defineEvent(class, eventName, requiredEvent?)
 Registers a new event listener for the element (on class level)
 
-## BaseElement.registerEventCallback()
+### Parameters
+* `class` `table` The class to register
+* `eventName` `string` The name of the event to register
+* `requiredEvent` *(optional)* `string` The name of the required event (optional)
+
+## BaseElement.registerEventCallback(class, callbackName, ...)
 Registers a new event callback for the element (on class level)
+
+### Parameters
+* `class` `table` The class to register
+* `callbackName` `string` The name of the callback to register
+* `...` `string` The names of the events to register the callback for
 
 ## BaseElement:destroy()
 Destroys the element and cleans up all references
-
-### Usage
- ```lua
-element:destroy()
-```
 
 ## BaseElement:fireEvent(event, ...)
 Triggers an event and calls all registered callbacks
@@ -59,16 +64,11 @@ Triggers an event and calls all registered callbacks
 ### Returns
 * `table` `self` The BaseElement instance
 
-### Usage
- ```lua
-element:fireEvent("mouse_click", 1, 2)
-```
-
 ## BaseElement:getBaseFrame()
 Returns the base frame of the element
 
 ### Returns
-* `table` `BaseFrame` The base frame of the element
+* `BaseFrame` `BaseFrame` The base frame of the element
 
 ## BaseElement:isType(type)
 Checks if the element is a specific type
@@ -77,7 +77,7 @@ Checks if the element is a specific type
 * `type` `string` The type to check for
 
 ### Returns
-* `boolean` `Whether` the element is of the specified type
+* `boolean` `isType` Whether the element is of the specified type
 
 ## BaseElement:listenEvent(eventName, enable?)
 Enables or disables event listening for a specific event
@@ -88,11 +88,6 @@ Enables or disables event listening for a specific event
 
 ### Returns
 * `table` `self` The BaseElement instance
-
-### Usage
- ```lua
-element:listenEvent("mouse_click", true)
-```
 
 ## BaseElement:onChange(property, callback)
 Observes a property and calls a callback when it changes
@@ -114,17 +109,10 @@ Registers a callback function for an event
 ### Returns
 * `table` `self` The BaseElement instance
 
-### Usage
- ```lua
-element:registerCallback("mouse_click", function(self, ...) end)
-```
-
 ## BaseElement:updateRender()
 Requests a render update for this element
 
-### Usage
- ```lua
-element:updateRender()
-```
+### Returns
+* `table` `self` The BaseElement instance
 
 

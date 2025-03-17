@@ -1,11 +1,6 @@
 # BarChart : Graph
 This is the bar chart class. It is based on the graph element. It draws bar based points.
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 

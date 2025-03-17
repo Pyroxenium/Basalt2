@@ -10,11 +10,6 @@ The Checkbox is a visual element that can be checked.
 |checkedText|string|Text|when checked
 |autoSize|boolean|true|Whether to automatically size the checkbox
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 
