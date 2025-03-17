@@ -326,6 +326,9 @@ local function markdownClassFunctionList(className)
             end
         end
     end
+    if(#fList<=0)then
+        return ""
+    end
 
     local output = "\n## Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
     for _, block in pairs(fList) do

@@ -32,6 +32,10 @@ BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
 --- Registers a new event listener for the element (on class level)
+--- @shortDescription Registers a new event listener for the element (on class level)
+--- @param class table The class to register
+--- @param eventName string The name of the event to register
+--- @param requiredEvent? string The name of the required event (optional)
 function BaseElement.defineEvent(class, eventName, requiredEvent)
     if not rawget(class, '_eventConfigs') then
         class._eventConfigs = {}
@@ -43,6 +47,10 @@ function BaseElement.defineEvent(class, eventName, requiredEvent)
 end
 
 --- Registers a new event callback for the element (on class level)
+--- @shortDescription Registers a new event callback for the element (on class level)
+--- @param class table The class to register
+--- @param callbackName string The name of the callback to register
+--- @param ... string The names of the events to register the callback for
 function BaseElement.registerEventCallback(class, callbackName, ...)
     local methodName = callbackName:match("^on") and callbackName or "on"..callbackName
     local events = {...}
@@ -61,7 +69,7 @@ end
 
 --- @shortDescription Creates a new BaseElement instance
 --- @return table The newly created BaseElement instance
----@private
+--- @private
 function BaseElement.new()
     local self = setmetatable({}, BaseElement):__init()
     return self
@@ -71,7 +79,7 @@ end
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @return table self The initialized instance
----@protected
+--- @protected
 function BaseElement:init(props, basalt)
     self._props = props
     self._values.id = uuid()
@@ -112,7 +120,7 @@ end
 
 --- @shortDescription Post initialization
 --- @return table self The BaseElement instance
----@protected
+--- @protected
 function BaseElement:postInit()
     if(self._props)then
         for k,v in pairs(self._props)do
@@ -126,7 +134,7 @@ end
 --- Checks if the element is a specific type
 --- @shortDescription Checks if the element is a specific type
 --- @param type string The type to check for
---- @return boolean Whether the element is of the specified type
+--- @return boolean isType Whether the element is of the specified type
 function BaseElement:isType(type)
     for _, t in ipairs(self._values.type) do
         if t == type then
@@ -141,7 +149,6 @@ end
 --- @param eventName string The name of the event to listen for
 --- @param enable? boolean Whether to enable or disable the event (default: true)
 --- @return table self The BaseElement instance
---- @usage element:listenEvent("mouse_click", true)
 function BaseElement:listenEvent(eventName, enable)
     enable = enable ~= false
     if enable ~= (self._registeredEvents[eventName] or false) then
@@ -165,7 +172,6 @@ end
 --- @param event string The event to register the callback for
 --- @param callback function The callback function to register
 --- @return table self The BaseElement instance
---- @usage element:registerCallback("mouse_click", function(self, ...) end)
 function BaseElement:registerCallback(event, callback)
     if not self._registeredEvents[event] then
         self:listenEvent(event, true)
@@ -184,7 +190,6 @@ end
 --- @param event string The event to fire
 --- @param ... any Additional arguments to pass to the callbacks
 --- @return table self The BaseElement instance
---- @usage element:fireEvent("mouse_click", 1, 2)
 function BaseElement:fireEvent(event, ...)
     if self.get("eventCallbacks")[event] then
         for _, callback in ipairs(self.get("eventCallbacks")[event]) do
@@ -228,7 +233,7 @@ end
 
 --- Returns the base frame of the element
 --- @shortDescription Returns the base frame of the element
---- @return table BaseFrame The base frame of the element
+--- @return BaseFrame BaseFrame The base frame of the element
 function BaseElement:getBaseFrame()
     if self.parent then
         return self.parent:getBaseFrame()
@@ -238,7 +243,6 @@ end
 
 --- Destroys the element and cleans up all references
 --- @shortDescription Destroys the element and cleans up all references
---- @usage element:destroy()
 function BaseElement:destroy()
     if self.parent then
         self.parent:removeChild(self)
@@ -260,13 +264,14 @@ end
 
 --- Requests a render update for this element
 --- @shortDescription Requests a render update for this element
---- @usage element:updateRender()
+--- @return table self The BaseElement instance
 function BaseElement:updateRender()
     if(self.parent) then
         self.parent:updateRender()
     else
         self._renderUpdate = true
     end
+    return self
 end
 
 return BaseElement

@@ -31,8 +31,6 @@ end})
 --- @private
 function BaseFrame.new()
     local self = setmetatable({}, BaseFrame):__init()
-    self.set("term", term.current())
-    self.set("background", colors.lightGray)
     return self
 end
 
@@ -43,6 +41,7 @@ end
 --- @protected
 function BaseFrame:init(props, basalt)
     Container.init(self, props, basalt)
+    self.set("term", term.current())
     self.set("type", "BaseFrame")
     return self
 end

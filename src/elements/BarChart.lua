@@ -2,7 +2,7 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local BaseGraph = elementManager.getElement("Graph")
 local tHex = require("libraries/colorHex")
---- @configDescription A bar chart element based on the graph element
+--- @configDescription A bar chart element based on the graph element.
 ---@configDefault false
 
 --- This is the bar chart class. It is based on the graph element. It draws bar based points.
