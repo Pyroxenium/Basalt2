@@ -1160,12 +1160,11 @@ ca.defineProperty(ca,"term",{default=
 nil,type="table",setter=function(da,_b)
 if _b==nil or _b.setCursorPos==nil then return _b end;da._render=ba.new(_b)da._renderUpdate=true;local ab,bb=_b.getSize()
 da.set("width",ab)da.set("height",bb)return _b end})
-function ca.new()local da=setmetatable({},ca):__init()
-da.set("term",term.current())da.set("background",colors.lightGray)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","BaseFrame")return
-self end
-function ca:multiBlit(da,_b,ab,bb,cb,db,_c)if(da<1)then ab=ab+da-1
-da=1 end;if(_b<1)then bb=bb+_b-1;_b=1 end
-self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -da)da=1 end
+function ca.new()local da=setmetatable({},ca):__init()return da end
+function ca:init(da,_b)aa.init(self,da,_b)
+self.set("term",term.current())self.set("type","BaseFrame")return self end
+function ca:multiBlit(da,_b,ab,bb,cb,db,_c)if(da<1)then ab=ab+da-1;da=1 end
+if(_b<1)then bb=bb+_b-1;_b=1 end;self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -da)da=1 end
 self._render:textFg(da,_b,ab,bb)end;function ca:textBg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -
 da)da=1 end
 self._render:textBg(da,_b,ab,bb)end
@@ -1244,7 +1243,7 @@ self:listenEvent(ba,false)end;self._values.eventCallbacks={}self._props=
 nil;self._values=nil;self.basalt=nil;self.parent=nil
 self.__index=nil;setmetatable(self,nil)end
 function aa:updateRender()if(self.parent)then self.parent:updateRender()else
-self._renderUpdate=true end end;return aa end
+self._renderUpdate=true end;return self end;return aa end
 project["elements/Graph.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
