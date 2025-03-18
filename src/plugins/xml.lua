@@ -169,6 +169,13 @@ local function createTableFromNode(node, scope)
 end
 
 local BaseElement = {}
+
+--- Generates this element from XML nodes
+--- @shortDescription Generates this element from XML nodes
+--- @param self BaseElement The element to generate from XML nodes
+--- @param node table The XML nodes to generate from
+--- @param scope table The scope to use
+--- @return BaseElement self The element instance
 function BaseElement:fromXML(node, scope)
     if(node.attributes)then
         for k, v in pairs(node.attributes) do
@@ -230,6 +237,13 @@ function BaseElement:fromXML(node, scope)
 end
 
 local Container = {}
+
+--- Loads an XML string and parses it into the element
+--- @shortDescription Loads an XML string and parses it into the element
+--- @param self Container The element to load the XML into
+--- @param nodes string The XML string to load
+--- @param scope table The scope to use
+--- @return Container self The element instance
 function Container:loadXML(content, scope)
     scope = scope or {}
     local nodes = XMLParser.parseText(content)
@@ -246,6 +260,12 @@ function Container:loadXML(content, scope)
     return self
 end
 
+--- Generates this element from XML nodes
+--- @shortDescription Generates this element from XML nodes
+--- @param self Container The element to generate from XML nodes
+--- @param nodes table The XML nodes to generate from
+--- @param scope table The scope to use
+--- @return Container self The element instance
 function Container:fromXML(nodes, scope)
     BaseElement.fromXML(self, nodes, scope)
     if(nodes.children)then

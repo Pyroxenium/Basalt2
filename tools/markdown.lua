@@ -314,6 +314,10 @@ local function markdownEvents(className)
     return output
 end
 
+local function formatLink(str)
+    return str:lower():gsub("[()]", ""):gsub("[:.]+", "-")
+end
+
 local function markdownClassFunctionList(className)
     if(#markdown.blocks<=0)then
         return ""
@@ -333,7 +337,7 @@ local function markdownClassFunctionList(className)
     local output = "\n## Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
     for _, block in pairs(fList) do
         if block.type == "function" then
-            output = output .. "|[" .. block.func .. "](#" .. block.func .. ")|"
+            output = output .. "|[" .. block.func .. "](#" .. formatLink(block.func) .. ")|"
             if(block["return"]~=nil)then
                 local returnType = block["return"][1]:match("^(%S+)")
                 output = output .. returnType.."|"
@@ -369,7 +373,7 @@ local function markdownProtectedFunctions(className)
     output = "\n## Protected Functions\n\n|Method|Returns|Description|\n|---|---|---|\n"
     for _, block in pairs(fList) do
         if block.type == "function" then
-            output = output .. "|[" .. block.func .. "](#" .. block.func .. ")|"
+            output = output .. "|"..block.func.."|"
             if(block["return"]~=nil)then
                 local returnType = block["return"][1]:match("^(%S+)")
                 output = output .. returnType.."|"
