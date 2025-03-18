@@ -2022,6 +2022,13 @@ ab.startY=ab.element.get("y")end,update=function(ab,bb)local cb=ab.startX+
 (ab.args[2]-ab.startY)*bb
 ab.element.set("x",math.floor(cb))ab.element.set("y",math.floor(db))return bb>=1 end,complete=function(ab)
 ab.element.set("x",ab.args[1])ab.element.set("y",ab.args[2])end})
+da.registerAnimation("resize",{start=function(ab)ab.startW=ab.element.get("width")
+ab.startH=ab.element.get("height")end,update=function(ab,bb)local cb=ab.startW+
+(ab.args[1]-ab.startW)*bb;local db=ab.startH+
+(ab.args[2]-ab.startH)*bb
+ab.element.set("width",math.floor(cb))ab.element.set("height",math.floor(db))
+return bb>=1 end,complete=function(ab)
+ab.element.set("width",ab.args[1])ab.element.set("height",ab.args[2])end})
 da.registerAnimation("moveOffset",{start=function(ab)ab.startX=ab.element.get("offsetX")
 ab.startY=ab.element.get("offsetY")end,update=function(ab,bb)local cb=ab.startX+ (ab.args[1]-ab.startX)*
 bb;local db=ab.startY+ (ab.args[2]-
