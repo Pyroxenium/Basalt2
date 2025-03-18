@@ -35,7 +35,7 @@ Starts a custom benchmark
 
 ### Parameters
 * `name` `string` The name of the benchmark
-* `options` *(optional)* `table` Optional configuration
+* `options` *(optional)* `table` Optional configuration 
 
 ## API.stop(name)
 Stops a custom benchmark
