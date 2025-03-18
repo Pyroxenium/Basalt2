@@ -480,7 +480,7 @@ function markdown.saveToFile(source, output)
 
     for k,v in pairs(sortedOutput) do
         if(v.data.splitClass)then
-            local subFile = io.open(source.."_"..v.data.className..".md", "w")
+            local subFile = io.open(source.."_"..v.data.className:gsub(":", "_"):gsub(" ", "")..".md", "w")
             if not subFile then
                 error("Could not open file for writing: " .. source.."_"..v.data.className..".md")
             end

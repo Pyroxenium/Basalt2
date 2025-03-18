@@ -305,7 +305,7 @@ local API = {}
 --- Starts a custom benchmark
 --- @shortDescription Starts timing a custom operation
 --- @param name string The name of the benchmark
---- @param options? table Optional configuration
+--- @param options? table Optional configuration 
 function API.start(name, options)
     options = options or {}
     local profile = createProfile()
