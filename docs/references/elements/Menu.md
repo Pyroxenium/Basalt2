@@ -12,16 +12,16 @@ Menu items are displayed in a single row and can have custom colors and callback
 
 |Method|Returns|Description|
 |---|---|---|
-|[Menu:setItems](#Menu:setItems)|Menu|Sets the menu items and calculates total width
+|[Menu:setItems](#menu-setitems)|Menu|Sets the menu items and calculates total width
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Menu:init](#Menu:init)|Menu|Initializes the Menu instance
-|[Menu:mouse_click](#Menu:mouse_click)|boolean|Handles mouse click events and item selection
-|[Menu:render](#Menu:render)|-|Renders the menu horizontally with proper spacing and colors
+|Menu:init|Menu|Initializes the Menu instance
+|Menu:mouse_click|boolean|Handles mouse click events and item selection
+|Menu:render|-|Renders the menu horizontally with proper spacing and colors
 
 ## Menu:setItems(items)
 Sets the menu items

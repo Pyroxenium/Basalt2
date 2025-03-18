@@ -13,17 +13,17 @@ This is the program class. It provides a program that runs in a window.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Program:execute](#Program:execute)|Program|Executes a program
+|[Program:execute](#program-execute)|Program|Executes a program
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Program:dispatchEvent](#Program:dispatchEvent)|any|Handles all incomming events
-|[Program:focus](#Program:focus)|-|Gets called when the element gets focused
-|[Program:init](#Program:init)|Program|Initializes the Program instance
-|[Program:render](#Program:render)|-|Renders the program
+|Program:dispatchEvent|any|Handles all incomming events
+|Program:focus|-|Gets called when the element gets focused
+|Program:init|Program|Initializes the Program instance
+|Program:render|-|Renders the program
 
 ## Program:execute(path)
 Executes a program

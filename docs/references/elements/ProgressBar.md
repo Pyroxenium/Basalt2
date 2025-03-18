@@ -10,17 +10,12 @@ with optional percentage display and customizable colors.
 |showPercentage|boolean|false|Whether to show the percentage text in the center
 |progressColor|color|lime|The color used for the filled portion of the progress bar
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[ProgressBar:init](#ProgressBar:init)|ProgressBar|Initializes the ProgressBar instance
-|[ProgressBar:render](#ProgressBar:render)|-|Renders the progress bar with filled portion and optional percentage text
+|ProgressBar:init|ProgressBar|Initializes the ProgressBar instance
+|ProgressBar:render|-|Renders the progress bar with filled portion and optional percentage text
 
 

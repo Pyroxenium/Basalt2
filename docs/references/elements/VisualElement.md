@@ -49,35 +49,35 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 
 |Method|Returns|Description|
 |---|---|---|
-|[VisualElement:calculatePosition](#VisualElement:calculatePosition)|number|Calculates the position of the element
-|[VisualElement:getAbsolutePosition](#VisualElement:getAbsolutePosition)|number|Returns the absolute position of the element
-|[VisualElement:getRelativePosition](#VisualElement:getRelativePosition)|number|Returns the relative position of the element
-|[VisualElement:isInBounds](#VisualElement:isInBounds)|boolean|Checks if point is within bounds
-|[VisualElement:prioritize](#VisualElement:prioritize)|VisualElement|Prioritizes the element by moving it to the top of its parent's children
+|[VisualElement:calculatePosition](#visualelement-calculateposition)|number|Calculates the position of the element
+|[VisualElement:getAbsolutePosition](#visualelement-getabsoluteposition)|number|Returns the absolute position of the element
+|[VisualElement:getRelativePosition](#visualelement-getrelativeposition)|number|Returns the relative position of the element
+|[VisualElement:isInBounds](#visualelement-isinbounds)|boolean|Checks if point is within bounds
+|[VisualElement:prioritize](#visualelement-prioritize)|VisualElement|Prioritizes the element by moving it to the top of its parent's children
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[VisualElement:blit](#VisualElement:blit)|-|Draws text with both colors
-|[VisualElement:blur](#VisualElement:blur)|-|Handles a blur event
-|[VisualElement:char](#VisualElement:char)|-|Handles a character event
-|[VisualElement:focus](#VisualElement:focus)|-|Handles a focus event
-|[VisualElement:init](#VisualElement:init)|-|Initializes a new visual element with properties
-|[VisualElement:key](#VisualElement:key)|-|Handles a key event
-|[VisualElement:key_up](#VisualElement:key_up)|-|Handles a key up event
-|[VisualElement:mouse_click](#VisualElement:mouse_click)|boolean|Handles a mouse click event
-|[VisualElement:mouse_drag](#VisualElement:mouse_drag)|boolean|Handles a mouse drag event
-|[VisualElement:mouse_move](#VisualElement:mouse_move)|boolean|Handles a mouse move event
-|[VisualElement:mouse_release](#VisualElement:mouse_release)|-|Handles a mouse release event
-|[VisualElement:mouse_scroll](#VisualElement:mouse_scroll)|boolean|Handles a mouse scroll event
-|[VisualElement:mouse_up](#VisualElement:mouse_up)|boolean|Handles a mouse up event
-|[VisualElement:multiBlit](#VisualElement:multiBlit)|-|Multi-character drawing with colors
-|[VisualElement:render](#VisualElement:render)|-|Renders the element
-|[VisualElement:setCursor](#VisualElement:setCursor)|VisualElement|Sets the cursor position
-|[VisualElement:textBg](#VisualElement:textBg)|-|Draws text with background color
-|[VisualElement:textFg](#VisualElement:textFg)|-|Draws text with foreground color
+|VisualElement:blit|-|Draws text with both colors
+|VisualElement:blur|-|Handles a blur event
+|VisualElement:char|-|Handles a character event
+|VisualElement:focus|-|Handles a focus event
+|VisualElement:init|-|Initializes a new visual element with properties
+|VisualElement:key|-|Handles a key event
+|VisualElement:key_up|-|Handles a key up event
+|VisualElement:mouse_click|boolean|Handles a mouse click event
+|VisualElement:mouse_drag|boolean|Handles a mouse drag event
+|VisualElement:mouse_move|boolean|Handles a mouse move event
+|VisualElement:mouse_release|-|Handles a mouse release event
+|VisualElement:mouse_scroll|boolean|Handles a mouse scroll event
+|VisualElement:mouse_up|boolean|Handles a mouse up event
+|VisualElement:multiBlit|-|Multi-character drawing with colors
+|VisualElement:render|-|Renders the element
+|VisualElement:setCursor|VisualElement|Sets the cursor position
+|VisualElement:textBg|-|Draws text with background color
+|VisualElement:textFg|-|Draws text with foreground color
 
 ## VisualElement:calculatePosition()
 Calculates the position of the element relative to its parent

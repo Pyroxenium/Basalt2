@@ -6,8 +6,8 @@ with support for inheritance, named styles, and dynamic theme switching.
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:applyTheme](#BaseElement:applyTheme)|BaseElement|Applies theme styles to the element
-|[BaseElement:getTheme](#BaseElement:getTheme)|table|Gets theme properties for the element
+|[BaseElement:applyTheme](#baseelement-applytheme)|BaseElement|Applies theme styles to the element
+|[BaseElement:getTheme](#baseelement-gettheme)|table|Gets theme properties for the element
 
 
 ## BaseElement:applyTheme(self)
@@ -39,9 +39,9 @@ The Theme API provides methods for managing themes globally
 
 |Method|Returns|Description|
 |---|---|---|
-|[ThemeAPI.getTheme](#ThemeAPI.getTheme)|table|Gets the current theme
-|[ThemeAPI.loadTheme](#ThemeAPI.loadTheme)|-|Loads theme from JSON file
-|[ThemeAPI.setTheme](#ThemeAPI.setTheme)|-|Sets a new theme
+|[ThemeAPI.getTheme](#themeapi-gettheme)|table|Gets the current theme
+|[ThemeAPI.loadTheme](#themeapi-loadtheme)|-|Loads theme from JSON file
+|[ThemeAPI.setTheme](#themeapi-settheme)|-|Sets a new theme
 
 
 ## ThemeAPI.getTheme()

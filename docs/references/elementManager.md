@@ -6,10 +6,10 @@ and then applies the plugins to the elements. It also provides a way to get elem
 
 |Method|Returns|Description|
 |---|---|---|
-|[ElementManager.getAPI](#ElementManager.getAPI)|table|
-|[ElementManager.getElement](#ElementManager.getElement)|table|
-|[ElementManager.getElementList](#ElementManager.getElementList)|table|
-|[ElementManager.loadElement](#ElementManager.loadElement)|-|
+|[ElementManager.getAPI](#elementmanager-getapi)|table|
+|[ElementManager.getElement](#elementmanager-getelement)|table|
+|[ElementManager.getElementList](#elementmanager-getelementlist)|table|
+|[ElementManager.loadElement](#elementmanager-loadelement)|-|
 
 
 ## ElementManager.getAPI(name)

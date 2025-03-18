@@ -18,21 +18,21 @@ with support for selection and scrolling.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Tree:collapseNode](#Tree:collapseNode)|Tree|Collapses a node to hide its children
-|[Tree:expandNode](#Tree:expandNode)|Tree|Expands a node to show its children
-|[Tree:getNodeSize](#Tree:getNodeSize)|number|Gets the size of the tree
-|[Tree:onSelect](#Tree:onSelect)|Tree|Registers a callback for when a node is selected
-|[Tree:toggleNode](#Tree:toggleNode)|Tree|Toggles between expanded and collapsed state
+|[Tree:collapseNode](#tree-collapsenode)|Tree|Collapses a node to hide its children
+|[Tree:expandNode](#tree-expandnode)|Tree|Expands a node to show its children
+|[Tree:getNodeSize](#tree-getnodesize)|number|Gets the size of the tree
+|[Tree:onSelect](#tree-onselect)|Tree|Registers a callback for when a node is selected
+|[Tree:toggleNode](#tree-togglenode)|Tree|Toggles between expanded and collapsed state
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Tree:init](#Tree:init)|Tree|Initializes the Tree instance
-|[Tree:mouse_click](#Tree:mouse_click)|boolean|Handles mouse click events for node selection and expansion
-|[Tree:mouse_scroll](#Tree:mouse_scroll)|boolean|Handles mouse scroll events for vertical scrolling
-|[Tree:render](#Tree:render)|-|Renders the tree with nodes, selection and scrolling
+|Tree:init|Tree|Initializes the Tree instance
+|Tree:mouse_click|boolean|Handles mouse click events for node selection and expansion
+|Tree:mouse_scroll|boolean|Handles mouse scroll events for vertical scrolling
+|Tree:render|-|Renders the tree with nodes, selection and scrolling
 
 ## Tree:collapseNode(node)
 Collapses a node

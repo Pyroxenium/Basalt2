@@ -6,12 +6,12 @@ persistent states, computed states, and state sharing between elements.
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:computed](#BaseElement:computed)|BaseElement|Creates a computed state
-|[BaseElement:getState](#BaseElement:getState)|any|Gets a state value
-|[BaseElement:initializeState](#BaseElement:initializeState)|BaseElement|Initializes a new state
-|[BaseElement:onStateChange](#BaseElement:onStateChange)|BaseElement|Watches for state changes
-|[BaseElement:setState](#BaseElement:setState)|BaseElement|Sets a state value
-|[BaseElement:shareState](#BaseElement:shareState)|BaseElement|Shares state between elements
+|[BaseElement:computed](#baseelement-computed)|BaseElement|Creates a computed state
+|[BaseElement:getState](#baseelement-getstate)|any|Gets a state value
+|[BaseElement:initializeState](#baseelement-initializestate)|BaseElement|Initializes a new state
+|[BaseElement:onStateChange](#baseelement-onstatechange)|BaseElement|Watches for state changes
+|[BaseElement:setState](#baseelement-setstate)|BaseElement|Sets a state value
+|[BaseElement:shareState](#baseelement-sharestate)|BaseElement|Shares state between elements
 
 
 ## BaseElement:computed(self, key, computeFn)

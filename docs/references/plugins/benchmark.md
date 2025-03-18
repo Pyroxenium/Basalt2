@@ -5,11 +5,11 @@ Benchmark API methods
 
 |Method|Returns|Description|
 |---|---|---|
-|[API.clear](#API.clear)|-|Removes a benchmark's data
-|[API.clearAll](#API.clearAll)|-|Removes all custom benchmark data
-|[API.getStats](#API.getStats)|table?|Retrieves benchmark statistics
-|[API.start](#API.start)|-|Starts timing a custom operation
-|[API.stop](#API.stop)|-|Stops timing and logs results
+|[API.clear](#api-clear)|-|Removes a benchmark's data
+|[API.clearAll](#api-clearall)|-|Removes all custom benchmark data
+|[API.getStats](#api-getstats)|table?|Retrieves benchmark statistics
+|[API.start](#api-start)|-|Starts timing a custom operation
+|[API.stop](#api-stop)|-|Stops timing and logs results
 
 
 ## API.clear(name)
@@ -35,7 +35,7 @@ Starts a custom benchmark
 
 ### Parameters
 * `name` `string` The name of the benchmark
-* `options` *(optional)* `table` Optional configuration
+* `options` *(optional)* `table` Optional configuration 
 
 ## API.stop(name)
 Stops a custom benchmark

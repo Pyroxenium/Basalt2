@@ -23,30 +23,30 @@ See: https://github.com/SkyTheCodeMaster/bimg
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image:addFrame](#Image:addFrame)|Image|Adds a new frame to the image
-|[Image:getBg](#Image:getBg)|string|Gets the background color at the specified position
-|[Image:getFg](#Image:getFg)|string|Gets the foreground color at the specified position
-|[Image:getFrame](#Image:getFrame)|table|Gets the specified frame
-|[Image:getImageSize](#Image:getImageSize)|number|Gets the size of the image
-|[Image:getMetadata](#Image:getMetadata)|table|Gets the metadata of the image
-|[Image:getPixelData](#Image:getPixelData)|number?|Gets pixel information at position
-|[Image:getText](#Image:getText)|string|Gets the text at the specified position
-|[Image:nextFrame](#Image:nextFrame)|Image|Advances to the next frame in the animation
-|[Image:resizeImage](#Image:resizeImage)|Image|Resizes the image to the specified width and height
-|[Image:setBg](#Image:setBg)|Image|Sets the background color at the specified position
-|[Image:setFg](#Image:setFg)|Image|Sets the foreground color at the specified position
-|[Image:setMetadata](#Image:setMetadata)|Image|Sets the metadata of the image
-|[Image:setPixel](#Image:setPixel)|Image|Sets the pixel at the specified position
-|[Image:setText](#Image:setText)|Image|Sets the text at the specified position
-|[Image:updateFrame](#Image:updateFrame)|Image|Updates the specified frame with the provided data
+|[Image:addFrame](#image-addframe)|Image|Adds a new frame to the image
+|[Image:getBg](#image-getbg)|string|Gets the background color at the specified position
+|[Image:getFg](#image-getfg)|string|Gets the foreground color at the specified position
+|[Image:getFrame](#image-getframe)|table|Gets the specified frame
+|[Image:getImageSize](#image-getimagesize)|number|Gets the size of the image
+|[Image:getMetadata](#image-getmetadata)|table|Gets the metadata of the image
+|[Image:getPixelData](#image-getpixeldata)|number?|Gets pixel information at position
+|[Image:getText](#image-gettext)|string|Gets the text at the specified position
+|[Image:nextFrame](#image-nextframe)|Image|Advances to the next frame in the animation
+|[Image:resizeImage](#image-resizeimage)|Image|Resizes the image to the specified width and height
+|[Image:setBg](#image-setbg)|Image|Sets the background color at the specified position
+|[Image:setFg](#image-setfg)|Image|Sets the foreground color at the specified position
+|[Image:setMetadata](#image-setmetadata)|Image|Sets the metadata of the image
+|[Image:setPixel](#image-setpixel)|Image|Sets the pixel at the specified position
+|[Image:setText](#image-settext)|Image|Sets the text at the specified position
+|[Image:updateFrame](#image-updateframe)|Image|Updates the specified frame with the provided data
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image:init](#Image:init)|Image|Initializes the Image instance
-|[Image:render](#Image:render)|-|Renders the Image
+|Image:init|Image|Initializes the Image instance
+|Image:render|-|Renders the Image
 
 ## Image:addFrame()
 Adds a new frame to the image

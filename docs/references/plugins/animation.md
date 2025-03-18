@@ -6,16 +6,16 @@ with support for sequences, easing functions, and multiple animation types.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Animation.new](#Animation.new)|Animation|Creates a new animation
-|[Animation.registerAnimation](#Animation.registerAnimation)|-|Registers a custom animation type
-|[Animation.registerEasing](#Animation.registerEasing)|-|Adds a custom easing function
-|[Animation:addAnimation](#Animation:addAnimation)|-|Adds a new animation to the sequence
-|[Animation:event](#Animation:event)|-|The event handler for the animation
-|[Animation:onComplete](#Animation:onComplete)|Animation|Registers a callback for the complete event
-|[Animation:onStart](#Animation:onStart)|-|Registers a callback for the start event
-|[Animation:onUpdate](#Animation:onUpdate)|Animation|Registers a callback for the update event
-|[Animation:sequence](#Animation:sequence)|Animation|Creates a new sequence
-|[Animation:start](#Animation:start)|Animation|Starts the animation
+|[Animation.new](#animation-new)|Animation|Creates a new animation
+|[Animation.registerAnimation](#animation-registeranimation)|-|Registers a custom animation type
+|[Animation.registerEasing](#animation-registereasing)|-|Adds a custom easing function
+|[Animation:addAnimation](#animation-addanimation)|-|Adds a new animation to the sequence
+|[Animation:event](#animation-event)|-|The event handler for the animation
+|[Animation:onComplete](#animation-oncomplete)|Animation|Registers a callback for the complete event
+|[Animation:onStart](#animation-onstart)|-|Registers a callback for the start event
+|[Animation:onUpdate](#animation-onupdate)|Animation|Registers a callback for the update event
+|[Animation:sequence](#animation-sequence)|Animation|Creates a new sequence
+|[Animation:start](#animation-start)|Animation|Starts the animation
 
 
 ## Animation.new(element)

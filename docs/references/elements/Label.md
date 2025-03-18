@@ -13,15 +13,15 @@ resizes its width based on the text content.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Label:getWrappedText](#Label:getWrappedText)|table|Gets the wrapped lines of the Label
+|[Label:getWrappedText](#label-getwrappedtext)|table|Gets the wrapped lines of the Label
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Label:init](#Label:init)|Label|Initializes the Label instance
-|[Label:render](#Label:render)|-|Renders the Label by drawing its text content
+|Label:init|Label|Initializes the Label instance
+|Label:render|-|Renders the Label by drawing its text content
 
 ## Label:getWrappedText()
 Gets the wrapped lines of the Label

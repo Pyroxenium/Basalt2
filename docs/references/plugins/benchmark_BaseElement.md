@@ -7,12 +7,12 @@ The following methods are available for BaseElement
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:benchmark](#BaseElement:benchmark)|BaseElement|Enables performance measurement for a method
-|[BaseElement:endProfile](#BaseElement:endProfile)|BaseElement|Ends timing a method call and records statistics
-|[BaseElement:getBenchmarkStats](#BaseElement:getBenchmarkStats)|table?|Retrieves benchmark statistics for a method
-|[BaseElement:logBenchmark](#BaseElement:logBenchmark)|BaseElement|Logs benchmark statistics for a method
-|[BaseElement:startProfile](#BaseElement:startProfile)|BaseElement|Starts timing a method call
-|[BaseElement:stopBenchmark](#BaseElement:stopBenchmark)|BaseElement|Disables performance measurement for a method
+|[BaseElement:benchmark](#baseelement-benchmark)|BaseElement|Enables performance measurement for a method
+|[BaseElement:endProfile](#baseelement-endprofile)|BaseElement|Ends timing a method call and records statistics
+|[BaseElement:getBenchmarkStats](#baseelement-getbenchmarkstats)|table?|Retrieves benchmark statistics for a method
+|[BaseElement:logBenchmark](#baseelement-logbenchmark)|BaseElement|Logs benchmark statistics for a method
+|[BaseElement:startProfile](#baseelement-startprofile)|BaseElement|Starts timing a method call
+|[BaseElement:stopBenchmark](#baseelement-stopbenchmark)|BaseElement|Disables performance measurement for a method
 
 
 ## BaseElement:benchmark(methodName)

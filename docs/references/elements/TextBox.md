@@ -18,22 +18,22 @@ A multi-line text editor component with cursor support and text manipulation fea
 
 |Method|Returns|Description|
 |---|---|---|
-|[TextBox:addSyntaxPattern](#TextBox:addSyntaxPattern)|TextBox|Adds a new syntax highlighting pattern
-|[TextBox:getText](#TextBox:getText)|string|Gets the text of the TextBox
-|[TextBox:setText](#TextBox:setText)|TextBox|Sets the text of the TextBox
-|[TextBox:updateViewport](#TextBox:updateViewport)|TextBox|Updates the viewport to keep the cursor in view
+|[TextBox:addSyntaxPattern](#textbox-addsyntaxpattern)|TextBox|Adds a new syntax highlighting pattern
+|[TextBox:getText](#textbox-gettext)|string|Gets the text of the TextBox
+|[TextBox:setText](#textbox-settext)|TextBox|Sets the text of the TextBox
+|[TextBox:updateViewport](#textbox-updateviewport)|TextBox|Updates the viewport to keep the cursor in view
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[TextBox:char](#TextBox:char)|boolean|Handles character input
-|[TextBox:init](#TextBox:init)|TextBox|Initializes the TextBox instance
-|[TextBox:key](#TextBox:key)|boolean|Handles key events
-|[TextBox:mouse_click](#TextBox:mouse_click)|boolean|Handles mouse click events
-|[TextBox:mouse_scroll](#TextBox:mouse_scroll)|boolean|Handles mouse scroll events
-|[TextBox:render](#TextBox:render)|-|Renders the TextBox with syntax highlighting
+|TextBox:char|boolean|Handles character input
+|TextBox:init|TextBox|Initializes the TextBox instance
+|TextBox:key|boolean|Handles key events
+|TextBox:mouse_click|boolean|Handles mouse click events
+|TextBox:mouse_scroll|boolean|Handles mouse scroll events
+|TextBox:render|-|Renders the TextBox with syntax highlighting
 
 ## TextBox:addSyntaxPattern(pattern, color)
 Adds a new syntax highlighting pattern

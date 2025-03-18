@@ -8,17 +8,12 @@ The BigFont element is a text element that displays large text.
 |text|string|BigFont|BigFont text
 |fontSize|number|1|The font size of the BigFont
 
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[BigFont:init](#BigFont:init)|-|Initializes the BigFont instance
-|[BigFont:render](#BigFont:render)|-|Renders the BigFont
+|BigFont:init|-|Initializes the BigFont instance
+|BigFont:render|-|Renders the BigFont
 
 

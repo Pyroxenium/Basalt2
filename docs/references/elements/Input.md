@@ -16,26 +16,27 @@ cursor movement, text manipulation, placeholder text, and input validation.
 |focusedForeground|color|white|Foreground color when input is focused
 |pattern|string?|nil|Regular expression pattern for input validation
 |cursorColor|number|nil|Color of the cursor
+|replaceChar|string|nil|Character to replace the input with (for password fields)
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Input:blur](#Input:blur)|-|
-|[Input:focus](#Input:focus)|-|
-|[Input:setCursor](#Input:setCursor)|-|
-|[Input:updateViewport](#Input:updateViewport)|Input|Updates the input's viewport
+|[Input:blur](#input-blur)|-|
+|[Input:focus](#input-focus)|-|
+|[Input:setCursor](#input-setcursor)|-|
+|[Input:updateViewport](#input-updateviewport)|Input|Updates the input's viewport
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Input:char](#Input:char)|boolean|Handles char events
-|[Input:init](#Input:init)|Input|Initializes the Input instance
-|[Input:key](#Input:key)|boolean|Handles key events
-|[Input:mouse_click](#Input:mouse_click)|boolean|Handles mouse click events
-|[Input:render](#Input:render)|-|Renders the input element
+|Input:char|boolean|Handles char events
+|Input:init|Input|Initializes the Input instance
+|Input:key|boolean|Handles key events
+|Input:mouse_click|boolean|Handles mouse click events
+|Input:render|-|Renders the input element
 
 ## Input:blur()
 
