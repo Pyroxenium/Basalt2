@@ -12,7 +12,7 @@ This is Basalt's error handler. All the errors are handled by this module.
 
 |Method|Returns|Description|
 |---|---|---|
-|[errorHandler.error](#errorHandler.error)|-|
+|[errorHandler.error](#errorhandler-error)|-|
 
 
 ## errorHandler.error(errMsg)

@@ -15,9 +15,9 @@ The Checkbox is a visual element that can be checked.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Checkbox.new](#Checkbox.new)|Checkbox|Creates a new Checkbox instance
-|[Checkbox:init](#Checkbox:init)|-|Initializes the Checkbox instance
-|[Checkbox:mouse_click](#Checkbox:mouse_click)|boolean|Handles mouse click events
-|[Checkbox:render](#Checkbox:render)|-|Renders the Checkbox
+|Checkbox.new|Checkbox|Creates a new Checkbox instance
+|Checkbox:init|-|Initializes the Checkbox instance
+|Checkbox:mouse_click|boolean|Handles mouse click events
+|Checkbox:render|-|Renders the Checkbox
 
 

@@ -16,19 +16,19 @@ It also allows for properties to have custom getters and setters. This is the ba
 
 |Method|Returns|Description|
 |---|---|---|
-|[PropertySystem.addSetterHook](#PropertySystem.addSetterHook)|-|Adds a setter hook to the PropertySystem
-|[PropertySystem.blueprint](#PropertySystem.blueprint)|table|Creates a blueprint of an element class
-|[PropertySystem.combineProperties](#PropertySystem.combineProperties)|-|Combines multiple properties
-|[PropertySystem.createFromBlueprint](#PropertySystem.createFromBlueprint)|table|Creates an element from a blueprint
-|[PropertySystem.defineProperty](#PropertySystem.defineProperty)|-|Defines a property for an element class
-|[PropertySystem:__init](#PropertySystem:__init)|table|Initializes the PropertySystem
-|[PropertySystem:_updateProperty](#PropertySystem:_updateProperty)|table|Update call for a property
-|[PropertySystem:getPropertyConfig](#PropertySystem:getPropertyConfig)|table|Gets a property configuration
-|[PropertySystem:instanceProperty](#PropertySystem:instanceProperty)|table|Adds a property to the PropertySystem on instance level
-|[PropertySystem:observe](#PropertySystem:observe)|table|Observers a property
-|[PropertySystem:removeAllObservers](#PropertySystem:removeAllObservers)|table|Removes all observers from a property
-|[PropertySystem:removeObserver](#PropertySystem:removeObserver)|table|Removes an observer from a property
-|[PropertySystem:removeProperty](#PropertySystem:removeProperty)|table|Removes a property from the PropertySystem
+|[PropertySystem.addSetterHook](#propertysystem-addsetterhook)|-|Adds a setter hook to the PropertySystem
+|[PropertySystem.blueprint](#propertysystem-blueprint)|table|Creates a blueprint of an element class
+|[PropertySystem.combineProperties](#propertysystem-combineproperties)|-|Combines multiple properties
+|[PropertySystem.createFromBlueprint](#propertysystem-createfromblueprint)|table|Creates an element from a blueprint
+|[PropertySystem.defineProperty](#propertysystem-defineproperty)|-|Defines a property for an element class
+|[PropertySystem:__init](#propertysystem-__init)|table|Initializes the PropertySystem
+|[PropertySystem:_updateProperty](#propertysystem-_updateproperty)|table|Update call for a property
+|[PropertySystem:getPropertyConfig](#propertysystem-getpropertyconfig)|table|Gets a property configuration
+|[PropertySystem:instanceProperty](#propertysystem-instanceproperty)|table|Adds a property to the PropertySystem on instance level
+|[PropertySystem:observe](#propertysystem-observe)|table|Observers a property
+|[PropertySystem:removeAllObservers](#propertysystem-removeallobservers)|table|Removes all observers from a property
+|[PropertySystem:removeObserver](#propertysystem-removeobserver)|table|Removes an observer from a property
+|[PropertySystem:removeProperty](#propertysystem-removeproperty)|table|Removes a property from the PropertySystem
 
 
 ## PropertySystem.addSetterHook(hook)

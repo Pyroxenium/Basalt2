@@ -14,26 +14,26 @@ The base class for all UI elements in Basalt. This class provides basic properti
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.defineEvent](#BaseElement.defineEvent)|-|Registers a new event listener for the element (on class level)
-|[BaseElement.registerEventCallback](#BaseElement.registerEventCallback)|-|Registers a new event callback for the element (on class level)
-|[BaseElement:destroy](#BaseElement:destroy)|-|Destroys the element and cleans up all references
-|[BaseElement:fireEvent](#BaseElement:fireEvent)|table|Triggers an event and calls all registered callbacks
-|[BaseElement:getBaseFrame](#BaseElement:getBaseFrame)|BaseFrame|Returns the base frame of the element
-|[BaseElement:isType](#BaseElement:isType)|boolean|Checks if the element is a specific type
-|[BaseElement:listenEvent](#BaseElement:listenEvent)|table|Enables or disables event listening for a specific event
-|[BaseElement:onChange](#BaseElement:onChange)|table|Observes a property and calls a callback when it changes
-|[BaseElement:registerCallback](#BaseElement:registerCallback)|table|Registers a callback function
-|[BaseElement:updateRender](#BaseElement:updateRender)|table|Requests a render update for this element
+|[BaseElement.defineEvent](#baseelement-defineevent)|-|Registers a new event listener for the element (on class level)
+|[BaseElement.registerEventCallback](#baseelement-registereventcallback)|-|Registers a new event callback for the element (on class level)
+|[BaseElement:destroy](#baseelement-destroy)|-|Destroys the element and cleans up all references
+|[BaseElement:fireEvent](#baseelement-fireevent)|table|Triggers an event and calls all registered callbacks
+|[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Returns the base frame of the element
+|[BaseElement:isType](#baseelement-istype)|boolean|Checks if the element is a specific type
+|[BaseElement:listenEvent](#baseelement-listenevent)|table|Enables or disables event listening for a specific event
+|[BaseElement:onChange](#baseelement-onchange)|table|Observes a property and calls a callback when it changes
+|[BaseElement:registerCallback](#baseelement-registercallback)|table|Registers a callback function
+|[BaseElement:updateRender](#baseelement-updaterender)|table|Requests a render update for this element
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:dispatchEvent](#BaseElement:dispatchEvent)|boolean?|Handles all events
-|[BaseElement:handleEvent](#BaseElement:handleEvent)|boolean?|The default event handler for all events
-|[BaseElement:init](#BaseElement:init)|table|Initializes the BaseElement instance
-|[BaseElement:postInit](#BaseElement:postInit)|table|Post initialization
+|BaseElement:dispatchEvent|boolean?|Handles all events
+|BaseElement:handleEvent|boolean?|The default event handler for all events
+|BaseElement:init|table|Initializes the BaseElement instance
+|BaseElement:postInit|table|Post initialization
 
 ## BaseElement.defineEvent(class, eventName, requiredEvent?)
 Registers a new event listener for the element (on class level)

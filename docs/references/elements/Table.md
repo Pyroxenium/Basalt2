@@ -20,17 +20,17 @@ row selection, and scrolling capabilities.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Table:sortData](#Table:sortData)|Table|Sorts the table data by the specified column
+|[Table:sortData](#table-sortdata)|Table|Sorts the table data by the specified column
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Table:init](#Table:init)|Table|Initializes the Table instance
-|[Table:mouse_click](#Table:mouse_click)|boolean|Handles header clicks for sorting and row selection
-|[Table:mouse_scroll](#Table:mouse_scroll)|boolean|Handles scrolling through the table data
-|[Table:render](#Table:render)|-|Renders the table with headers, data and scrollbar
+|Table:init|Table|Initializes the Table instance
+|Table:mouse_click|boolean|Handles header clicks for sorting and row selection
+|Table:mouse_scroll|boolean|Handles scrolling through the table data
+|Table:render|-|Renders the table with headers, data and scrollbar
 
 ## Table:sortData(columnIndex)
 Sorts the table data by column

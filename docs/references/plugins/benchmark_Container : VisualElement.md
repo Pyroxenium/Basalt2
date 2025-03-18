@@ -4,9 +4,9 @@
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container:benchmarkContainer](#Container:benchmarkContainer)|Container|Recursively enables benchmarking
-|[Container:logContainerBenchmarks](#Container:logContainerBenchmarks)|Container|Recursively logs benchmark statistics
-|[Container:stopContainerBenchmark](#Container:stopContainerBenchmark)|Container|Recursively stops benchmarking
+|[Container:benchmarkContainer](#container-benchmarkcontainer)|Container|Recursively enables benchmarking
+|[Container:logContainerBenchmarks](#container-logcontainerbenchmarks)|Container|Recursively logs benchmark statistics
+|[Container:stopContainerBenchmark](#container-stopcontainerbenchmark)|Container|Recursively stops benchmarking
 
 
 ## Container:benchmarkContainer(methodName)

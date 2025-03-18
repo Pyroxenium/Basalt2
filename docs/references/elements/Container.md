@@ -27,40 +27,40 @@ like Frames, BaseFrames, and more.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container:addChild](#Container:addChild)|Container|Adds a child to the container
-|[Container:callChildrenEvent](#Container:callChildrenEvent)|boolean|Calls a event on all children
-|[Container:clear](#Container:clear)|Container|Clears the container
-|[Container:getChild](#Container:getChild)|Container?|Removes a child from the container
-|[Container:isChildVisible](#Container:isChildVisible)|boolean|Returns whether a child is visible
-|[Container:registerChildEvent](#Container:registerChildEvent)|Container|Registers the children events of the container
-|[Container:registerChildrenEvents](#Container:registerChildrenEvents)|Container|Registers the children events of the container
-|[Container:removeChild](#Container:removeChild)|Container|Removes a child from the container
-|[Container:removeChildrenEvents](#Container:removeChildrenEvents)|Container|Unregisters the children events of the container
-|[Container:sortChildren](#Container:sortChildren)|Container|Sorts the children of the container
-|[Container:sortChildrenEvents](#Container:sortChildrenEvents)|Container|Sorts the children events of the container
-|[Container:unregisterChildEvent](#Container:unregisterChildEvent)|Container|Unregisters the children events of the container
+|[Container:addChild](#container-addchild)|Container|Adds a child to the container
+|[Container:callChildrenEvent](#container-callchildrenevent)|boolean|Calls a event on all children
+|[Container:clear](#container-clear)|Container|Clears the container
+|[Container:getChild](#container-getchild)|Container?|Removes a child from the container
+|[Container:isChildVisible](#container-ischildvisible)|boolean|Returns whether a child is visible
+|[Container:registerChildEvent](#container-registerchildevent)|Container|Registers the children events of the container
+|[Container:registerChildrenEvents](#container-registerchildrenevents)|Container|Registers the children events of the container
+|[Container:removeChild](#container-removechild)|Container|Removes a child from the container
+|[Container:removeChildrenEvents](#container-removechildrenevents)|Container|Unregisters the children events of the container
+|[Container:sortChildren](#container-sortchildren)|Container|Sorts the children of the container
+|[Container:sortChildrenEvents](#container-sortchildrenevents)|Container|Sorts the children events of the container
+|[Container:unregisterChildEvent](#container-unregisterchildevent)|Container|Unregisters the children events of the container
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container:blit](#Container:blit)|Container|Draws a line of text and fg and bg as colors
-|[Container:char](#Container:char)|boolean|Handles char events
-|[Container:handleEvent](#Container:handleEvent)|boolean|Default handler for events
-|[Container:init](#Container:init)|-|Initializes the Container instance
-|[Container:key](#Container:key)|boolean|Handles key events
-|[Container:key_up](#Container:key_up)|boolean|Handles key up events
-|[Container:mouse_click](#Container:mouse_click)|boolean|Handles mouse click events
-|[Container:mouse_drag](#Container:mouse_drag)|boolean|Handles mouse drag events
-|[Container:mouse_move](#Container:mouse_move)|boolean|Handles mouse move events
-|[Container:mouse_release](#Container:mouse_release)|-|Handles mouse release events
-|[Container:mouse_scroll](#Container:mouse_scroll)|boolean|Handles mouse scroll events
-|[Container:mouse_up](#Container:mouse_up)|boolean|Handles mouse up events
-|[Container:multiBlit](#Container:multiBlit)|Container|Draws multiple lines of text, fg and bg strings
-|[Container:render](#Container:render)|-|Renders the container
-|[Container:textBg](#Container:textBg)|Container|Draws a line of text and bg as color
-|[Container:textFg](#Container:textFg)|Container|Draws a line of text and fg as color
+|Container:blit|Container|Draws a line of text and fg and bg as colors
+|Container:char|boolean|Handles char events
+|Container:handleEvent|boolean|Default handler for events
+|Container:init|-|Initializes the Container instance
+|Container:key|boolean|Handles key events
+|Container:key_up|boolean|Handles key up events
+|Container:mouse_click|boolean|Handles mouse click events
+|Container:mouse_drag|boolean|Handles mouse drag events
+|Container:mouse_move|boolean|Handles mouse move events
+|Container:mouse_release|-|Handles mouse release events
+|Container:mouse_scroll|boolean|Handles mouse scroll events
+|Container:mouse_up|boolean|Handles mouse up events
+|Container:multiBlit|Container|Draws multiple lines of text, fg and bg strings
+|Container:render|-|Renders the container
+|Container:textBg|Container|Draws a line of text and bg as color
+|Container:textFg|Container|Draws a line of text and fg as color
 
 ## Container:addChild(child)
 Adds a child to the container

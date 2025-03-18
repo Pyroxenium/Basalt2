@@ -26,19 +26,19 @@ What this code does is it loads basalt into the project, and you can access it b
 
 |Method|Returns|Description|
 |---|---|---|
-|[basalt.create](#basalt.create)|table|Creates a new UI element
-|[basalt.createFrame](#basalt.createFrame)|BaseFrame|Creates a new BaseFrame
-|[basalt.getAPI](#basalt.getAPI)|table|Returns a Plugin API
-|[basalt.getActiveFrame](#basalt.getActiveFrame)|BaseFrame?|Returns the active frame
-|[basalt.getElementClass](#basalt.getElementClass)|table|Returns an element class
-|[basalt.getElementManager](#basalt.getElementManager)|table|Returns the element manager
-|[basalt.getMainFrame](#basalt.getMainFrame)|BaseFrame|Gets or creates the main frame
-|[basalt.removeSchedule](#basalt.removeSchedule)|boolean|Removes a scheduled update
-|[basalt.run](#basalt.run)|-|Starts the Basalt runtime
-|[basalt.schedule](#basalt.schedule)|thread|Schedules a function to run in a coroutine
-|[basalt.setActiveFrame](#basalt.setActiveFrame)|-|Sets the active frame
-|[basalt.stop](#basalt.stop)|-|Stops the Basalt runtime
-|[basalt.update](#basalt.update)|-|Runs basalt once
+|[basalt.create](#basalt-create)|table|Creates a new UI element
+|[basalt.createFrame](#basalt-createframe)|BaseFrame|Creates a new BaseFrame
+|[basalt.getAPI](#basalt-getapi)|table|Returns a Plugin API
+|[basalt.getActiveFrame](#basalt-getactiveframe)|BaseFrame?|Returns the active frame
+|[basalt.getElementClass](#basalt-getelementclass)|table|Returns an element class
+|[basalt.getElementManager](#basalt-getelementmanager)|table|Returns the element manager
+|[basalt.getMainFrame](#basalt-getmainframe)|BaseFrame|Gets or creates the main frame
+|[basalt.removeSchedule](#basalt-removeschedule)|boolean|Removes a scheduled update
+|[basalt.run](#basalt-run)|-|Starts the Basalt runtime
+|[basalt.schedule](#basalt-schedule)|thread|Schedules a function to run in a coroutine
+|[basalt.setActiveFrame](#basalt-setactiveframe)|-|Sets the active frame
+|[basalt.stop](#basalt-stop)|-|Stops the Basalt runtime
+|[basalt.update](#basalt-update)|-|Runs basalt once
 
 
 ## basalt.create(type, properties?)

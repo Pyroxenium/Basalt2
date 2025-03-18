@@ -22,17 +22,17 @@ with customizable colors and value ranges.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Slider:getValue](#Slider:getValue)|number|Gets the current value mapped to the max range
+|[Slider:getValue](#slider-getvalue)|number|Gets the current value mapped to the max range
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Slider:init](#Slider:init)|Slider|Initializes the Slider instance
-|[Slider:mouse_click](#Slider:mouse_click)|boolean|Updates slider position on mouse click
-|[Slider:mouse_scroll](#Slider:mouse_scroll)|boolean|Handles mouse release events
-|[Slider:render](#Slider:render)|-|Renders the slider with track and handle
+|Slider:init|Slider|Initializes the Slider instance
+|Slider:mouse_click|boolean|Updates slider position on mouse click
+|Slider:mouse_scroll|boolean|Handles mouse release events
+|Slider:render|-|Renders the slider with track and handle
 
 ## Slider:getValue()
 Gets the current value of the slider

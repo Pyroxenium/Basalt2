@@ -23,24 +23,24 @@ custom item rendering, separators, and selection handling.
 
 |Method|Returns|Description|
 |---|---|---|
-|[List:addItem](#List:addItem)|List|Adds an item to the list
-|[List:clear](#List:clear)|List|Clears all items from the list
-|[List:getSelectedItem](#List:getSelectedItem)|table?|Gets first selected item
-|[List:getSelectedItems](#List:getSelectedItems)|table|Gets the currently selected items
-|[List:onSelect](#List:onSelect)|List|Registers a callback for the select event
-|[List:removeItem](#List:removeItem)|List|Removes an item from the list
-|[List:scrollToBottom](#List:scrollToBottom)|List|Scrolls the list to the bottom
-|[List:scrollToTop](#List:scrollToTop)|List|Scrolls the list to the top
+|[List:addItem](#list-additem)|List|Adds an item to the list
+|[List:clear](#list-clear)|List|Clears all items from the list
+|[List:getSelectedItem](#list-getselecteditem)|table?|Gets first selected item
+|[List:getSelectedItems](#list-getselecteditems)|table|Gets the currently selected items
+|[List:onSelect](#list-onselect)|List|Registers a callback for the select event
+|[List:removeItem](#list-removeitem)|List|Removes an item from the list
+|[List:scrollToBottom](#list-scrolltobottom)|List|Scrolls the list to the bottom
+|[List:scrollToTop](#list-scrolltotop)|List|Scrolls the list to the top
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[List:init](#List:init)|List|Initializes the List instance
-|[List:mouse_click](#List:mouse_click)|boolean|Handles mouse click events
-|[List:mouse_scroll](#List:mouse_scroll)|boolean|Handles mouse scroll events
-|[List:render](#List:render)|-|Renders the list
+|List:init|List|Initializes the List instance
+|List:mouse_click|boolean|Handles mouse click events
+|List:mouse_scroll|boolean|Handles mouse scroll events
+|List:render|-|Renders the list
 
 ## List:addItem(text)
 Adds an item to the list

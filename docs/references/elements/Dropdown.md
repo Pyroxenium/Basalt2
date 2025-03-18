@@ -15,8 +15,8 @@ This is the dropdown class. It is a visual element that can show a list of selec
 
 |Method|Returns|Description|
 |---|---|---|
-|[Dropdown:init](#Dropdown:init)|Dropdown|Initializes the Dropdown instance
-|[Dropdown:mouse_click](#Dropdown:mouse_click)|boolean|Handles mouse click events
-|[Dropdown:render](#Dropdown:render)|-|Renders the Dropdown
+|Dropdown:init|Dropdown|Initializes the Dropdown instance
+|Dropdown:mouse_click|boolean|Handles mouse click events
+|Dropdown:render|-|Renders the Dropdown
 
 

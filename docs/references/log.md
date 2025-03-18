@@ -15,12 +15,12 @@ Logger module for Basalt. Logs messages to the console and optionally to a file.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Log.debug](#Log.debug)|-|Sends a debug message
-|[Log.error](#Log.error)|-|Sends an error message
-|[Log.info](#Log.info)|-|Sends an info message
-|[Log.setEnabled](#Log.setEnabled)|-|Sets if the logger should log
-|[Log.setLogToFile](#Log.setLogToFile)|-|Sets if the logger should log to a file
-|[Log.warn](#Log.warn)|-|Sends a warning message
+|[Log.debug](#log-debug)|-|Sends a debug message
+|[Log.error](#log-error)|-|Sends an error message
+|[Log.info](#log-info)|-|Sends an info message
+|[Log.setEnabled](#log-setenabled)|-|Sets if the logger should log
+|[Log.setLogToFile](#log-setlogtofile)|-|Sets if the logger should log to a file
+|[Log.warn](#log-warn)|-|Sends a warning message
 
 
 ## Log.debug(...)

@@ -13,21 +13,21 @@ This is the base class for all graph elements. It is a point based graph.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Graph:addPoint](#Graph:addPoint)|Graph|Adds a point to a series
-|[Graph:addSeries](#Graph:addSeries)|-|Adds a series to the graph
-|[Graph:changeSeriesVisibility](#Graph:changeSeriesVisibility)|Graph|Changes the visibility of a series
-|[Graph:focusSeries](#Graph:focusSeries)|Graph|Focuses a series
-|[Graph:getSeries](#Graph:getSeries)|table?|Gets a series from the graph
-|[Graph:removeSeries](#Graph:removeSeries)|Graph|Removes a series from the graph
-|[Graph:setSeriesPointCount](#Graph:setSeriesPointCount)|Graph|Sets the point count of a series
+|[Graph:addPoint](#graph-addpoint)|Graph|Adds a point to a series
+|[Graph:addSeries](#graph-addseries)|-|Adds a series to the graph
+|[Graph:changeSeriesVisibility](#graph-changeseriesvisibility)|Graph|Changes the visibility of a series
+|[Graph:focusSeries](#graph-focusseries)|Graph|Focuses a series
+|[Graph:getSeries](#graph-getseries)|table?|Gets a series from the graph
+|[Graph:removeSeries](#graph-removeseries)|Graph|Removes a series from the graph
+|[Graph:setSeriesPointCount](#graph-setseriespointcount)|Graph|Sets the point count of a series
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Graph:init](#Graph:init)|Graph|Initializes the Graph instance
-|[Graph:render](#Graph:render)|-|Renders the graph
+|Graph:init|Graph|Initializes the Graph instance
+|Graph:render|-|Renders the graph
 
 ## Graph:addPoint(name, value)
 

@@ -15,17 +15,17 @@ This is the Flexbox class. It is a container that arranges its children in a fle
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox:addChild](#Flexbox:addChild)|Flexbox|Adds a child element to the flexbox
-|[Flexbox:addLineBreak](#Flexbox:addLineBreak)|Flexbox|Adds a new line break to the flexbox.
+|[Flexbox:addChild](#flexbox-addchild)|Flexbox|Adds a child element to the flexbox
+|[Flexbox:addLineBreak](#flexbox-addlinebreak)|Flexbox|Adds a new line break to the flexbox.
 
 
 ## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox:init](#Flexbox:init)|Flexbox|Initializes the Flexbox instance
-|[Flexbox:removeChild](#Flexbox:removeChild)|Flexbox|Removes a child element from the flexbox
-|[Flexbox:render](#Flexbox:render)|Flexbox|Renders the flexbox and its children
+|Flexbox:init|Flexbox|Initializes the Flexbox instance
+|Flexbox:removeChild|Flexbox|Removes a child element from the flexbox
+|Flexbox:render|Flexbox|Renders the flexbox and its children
 
 ## Flexbox:addChild(element)
 Adds a child element to the flexbox

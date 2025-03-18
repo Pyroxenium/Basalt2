@@ -18,10 +18,10 @@ This is the AnimationInstance class. It represents a single animation instance
 
 |Method|Returns|Description|
 |---|---|---|
-|[AnimationInstance.new](#AnimationInstance.new)|AnimationInstance|Creates a new animation instance
-|[AnimationInstance:complete](#AnimationInstance:complete)|-|Called when the animation is completed
-|[AnimationInstance:start](#AnimationInstance:start)|AnimationInstance|Starts the animation
-|[AnimationInstance:update](#AnimationInstance:update)|boolean|Updates the animation
+|[AnimationInstance.new](#animationinstance-new)|AnimationInstance|Creates a new animation instance
+|[AnimationInstance:complete](#animationinstance-complete)|-|Called when the animation is completed
+|[AnimationInstance:start](#animationinstance-start)|AnimationInstance|Starts the animation
+|[AnimationInstance:update](#animationinstance-update)|boolean|Updates the animation
 
 
 ## AnimationInstance.new(element, animType, args, duration, easing)

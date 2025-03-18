@@ -18,23 +18,23 @@ functionality. It also has a buffer system to reduce the number of calls
 
 |Method|Returns|Description|
 |---|---|---|
-|[Render.new](#Render.new)|Render|
-|[Render:addDirtyRect](#Render:addDirtyRect)|Render|
-|[Render:bg](#Render:bg)|Render|
-|[Render:blit](#Render:blit)|Render|
-|[Render:clear](#Render:clear)|Render|
-|[Render:clearArea](#Render:clearArea)|Render|
-|[Render:fg](#Render:fg)|Render|
-|[Render:getSize](#Render:getSize)|number,|
-|[Render:mergeRects](#Render:mergeRects)|Render|
-|[Render:multiBlit](#Render:multiBlit)|Render|
-|[Render:rectOverlaps](#Render:rectOverlaps)|boolean|
-|[Render:render](#Render:render)|Render|
-|[Render:setCursor](#Render:setCursor)|Render|
-|[Render:setSize](#Render:setSize)|Render|
-|[Render:text](#Render:text)|Render|
-|[Render:textBg](#Render:textBg)|Render|
-|[Render:textFg](#Render:textFg)|Render|
+|[Render.new](#render-new)|Render|
+|[Render:addDirtyRect](#render-adddirtyrect)|Render|
+|[Render:bg](#render-bg)|Render|
+|[Render:blit](#render-blit)|Render|
+|[Render:clear](#render-clear)|Render|
+|[Render:clearArea](#render-cleararea)|Render|
+|[Render:fg](#render-fg)|Render|
+|[Render:getSize](#render-getsize)|number,|
+|[Render:mergeRects](#render-mergerects)|Render|
+|[Render:multiBlit](#render-multiblit)|Render|
+|[Render:rectOverlaps](#render-rectoverlaps)|boolean|
+|[Render:render](#render-render)|Render|
+|[Render:setCursor](#render-setcursor)|Render|
+|[Render:setSize](#render-setsize)|Render|
+|[Render:text](#render-text)|Render|
+|[Render:textBg](#render-textbg)|Render|
+|[Render:textFg](#render-textfg)|Render|
 
 
 ## Render.new(terminal)

@@ -5,7 +5,7 @@ Adds additional methods for VisualElement when adding animation plugin
 
 |Method|Returns|Description|
 |---|---|---|
-|[VisualElement:animate](#VisualElement:animate)|Animation|Creates a new animation
+|[VisualElement:animate](#visualelement-animate)|Animation|Creates a new animation
 
 
 ## VisualElement:animate()

@@ -6,7 +6,7 @@ This is the bar chart class. It is based on the graph element. It draws bar base
 
 |Method|Returns|Description|
 |---|---|---|
-|[BarChart:init](#BarChart:init)|BarChart|Initializes the BarChart instance
-|[BarChart:render](#BarChart:render)|-|Renders the BarChart
+|BarChart:init|BarChart|Initializes the BarChart instance
+|BarChart:render|-|Renders the BarChart
 
 

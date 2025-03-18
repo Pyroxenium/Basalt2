@@ -12,7 +12,7 @@ The Button is a standard button element with click handling and state management
 
 |Method|Returns|Description|
 |---|---|---|
-|[Button:init](#Button:init)|-|Initializes the Button instance
-|[Button:render](#Button:render)|-|Renders the Button
+|Button:init|-|Initializes the Button instance
+|Button:render|-|Renders the Button
 
 
