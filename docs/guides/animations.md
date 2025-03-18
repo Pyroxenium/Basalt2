@@ -16,7 +16,7 @@ Animations in Basalt work with:
 element:animate()
     :move(x, y, duration)                       -- Animate move
     :moveOffset(x, y, duration)                 -- Animate offset
-    :size(w, h, duration)                       -- Animate size
+    :resize(w, h, duration)                     -- Animate size
     :morphText(property, targetText, duration)  -- Animate text
     :typewrite(property, targetText, duration)  -- Animate text
     :fadeText(property, targetText, duration)   -- Animate text
@@ -42,16 +42,16 @@ Sequences allow you to create complex animations by controlling when each animat
 ```lua
 -- Without sequences (animations play at the same time):
 element:animate()
-    :move(10, 5, 1)     -- These three animations
-    :size(5, 5, 1)         -- all start and play
+    :move(10, 5, 1)                  -- These three animations
+    :resize(5, 5, 1)                 -- all start and play
     :morphText("text", "newText" 1)  -- simultaneously
     :start()
 
 -- With sequences (animations play one after another):
 element:animate()
-    :move(10, 5, 1)     -- Plays first
+    :move(10, 5, 1)                  -- Plays first
     :sequence()
-    :size(5, 5, 1)         -- Starts after position completes
+    :resize(5, 5, 1)                 -- Starts after position completes
     :sequence()
     :morphText("text", "newText" 1)  -- simultaneously
     :start()

@@ -60,19 +60,15 @@ export default defineConfig({
 
     sidebar: {
       '/guides/': [
-        { text: 'General', link: '/guides/getting-started', items: [
-          { text: 'Getting started', link: '/guides/getting-started' },
-          { text: 'Download', link: '/guides/download' },
-          { text: 'Annotations', link: '/guides/annotations' },          
-          { text: 'FAQ', link: '/guides/faq' },
-        ]},
-        { text: 'Plugins', link: '/guides/animations', items: [
-          { text: 'Animations', link: '/guides/animations' },
-          { text: 'Benchmark', link: '/guides/benchmarks' },
-          { text: 'Properties', link: '/guides/properties' },
-          { text: 'States', link: '/guides/states' },
-          { text: 'XML', link: '/guides/xml' },
-        ]},
+        { text: 'Getting started', link: '/guides/getting-started' },
+        { text: 'Download', link: '/guides/download' },
+        { text: 'Annotations', link: '/guides/annotations' },
+        { text: 'Animations', link: '/guides/animations' },
+        { text: 'Benchmark', link: '/guides/benchmarks' },
+        { text: 'Properties', link: '/guides/properties' },
+        { text: 'States', link: '/guides/states' },
+        { text: 'XML', link: '/guides/xml' },
+        { text: 'FAQ', link: '/guides/faq' },
       ],
 
       '/references/':[
@@ -92,33 +88,25 @@ export default defineConfig({
           collapsed: false,
           items: [
               {text: 'VisualElement', link: 'references/elements/VisualElement', collapsed: false, items: [
-                {text: 'BigFont', link: 'references/elements/BigFont'},
-                {text: 'Button', link: 'references/elements/Button'},
-                {text: 'Checkbox', link: 'references/elements/Checkbox'},
                 {text: 'Container', link: 'references/elements/Container', collapsed: true, items: [
                   {text: 'BaseFrame', link: 'references/elements/BaseFrame'},
-                  {text: 'Flexbox', link: 'references/elements/Flexbox'},
                   {text: 'Frame', link: 'references/elements/Frame'},
                 ]},
-                {text: 'Display', link: 'references/elements/Display'},
-                {text: 'Graph', link: 'references/elements/Graph', collapsed: true, items: [
-                  {text: 'BarChart', link: 'references/elements/BarChart'},
-                  {text: 'LineChart', link: 'references/elements/LineChart'},
-                ]},
-                {text: 'Image', link: 'references/elements/Image'},
+                {text: 'Button', link: 'references/elements/Button'},
+                {text: 'Label', link: 'references/elements/Label'},  
                 {text: 'Input', link: 'references/elements/Input'},
-                {text: 'Label', link: 'references/elements/Label'},
-                {text: 'List', link: 'references/elements/List', collapsed: true, items: [
-                  {text: 'Dropdown', link: 'references/elements/Dropdown'},
-                  {text: 'Menu', link: 'references/elements/Menu'},
-                ]},
+                {text: 'Checkbox', link: 'references/elements/Checkbox'},
+                {text: 'List', link: 'references/elements/List', collapsed: true,
+                  items: [
+                    {text: 'Dropdown', link: 'references/elements/Dropdown'},
+                    {text: 'Menu', link: 'references/elements/Menu'},
+                  ]
+                },
+                {text: 'Table', link: 'references/elements/Table'},
+                {text: 'Tree', link: 'references/elements/Tree'},
+                {text: 'Slider', link: 'references/elements/Slider'},
                 {text: 'ProgressBar', link: 'references/elements/ProgressBar'},
                 {text: 'Program', link: 'references/elements/Program'},
-                {text: 'Scrollbar', link: 'references/elements/Scrollbar'},
-                {text: 'Slider', link: 'references/elements/Slider'},
-                {text: 'Table', link: 'references/elements/Table'},
-                {text: 'TextBox', link: 'references/elements/TextBox'},
-                {text: 'Tree', link: 'references/elements/Tree'},
               ]},
           ]
         },
