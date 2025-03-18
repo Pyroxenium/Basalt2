@@ -288,6 +288,26 @@ Animation.registerAnimation("move", {
     end
 })
 
+Animation.registerAnimation("resize", {
+    start = function(anim)
+        anim.startW = anim.element.get("width")
+        anim.startH = anim.element.get("height")
+    end,
+
+    update = function(anim, progress)
+        local w = anim.startW + (anim.args[1] - anim.startW) * progress
+        local h = anim.startH + (anim.args[2] - anim.startH) * progress
+        anim.element.set("width", math.floor(w))
+        anim.element.set("height", math.floor(h))
+        return progress >= 1
+    end,
+
+    complete = function(anim)
+        anim.element.set("width", anim.args[1])
+        anim.element.set("height", anim.args[2])
+    end
+})
+
 Animation.registerAnimation("moveOffset", {
     start = function(anim)
         anim.startX = anim.element.get("offsetX")
