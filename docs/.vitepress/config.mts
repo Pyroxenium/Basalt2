@@ -60,15 +60,19 @@ export default defineConfig({
 
     sidebar: {
       '/guides/': [
-        { text: 'Getting started', link: '/guides/getting-started' },
-        { text: 'Download', link: '/guides/download' },
-        { text: 'Annotations', link: '/guides/annotations' },
-        { text: 'Animations', link: '/guides/animations' },
-        { text: 'Benchmark', link: '/guides/benchmarks' },
-        { text: 'Properties', link: '/guides/properties' },
-        { text: 'States', link: '/guides/states' },
-        { text: 'XML', link: '/guides/xml' },
-        { text: 'FAQ', link: '/guides/faq' },
+        { text: 'General', link: '/guides/getting-started', items: [
+          { text: 'Getting started', link: '/guides/getting-started' },
+          { text: 'Download', link: '/guides/download' },
+          { text: 'Annotations', link: '/guides/annotations' },          
+          { text: 'FAQ', link: '/guides/faq' },
+        ]},
+        { text: 'Plugins', link: '/guides/animations', items: [
+          { text: 'Animations', link: '/guides/animations' },
+          { text: 'Benchmark', link: '/guides/benchmarks' },
+          { text: 'Properties', link: '/guides/properties' },
+          { text: 'States', link: '/guides/states' },
+          { text: 'XML', link: '/guides/xml' },
+        ]},
       ],
 
       '/references/':[

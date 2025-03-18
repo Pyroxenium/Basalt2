@@ -1,6 +1,6 @@
 # Welcome to The Basalt Wiki
 
-Welcome to Basalt 2, a complete reimagining of the Basalt UI framework for ComputerCraft. After maintaining the original Basalt, i identified several areas that needed fundamental improvements. This led to the decision to rebuild Basalt from the ground up, focusing on three key aspects:
+Welcome to Basalt 2, a complete reimagining of the Basalt UI framework for ComputerCraft. After maintaining the original Basalt, i identified several areas that needed fundamental improvements. This led to the decision to rebuild Basalt from the ground up, focusing on these key aspects:
 
 - Improved error handling to help developers quickly identify and resolve issues
 - Auto-generated documentation that stays in sync with the codebase

@@ -14,17 +14,19 @@ Animations in Basalt work with:
 ### Core Animation Methods
 ```lua
 element:animate()
-    :offset(x, y, duration)       -- Animate offset
-    :size(w, h, duration)         -- Animate size
-    :position(x, y, duration)     -- Animate position
-    :textColor(color, duration)   -- Animate text color
-    :background(color, duration)  -- Animate background color
+    :move(x, y, duration)                       -- Animate move
+    :moveOffset(x, y, duration)                 -- Animate offset
+    :size(w, h, duration)                       -- Animate size
+    :morphText(property, targetText, duration)  -- Animate text
+    :typewrite(property, targetText, duration)  -- Animate text
+    :fadeText(property, targetText, duration)   -- Animate text
+    :scrollText(property, targetText, duration) -- Animate text
 ```
 
 ### Animation Control
 ```lua
 local anim = element:animate()
-    :offset(5, 0, 1)
+    :moveOffset(5, 0, 1)
     :start()                     -- Start the animation
 
 anim:pause()                     -- Pause animation
@@ -40,18 +42,18 @@ Sequences allow you to create complex animations by controlling when each animat
 ```lua
 -- Without sequences (animations play at the same time):
 element:animate()
-    :position(10, 5, 1)     -- These three animations
+    :move(10, 5, 1)     -- These three animations
     :size(5, 5, 1)         -- all start and play
-    :background(colors.red, 1)  -- simultaneously
+    :morphText("text", "newText" 1)  -- simultaneously
     :start()
 
 -- With sequences (animations play one after another):
 element:animate()
-    :position(10, 5, 1)     -- Plays first
+    :move(10, 5, 1)     -- Plays first
     :sequence()
     :size(5, 5, 1)         -- Starts after position completes
     :sequence()
-    :background(colors.red, 1)  -- Starts after size completes
+    :morphText("text", "newText" 1)  -- simultaneously
     :start()
 ```
 
@@ -59,13 +61,13 @@ element:animate()
 ```lua
 -- Complex movement pattern
 element:animate()
-    :position(10, 5, 0.5)   -- Move right
+    :move(10, 5, 0.5)   -- Move right
     :sequence()
-    :position(10, 10, 0.5)  -- Then down
+    :move(10, 10, 0.5)  -- Then down
     :sequence()
-    :position(5, 10, 0.5)   -- Then left
+    :move(5, 10, 0.5)   -- Then left
     :sequence()
-    :position(5, 5, 0.5)    -- Then up
+    :move(5, 5, 0.5)    -- Then up
     :onDone(function()
         -- Called when entire sequence completes
     end)
@@ -74,19 +76,19 @@ element:animate()
 -- Mixing simultaneous and sequential animations
 element:animate()
     -- These two happen together
-    :position(10, 5, 1)
-    :background(colors.blue, 1)
+    :move(10, 5, 1)
+    :morphText("text", "newText" 1)  -- simultaneously
     :sequence()
     -- These two also happen together, but after the first group
-    :position(5, 5, 1)
-    :background(colors.red, 1)
+    :move(5, 5, 1)
+    :morphText("text", "anotherText" 1)  -- simultaneously
     :start()
 ```
 
 ### Callbacks
 ```lua
 element:animate()
-    :offset(5, 0, 1)
+    :moveOffset(5, 0, 1)
     :onStart(function() end)     -- When animation starts
     :onDone(function() end)      -- When animation completes
     :onStep(function() end)      -- Every animation step
