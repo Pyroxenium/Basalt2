@@ -315,7 +315,17 @@ local function markdownEvents(className)
 end
 
 local function formatLink(str)
-    return str:lower():gsub("[()]", ""):gsub("[:.]+", "-")
+    local base, params = str:match("([^(]+)%(([^)]*%))")
+    local baseName = (base or str):lower():gsub("[:]", "-"):gsub("[%.]", "-")
+
+    if params and params ~= "" then
+        local paramNames = {}
+        for param in params:gmatch("([^,]+)") do
+            table.insert(paramNames, param:match("%s*(%w+)"))
+        end
+        return baseName .. "-" .. table.concat(paramNames, "-")
+    end
+    return baseName
 end
 
 local function markdownClassFunctionList(className)
