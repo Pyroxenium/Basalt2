@@ -1,31 +1,23 @@
 local PropertySystem = require("propertySystem")
 local errorManager = require("errorManager")
 
---- This is the state plugin. It provides a state management system for UI elements with support for
---- persistent states, computed states, and state sharing between elements.
----@class BaseElement
-local BaseElement = {}
+---@class BaseFrame : Container
+local BaseFrame = {}
 
----@private
-function BaseElement.setup(element)
+function BaseFrame.setup(element)
     element.defineProperty(element, "states", {default = {}, type = "table"})
-    element.defineProperty(element, "computedStates", {default = {}, type = "table"})
-    element.defineProperty(element, "stateUpdate", {
-        default = {key = "", value = nil, oldValue = nil},
-        type = "table"
-    })
+    element.defineProperty(element, "stateObserver", {default = {}, type = "table"})
 end
 
 --- Initializes a new state for this element
 --- @shortDescription Initializes a new state
---- @param self BaseElement The element to initialize state for
+--- @param self BaseFrame The element to initialize state for
 --- @param name string The name of the state
 --- @param default any The default value of the state
---- @param canTriggerRender? boolean Whether state changes trigger a render
 --- @param persist? boolean Whether to persist the state to disk
 --- @param path? string Custom file path for persistence
---- @return BaseElement self The element instance
-function BaseElement:initializeState(name, default, canTriggerRender, persist, path)
+--- @return BaseFrame self The element instance
+function BaseFrame:initializeState(name, default, persist, path)
     local states = self.get("states")
 
     if states[name] then
@@ -33,33 +25,28 @@ function BaseElement:initializeState(name, default, canTriggerRender, persist, p
         return self
     end
 
-    if persist then
-        local file = path or ("states/" .. self.get("name") .. "_" .. name .. ".state")
+    local file = path or "states/" .. self.get("name") .. ".state"
+    local persistedData = {}
 
-        if fs.exists(file) then
-            local f = fs.open(file, "r")
-            states[name] = {
-                value = textutils.unserialize(f.readAll()),
-                persist = true,
-                file = file
-            }
-            f.close()
-        else
-            states[name] = {
-                value = default,
-                persist = true,
-                file = file,
-                canTriggerRender = canTriggerRender
-            }
-        end
-    else
-        states[name] = {
-            value = default,
-            canTriggerRender = canTriggerRender
-        }
+    if persist and fs.exists(file) then
+        local f = fs.open(file, "r")
+        persistedData = textutils.unserialize(f.readAll()) or {}
+        f.close()
     end
+
+    states[name] = {
+        value = persist and persistedData[name] or default,
+        persist = persist,
+    }
+
     return self
 end
+
+
+--- This is the state plugin. It provides a state management system for UI elements with support for
+--- persistent states, computed states, and state sharing between elements.
+---@class BaseElement
+local BaseElement = {}
 
 --- Sets the value of a state
 --- @shortDescription Sets a state value
@@ -68,33 +55,56 @@ end
 --- @param value any The new value for the state
 --- @return BaseElement self The element instance
 function BaseElement:setState(name, value)
-    local states = self.get("states")
+    local main = self:getBaseFrame()
+    local states = main.get("states")
+    local observers = main.get("stateObserver")
     if not states[name] then
-        error("State '"..name.."' not initialized")
+        errorManager.error("State '"..name.."' not initialized")
     end
 
-    local oldValue = states[name].value
-    states[name].value = value
-
     if states[name].persist then
-        local dir = fs.getDir(states[name].file)
+        local file = "states/" .. main.get("name") .. ".state"
+        local persistedData = {}
+        
+        if fs.exists(file) then
+            local f = fs.open(file, "r")
+            persistedData = textutils.unserialize(f.readAll()) or {}
+            f.close()
+        end
+        
+        persistedData[name] = value
+        
+        local dir = fs.getDir(file)
         if not fs.exists(dir) then
             fs.makeDir(dir)
         end
-        local f = fs.open(states[name].file, "w")
-        f.write(textutils.serialize(value))
+        
+        local f = fs.open(file, "w")
+        f.write(textutils.serialize(persistedData))
         f.close()
     end
 
-    if states[name].canTriggerRender then
-        self:updateRender()
+    states[name].value = value
+
+    -- Trigger observers
+    if observers[name] then
+        for _, callback in ipairs(observers[name]) do
+            callback(self, name, value, states[name].value)
+        end
     end
 
-    self.set("stateUpdate", {
-        key = name,
-        value = value,
-        oldValue = oldValue
-    })
+    -- Recompute all computed states
+    for stateName, state in pairs(states) do
+        if state.computed then
+            state.value = state.computeFn(self)
+            if observers[stateName] then
+                for _, callback in ipairs(observers[stateName]) do
+                    callback(self, state.value)
+                end
+            end
+        end
+    end
+
     return self
 end
 
@@ -104,53 +114,17 @@ end
 --- @param name string The name of the state
 --- @return any value The current state value
 function BaseElement:getState(name)
-    local states = self.get("states")
+    local main = self:getBaseFrame()
+    local states = main.get("states")
+
     if not states[name] then
         errorManager.error("State '"..name.."' not initialized")
     end
-    return states[name].value
-end
 
---- Creates a computed state that derives its value from other states
---- @shortDescription Creates a computed state
---- @param self BaseElement The element to create computed state for
---- @param key string The name of the computed state
---- @param computeFn function Function that computes the state value
---- @return BaseElement self The element instance
-function BaseElement:computed(key, computeFn)
-    local computed = self.get("computedStates")
-    computed[key] = setmetatable({}, {
-        __call = function()
-            return computeFn(self)
-        end
-    })
-    return self
-end
-
---- Shares a state with other elements, keeping them in sync
---- @shortDescription Shares state between elements
---- @param self BaseElement The source element
---- @param stateKey string The state to share
---- @vararg BaseElement The target elements to share with
---- @return BaseElement self The source element
-function BaseElement:shareState(stateKey, ...)
-    local value = self:getState(stateKey)
-
-    for _, element in ipairs({...}) do
-        if element.get("states")[stateKey] then
-            errorManager.error("Cannot share state '" .. stateKey .. "': Target element already has this state")
-            return self
-        end
-        
-        element:initializeState(stateKey, value)
-
-        self:observe("stateUpdate", function(self, update)
-            if update.key == stateKey then
-                element:setState(stateKey, update.value)
-            end
-        end)
+    if states[name].computed then
+        return states[name].value(self)
     end
-    return self
+    return states[name].value
 end
 
 --- Registers a callback for state changes
@@ -160,19 +134,93 @@ end
 --- @param callback function Called with (element, newValue, oldValue)
 --- @return BaseElement self The element instance
 function BaseElement:onStateChange(stateName, callback)
-    if not self.get("states")[stateName] then
+    local main = self:getBaseFrame()
+    if not main.get("states")[stateName] then
         errorManager.error("Cannot observe state '" .. stateName .. "': State not initialized")
         return self
     end
+    local observers = main.get("stateObserver")
 
-    self:observe("stateUpdate", function(self, update)
-        if update.key == stateName then
-            callback(self, update.value, update.oldValue)
+    if not observers[stateName] then
+        observers[stateName] = {}
+    end
+    table.insert(observers[stateName], callback)
+    return self
+end
+
+--- Removes a state change observer
+--- @shortDescription Removes a state change observer
+--- @param self BaseElement The element to remove observer from
+--- @param stateName string The state to remove observer from
+--- @param callback function The callback function to remove
+--- @return BaseElement self The element instance
+function BaseElement:removeStateChange(stateName, callback)
+    local main = self:getBaseFrame()
+    local observers = main.get("stateObserver")
+    
+    if observers[stateName] then
+        for i, observer in ipairs(observers[stateName]) do
+            if observer == callback then
+                table.remove(observers[stateName], i)
+                break
+            end
         end
+    end
+    return self
+end
+
+function BaseElement:computed(name, func)
+    local main = self:getBaseFrame()
+    local states = main.get("states")
+
+    if states[name] then
+        errorManager.error("Computed state '" .. name .. "' already exists")
+        return self
+    end
+
+    states[name] = {
+        computeFn = func,
+        value = func(self),
+        computed = true,
+    }
+
+    return self
+end
+
+--- Binds a property to a state
+--- @param self BaseElement The element to bind
+--- @param propertyName string The property to bind
+--- @param stateName string The state to bind to (optional, uses propertyName if not provided)
+--- @return BaseElement self The element instance
+function BaseElement:bind(propertyName, stateName)
+    stateName = stateName or propertyName
+    local main = self:getBaseFrame()
+    local internalCall = false
+
+    if self.get(propertyName) ~= nil then
+        self.set(propertyName, main:getState(stateName))
+    end
+
+    self:onChange(propertyName, function(self, value)
+        if internalCall then return end
+        internalCall = true
+        self:setState(stateName, value)
+        internalCall = false
     end)
+
+    self:onStateChange(stateName, function(self, value)
+        if internalCall then return end
+        internalCall = true
+        if self.get(propertyName) ~= nil then
+            self.set(propertyName, value)
+        end
+        internalCall = false
+    end)
+
     return self
 end
 
 return {
-    BaseElement = BaseElement
+    BaseElement = BaseElement,
+    BaseFrame = BaseFrame
 }
