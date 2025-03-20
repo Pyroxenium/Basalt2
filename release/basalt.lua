@@ -1849,47 +1849,56 @@ for cd,dd in ipairs(ad.children)do local __a=
 dd.tag:sub(1,1):upper()..dd.tag:sub(2)
 if
 self["add"..__a]then local a_a=self["add"..__a](self)a_a:fromXML(dd,bd)end end end;return self end;return{API=_c,Container=_d,BaseElement=dc} end
-project["plugins/state.lua"] = function(...) local d=require("propertySystem")
-local _a=require("errorManager")local aa={}
-function aa.setup(ba)
-ba.defineProperty(ba,"states",{default={},type="table"})
-ba.defineProperty(ba,"computedStates",{default={},type="table"})
-ba.defineProperty(ba,"stateUpdate",{default={key="",value=nil,oldValue=nil},type="table"})end
-function aa:initializeState(ba,ca,da,_b,ab)local bb=self.get("states")
-if bb[ba]then _a.error("State '"..
-ba.."' already exists")return self end
-if _b then local cb=ab or
-("states/"..self.get("name").."_"..ba..".state")
-if fs.exists(cb)then
-local db=fs.open(cb,"r")
-bb[ba]={value=textutils.unserialize(db.readAll()),persist=true,file=cb}db.close()else
-bb[ba]={value=ca,persist=true,file=cb,canTriggerRender=da}end else bb[ba]={value=ca,canTriggerRender=da}end;return self end
-function aa:setState(ba,ca)local da=self.get("states")
-if not da[ba]then error("State '"..
-ba.."' not initialized")end;local _b=da[ba].value;da[ba].value=ca
-if da[ba].persist then
-local ab=fs.getDir(da[ba].file)if not fs.exists(ab)then fs.makeDir(ab)end
-local bb=fs.open(da[ba].file,"w")bb.write(textutils.serialize(ca))
-bb.close()end;if da[ba].canTriggerRender then self:updateRender()end
-self.set("stateUpdate",{key=ba,value=ca,oldValue=_b})return self end
-function aa:getState(ba)local ca=self.get("states")
-if not ca[ba]then _a.error("State '"..
-ba.."' not initialized")end;return ca[ba].value end
-function aa:computed(ba,ca)local da=self.get("computedStates")
-da[ba]=setmetatable({},{__call=function()
-return ca(self)end})return self end
-function aa:shareState(ba,...)local ca=self:getState(ba)
-for da,_b in ipairs({...})do if
-_b.get("states")[ba]then
-_a.error("Cannot share state '"..ba.."': Target element already has this state")return self end
-_b:initializeState(ba,ca)
-self:observe("stateUpdate",function(ab,bb)
-if bb.key==ba then _b:setState(ba,bb.value)end end)end;return self end
-function aa:onStateChange(ba,ca)if not self.get("states")[ba]then
-_a.error("Cannot observe state '"..ba..
-"': State not initialized")return self end
-self:observe("stateUpdate",function(da,_b)if
-_b.key==ba then ca(da,_b.value,_b.oldValue)end end)return self end;return{BaseElement=aa} end
+project["plugins/state.lua"] = function(...) local _a=require("propertySystem")
+local aa=require("errorManager")local ba={}function ba.setup(da)
+da.defineProperty(da,"states",{default={},type="table"})
+da.defineProperty(da,"stateObserver",{default={},type="table"})end
+function ba:initializeState(da,_b,ab,bb)
+local cb=self.get("states")if cb[da]then
+aa.error("State '"..da.."' already exists")return self end;local db=bb or"states/"..
+self.get("name")..".state"local _c={}
+if ab and
+fs.exists(db)then local ac=fs.open(db,"r")_c=
+textutils.unserialize(ac.readAll())or{}ac.close()end;cb[da]={value=ab and _c[da]or _b,persist=ab}
+return self end;local ca={}
+function ca:setState(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("states")local cb=ab.get("stateObserver")
+if not bb[da]then aa.error("State '"..
+da.."' not initialized")end
+if bb[da].persist then
+local db="states/"..ab.get("name")..".state"local _c={}
+if fs.exists(db)then local cc=fs.open(db,"r")_c=
+textutils.unserialize(cc.readAll())or{}cc.close()end;_c[da]=_b;local ac=fs.getDir(db)if not fs.exists(ac)then
+fs.makeDir(ac)end;local bc=fs.open(db,"w")
+bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b;if cb[da]then for db,_c in ipairs(cb[da])do
+_c(self,da,_b,bb[da].value)end end;for db,_c in
+pairs(bb)do
+if _c.computed then _c.value=_c.computeFn(self)if cb[db]then for ac,bc in ipairs(cb[db])do
+bc(self,_c.value)end end end end;return
+self end
+function ca:getState(da)local _b=self:getBaseFrame()local ab=_b.get("states")if
+not ab[da]then
+aa.error("State '"..da.."' not initialized")end;if ab[da].computed then
+return ab[da].value(self)end;return ab[da].value end
+function ca:onStateChange(da,_b)local ab=self:getBaseFrame()if
+not ab.get("states")[da]then
+aa.error("Cannot observe state '"..da.."': State not initialized")return self end
+local bb=ab.get("stateObserver")if not bb[da]then bb[da]={}end;table.insert(bb[da],_b)
+return self end
+function ca:removeStateChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("stateObserver")
+if bb[da]then for cb,db in ipairs(bb[da])do
+if db==_b then table.remove(bb[da],cb)break end end end;return self end
+function ca:computed(da,_b)local ab=self:getBaseFrame()local bb=ab.get("states")if bb[da]then
+aa.error(
+"Computed state '"..da.."' already exists")return self end
+bb[da]={computeFn=_b,value=_b(self),computed=true}return self end
+function ca:bind(da,_b)_b=_b or da;local ab=self:getBaseFrame()local bb=false
+if
+self.get(da)~=nil then self.set(da,ab:getState(_b))end
+self:onChange(da,function(cb,db)if bb then return end;bb=true;cb:setState(_b,db)bb=false end)
+self:onStateChange(_b,function(cb,db)if bb then return end;bb=true
+if cb.get(da)~=nil then cb.set(da,db)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
 project["plugins/reactive.lua"] = function(...) local ab=require("errorManager")
 local bb=require("propertySystem")local cb={colors=true,math=true,clamp=true,round=true}
 local db={clamp=function(ad,bd,cd)return
