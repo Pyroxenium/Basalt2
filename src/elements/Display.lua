@@ -2,7 +2,8 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
 local deepcopy = require("libraries/utils").deepcopy
----@cofnigDescription The Display is a special element which uses the cc window API which you can use.
+local colorHex = require("libraries/colorHex")
+---@configDescription The Display is a special element which uses the cc window API which you can use.
 ---@configDefault false
 
 --- The Display is a special element where you can use the window (term) API to draw on a element, useful when you need to use external APIs.
@@ -30,6 +31,8 @@ function Display:init(props, basalt)
     self.set("type", "Display")
     self._window = window.create(basalt.getActiveFrame():getTerm(), 1, 1, self.get("width"), self.get("height"), false)
     local reposition = self._window.reposition
+    local blit = self._window.blit
+    local write = self._window.write
     self._window.reposition = function(self, x, y, width, height)
         self.set("x", x)
         self.set("y", y)
@@ -48,6 +51,14 @@ function Display:init(props, basalt)
 
     self._window.isVisible = function(self)
         return self.get("visible")
+    end
+    self._window.blit = function(self, x, y, text, fg, bg)
+        blit(self, x, y, text, fg, bg)
+        self:updateRender()
+    end
+    self._window.write = function(self, x, y, text)
+        write(self, x, y, text)
+        self:updateRender()
     end
 
     self:observe("width", function(self, width)
@@ -69,6 +80,30 @@ end
 --- @return table window The current window object
 function Display:getWindow()
     return self._window
+end
+
+--- Writes text to the display at the given position with the given foreground and background colors
+--- @shortDescription Writes text to the display
+--- @param x number The x position to write to
+--- @param y number The y position to write to
+--- @param text string The text to write
+--- @param fg? colors The foreground color (optional)
+--- @param bg? colors The background color (optional)
+--- @return Display self The display instance
+function Display:write(x, y, text, fg, bg)
+    local window = self._window
+    if window then
+        if fg then
+            window.setTextColor(fg)
+        end
+        if bg then
+            window.setBackgroundColor(bg)
+        end
+        window.setCursorPos(x, y)
+        window.write(text)
+    end
+    self:updateRender()
+    return self
 end
 
 --- @shortDescription Renders the Display

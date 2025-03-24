@@ -1,111 +1,54 @@
 local basalt = require("basalt")
 
--- Create main frame
 local main = basalt.getMainFrame()
+    -- Initialize form states
+    :initializeState("username", "", true) -- make them persistent
+    :initializeState("password", "", true) -- make them persistent
+    :initializeState("confirmPassword", "", true) -- make them persistent
 
--- Create a complex form using states for managing its data
 local form = main:addFrame()
     :setSize("{parent.width - 4}", "{parent.height - 4}")
     :setPosition(3, 3)
-    :setBackground(colors.lightGray)
-    -- Initialize form states with default values
-    :initializeState("username", "", true)  -- true = triggers render update
-    :initializeState("email", "")
-    :initializeState("age", 0)
-    :initializeState("submitted", false)
-    -- Add computed state for form validation
-    :computed("isValid", function(self)
-        local username = self:getState("username")
-        local email = self:getState("email")
-        local age = self:getState("age")
-        return #username > 0 and email:match(".+@.+") and age > 0
-    end)
 
--- Create form title
-form:addLabel()
-    :setText("Registration Form")
-    :setPosition(2, 2)
-    :setForeground(colors.black)
+-- Add computed validation state
+form:computed("isValid", function(self)
+    local username = self:getState("username")
+    local password = self:getState("password")
+    local confirmPass = self:getState("confirmPassword")
+    return #username >= 3 and #password >= 6 and password == confirmPass
+end)
 
--- Username input with state binding
-local usernameInput = form:addInput()
-    :setPosition(2, 4)
-    :setSize(20, 1)
-    :setBackground(colors.white)
-    :setForeground(colors.black)
-    -- Update username state when input changes
-    :onChange(function(self, value)
-        form:setState("username", value)
-    end)
+-- Create labels
+form:addLabel({text="Username:", x = 2, y = 2, foreground = colors.lightGray})
+form:addLabel({text="Password:", x = 2, y = 4, foreground = colors.lightGray})
+form:addLabel({text="Confirm:", x = 2, y = 6, foreground = colors.lightGray})
 
-form:addLabel()
-    :setText("Username:")
-    :setPosition(2, 3)
-    :setForeground(colors.black)
+local userInput = form:addInput({x = 11, y = 2, width = 20, height = 1}):bind("text", "username")
+local passwordInput = form:addInput({x = 11, y = 4, width = 20, height = 1}):bind("text", "password")
+local confirmInput = form:addInput({x = 11, y = 6, width = 20, height = 1}):bind("text", "confirmPassword")
 
--- Email input
-local emailInput = form:addInput()
-    :setPosition(2, 6)
-    :setSize(20, 1)
-    :setBackground(colors.white)
-    :setForeground(colors.black)
-    :onChange(function(self, value)
-        form:setState("email", value)
-    end)
-
-form:addLabel()
-    :setText("Email:")
-    :setPosition(2, 5)
-    :setForeground(colors.black)
-
--- Age input
-local ageInput = form:addInput()
-    :setPosition(2, 8)
-    :setSize(5, 1)
-    :setBackground(colors.white)
-    :setForeground(colors.black)
-    :onChange(function(self, value)
-        -- Convert to number and update state
-        form:setState("age", tonumber(value) or 0)
-    end)
-
-form:addLabel()
-    :setText("Age:")
-    :setPosition(2, 7)
-    :setForeground(colors.black)
-
--- Submit button that reacts to form validity
+-- Submit button
 local submitBtn = form:addButton()
-    :setPosition(2, 10)
-    :setSize(10, 1)
     :setText("Submit")
-    -- Button color changes based on form validity
-    :onStateChange("isValid", function(self, isValid)
-        submitBtn:setBackground(isValid and colors.lime or colors.gray)
-    end)
-    :onMouseClick(function()
-        if form.computedStates.isValid() then
-            form:setState("submitted", true)
-        end
-    end)
+    :setPosition(2, 8)
+    :setSize(29, 1)
 
--- Status message that updates when form is submitted
+-- Status label
 local statusLabel = form:addLabel()
-    :setPosition(2, 12)
-    :setForeground(colors.black)
+    :setPosition(2, 10)
+    :setSize(29, 1)
 
--- Listen for form submission
-form:onStateChange("submitted", function(self, submitted)
-    if submitted then
-        local username = self:getState("username")
-        local email = self:getState("email")
-        local age = self:getState("age")
-        statusLabel:setText(string.format(
-            "Submitted: %s (%s) - Age: %d",
-            username, email, age
-        ))
+
+form:onStateChange("isValid", function(self, isValid)
+    if isValid then
+        statusLabel:setText("Form is valid!")
+            :setForeground(colors.green)
+        submitBtn:setBackground(colors.green)
+    else
+        statusLabel:setText("Please fill all fields correctly")
+            :setForeground(colors.red)
+        submitBtn:setBackground(colors.red)
     end
 end)
 
--- Run basalt
 basalt.run()

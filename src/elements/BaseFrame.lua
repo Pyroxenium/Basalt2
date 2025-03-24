@@ -1,5 +1,6 @@
 local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
+local errorManager = require("errorManager")
 local Render = require("render")
 ---@configDescription This is the base frame class. It is the root element of all elements and the only element without a parent.
 
@@ -8,14 +9,39 @@ local Render = require("render")
 ---@class BaseFrame : Container
 ---@field _render Render The render object
 ---@field _renderUpdate boolean Whether the render object needs to be updated
+---@field _peripheralName string The name of a peripheral
 local BaseFrame = setmetatable({}, Container)
 BaseFrame.__index = BaseFrame
 
----@property text term nil The terminal object to render to
+local function isPeripheral(t)
+    local ok, result = pcall(function()
+        return peripheral.getType(t)
+    end)
+    if ok then
+        return true
+    end
+    return false
+end
+
+---@property term term|peripheral term.current() The terminal or (monitor) peripheral object to render to
 BaseFrame.defineProperty(BaseFrame, "term", {default = nil, type = "table", setter = function(self, value)
+    self._peripheralName = nil
+    if self.basalt.getActiveFrame(self._values.term)==self then
+        self.basalt.setActiveFrame(self, false)
+    end
     if value == nil or value.setCursorPos == nil then
         return value
     end
+
+    if(isPeripheral(value)) then
+        self._peripheralName = peripheral.getName(value)
+    end
+
+    self._values.term = value
+    if self.basalt.getActiveFrame(value) == nil then
+        self.basalt.setActiveFrame(self)
+    end
+
     self._render = Render.new(value)
     self._renderUpdate = true
     local width, height = value.getSize()
@@ -105,8 +131,37 @@ end
 --- @param y number The y position to set the cursor to
 --- @param blink boolean Whether the cursor should blink
 function BaseFrame:setCursor(x, y, blink, color)
-    local term = self.get("term")
+    local _term = self.get("term")
     self._render:setCursor(x, y, blink, color)
+end
+
+--- @shortDescription Handles monitor touch events
+--- @param name string The name of the monitor that was touched
+--- @param x number The x position of the mouse
+--- @param y number The y position of the mouse
+--- @protected
+function BaseFrame:monitor_touch(name, x, y)
+    local _term = self.get("term")
+    if _term == nil then return end
+        if(isPeripheral(_term))then
+        if self._peripheralName == name then
+            self:mouse_click(0, x, y)
+            self.basalt.schedule(function()
+                sleep(0.1)
+                self:mouse_up(0, x, y)
+            end)
+        end
+    end
+end
+
+--- @shortDescription Handles mouse click events
+--- @param button number The button that was clicked
+--- @param x number The x position of the mouse
+--- @param y number The y position of the mouse
+--- @protected
+function BaseFrame:mouse_click(button, x, y)
+    Container.mouse_click(self, button, x, y)
+    self.basalt.setFocus(self)
 end
 
 --- @shortDescription Handles mouse up events
@@ -154,6 +209,17 @@ end
 function BaseFrame:char(char)
     self:fireEvent("char", char)
     Container.char(self, char)
+end
+
+function BaseFrame:dispatchEvent(event, ...)
+    local _term = self.get("term")
+    if _term == nil then return end
+    if(isPeripheral(_term))then
+        if event == "mouse_click" then
+            return
+        end
+    end
+    Container.dispatchEvent(self, event, ...)
 end
 
 --- @shortDescription Renders the Frame

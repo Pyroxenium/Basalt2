@@ -29,8 +29,9 @@ else
     basalt.path = fs.getDir(select(2, ...))
 end
 
-local mainFrame = nil
-local activeFrame = nil
+local main = nil
+local focusedFrame = nil
+local activeFrames = {}
 local _type = type
 
 local lazyElements = {}
@@ -94,52 +95,79 @@ end
 --- Creates and returns a new BaseFrame
 --- @shortDescription Creates a new BaseFrame
 --- @return BaseFrame BaseFrame The created frame instance
---- @usage local mainFrame = basalt.createFrame()
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
     frame:postInit()
-    if(mainFrame==nil)then 
-        mainFrame = frame
-        activeFrame = frame
-    end
     return frame
 end
 
 --- Returns the element manager instance
 --- @shortDescription Returns the element manager
 --- @return table ElementManager The element manager
---- @usage local manager = basalt.getElementManager()
 function basalt.getElementManager()
     return elementManager
+end
+
+--- Returns the error manager instance
+--- @shortDescription Returns the error manager
+--- @return table ErrorManager The error manager
+function basalt.getErrorManager()
+    return errorManager
 end
 
 --- Gets or creates the main frame
 --- @shortDescription Gets or creates the main frame
 --- @return BaseFrame BaseFrame The main frame instance
---- @usage local frame = basalt.getMainFrame()
 function basalt.getMainFrame()
-    if(mainFrame == nil)then
-        mainFrame = basalt.createFrame()
-        activeFrame = mainFrame
+    local _main = tostring(term.current())
+    if(activeFrames[_main] == nil)then
+        main = _main
+        basalt.createFrame()
     end
-    return mainFrame
+    return activeFrames[_main]
 end
 
 --- Sets the active frame
 --- @shortDescription Sets the active frame
 --- @param frame BaseFrame The frame to set as active
---- @usage basalt.setActiveFrame(myFrame)
-function basalt.setActiveFrame(frame)
-    activeFrame = frame
-    activeFrame:updateRender()
+--- @param setActive? boolean Whether to set the frame as active (default: true)
+function basalt.setActiveFrame(frame, setActive)
+    local t = frame:getTerm()
+    if(setActive==nil)then setActive = true end
+    if(t~=nil)then
+        activeFrames[tostring(t)] = setActive and frame or nil
+        frame:updateRender()
+    end
 end
 
 --- Returns the active frame
 --- @shortDescription Returns the active frame
+--- @param t? term The term to get the active frame for (default: current term)
 --- @return BaseFrame? BaseFrame The frame to set as active
---- @usage local frame = basalt.getActiveFrame()
-function basalt.getActiveFrame()
-    return activeFrame
+function basalt.getActiveFrame(t)
+    if(t==nil)then t = term.current() end
+    return activeFrames[tostring(t)]
+end
+
+--- Sets a frame as focused
+--- @shortDescription Sets a frame as focused
+--- @param frame BaseFrame The frame to set as focused
+function basalt.setFocus(frame)
+    if(focusedFrame==frame)then return end
+    if(focusedFrame~=nil)then
+        focusedFrame:dispatchEvent("blur")
+    end
+    focusedFrame = frame
+    if(focusedFrame~=nil)then
+        focusedFrame:dispatchEvent("focus")
+    end
+end
+
+--- Returns the focused frame
+--- @shortDescription Returns the focused frame
+--- @return BaseFrame? BaseFrame The focused frame
+function basalt.getFocus()
+    return focusedFrame
 end
 
 --- Schedules a function to run in a coroutine
@@ -147,7 +175,6 @@ end
 --- @function scheduleUpdate
 --- @param func function The function to schedule
 --- @return thread func The scheduled function
---- @usage local id = basalt.scheduleUpdate(myFunction)
 function basalt.schedule(func)
     expect(1, func, "function")
 
@@ -167,7 +194,6 @@ end
 --- @function removeSchedule
 --- @param func thread The scheduled function to remove
 --- @return boolean success Whether the scheduled function was removed
---- @usage basalt.removeSchedule(scheduleId)
 function basalt.removeSchedule(func)
     for i, v in ipairs(basalt._schedule) do
         if(v.coroutine==func)then
@@ -178,15 +204,36 @@ function basalt.removeSchedule(func)
     return false
 end
 
+local mouseEvents = {
+    mouse_click = true,
+    mouse_up = true,
+    mouse_scroll = true,
+    mouse_drag = true,
+}
+
+local keyEvents = {
+    key = true,
+    key_up = true,
+    char = true,
+}
+
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() end
     if lazyElementsEventHandler(event, ...) then return end
 
-    if(activeFrame)then
-        activeFrame:dispatchEvent(event, ...)
+    if(mouseEvents[event])then
+        activeFrames[main]:dispatchEvent(event, ...)
+    elseif(keyEvents[event])then
+        if(focusedFrame~=nil)then
+            focusedFrame:dispatchEvent(event, ...)
+        end
+    else
+        for _, frame in pairs(activeFrames) do
+            frame:dispatchEvent(event, ...)
+        end
     end
 
-    for k, func in ipairs(basalt._schedule) do
+    for _, func in ipairs(basalt._schedule) do
         if(event==func.filter)or(func.filter==nil)then
             local ok, result = coroutine.resume(func.coroutine, event, ...)
             if(not ok)then
@@ -208,15 +255,14 @@ local function updateEvent(event, ...)
 end
 
 local function renderFrames()
-    if(activeFrame)then
-        activeFrame:render()
+    for _, frame in pairs(activeFrames)do
+        frame:render()
     end
 end
 
 --- Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 --- @shortDescription Runs basalt once
 --- @vararg any The event to run with
---- @usage basalt.update()
 function basalt.update(...)
     local f = function(...)
         updateEvent(...)
@@ -231,7 +277,6 @@ end
 
 --- Stops the Basalt runtime
 --- @shortDescription Stops the Basalt runtime
---- @usage basalt.stop()
 function basalt.stop()
     basalt.isRunning = false
     term.clear()
@@ -241,8 +286,6 @@ end
 --- Starts the Basalt runtime
 --- @shortDescription Starts the Basalt runtime
 --- @param isActive? boolean Whether to start active (default: true)
---- @usage basalt.run()
---- @usage basalt.run(false)
 function basalt.run(isActive)
     if(basalt.isRunning)then errorManager.error("Basalt is already running") end
     if(isActive==nil)then 
