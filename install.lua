@@ -3,21 +3,9 @@ local releasePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/h
 local devPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
 local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/BasaltLS.lua"
+local args = {...}
 
-local basaltRequest = http.get(releasePath)
-if not basaltRequest then
-    error("Failed to download Basalt")
-end
-basalt = load(basaltRequest.readAll(), "basalt", "bt", _ENV)()
-
-
-local coloring = {foreground=colors.black, background=colors.white}
-local currentScreen = 1
-local screens = {}
-local main = basalt.getMainFrame():setBackground(colors.black)
 local config
-local skipConfig = true
-
 local function getConfig()
     if not config then
         local request = http.get(configPath)
@@ -31,6 +19,82 @@ local function getConfig()
     end
     return config
 end
+
+if(args[1] == "-h")or(args[1] == "--help")then
+    print("Usage: install.lua [options]")
+    print("Options:")
+    print("  -h, --help        Show this help message")
+    print("  -r, --release     Install the release version")
+    print("  -d, --dev         Install the dev version")
+    return
+end
+
+if(args[1] == "-r")or(args[1] == "--release")then
+    print("Installing release version...")
+    local request = http.get(releasePath)
+    if not request then
+        error("Failed to download Basalt")
+    end
+    local file = fs.open(args[2] or "basalt.lua", "w")
+    file.write(request.readAll())
+    file.close()
+    request.close()
+    print("Basalt installed successfully!")
+    return
+end
+
+local function get(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count
+end
+
+if(args[1] == "-d")or(args[1] == "--dev")then
+    print("Installing dev version...")
+    local config = getConfig()
+    if not config then
+        error("Failed to fetch config")
+    end
+    local function downloadFile(url, path, name, size, currentFile, totalFiles)
+        print("Downloading " .. name..(size > 0 and " (" .. size/1000 .. " kb)" or "") .. " (" .. currentFile .. "/" .. totalFiles .. ")")
+        local request = http.get(url)
+        if request then
+            local file = fs.open(path, "w")
+            file.write(request.readAll())
+            file.close()
+            request.close()
+        else
+            error("Failed to download " .. name)
+        end
+    end
+    local totalFiles = 0
+    for _, category in pairs(config.categories) do
+        totalFiles = totalFiles + get(category.files)
+    end
+    local currentFile = 0
+    for categoryName, category in pairs(config.categories) do
+        for fileName, fileInfo in pairs(category.files) do
+            downloadFile(devPath .. fileInfo.path, fs.combine(args[2] or "basalt", fileInfo.path), fileName, fileInfo.size or 0, currentFile + 1, totalFiles)
+            currentFile = currentFile + 1
+        end
+    end
+    print("Dev installation complete!")
+    return
+end
+
+
+local basaltRequest = http.get(releasePath)
+if not basaltRequest then
+    error("Failed to download Basalt")
+end
+basalt = load(basaltRequest.readAll(), "basalt", "bt", _ENV)()
+
+
+local coloring = {foreground=colors.black, background=colors.white}
+local currentScreen = 1
+local screens = {}
+local main = basalt.getMainFrame():setBackground(colors.black)
+local skipConfig = true
 
 local function getChildrenHeight(container)
     local height = 0
@@ -240,11 +304,9 @@ versionDropdown:onSelect(function(self, index, item)
         luaMinifyCheckbox:setVisible(false)
         singleFileProject:setVisible(false)
     end
-    
-    -- skipConfig setzen basierend auf Version
+
     skipConfig = (item.text ~= "Custom")
-    
-    -- Screens neu positionieren
+
     for i, screen in pairs(screens) do
         screen:setPosition(getScreenPosition(i), 2)
     end
