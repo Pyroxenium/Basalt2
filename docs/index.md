@@ -18,7 +18,7 @@ hero:
       link: /references/main
     - theme: alt
       text: Github
-      link: https://github.com/Pyroxenium/Basalt/tree/basalt2
+      link: https://github.com/Pyroxenium/Basalt2
     - theme: alt
       text: Basalt 1.7
       link: https://pyroxenium.github.io/Basalt/
