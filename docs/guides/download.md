@@ -19,13 +19,13 @@ If you want to skip the UI and just download the essentials, here are some other
 This is the full dev version of Basalt, containing all available files.
 
 ```
-wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua dev
+wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua -d
 ```
 
 ### Release
 
-This is the default bundle version of Basalt, containing essential files for a UI framework.
+This is the default bundle version of Basalt, containing the full framework, but minified.
 
 ```
-wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua release
+wget run https://raw.githubusercontent.com/Pyroxenium/basalt-docs/main/install.lua -r
 ```
