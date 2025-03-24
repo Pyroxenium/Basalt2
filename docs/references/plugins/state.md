@@ -6,24 +6,26 @@ persistent states, computed states, and state sharing between elements.
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:computed](#baseelement-computed)|BaseElement|Creates a computed state
+|[BaseElement:bind](#baseelement-bind)|BaseElement|
+|[BaseElement:computed](#baseelement-computed)|-|
 |[BaseElement:getState](#baseelement-getstate)|any|Gets a state value
-|[BaseElement:initializeState](#baseelement-initializestate)|BaseElement|Initializes a new state
 |[BaseElement:onStateChange](#baseelement-onstatechange)|BaseElement|Watches for state changes
+|[BaseElement:removeStateChange](#baseelement-removestatechange)|BaseElement|Removes a state change observer
 |[BaseElement:setState](#baseelement-setstate)|BaseElement|Sets a state value
-|[BaseElement:shareState](#baseelement-sharestate)|BaseElement|Shares state between elements
 
 
-## BaseElement:computed(self, key, computeFn)
-Creates a computed state that derives its value from other states
+## BaseElement:bind(self, propertyName, stateName)
+Binds a property to a state
 
 ### Parameters
-* `self` `BaseElement` The element to create computed state for
-* `key` `string` The name of the computed state
-* `computeFn` `function` Function that computes the state value
+* `self` `BaseElement` The element to bind
+* `propertyName` `string` The property to bind
+* `stateName` `string` The state to bind to (optional, uses propertyName if not provided)
 
 ### Returns
 * `BaseElement` `self` The element instance
+
+## BaseElement:computed()
 
 ## BaseElement:getState(self, name)
 Gets the value of a state
@@ -35,20 +37,6 @@ Gets the value of a state
 ### Returns
 * `any` `value` The current state value
 
-## BaseElement:initializeState(self, name, default, canTriggerRender?, persist?, path?)
-Initializes a new state for this element
-
-### Parameters
-* `self` `BaseElement` The element to initialize state for
-* `name` `string` The name of the state
-* `default` `any` The default value of the state
-* `canTriggerRender` *(optional)* `boolean` Whether state changes trigger a render
-* `persist` *(optional)* `boolean` Whether to persist the state to disk
-* `path` *(optional)* `string` Custom file path for persistence
-
-### Returns
-* `BaseElement` `self` The element instance
-
 ## BaseElement:onStateChange(self, stateName, callback)
 Registers a callback for state changes
 
@@ -56,6 +44,17 @@ Registers a callback for state changes
 * `self` `BaseElement` The element to watch
 * `stateName` `string` The state to watch
 * `callback` `function` Called with (element, newValue, oldValue)
+
+### Returns
+* `BaseElement` `self` The element instance
+
+## BaseElement:removeStateChange(self, stateName, callback)
+Removes a state change observer
+
+### Parameters
+* `self` `BaseElement` The element to remove observer from
+* `stateName` `string` The state to remove observer from
+* `callback` `function` The callback function to remove
 
 ### Returns
 * `BaseElement` `self` The element instance
@@ -71,15 +70,33 @@ Sets the value of a state
 ### Returns
 * `BaseElement` `self` The element instance
 
-## BaseElement:shareState(self, stateKey...)
-Shares a state with other elements, keeping them in sync
+
+---
+<br>
+
+# BaseFrame : Container
+
+## Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|[BaseFrame.setup](#baseframe-setup)|-|
+|[BaseFrame:initializeState](#baseframe-initializestate)|BaseFrame|Initializes a new state
+
+
+## BaseFrame.setup()
+
+## BaseFrame:initializeState(self, name, default, persist?, path?)
+Initializes a new state for this element
 
 ### Parameters
-* `self` `BaseElement` The source element
-* `stateKey` `string` The state to share
-* `...` *(vararg)* `BaseElement` The target elements to share with
+* `self` `BaseFrame` The element to initialize state for
+* `name` `string` The name of the state
+* `default` `any` The default value of the state
+* `persist` *(optional)* `boolean` Whether to persist the state to disk
+* `path` *(optional)* `string` Custom file path for persistence
 
 ### Returns
-* `BaseElement` `self` The source element
+* `BaseFrame` `self` The element instance
 
 

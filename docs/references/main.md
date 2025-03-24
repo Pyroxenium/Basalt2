@@ -32,11 +32,14 @@ What this code does is it loads basalt into the project, and you can access it b
 |[basalt.getActiveFrame](#basalt-getactiveframe)|BaseFrame?|Returns the active frame
 |[basalt.getElementClass](#basalt-getelementclass)|table|Returns an element class
 |[basalt.getElementManager](#basalt-getelementmanager)|table|Returns the element manager
+|[basalt.getErrorManager](#basalt-geterrormanager)|table|Returns the error manager
+|[basalt.getFocus](#basalt-getfocus)|BaseFrame?|Returns the focused frame
 |[basalt.getMainFrame](#basalt-getmainframe)|BaseFrame|Gets or creates the main frame
 |[basalt.removeSchedule](#basalt-removeschedule)|boolean|Removes a scheduled update
 |[basalt.run](#basalt-run)|-|Starts the Basalt runtime
 |[basalt.schedule](#basalt-schedule)|thread|Schedules a function to run in a coroutine
 |[basalt.setActiveFrame](#basalt-setactiveframe)|-|Sets the active frame
+|[basalt.setFocus](#basalt-setfocus)|-|Sets a frame as focused
 |[basalt.stop](#basalt-stop)|-|Stops the Basalt runtime
 |[basalt.update](#basalt-update)|-|Runs basalt once
 
@@ -62,11 +65,6 @@ Creates and returns a new BaseFrame
 ### Returns
 * `BaseFrame` `BaseFrame` The created frame instance
 
-### Usage
- ```lua
-local mainFrame = basalt.createFrame()
-```
-
 ## basalt.getAPI(name)
 Returns a Plugin API
 
@@ -76,16 +74,14 @@ Returns a Plugin API
 ### Returns
 * `table` `Plugin` The plugin API
 
-## basalt.getActiveFrame()
+## basalt.getActiveFrame(t?)
 Returns the active frame
+
+### Parameters
+* `t` *(optional)* `term` The term to get the active frame for (default: current term)
 
 ### Returns
 * `BaseFrame?` `BaseFrame` The frame to set as active
-
-### Usage
- ```lua
-local frame = basalt.getActiveFrame()
-```
 
 ## basalt.getElementClass(name)
 Returns an element's class without creating a instance
@@ -102,21 +98,23 @@ Returns the element manager instance
 ### Returns
 * `table` `ElementManager` The element manager
 
-### Usage
- ```lua
-local manager = basalt.getElementManager()
-```
+## basalt.getErrorManager()
+Returns the error manager instance
+
+### Returns
+* `table` `ErrorManager` The error manager
+
+## basalt.getFocus()
+Returns the focused frame
+
+### Returns
+* `BaseFrame?` `BaseFrame` The focused frame
 
 ## basalt.getMainFrame()
 Gets or creates the main frame
 
 ### Returns
 * `BaseFrame` `BaseFrame` The main frame instance
-
-### Usage
- ```lua
-local frame = basalt.getMainFrame()
-```
 
 ## basalt.removeSchedule(func)
 Removes a scheduled update
@@ -127,22 +125,11 @@ Removes a scheduled update
 ### Returns
 * `boolean` `success` Whether the scheduled function was removed
 
-### Usage
- ```lua
-basalt.removeSchedule(scheduleId)
-```
-
 ## basalt.run(isActive?)
 Starts the Basalt runtime
 
 ### Parameters
 * `isActive` *(optional)* `boolean` Whether to start active (default: true)
-
-### Usage
- ```lua
-basalt.run()
-basalt.run(false)
-```
 
 ## basalt.schedule(func)
 Schedules a function to run in a coroutine
@@ -153,39 +140,26 @@ Schedules a function to run in a coroutine
 ### Returns
 * `thread` `func` The scheduled function
 
-### Usage
- ```lua
-local id = basalt.scheduleUpdate(myFunction)
-```
-
-## basalt.setActiveFrame(frame)
+## basalt.setActiveFrame(frame, setActive?)
 Sets the active frame
 
 ### Parameters
 * `frame` `BaseFrame` The frame to set as active
+* `setActive` *(optional)* `boolean` Whether to set the frame as active (default: true)
 
-### Usage
- ```lua
-basalt.setActiveFrame(myFrame)
-```
+## basalt.setFocus(frame)
+Sets a frame as focused
+
+### Parameters
+* `frame` `BaseFrame` The frame to set as focused
 
 ## basalt.stop()
 Stops the Basalt runtime
-
-### Usage
- ```lua
-basalt.stop()
-```
 
 ## basalt.update(...)
 Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 
 ### Parameters
 * `...` *(vararg)* `any` The event to run with
-
-### Usage
- ```lua
-basalt.update()
-```
 
 
