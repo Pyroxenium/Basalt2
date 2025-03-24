@@ -1154,37 +1154,53 @@ self:setCursor(
 self.get("cursorPos")-ca,1,true,self.get("cursorColor")or self.get("foreground"))end
 local bc=ba:sub(ca+1,ca+db)if ac and#ac>0 then bc=ac:rep(#bc)end
 self:textFg(1,1,bc,self.get("foreground"))end;return aa end
-project["elements/BaseFrame.lua"] = function(...) local _a=require("elementManager")
-local aa=_a.getElement("Container")local ba=require("render")local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"term",{default=
-nil,type="table",setter=function(da,_b)
-if _b==nil or _b.setCursorPos==nil then return _b end;da._render=ba.new(_b)da._renderUpdate=true;local ab,bb=_b.getSize()
-da.set("width",ab)da.set("height",bb)return _b end})
-function ca.new()local da=setmetatable({},ca):__init()return da end
-function ca:init(da,_b)aa.init(self,da,_b)
+project["elements/BaseFrame.lua"] = function(...) local ba=require("elementManager")
+local ca=ba.getElement("Container")local da=require("errorManager")local _b=require("render")
+local ab=setmetatable({},ca)ab.__index=ab
+local function bb(cb)
+local db,_c=pcall(function()return peripheral.getType(cb)end)if db then return true end;return false end
+ab.defineProperty(ab,"term",{default=nil,type="table",setter=function(cb,db)cb._peripheralName=nil;if
+cb.basalt.getActiveFrame(cb._values.term)==cb then
+cb.basalt.setActiveFrame(cb,false)end;if
+db==nil or db.setCursorPos==nil then return db end;if(bb(db))then
+cb._peripheralName=peripheral.getName(db)end;cb._values.term=db
+if
+cb.basalt.getActiveFrame(db)==nil then cb.basalt.setActiveFrame(cb)end;cb._render=_b.new(db)cb._renderUpdate=true;local _c,ac=db.getSize()
+cb.set("width",_c)cb.set("height",ac)return db end})
+function ab.new()local cb=setmetatable({},ab):__init()return cb end
+function ab:init(cb,db)ca.init(self,cb,db)
 self.set("term",term.current())self.set("type","BaseFrame")return self end
-function ca:multiBlit(da,_b,ab,bb,cb,db,_c)if(da<1)then ab=ab+da-1;da=1 end
-if(_b<1)then bb=bb+_b-1;_b=1 end;self._render:multiBlit(da,_b,ab,bb,cb,db,_c)end;function ca:textFg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -da)da=1 end
-self._render:textFg(da,_b,ab,bb)end;function ca:textBg(da,_b,ab,bb)if da<1 then ab=string.sub(ab,1 -
-da)da=1 end
-self._render:textBg(da,_b,ab,bb)end
-function ca:blit(da,_b,ab,bb,cb)if da<1 then ab=string.sub(ab,1 -
-da)bb=string.sub(bb,1 -da)
-cb=string.sub(cb,1 -da)da=1 end
-self._render:blit(da,_b,ab,bb,cb)end;function ca:setCursor(da,_b,ab,bb)local cb=self.get("term")
-self._render:setCursor(da,_b,ab,bb)end
-function ca:mouse_up(da,_b,ab)
-aa.mouse_up(self,da,_b,ab)aa.mouse_release(self,da,_b,ab)end
-function ca:term_resize()local da,_b=self.get("term").getSize()
-if(da==
-self.get("width")and _b==self.get("height"))then return end;self.set("width",da)self.set("height",_b)
-self._render:setSize(da,_b)self._renderUpdate=true end
-function ca:key(da)self:fireEvent("key",da)aa.key(self,da)end
-function ca:key_up(da)self:fireEvent("key_up",da)aa.key_up(self,da)end
-function ca:char(da)self:fireEvent("char",da)aa.char(self,da)end;function ca:render()
-if(self._renderUpdate)then if self._render~=nil then aa.render(self)
+function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if(cb<1)then _c=_c+cb-1;cb=1 end
+if(db<1)then ac=ac+db-1;db=1 end;self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
+self._render:textFg(cb,db,_c,ac)end;function ab:textBg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -
+cb)cb=1 end
+self._render:textBg(cb,db,_c,ac)end
+function ab:blit(cb,db,_c,ac,bc)if cb<1 then _c=string.sub(_c,1 -
+cb)ac=string.sub(ac,1 -cb)
+bc=string.sub(bc,1 -cb)cb=1 end
+self._render:blit(cb,db,_c,ac,bc)end;function ab:setCursor(cb,db,_c,ac)local bc=self.get("term")
+self._render:setCursor(cb,db,_c,ac)end
+function ab:monitor_touch(cb,db,_c)
+local ac=self.get("term")if ac==nil then return end
+if(bb(ac))then if self._peripheralName==cb then
+self:mouse_click(0,db,_c)
+self.basalt.schedule(function()sleep(0.1)self:mouse_up(0,db,_c)end)end end end;function ab:mouse_click(cb,db,_c)ca.mouse_click(self,cb,db,_c)
+self.basalt.setFocus(self)end
+function ab:mouse_up(cb,db,_c)
+ca.mouse_up(self,cb,db,_c)ca.mouse_release(self,cb,db,_c)end
+function ab:term_resize()local cb,db=self.get("term").getSize()
+if(cb==
+self.get("width")and db==self.get("height"))then return end;self.set("width",cb)self.set("height",db)
+self._render:setSize(cb,db)self._renderUpdate=true end
+function ab:key(cb)self:fireEvent("key",cb)ca.key(self,cb)end
+function ab:key_up(cb)self:fireEvent("key_up",cb)ca.key_up(self,cb)end
+function ab:char(cb)self:fireEvent("char",cb)ca.char(self,cb)end
+function ab:dispatchEvent(cb,...)local db=self.get("term")if db==nil then return end;if(bb(db))then if
+cb=="mouse_click"then return end end
+ca.dispatchEvent(self,cb,...)end;function ab:render()
+if(self._renderUpdate)then if self._render~=nil then ca.render(self)
 self._render:render()self._renderUpdate=false end end end
-return ca end
+return ab end
 project["elements/BaseElement.lua"] = function(...) local d=require("propertySystem")
 local _a=require("libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa;aa._events={}
 aa.defineProperty(aa,"type",{default={"BaseElement"},type="string",setter=function(ba,ca)if
@@ -1494,29 +1510,34 @@ self:textBg(1,i,string.rep(" ",ba),self.get("progressColor"))end;if self.get("sh
 tostring(aa).."%"
 local da=math.floor((_a-#ca)/2)+1
 self:textFg(da,1,ca,self.get("foreground"))end end;return d end
-project["elements/Display.lua"] = function(...) local aa=require("elementManager")
-local ba=aa.getElement("VisualElement")
-local ca=require("libraries/utils").getCenteredPosition;local da=require("libraries/utils").deepcopy
-local _b=setmetatable({},ba)_b.__index=_b;function _b.new()
-local ab=setmetatable({},_b):__init()ab.set("width",25)ab.set("height",8)ab.set("z",5)
-return ab end
-function _b:init(ab,bb)
-ba.init(self,ab,bb)self.set("type","Display")
-self._window=window.create(bb.getActiveFrame():getTerm(),1,1,self.get("width"),self.get("height"),false)local cb=self._window.reposition
-self._window.reposition=function(db,_c,ac,bc,cc)
-db.set("x",_c)db.set("y",ac)db.set("width",bc)db.set("height",cc)
-cb(db,1,1,bc,cc)end
-self._window.getPosition=function(db)return db.get("x"),db.get("y")end
-self._window.setVisible=function(db,_c)db.set("visible",_c)end
-self._window.isVisible=function(db)return db.get("visible")end
-self:observe("width",function(db,_c)local ac=db._window;if ac then
-ac.reposition(1,1,_c,db.get("height"))end end)
-self:observe("height",function(db,_c)local ac=db._window;if ac then
-ac.reposition(1,1,db.get("width"),_c)end end)end;function _b:getWindow()return self._window end
-function _b:render()
-ba.render(self)local ab=self._window;local bb,cb=ab.getSize()
-if ab then for y=1,cb do local db,_c,ac=ab.getLine(y)
-self:blit(1,y,db,_c,ac)end end end;return _b end
+project["elements/Display.lua"] = function(...) local ba=require("elementManager")
+local ca=ba.getElement("VisualElement")
+local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
+local ab=require("libraries/colorHex")local bb=setmetatable({},ca)bb.__index=bb;function bb.new()
+local cb=setmetatable({},bb):__init()cb.set("width",25)cb.set("height",8)cb.set("z",5)
+return cb end
+function bb:init(cb,db)
+ca.init(self,cb,db)self.set("type","Display")
+self._window=window.create(db.getActiveFrame():getTerm(),1,1,self.get("width"),self.get("height"),false)local _c=self._window.reposition;local ac=self._window.blit
+local bc=self._window.write
+self._window.reposition=function(cc,dc,_d,ad,bd)cc.set("x",dc)cc.set("y",_d)
+cc.set("width",ad)cc.set("height",bd)_c(cc,1,1,ad,bd)end
+self._window.getPosition=function(cc)return cc.get("x"),cc.get("y")end
+self._window.setVisible=function(cc,dc)cc.set("visible",dc)end
+self._window.isVisible=function(cc)return cc.get("visible")end
+self._window.blit=function(cc,dc,_d,ad,bd,cd)ac(cc,dc,_d,ad,bd,cd)cc:updateRender()end
+self._window.write=function(cc,dc,_d,ad)bc(cc,dc,_d,ad)cc:updateRender()end
+self:observe("width",function(cc,dc)local _d=cc._window;if _d then
+_d.reposition(1,1,dc,cc.get("height"))end end)
+self:observe("height",function(cc,dc)local _d=cc._window;if _d then
+_d.reposition(1,1,cc.get("width"),dc)end end)end;function bb:getWindow()return self._window end
+function bb:write(cb,db,_c,ac,bc)local cc=self._window
+if cc then if ac then
+cc.setTextColor(ac)end;if bc then cc.setBackgroundColor(bc)end
+cc.setCursorPos(cb,db)cc.write(_c)end;self:updateRender()return self end
+function bb:render()ca.render(self)local cb=self._window;local db,_c=cb.getSize()
+if cb then for y=1,_c do
+local ac,bc,cc=cb.getLine(y)self:blit(1,y,ac,bc,cc)end end end;return bb end
 project["elements/List.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"items",{default={},type="table",canTriggerRender=true})
@@ -1678,56 +1699,69 @@ if
 not self.get("multiSelection")then for ac,bc in ipairs(self.get("items"))do
 if type(bc)=="table"then bc.selected=false end end end;_c.selected=not _c.selected
 if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
-project["main.lua"] = function(...) local cc=require("elementManager")
-local dc=require("errorManager")local _d=require("propertySystem")
-local ad=require("libraries/expect")local bd={}bd.traceback=true;bd._events={}bd._schedule={}bd._plugins={}
-bd.isRunning=false;bd.LOGGER=require("log")
+project["main.lua"] = function(...) local ad=require("elementManager")
+local bd=require("errorManager")local cd=require("propertySystem")
+local dd=require("libraries/expect")local __a={}__a.traceback=true;__a._events={}__a._schedule={}__a._plugins={}
+__a.isRunning=false;__a.LOGGER=require("log")
 if(minified)then
-bd.path=fs.getDir(shell.getRunningProgram())else bd.path=fs.getDir(select(2,...))end;local cd=nil;local dd=nil;local __a=type;local a_a={}local b_a=10;local c_a=0;local d_a=false;local function _aa()if(d_a)then return end
-c_a=os.startTimer(0.2)d_a=true end;local function aaa(_ba)
-for _=1,_ba do local aba=a_a[1]if(aba)then
-aba:create()end;table.remove(a_a,1)end end
-local function baa(_ba,aba)if(_ba=="timer")then
-if(aba==c_a)then
-aaa(b_a)d_a=false;c_a=0;if(#a_a>0)then _aa()end;return true end end end
-function bd.create(_ba,aba,bba,cba)if(__a(aba)=="string")then aba={name=aba}end;if(aba==nil)then
-aba={name=_ba}end;local dba=cc.getElement(_ba)
-if(bba)then
-local _ca=_d.blueprint(dba,aba,bd,cba)table.insert(a_a,_ca)_aa()return _ca else local _ca=dba.new()
-_ca:init(aba,bd)return _ca end end
-function bd.createFrame()local _ba=bd.create("BaseFrame")_ba:postInit()if(cd==nil)then
-cd=_ba;dd=_ba end;return _ba end;function bd.getElementManager()return cc end;function bd.getMainFrame()if(cd==nil)then
-cd=bd.createFrame()dd=cd end;return cd end;function bd.setActiveFrame(_ba)
-dd=_ba;dd:updateRender()end
-function bd.getActiveFrame()return dd end
-function bd.schedule(_ba)ad(1,_ba,"function")local aba=coroutine.create(_ba)
-local bba,cba=coroutine.resume(aba)
-if(bba)then
-table.insert(bd._schedule,{coroutine=aba,filter=cba})else dc.header="Basalt Schedule Error"dc.error(cba)end;return aba end
-function bd.removeSchedule(_ba)
-for aba,bba in ipairs(bd._schedule)do if(bba.coroutine==_ba)then
-table.remove(bd._schedule,aba)return true end end;return false end
-local function caa(_ba,...)if(_ba=="terminate")then bd.stop()end
-if baa(_ba,...)then return end;if(dd)then dd:dispatchEvent(_ba,...)end
-for aba,bba in
-ipairs(bd._schedule)do
-if(_ba==bba.filter)or(bba.filter==nil)then
-local cba,dba=coroutine.resume(bba.coroutine,_ba,...)
-if(not cba)then dc.header="Basalt Schedule Error"dc.error(dba)end;bba.filter=dba end;if(coroutine.status(bba.coroutine)=="dead")then
-bd.removeSchedule(bba.coroutine)end end;if bd._events[_ba]then
-for aba,bba in ipairs(bd._events[_ba])do bba(...)end end end;local function daa()if(dd)then dd:render()end end
-function bd.update(...)local _ba=function(...)caa(...)
-daa()end;local aba,bba=pcall(_ba,...)if not(aba)then
-dc.header="Basalt Runtime Error"dc.error(bba)end end;function bd.stop()bd.isRunning=false;term.clear()
+__a.path=fs.getDir(shell.getRunningProgram())else __a.path=fs.getDir(select(2,...))end;local a_a=nil;local b_a=nil;local c_a={}local d_a=type;local _aa={}local aaa=10;local baa=0;local caa=false
+local function daa()
+if(caa)then return end;baa=os.startTimer(0.2)caa=true end
+local function _ba(aca)for _=1,aca do local bca=_aa[1]if(bca)then bca:create()end
+table.remove(_aa,1)end end;local function aba(aca,bca)
+if(aca=="timer")then if(bca==baa)then _ba(aaa)caa=false;baa=0;if(#_aa>0)then daa()end
+return true end end end
+function __a.create(aca,bca,cca,dca)if(
+d_a(bca)=="string")then bca={name=bca}end
+if(bca==nil)then bca={name=aca}end;local _da=ad.getElement(aca)
+if(cca)then
+local ada=cd.blueprint(_da,bca,__a,dca)table.insert(_aa,ada)daa()return ada else local ada=_da.new()
+ada:init(bca,__a)return ada end end;function __a.createFrame()local aca=__a.create("BaseFrame")aca:postInit()
+return aca end
+function __a.getElementManager()return ad end;function __a.getErrorManager()return bd end;function __a.getMainFrame()
+local aca=tostring(term.current())if(c_a[aca]==nil)then a_a=aca;__a.createFrame()end;return
+c_a[aca]end
+function __a.setActiveFrame(aca,bca)
+local cca=aca:getTerm()if(bca==nil)then bca=true end;if(cca~=nil)then
+c_a[tostring(cca)]=bca and aca or nil;aca:updateRender()end end;function __a.getActiveFrame(aca)if(aca==nil)then aca=term.current()end;return
+c_a[tostring(aca)]end
+function __a.setFocus(aca)if
+(b_a==aca)then return end
+if(b_a~=nil)then b_a:dispatchEvent("blur")end;b_a=aca
+if(b_a~=nil)then b_a:dispatchEvent("focus")end end;function __a.getFocus()return b_a end
+function __a.schedule(aca)dd(1,aca,"function")
+local bca=coroutine.create(aca)local cca,dca=coroutine.resume(bca)
+if(cca)then
+table.insert(__a._schedule,{coroutine=bca,filter=dca})else bd.header="Basalt Schedule Error"bd.error(dca)end;return bca end
+function __a.removeSchedule(aca)
+for bca,cca in ipairs(__a._schedule)do if(cca.coroutine==aca)then
+table.remove(__a._schedule,bca)return true end end;return false end
+local bba={mouse_click=true,mouse_up=true,mouse_scroll=true,mouse_drag=true}local cba={key=true,key_up=true,char=true}
+local function dba(aca,...)
+if(aca=="terminate")then __a.stop()end;if aba(aca,...)then return end
+if(bba[aca])then
+c_a[a_a]:dispatchEvent(aca,...)elseif(cba[aca])then
+if(b_a~=nil)then b_a:dispatchEvent(aca,...)end else
+for bca,cca in pairs(c_a)do cca:dispatchEvent(aca,...)end end
+for bca,cca in ipairs(__a._schedule)do
+if(aca==cca.filter)or(cca.filter==nil)then
+local dca,_da=coroutine.resume(cca.coroutine,aca,...)
+if(not dca)then bd.header="Basalt Schedule Error"bd.error(_da)end;cca.filter=_da end;if(coroutine.status(cca.coroutine)=="dead")then
+__a.removeSchedule(cca.coroutine)end end;if __a._events[aca]then
+for bca,cca in ipairs(__a._events[aca])do cca(...)end end end
+local function _ca()for aca,bca in pairs(c_a)do bca:render()end end
+function __a.update(...)local aca=function(...)dba(...)_ca()end
+local bca,cca=pcall(aca,...)
+if not(bca)then bd.header="Basalt Runtime Error"bd.error(cca)end end;function __a.stop()__a.isRunning=false;term.clear()
 term.setCursorPos(1,1)end
-function bd.run(_ba)if(bd.isRunning)then
-dc.error("Basalt is already running")end
-if(_ba==nil)then bd.isRunning=true else bd.isRunning=_ba end
-local function aba()daa()while bd.isRunning do caa(os.pullEventRaw())
-if(bd.isRunning)then daa()end end end
-while bd.isRunning do local bba,cba=pcall(aba)if not(bba)then dc.header="Basalt Runtime Error"
-dc.error(cba)end end end;function bd.getElementClass(_ba)return cc.getElement(_ba)end;function bd.getAPI(_ba)return
-cc.getAPI(_ba)end;return bd end
+function __a.run(aca)if(__a.isRunning)then
+bd.error("Basalt is already running")end;if(aca==nil)then __a.isRunning=true else
+__a.isRunning=aca end
+local function bca()_ca()while __a.isRunning do
+dba(os.pullEventRaw())if(__a.isRunning)then _ca()end end end
+while __a.isRunning do local cca,dca=pcall(bca)if not(cca)then bd.header="Basalt Runtime Error"
+bd.error(dca)end end end;function __a.getElementClass(aca)return ad.getElement(aca)end;function __a.getAPI(aca)return
+ad.getAPI(aca)end;return __a end
 project["libraries/colorHex.lua"] = function(...) local b={}for i=0,15 do b[2 ^i]=("%x"):format(i)
 b[("%x"):format(i)]=2 ^i end;return b end
 project["libraries/utils.lua"] = function(...) local d,_a=math.floor,string.len;local aa={}
