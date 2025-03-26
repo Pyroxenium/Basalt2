@@ -1520,13 +1520,13 @@ function bb:init(cb,db)
 ca.init(self,cb,db)self.set("type","Display")
 self._window=window.create(db.getActiveFrame():getTerm(),1,1,self.get("width"),self.get("height"),false)local _c=self._window.reposition;local ac=self._window.blit
 local bc=self._window.write
-self._window.reposition=function(cc,dc,_d,ad,bd)cc.set("x",dc)cc.set("y",_d)
-cc.set("width",ad)cc.set("height",bd)_c(cc,1,1,ad,bd)end
+self._window.reposition=function(cc,dc,_d,ad)self.set("x",cc)self.set("y",dc)
+self.set("width",_d)self.set("height",ad)_c(1,1,_d,ad)end
 self._window.getPosition=function(cc)return cc.get("x"),cc.get("y")end
-self._window.setVisible=function(cc,dc)cc.set("visible",dc)end
+self._window.setVisible=function(cc)self.set("visible",cc)end
 self._window.isVisible=function(cc)return cc.get("visible")end
-self._window.blit=function(cc,dc,_d,ad,bd,cd)ac(cc,dc,_d,ad,bd,cd)cc:updateRender()end
-self._window.write=function(cc,dc,_d,ad)bc(cc,dc,_d,ad)cc:updateRender()end
+self._window.blit=function(cc,dc,_d,ad,bd)ac(cc,dc,_d,ad,bd)self:updateRender()end
+self._window.write=function(cc,dc,_d)bc(cc,dc,_d)self:updateRender()end
 self:observe("width",function(cc,dc)local _d=cc._window;if _d then
 _d.reposition(1,1,dc,cc.get("height"))end end)
 self:observe("height",function(cc,dc)local _d=cc._window;if _d then
