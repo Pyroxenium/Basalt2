@@ -33,31 +33,31 @@ function Display:init(props, basalt)
     local reposition = self._window.reposition
     local blit = self._window.blit
     local write = self._window.write
-    self._window.reposition = function(self, x, y, width, height)
+    self._window.reposition = function(x, y, width, height)
         self.set("x", x)
         self.set("y", y)
         self.set("width", width)
         self.set("height", height)
-        reposition(self, 1, 1, width, height)
+        reposition(1, 1, width, height)
     end
 
     self._window.getPosition = function(self)
         return self.get("x"), self.get("y")
     end
 
-    self._window.setVisible = function(self, visible)
+    self._window.setVisible = function(visible)
         self.set("visible", visible)
     end
 
     self._window.isVisible = function(self)
         return self.get("visible")
     end
-    self._window.blit = function(self, x, y, text, fg, bg)
-        blit(self, x, y, text, fg, bg)
+    self._window.blit = function(x, y, text, fg, bg)
+        blit(x, y, text, fg, bg)
         self:updateRender()
     end
-    self._window.write = function(self, x, y, text)
-        write(self, x, y, text)
+    self._window.write = function(x, y, text)
+        write(x, y, text)
         self:updateRender()
     end
 
