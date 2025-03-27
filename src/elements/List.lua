@@ -119,7 +119,7 @@ end
 --- @return boolean Whether the event was handled
 --- @protected
 function List:mouse_click(button, x, y)
-    if button == 1 and self:isInBounds(x, y) and self.get("selectable") then
+    if self:isInBounds(x, y) and self.get("selectable") then
         local _, index = self:getRelativePosition(x, y)
         local adjustedIndex = index + self.get("offset")
         local items = self.get("items")
@@ -144,7 +144,7 @@ function List:mouse_click(button, x, y)
             if item.callback then
                 item.callback(self)
             end
-
+            self:fireEvent("mouse_click", button, x, y)
             self:fireEvent("select", adjustedIndex, item)
             self:updateRender()
             return true
