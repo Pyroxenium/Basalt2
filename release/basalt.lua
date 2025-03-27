@@ -1563,14 +1563,15 @@ type(ba)=="table"and ba.selected then return ba end end;return
 nil end
 function d:mouse_click(_a,aa,ba)
 if
-_a==1 and self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
+self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
 local _b=da+self.get("offset")local ab=self.get("items")
 if _b<=#ab then local bb=ab[_b]if type(bb)=="string"then
 bb={text=bb}ab[_b]=bb end;if
 not self.get("multiSelection")then
 for cb,db in ipairs(ab)do if type(db)=="table"then db.selected=false end end end
 bb.selected=not bb.selected;if bb.callback then bb.callback(self)end
-self:fireEvent("select",_b,bb)self:updateRender()return true end end;return false end
+self:fireEvent("mouse_click",_a,aa,ba)self:fireEvent("select",_b,bb)self:updateRender()return
+true end end;return false end
 function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then local ca=self.get("offset")
 local da=math.max(0,#
