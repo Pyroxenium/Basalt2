@@ -1623,9 +1623,10 @@ cc.selected=false end end end;ac.selected=not ac.selected
 if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
 self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
 function ca:render()_a.render(self)local da=self.get("selectedText")
-local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""end
-self:blit(1,1,da..string.rep(" ",
-self.get("width")-#da-1).. (
+local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""
+da=da:sub(1,self.get("width")-2)end
+self:blit(1,1,da..string.rep(" ",self.get("width")-#
+da-1).. (
 self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
 if self.get("isOpen")then local ab=self.get("items")
 local bb=self.get("height")-1;local cb=self.get("offset")local db=self.get("width")
@@ -1637,10 +1638,10 @@ ac.separator then local bc=(ac.text or"-"):sub(1,1)
 local cc=string.rep(bc,db)local dc=ac.foreground or self.get("foreground")local _d=
 ac.background or self.get("background")self:textBg(1,
 i+1,string.rep(" ",db),_d)
-self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected
-local dc=cc and
-(ac.selectedBackground or self.get("selectedBackground"))or
-(ac.background or self.get("background"))
+self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected;bc=bc:sub(1,db)
+local dc=cc and(ac.selectedBackground or
+self.get("selectedBackground"))or(ac.background or
+self.get("background"))
 local _d=
 cc and(ac.selectedForeground or self.get("selectedForeground"))or(ac.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",db),dc)self:textFg(1,
 i+1,bc,_d)end end end end end;return ca end
