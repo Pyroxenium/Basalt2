@@ -106,6 +106,7 @@ function Dropdown:render()
     if #selectedItems > 0 then
         local selectedItem = selectedItems[1]
         text = selectedItem.text or ""
+        text = text:sub(1, self.get("width") - 2)
     end
 
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (self.get("isOpen") and "\31" or "\17"),
@@ -139,6 +140,7 @@ function Dropdown:render()
                 else
                     local text = item.text
                     local isSelected = item.selected
+                    text = text:sub(1, width)
 
                     local bg = isSelected and 
                         (item.selectedBackground or self.get("selectedBackground")) or
