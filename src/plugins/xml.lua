@@ -66,7 +66,6 @@ local XMLParser = {
             end
             i = j + 1
         end
-        local text = string.sub(xmlText, i);
         if #stack > 1 then
             error("XMLParser: unclosed " .. stack[#stack].tag)
         end
@@ -77,21 +76,21 @@ local XMLParser = {
 local function findExpressions(text)
     local expressions = {}
     local lastIndex = 1
-    
+
     while true do
         local startPos, endPos, expr = text:find("%${([^}]+)}", lastIndex)
         if not startPos then break end
-        
+
         table.insert(expressions, {
             start = startPos,
             ending = endPos, 
             expression = expr,
             raw = text:sub(startPos, endPos)
         })
-        
+
         lastIndex = endPos + 1
     end
-    
+
     return expressions
 end
 
@@ -170,6 +169,10 @@ end
 
 local BaseElement = {}
 
+function BaseElement.setup(element)
+    element.defineProperty(element, "customXML", {default = {attributes={},children={}}, type = "table"})
+end
+
 --- Generates this element from XML nodes
 --- @shortDescription Generates this element from XML nodes
 --- @param self BaseElement The element to generate from XML nodes
@@ -196,7 +199,8 @@ function BaseElement:fromXML(node, scope)
                     errorManager.error("XMLParser: property '" .. k .. "' not found in element '" .. self:getType() .. "'")
                 end
             else
-                errorManager.error("XMLParser: property '" .. k .. "' not found in element '" .. self:getType() .. "'")
+                local customXML = self.get("customXML")
+                customXML.attributes[k] = convertValue(v, scope)
             end
         end
     end
@@ -229,6 +233,10 @@ function BaseElement:fromXML(node, scope)
                     else
                         self[child.tag](self)
                     end
+                else
+                    local customXML = self.get("customXML")
+                    child.value = convertValue(child.value, scope)
+                    customXML.children[child.tag] = child
                 end
             end
         end
@@ -241,7 +249,7 @@ local Container = {}
 --- Loads an XML string and parses it into the element
 --- @shortDescription Loads an XML string and parses it into the element
 --- @param self Container The element to load the XML into
---- @param nodes string The XML string to load
+--- @param content string The XML string to load
 --- @param scope table The scope to use
 --- @return Container self The element instance
 function Container:loadXML(content, scope)

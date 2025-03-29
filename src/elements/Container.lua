@@ -318,7 +318,7 @@ function Container:getChild(path)
                     return v
                 else
                     if(v:isType("Container"))then
-                        return v:find(table.concat(parts, "/", 2))
+                       return v:find(table.concat(parts, "/", 2))
                     end
                 end
             end

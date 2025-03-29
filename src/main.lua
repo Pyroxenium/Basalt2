@@ -98,6 +98,10 @@ end
 function basalt.createFrame()
     local frame = basalt.create("BaseFrame")
     frame:postInit()
+    if(main==nil)then
+        main = tostring(term.current())
+        basalt.setActiveFrame(frame, true)
+    end
     return frame
 end
 
