@@ -1718,14 +1718,16 @@ d_a(bca)=="string")then bca={name=bca}end
 if(bca==nil)then bca={name=aca}end;local _da=ad.getElement(aca)
 if(cca)then
 local ada=cd.blueprint(_da,bca,__a,dca)table.insert(_aa,ada)daa()return ada else local ada=_da.new()
-ada:init(bca,__a)return ada end end;function __a.createFrame()local aca=__a.create("BaseFrame")aca:postInit()
-return aca end
-function __a.getElementManager()return ad end;function __a.getErrorManager()return bd end;function __a.getMainFrame()
-local aca=tostring(term.current())if(c_a[aca]==nil)then a_a=aca;__a.createFrame()end;return
-c_a[aca]end
-function __a.setActiveFrame(aca,bca)
-local cca=aca:getTerm()if(bca==nil)then bca=true end;if(cca~=nil)then
-c_a[tostring(cca)]=bca and aca or nil;aca:updateRender()end end;function __a.getActiveFrame(aca)if(aca==nil)then aca=term.current()end;return
+ada:init(bca,__a)return ada end end
+function __a.createFrame()local aca=__a.create("BaseFrame")aca:postInit()if
+(a_a==nil)then a_a=tostring(term.current())
+__a.setActiveFrame(aca,true)end;return aca end;function __a.getElementManager()return ad end
+function __a.getErrorManager()return bd end
+function __a.getMainFrame()local aca=tostring(term.current())if(c_a[aca]==nil)then
+a_a=aca;__a.createFrame()end;return c_a[aca]end
+function __a.setActiveFrame(aca,bca)local cca=aca:getTerm()if(bca==nil)then bca=true end
+if(cca~=nil)then c_a[tostring(cca)]=
+bca and aca or nil;aca:updateRender()end end;function __a.getActiveFrame(aca)if(aca==nil)then aca=term.current()end;return
 c_a[tostring(aca)]end
 function __a.setFocus(aca)if
 (b_a==aca)then return end
@@ -1808,15 +1810,15 @@ local __a,a_a=string.gsub(bd,"(%w+)={(.-)}",function(b_a,c_a)ad:addAttribute(b_a
 local _c={parseText=function(ad)local bd={}local cd=cb.new()table.insert(bd,cd)local dd,__a,a_a,b_a,c_a;local d_a,_aa=1,1
 while
 true do
-dd,_aa,__a,a_a,b_a,c_a=string.find(ad,"<(%/?)([%w_:]+)(.-)(%/?)>",d_a)if not dd then break end;local baa=string.sub(ad,d_a,dd-1)if not
-string.find(baa,"^%s*$")then local caa=(cd.value or"")..baa
-bd[#bd].value=caa end
-if c_a=="/"then local caa=cb.new(a_a)
-db(caa,b_a)cd:addChild(caa)elseif __a==""then local caa=cb.new(a_a)db(caa,b_a)
-table.insert(bd,caa)cd=caa else local caa=table.remove(bd)cd=bd[#bd]
+dd,_aa,__a,a_a,b_a,c_a=string.find(ad,"<(%/?)([%w_:]+)(.-)(%/?)>",d_a)if not dd then break end;local aaa=string.sub(ad,d_a,dd-1)if not
+string.find(aaa,"^%s*$")then local baa=(cd.value or"")..aaa
+bd[#bd].value=baa end
+if c_a=="/"then local baa=cb.new(a_a)
+db(baa,b_a)cd:addChild(baa)elseif __a==""then local baa=cb.new(a_a)db(baa,b_a)
+table.insert(bd,baa)cd=baa else local baa=table.remove(bd)cd=bd[#bd]
 if#bd<1 then ab.error(
-"XMLParser: nothing to close with "..a_a)end;if caa.tag~=a_a then
-ab.error("XMLParser: trying to close "..caa.tag.." with "..a_a)end;cd:addChild(caa)end;d_a=_aa+1 end;local aaa=string.sub(ad,d_a)if#bd>1 then
+"XMLParser: nothing to close with "..a_a)end;if baa.tag~=a_a then
+ab.error("XMLParser: trying to close "..baa.tag.." with "..a_a)end;cd:addChild(baa)end;d_a=_aa+1 end;if#bd>1 then
 error("XMLParser: unclosed "..bd[#bd].tag)end;return cd.children end}
 local function ac(ad)local bd={}local cd=1
 while true do local dd,__a,a_a=ad:find("%${([^}]+)}",cd)
@@ -1842,24 +1844,24 @@ for b_a,c_a in pairs(__a.attributes)do a_a[b_a]=bc(c_a,bd)end;for b_a,c_a in pai
 if c_a.value then a_a[c_a.tag]=bc(c_a.value,bd)elseif#
 c_a.children>0 then a_a[c_a.tag]=cc(c_a)end end
 table.insert(cd,a_a)else if __a.value then cd[__a.tag]=bc(__a.value,bd)elseif#__a.children>0 then
-cd[__a.tag]=cc(__a)end end end;return cd end;local dc={}
+cd[__a.tag]=cc(__a)end end end;return cd end;local dc={}function dc.setup(ad)
+ad.defineProperty(ad,"customXML",{default={attributes={},children={}},type="table"})end
 function dc:fromXML(ad,bd)
 if(ad.attributes)then
-for cd,dd in pairs(ad.attributes)do
-if(self._properties[cd])then
-self.set(cd,bc(dd,bd))elseif self[cd]then
-if(cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")
-if(bd[__a])then if(
-type(bd[__a])~="function")then
-ab.error("XMLParser: variable '"..
-__a.."' is not a function for element '"..self:getType()..
-"' "..cd)end
+for cd,dd in
+pairs(ad.attributes)do
+if(self._properties[cd])then self.set(cd,bc(dd,bd))elseif self[cd]then
+if(
+cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")
+if(bd[__a])then if
+(type(bd[__a])~="function")then
+ab.error("XMLParser: variable '"..__a..
+"' is not a function for element '"..self:getType().."' "..cd)end
 self[cd](self,bd[__a])else
 ab.error("XMLParser: variable '"..__a.."' not found in scope")end else
 ab.error("XMLParser: property '"..cd..
-"' not found in element '"..self:getType().."'")end else
-ab.error("XMLParser: property '"..cd..
-"' not found in element '"..self:getType().."'")end end end
+"' not found in element '"..self:getType().."'")end else local __a=self.get("customXML")
+__a.attributes[cd]=bc(dd,bd)end end end
 if(ad.children)then
 for cd,dd in pairs(ad.children)do
 if(self._properties[dd.tag])then if(
@@ -1872,7 +1874,8 @@ if(b_a.tag=="param")then
 table.insert(__a,bc(b_a.value,bd))elseif(b_a.tag=="table")then table.insert(__a,cc(b_a,bd))end end end
 if(self[dd.tag])then if(#__a>0)then
 self[dd.tag](self,table.unpack(__a))elseif(dd.value)then self[dd.tag](self,bc(dd.value,bd))else
-self[dd.tag](self)end end end end end;return self end;local _d={}
+self[dd.tag](self)end else
+local a_a=self.get("customXML")dd.value=bc(dd.value,bd)a_a.children[dd.tag]=dd end end end end;return self end;local _d={}
 function _d:loadXML(ad,bd)bd=bd or{}local cd=_c.parseText(ad)
 self:fromXML(cd,bd)
 if(cd)then
