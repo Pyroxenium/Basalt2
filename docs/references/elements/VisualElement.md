@@ -50,6 +50,9 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement:calculatePosition](#visualelement-calculateposition)|number|Calculates the position of the element
+|[VisualElement:drawBg](#visualelement-drawbg)|-|
+|[VisualElement:drawFg](#visualelement-drawfg)|-|
+|[VisualElement:drawText](#visualelement-drawtext)|-|
 |[VisualElement:getAbsolutePosition](#visualelement-getabsoluteposition)|number|Returns the absolute position of the element
 |[VisualElement:getRelativePosition](#visualelement-getrelativeposition)|number|Returns the relative position of the element
 |[VisualElement:isInBounds](#visualelement-isinbounds)|boolean|Checks if point is within bounds
@@ -74,6 +77,7 @@ and provides core functionality for positioning, sizing, colors, and rendering.
 |VisualElement:mouse_scroll|boolean|Handles a mouse scroll event
 |VisualElement:mouse_up|boolean|Handles a mouse up event
 |VisualElement:multiBlit|-|Multi-character drawing with colors
+|VisualElement:postRender|-|Post-rendering function for the element
 |VisualElement:render|-|Renders the element
 |VisualElement:setCursor|VisualElement|Sets the cursor position
 |VisualElement:textBg|-|Draws text with background color
@@ -85,6 +89,12 @@ Calculates the position of the element relative to its parent
 ### Returns
 * `number` `x` The x position
 * `number` `y` The y position
+
+## VisualElement:drawBg()
+
+## VisualElement:drawFg()
+
+## VisualElement:drawText()
 
 ## VisualElement:getAbsolutePosition(x?, y?)
 Returns the absolute position of the element or the given coordinates.

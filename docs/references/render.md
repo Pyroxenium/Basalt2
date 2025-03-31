@@ -21,9 +21,11 @@ functionality. It also has a buffer system to reduce the number of calls
 |[Render.new](#render-new)|Render|
 |[Render:addDirtyRect](#render-adddirtyrect)|Render|
 |[Render:bg](#render-bg)|Render|
+|[Render:bg](#render-bg)|Render|
 |[Render:blit](#render-blit)|Render|
 |[Render:clear](#render-clear)|Render|
 |[Render:clearArea](#render-cleararea)|Render|
+|[Render:fg](#render-fg)|Render|
 |[Render:fg](#render-fg)|Render|
 |[Render:getSize](#render-getsize)|number,|
 |[Render:mergeRects](#render-mergerects)|Render|
@@ -32,6 +34,7 @@ functionality. It also has a buffer system to reduce the number of calls
 |[Render:render](#render-render)|Render|
 |[Render:setCursor](#render-setcursor)|Render|
 |[Render:setSize](#render-setsize)|Render|
+|[Render:text](#render-text)|Render|
 |[Render:text](#render-text)|Render|
 |[Render:textBg](#render-textbg)|Render|
 |[Render:textFg](#render-textfg)|Render|
@@ -54,6 +57,17 @@ Adds a dirty rectangle to the buffer
 * `y` `number` The y position of the rectangle
 * `width` `number` The width of the rectangle
 * `height` `number` The height of the rectangle
+
+### Returns
+* `nil` `nil` nil
+
+## Render:bg(x, y, bg)
+Blits a background color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `bg` `string` The background color to blit
 
 ### Returns
 * `nil` `nil` nil
@@ -100,6 +114,17 @@ Clears an area of the screen
 * `width` `number` The width of the area
 * `height` `number` The height of the area
 * `bg` `colors` The background color to clear the area with
+
+### Returns
+* `nil` `nil` nil
+
+## Render:fg(x, y, fg)
+Blits a foreground color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `fg` `string` The foreground color to blit
 
 ### Returns
 * `nil` `nil` nil
@@ -185,6 +210,17 @@ Sets the size of the render
 
 ## Render:text(x, y, text)
 Blits text to the screen
+
+### Parameters
+* `x` `number` The x position to blit to
+* `y` `number` The y position to blit to
+* `text` `string` The text to blit
+
+### Returns
+* `nil` `nil` nil
+
+## Render:text(x, y, text)
+Renders the text to the screen
 
 ### Parameters
 * `x` `number` The x position to blit to
