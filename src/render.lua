@@ -142,6 +142,48 @@ function Render:textBg(x, y, text, bg)
     return self
 end
 
+--- Renders the text to the screen
+--- @param x number The x position to blit to
+--- @param y number The y position to blit to
+--- @param text string The text to blit
+--- @return Render
+function Render:text(x, y, text)
+    if y < 1 or y > self.height then return self end
+
+    self.buffer.text[y] = sub(self.buffer.text[y]:sub(1,x-1) .. text .. self.buffer.text[y]:sub(x+#text), 1, self.width)
+    self:addDirtyRect(x, y, #text, 1)
+
+    return self
+end
+
+--- Blits a foreground color to the screen
+--- @param x number The x position
+--- @param y number The y position
+--- @param fg string The foreground color to blit
+--- @return Render
+function Render:fg(x, y, fg)
+    if y < 1 or y > self.height then return self end
+
+    self.buffer.fg[y] = sub(self.buffer.fg[y]:sub(1,x-1) .. fg .. self.buffer.fg[y]:sub(x+#fg), 1, self.width)
+    self:addDirtyRect(x, y, #fg, 1)
+
+    return self
+end
+
+--- Blits a background color to the screen
+--- @param x number The x position
+--- @param y number The y position
+--- @param bg string The background color to blit
+--- @return Render
+function Render:bg(x, y, bg)
+    if y < 1 or y > self.height then return self end
+
+    self.buffer.bg[y] = sub(self.buffer.bg[y]:sub(1,x-1) .. bg .. self.buffer.bg[y]:sub(x+#bg), 1, self.width)
+    self:addDirtyRect(x, y, #bg, 1)
+
+    return self
+end
+
 --- Blits text to the screen
 --- @param x number The x position to blit to
 --- @param y number The y position to blit to

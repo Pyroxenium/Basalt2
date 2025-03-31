@@ -261,6 +261,7 @@ end
 local function renderFrames()
     for _, frame in pairs(activeFrames)do
         frame:render()
+        frame:postRender()
     end
 end
 

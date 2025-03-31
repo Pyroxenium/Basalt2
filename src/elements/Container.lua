@@ -1,4 +1,5 @@
 local elementManager = require("elementManager")
+local errorManager = require("errorManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local expect = require("libraries/expect")
 local split = require("libraries/utils").split
@@ -576,6 +577,46 @@ function Container:textBg(x, y, text, bg)
     return self
 end
 
+function Container:drawText(x, y, text)
+    local w, h = self.get("width"), self.get("height")
+
+    if y < 1 or y > h then return self end
+
+    local textStart = x < 1 and (2 - x) or 1
+    local textLen = math.min(#text - textStart + 1, w - math.max(1, x) + 1)
+
+    if textLen <= 0 then return self end
+
+    VisualElement.drawText(self, math.max(1, x), math.max(1, y), text:sub(textStart, textStart + textLen - 1))
+    return self
+end
+
+function Container:drawFg(x, y, fg)
+    local w, h = self.get("width"), self.get("height")
+
+    if y < 1 or y > h then return self end
+
+    local textStart = x < 1 and (2 - x) or 1
+    local textLen = math.min(#fg - textStart + 1, w - math.max(1, x) + 1)
+    if textLen <= 0 then return self end
+
+    VisualElement.drawFg(self, math.max(1, x), math.max(1, y), fg:sub(textStart, textStart + textLen - 1))
+    return self
+end
+
+function Container:drawBg(x, y, bg)
+    local w, h = self.get("width"), self.get("height")
+
+    if y < 1 or y > h then return self end
+
+    local textStart = x < 1 and (2 - x) or 1
+    local textLen = math.min(#bg - textStart + 1, w - math.max(1, x) + 1)
+    if textLen <= 0 then return self end
+
+    VisualElement.drawBg(self, math.max(1, x), math.max(1, y), bg:sub(textStart, textStart + textLen - 1))
+    return self
+end
+
 --- @shortDescription Draws a line of text and fg and bg as colors
 --- @param x number The x position to draw the text
 --- @param y number The y position to draw the text
@@ -618,12 +659,14 @@ function Container:render()
     end
     for _, child in ipairs(self.get("visibleChildren")) do
         if child == self then
-            self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")
+            errorManager.error("CIRCULAR REFERENCE DETECTED!")
             return
         end
         child:render()
+        child:postRender()
     end
 end
+
 
 --- @private
 function Container:destroy()

@@ -8,7 +8,9 @@ local main = format:gsub("path", basaltPath)
 package.path = main.."rom/?"
 
 local function errorHandler(err)
+    package.path = main.."rom/?"
     local errorManager = require("errorManager")
+    package.path = defaultPath
     errorManager.header = "Basalt Loading Error"
     errorManager.error(err)
 end

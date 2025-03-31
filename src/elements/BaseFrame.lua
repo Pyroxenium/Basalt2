@@ -109,6 +109,27 @@ function BaseFrame:textBg(x, y, text, bg)
     self._render:textBg(x, y, text, bg)
 end
 
+--- @shortDescription Renders a text with a background color to the render Object
+--- @param x number The x position to render to
+--- @param y number The y position to render to
+--- @param text string The text to render
+--- @param bg colors The background color
+--- @protected
+function BaseFrame:drawText(x, y, text)
+    if x < 1 then text = string.sub(text, 1 - x); x = 1 end
+    self._render:text(x, y, text)
+end
+
+function BaseFrame:drawFg(x, y, fg)
+    if x < 1 then fg = string.sub(fg, 1 - x); x = 1 end
+    self._render:fg(x, y, fg)
+end
+
+function BaseFrame:drawBg(x, y, bg)
+    if x < 1 then bg = string.sub(bg, 1 - x); x = 1 end
+    self._render:bg(x, y, bg)
+end
+
 --- @shortDescription Renders a text with a foreground and background color to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to

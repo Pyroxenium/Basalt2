@@ -168,6 +168,27 @@ function VisualElement:textBg(x, y, text, bg)
     self.parent:textBg(x, y, text, bg)
 end
 
+function VisualElement:drawText(x, y, text)
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
+    self.parent:drawText(x, y, text)
+end
+
+function VisualElement:drawFg(x, y, fg)
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
+    self.parent:drawFg(x, y, fg)
+end
+
+function VisualElement:drawBg(x, y, bg)
+    local xElement, yElement = self:calculatePosition()
+    x = x + xElement - 1
+    y = y + yElement - 1
+    self.parent:drawBg(x, y, bg)
+end
+
 --- @shortDescription Draws text with both colors
 --- @param x number The x position to draw
 --- @param y number The y position to draw
@@ -438,6 +459,11 @@ function VisualElement:render()
     end
     local width, height = self.get("width"), self.get("height")
     self:multiBlit(1, 1, width, height, " ", tHex[self.get("foreground")], tHex[self.get("background")])
+end
+
+--- @shortDescription Post-rendering function for the element
+--- @protected
+function VisualElement:postRender()
 end
 
 return VisualElement
