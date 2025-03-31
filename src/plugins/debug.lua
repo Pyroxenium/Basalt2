@@ -4,6 +4,13 @@ local tHex = require("libraries/colorHex")
 local maxLines = 10
 local isVisible = false
 
+local DEBUG_LEVELS = {
+    ERROR = 1,
+    WARN = 2,
+    INFO = 3,
+    DEBUG = 4
+}
+
 local function createDebugger(element)
     local elementInfo = {
         renderCount = 0,
@@ -65,16 +72,14 @@ local BaseFrame = {}
 --- Shows the debug log frame
 --- @shortDescription Shows the debug log frame
 --- @param self BaseFrame The frame to show debug log in
-function BaseFrame.showDebugLog(self)
+function BaseFrame.openConsole(self)
     if not self._debugFrame then
         local width = self.get("width")
         local height = self.get("height")
         self._debugFrame = self:addFrame("basaltDebugLog")
             :setWidth(width)
             :setHeight(height)
-            :setZ(999)
             :listenEvent("mouse_scroll", true)
-        self.basalt.LOGGER.debug("Created debug log frame " .. self._debugFrame.get("name"))
 
         self._debugFrame:addButton("basaltDebugLogClose")
         :setWidth(9)
@@ -82,8 +87,8 @@ function BaseFrame.showDebugLog(self)
         :setX(width - 8)
         :setY(height)
         :setText("Close")
-        :onMouseClick(function()
-            self:hideDebugLog()
+        :onClick(function()
+            self:closeConsole()
         end)
 
         self._debugFrame._scrollOffset = 0
@@ -150,10 +155,12 @@ function BaseFrame.showDebugLog(self)
                 self:updateRender()
                 return true
             else
-                baseDispatchEvent(self, event, direction, ...)
+                return baseDispatchEvent(self, event, direction, ...)
             end
         end
     end
+    self._debugFrame.set("width", self.get("width"))
+    self._debugFrame.set("height", self.get("height"))
     self._debugFrame.set("visible", true)
     return self
 end
@@ -161,7 +168,7 @@ end
 --- Hides the debug log frame
 --- @shortDescription Hides the debug log frame
 --- @param self BaseFrame The frame to hide debug log for
-function BaseFrame.hideDebugLog(self)
+function BaseFrame.closeConsole(self)
     if self._debugFrame then
         self._debugFrame.set("visible", false)
     end
@@ -171,11 +178,11 @@ end
 --- Toggles the debug log frame
 --- @shortDescription Toggles the debug log frame
 --- @param self BaseFrame The frame to toggle debug log for
-function BaseFrame.toggleDebugLog(self)
-    if self._debugFrame and self._debugFrame:isVisible() then
-        self:hideDebugLog()
+function BaseFrame.toggleConsole(self)
+    if self._debugFrame and self._debugFrame:getVisible() then
+        self:closeConsole()
     else
-        self:showDebugLog()
+        self:openConsole()
     end
     return self
 end
