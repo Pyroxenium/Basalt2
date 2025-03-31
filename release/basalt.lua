@@ -2158,10 +2158,11 @@ function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
 function da.new(cb)
-local db=setmetatable({},da)db.commands={pre={},post={}}db.type="pre"db.element=cb;return db end;function da:clear()self.commands={}return self end
-function da:getValue(cb)if
-type(cb)=="function"then return cb(self.element)end;return cb end
-function da:setType(cb)if cb=="pre"or cb=="post"then self.type=cb else
+local db=setmetatable({},da)db.commands={pre={},post={}}db.type="pre"db.element=cb;return db end
+function da:clear()self.commands={pre={},post={}}return self end;function da:getValue(cb)
+if type(cb)=="function"then return cb(self.element)end;return cb end
+function da:setType(cb)if
+cb=="pre"or cb=="post"then self.type=cb else
 ca.error("Invalid type. Use 'pre' or 'post'.")end;return self end
 function da:addCommand(cb)
 local db=#self.commands[self.type]+1;self.commands[self.type][db]=cb;return db end
