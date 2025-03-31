@@ -14,7 +14,7 @@ function Canvas.new(element)
 end
 
 function Canvas:clear()
-    self.commands = {}
+    self.commands = {pre={},post={}}
     return self
 end
 
