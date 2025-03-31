@@ -35,6 +35,7 @@ minified_pluginDirectory["xml"] = {}
 minified_pluginDirectory["state"] = {}
 minified_pluginDirectory["reactive"] = {}
 minified_pluginDirectory["animation"] = {}
+minified_pluginDirectory["canvas"] = {}
 minified_pluginDirectory["debug"] = {}
 minified_pluginDirectory["benchmark"] = {}
 minified_pluginDirectory["theme"] = {}
@@ -222,6 +223,18 @@ ab..self.buffer.text[_b]:sub(da+#ab),1,self.width)
 self.buffer.bg[_b]=ca(
 self.buffer.bg[_b]:sub(1,da-1)..
 bb:rep(#ab)..self.buffer.bg[_b]:sub(da+#ab),1,self.width)self:addDirtyRect(da,_b,#ab,1)return self end
+function ba:text(da,_b,ab)if _b<1 or _b>self.height then return self end
+self.buffer.text[_b]=ca(self.buffer.text[_b]:sub(1,
+da-1)..ab..
+self.buffer.text[_b]:sub(da+#ab),1,self.width)self:addDirtyRect(da,_b,#ab,1)return self end
+function ba:fg(da,_b,ab)if _b<1 or _b>self.height then return self end
+self.buffer.fg[_b]=ca(self.buffer.fg[_b]:sub(1,
+da-1)..ab..
+self.buffer.fg[_b]:sub(da+#ab),1,self.width)self:addDirtyRect(da,_b,#ab,1)return self end
+function ba:bg(da,_b,ab)if _b<1 or _b>self.height then return self end
+self.buffer.bg[_b]=ca(self.buffer.bg[_b]:sub(1,
+da-1)..ab..
+self.buffer.bg[_b]:sub(da+#ab),1,self.width)self:addDirtyRect(da,_b,#ab,1)return self end
 function ba:text(da,_b,ab)if _b<1 or _b>self.height then return self end
 self.buffer.text[_b]=ca(self.buffer.text[_b]:sub(1,
 da-1)..ab..
@@ -469,173 +482,189 @@ for dd,__a in ipairs(dc.data)do local a_a=math.floor(( (dd-1)*cd)+1)local b_a=
 (__a-_c)/ (ac-_c)
 local c_a=math.floor(db- (b_a* (db-1)))c_a=math.max(1,math.min(c_a,db))if _d then
 bb(self,_d,ad,a_a,c_a,dc.symbol,dc.bgColor,dc.fgColor)end;_d,ad=a_a,c_a end end end end;return ab end
-project["elements/Container.lua"] = function(...) local ca=require("elementManager")
-local da=ca.getElement("VisualElement")local _b=require("libraries/expect")
-local ab=require("libraries/utils").split;local bb=setmetatable({},da)bb.__index=bb
-bb.defineProperty(bb,"children",{default={},type="table"})
-bb.defineProperty(bb,"childrenSorted",{default=true,type="boolean"})
-bb.defineProperty(bb,"childrenEventsSorted",{default=true,type="boolean"})
-bb.defineProperty(bb,"childrenEvents",{default={},type="table"})
-bb.defineProperty(bb,"eventListenerCount",{default={},type="table"})
-bb.defineProperty(bb,"focusedChild",{default=nil,type="table",setter=function(_c,ac,bc)local cc=_c._values.focusedChild
-if ac==cc then return ac end
-if cc then
-if cc:isType("Container")then cc.set("focusedChild",nil,true)end;cc.set("focused",false,true)end
-if ac and not bc then ac.set("focused",true,true)if _c.parent then
-_c.parent:setFocusedChild(_c)end end;return ac end})
-bb.defineProperty(bb,"visibleChildren",{default={},type="table"})
-bb.defineProperty(bb,"visibleChildrenEvents",{default={},type="table"})
-bb.defineProperty(bb,"offsetX",{default=0,type="number",canTriggerRender=true,setter=function(_c,ac)_c.set("childrenSorted",false)
-_c.set("childrenEventsSorted",false)return ac end})
-bb.defineProperty(bb,"offsetY",{default=0,type="number",canTriggerRender=true,setter=function(_c,ac)_c.set("childrenSorted",false)
-_c.set("childrenEventsSorted",false)return ac end})
-bb.combineProperties(bb,"offset","offsetX","offsetY")
-for _c,ac in pairs(ca:getElementList())do
-local bc=_c:sub(1,1):upper().._c:sub(2)
-if bc~="BaseFrame"then
-bb["add"..bc]=function(cc,...)_b(1,cc,"table")
-local dc=cc.basalt.create(_c,...)cc:addChild(dc)dc:postInit()return dc end
-bb["addDelayed"..bc]=function(cc,dc)_b(1,cc,"table")
-local _d=cc.basalt.create(_c,dc,true,cc)return _d end end end
-function bb.new()local _c=setmetatable({},bb):__init()return _c end
-function bb:init(_c,ac)da.init(self,_c,ac)self.set("type","Container")end
-function bb:isChildVisible(_c)if(_c.get("visible")==false)then return false end
-local ac,bc=self.get("width"),self.get("height")local cc,dc=self.get("offsetX"),self.get("offsetY")
-local _d,ad=_c.get("x"),_c.get("y")local bd,cd=_c.get("width"),_c.get("height")local dd;local __a;if
-(_c.get("ignoreOffset"))then dd=_d;__a=ad else dd=_d-cc;__a=ad-dc end
-return
-(dd+bd>0)and(dd<=ac)and(__a+cd>0)and(__a<=bc)end
-function bb:addChild(_c)
-if _c==self then error("Cannot add container to itself")end;table.insert(self._values.children,_c)
-_c.parent=self;self.set("childrenSorted",false)
-self:registerChildrenEvents(_c)return self end
-local function cb(_c,ac)local bc={}
-for cc,dc in ipairs(ac)do if _c:isChildVisible(dc)and dc.get("visible")then
-table.insert(bc,dc)end end
-for i=2,#bc do local cc=bc[i]local dc=cc.get("z")local _d=i-1
-while _d>0 do
-local ad=bc[_d].get("z")if ad>dc then bc[_d+1]=bc[_d]_d=_d-1 else break end end;bc[_d+1]=cc end;return bc end
-function bb:clear()self.set("children",{})
+project["elements/Container.lua"] = function(...) local da=require("elementManager")
+local _b=require("errorManager")local ab=da.getElement("VisualElement")
+local bb=require("libraries/expect")local cb=require("libraries/utils").split
+local db=setmetatable({},ab)db.__index=db
+db.defineProperty(db,"children",{default={},type="table"})
+db.defineProperty(db,"childrenSorted",{default=true,type="boolean"})
+db.defineProperty(db,"childrenEventsSorted",{default=true,type="boolean"})
+db.defineProperty(db,"childrenEvents",{default={},type="table"})
+db.defineProperty(db,"eventListenerCount",{default={},type="table"})
+db.defineProperty(db,"focusedChild",{default=nil,type="table",setter=function(bc,cc,dc)local _d=bc._values.focusedChild
+if cc==_d then return cc end
+if _d then
+if _d:isType("Container")then _d.set("focusedChild",nil,true)end;_d.set("focused",false,true)end
+if cc and not dc then cc.set("focused",true,true)if bc.parent then
+bc.parent:setFocusedChild(bc)end end;return cc end})
+db.defineProperty(db,"visibleChildren",{default={},type="table"})
+db.defineProperty(db,"visibleChildrenEvents",{default={},type="table"})
+db.defineProperty(db,"offsetX",{default=0,type="number",canTriggerRender=true,setter=function(bc,cc)bc.set("childrenSorted",false)
+bc.set("childrenEventsSorted",false)return cc end})
+db.defineProperty(db,"offsetY",{default=0,type="number",canTriggerRender=true,setter=function(bc,cc)bc.set("childrenSorted",false)
+bc.set("childrenEventsSorted",false)return cc end})
+db.combineProperties(db,"offset","offsetX","offsetY")
+for bc,cc in pairs(da:getElementList())do
+local dc=bc:sub(1,1):upper()..bc:sub(2)
+if dc~="BaseFrame"then
+db["add"..dc]=function(_d,...)bb(1,_d,"table")
+local ad=_d.basalt.create(bc,...)_d:addChild(ad)ad:postInit()return ad end
+db["addDelayed"..dc]=function(_d,ad)bb(1,_d,"table")
+local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end
+function db.new()local bc=setmetatable({},db):__init()return bc end
+function db:init(bc,cc)ab.init(self,bc,cc)self.set("type","Container")end
+function db:isChildVisible(bc)if(bc.get("visible")==false)then return false end
+local cc,dc=self.get("width"),self.get("height")local _d,ad=self.get("offsetX"),self.get("offsetY")
+local bd,cd=bc.get("x"),bc.get("y")local dd,__a=bc.get("width"),bc.get("height")local a_a;local b_a;if
+(bc.get("ignoreOffset"))then a_a=bd;b_a=cd else a_a=bd-_d;b_a=cd-ad end;return
+
+(a_a+dd>0)and(a_a<=cc)and(b_a+__a>0)and(b_a<=dc)end
+function db:addChild(bc)
+if bc==self then error("Cannot add container to itself")end;table.insert(self._values.children,bc)
+bc.parent=self;self.set("childrenSorted",false)
+self:registerChildrenEvents(bc)return self end
+local function _c(bc,cc)local dc={}
+for _d,ad in ipairs(cc)do if bc:isChildVisible(ad)and ad.get("visible")then
+table.insert(dc,ad)end end
+for i=2,#dc do local _d=dc[i]local ad=_d.get("z")local bd=i-1
+while bd>0 do
+local cd=dc[bd].get("z")if cd>ad then dc[bd+1]=dc[bd]bd=bd-1 else break end end;dc[bd+1]=_d end;return dc end
+function db:clear()self.set("children",{})
 self.set("childrenEvents",{})self.set("visibleChildren",{})
 self.set("visibleChildrenEvents",{})self.set("childrenSorted",true)
 self.set("childrenEventsSorted",true)return self end
-function bb:sortChildren()
-self.set("visibleChildren",cb(self,self._values.children))self.set("childrenSorted",true)return self end
-function bb:sortChildrenEvents(_c)if self._values.childrenEvents[_c]then
-self._values.visibleChildrenEvents[_c]=cb(self,self._values.childrenEvents[_c])end
+function db:sortChildren()
+self.set("visibleChildren",_c(self,self._values.children))self.set("childrenSorted",true)return self end
+function db:sortChildrenEvents(bc)if self._values.childrenEvents[bc]then
+self._values.visibleChildrenEvents[bc]=_c(self,self._values.childrenEvents[bc])end
 self.set("childrenEventsSorted",true)return self end
-function bb:registerChildrenEvents(_c)if(_c._registeredEvents==nil)then return end
-for ac in
-pairs(_c._registeredEvents)do self:registerChildEvent(_c,ac)end;return self end
-function bb:registerChildEvent(_c,ac)
-if not self._values.childrenEvents[ac]then
-self._values.childrenEvents[ac]={}self._values.eventListenerCount[ac]=0;if self.parent then
-self.parent:registerChildEvent(self,ac)end end;for bc,cc in ipairs(self._values.childrenEvents[ac])do
-if cc==_c then return self end end
+function db:registerChildrenEvents(bc)if(bc._registeredEvents==nil)then return end
+for cc in
+pairs(bc._registeredEvents)do self:registerChildEvent(bc,cc)end;return self end
+function db:registerChildEvent(bc,cc)
+if not self._values.childrenEvents[cc]then
+self._values.childrenEvents[cc]={}self._values.eventListenerCount[cc]=0;if self.parent then
+self.parent:registerChildEvent(self,cc)end end;for dc,_d in ipairs(self._values.childrenEvents[cc])do
+if _d==bc then return self end end
 self.set("childrenEventsSorted",false)
-table.insert(self._values.childrenEvents[ac],_c)self._values.eventListenerCount[ac]=
-self._values.eventListenerCount[ac]+1;return self end
-function bb:removeChildrenEvents(_c)if(_c._registeredEvents==nil)then return self end
-for ac in
-pairs(_c._registeredEvents)do self:unregisterChildEvent(_c,ac)end;return self end
-function bb:unregisterChildEvent(_c,ac)
-if self._values.childrenEvents[ac]then
-for bc,cc in
-ipairs(self._values.childrenEvents[ac])do
-if cc==_c then
-table.remove(self._values.childrenEvents[ac],bc)self._values.eventListenerCount[ac]=
-self._values.eventListenerCount[ac]-1
+table.insert(self._values.childrenEvents[cc],bc)self._values.eventListenerCount[cc]=
+self._values.eventListenerCount[cc]+1;return self end
+function db:removeChildrenEvents(bc)if(bc._registeredEvents==nil)then return self end
+for cc in
+pairs(bc._registeredEvents)do self:unregisterChildEvent(bc,cc)end;return self end
+function db:unregisterChildEvent(bc,cc)
+if self._values.childrenEvents[cc]then
+for dc,_d in
+ipairs(self._values.childrenEvents[cc])do
+if _d==bc then
+table.remove(self._values.childrenEvents[cc],dc)self._values.eventListenerCount[cc]=
+self._values.eventListenerCount[cc]-1
 if
-self._values.eventListenerCount[ac]<=0 then
-self._values.childrenEvents[ac]=nil;self._values.eventListenerCount[ac]=nil;if self.parent then
-self.parent:unregisterChildEvent(self,ac)end end;self.set("childrenEventsSorted",false)
+self._values.eventListenerCount[cc]<=0 then
+self._values.childrenEvents[cc]=nil;self._values.eventListenerCount[cc]=nil;if self.parent then
+self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)
 self:updateRender()break end end end;return self end
-function bb:removeChild(_c)
-for ac,bc in ipairs(self._values.children)do if bc==_c then
-table.remove(self._values.children,ac)_c.parent=nil;break end end;self:removeChildrenEvents(_c)self:updateRender()
+function db:removeChild(bc)
+for cc,dc in ipairs(self._values.children)do if dc==bc then
+table.remove(self._values.children,cc)bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
 self.set("childrenSorted",false)return self end
-function bb:getChild(_c)
-if type(_c)=="string"then local ac=ab(_c,"/")
-for bc,cc in
-pairs(self._values.children)do if cc.get("name")==ac[1]then
-if#ac==1 then return cc else if(cc:isType("Container"))then return
-cc:find(table.concat(ac,"/",2))end end end end end;return nil end
-local function db(_c,ac,...)local bc={...}
-if ac:find("mouse_")then local cc,dc,_d=...
-local ad,bd=_c.get("offsetX"),_c.get("offsetY")local cd,dd=_c:getRelativePosition(dc+ad,_d+bd)
-bc={cc,cd,dd}end;return bc end
-function bb:callChildrenEvent(_c,ac,...)local bc=_c and self.get("visibleChildrenEvents")or
+function db:getChild(bc)
+if type(bc)=="string"then local cc=cb(bc,"/")
+for dc,_d in
+pairs(self._values.children)do if _d.get("name")==cc[1]then
+if#cc==1 then return _d else if(_d:isType("Container"))then return
+_d:find(table.concat(cc,"/",2))end end end end end;return nil end
+local function ac(bc,cc,...)local dc={...}
+if cc:find("mouse_")then local _d,ad,bd=...
+local cd,dd=bc.get("offsetX"),bc.get("offsetY")local __a,a_a=bc:getRelativePosition(ad+cd,bd+dd)
+dc={_d,__a,a_a}end;return dc end
+function db:callChildrenEvent(bc,cc,...)local dc=bc and self.get("visibleChildrenEvents")or
 self.get("childrenEvents")
 if
-bc[ac]then local cc=bc[ac]for i=#cc,1,-1 do local dc=cc[i]
-if(dc:dispatchEvent(ac,...))then return true,dc end end end
-if(bc["*"])then local cc=bc["*"]for i=#cc,1,-1 do local dc=cc[i]
-if(dc:dispatchEvent(ac,...))then return true,dc end end end;return false end
-function bb:handleEvent(_c,...)da.handleEvent(self,_c,...)local ac=db(self,_c,...)return
-self:callChildrenEvent(false,_c,table.unpack(ac))end
-function bb:mouse_click(_c,ac,bc)
-if da.mouse_click(self,_c,ac,bc)then
-local cc=db(self,"mouse_click",_c,ac,bc)
-local dc,_d=self:callChildrenEvent(true,"mouse_click",table.unpack(cc))
-if(dc)then self.set("focusedChild",_d)return true end;self.set("focusedChild",nil)return true end;return false end
-function bb:mouse_up(_c,ac,bc)
-if da.mouse_up(self,_c,ac,bc)then local cc=db(self,"mouse_up",_c,ac,bc)
-local dc,_d=self:callChildrenEvent(true,"mouse_up",table.unpack(cc))if(dc)then return true end end;return false end
-function bb:mouse_release(_c,ac,bc)da.mouse_release(self,_c,ac,bc)
-local cc=db(self,"mouse_release",_c,ac,bc)
-self:callChildrenEvent(false,"mouse_release",table.unpack(cc))end
-function bb:mouse_move(_c,ac,bc)
-if da.mouse_move(self,_c,ac,bc)then
-local cc=db(self,"mouse_move",_c,ac,bc)
-local dc,_d=self:callChildrenEvent(true,"mouse_move",table.unpack(cc))if(dc)then return true end end;return false end
-function bb:mouse_drag(_c,ac,bc)
-if da.mouse_drag(self,_c,ac,bc)then
-local cc=db(self,"mouse_drag",_c,ac,bc)
-local dc,_d=self:callChildrenEvent(true,"mouse_drag",table.unpack(cc))if(dc)then return true end end;return false end
-function bb:mouse_scroll(_c,ac,bc)local cc=db(self,"mouse_scroll",_c,ac,bc)
-local dc,_d=self:callChildrenEvent(true,"mouse_scroll",table.unpack(cc))if(dc)then return true end
-if(da.mouse_scroll(self,_c,ac,bc))then return true end;return false end;function bb:key(_c)if self.get("focusedChild")then return
-self.get("focusedChild"):dispatchEvent("key",_c)end
+dc[cc]then local _d=dc[cc]for i=#_d,1,-1 do local ad=_d[i]
+if(ad:dispatchEvent(cc,...))then return true,ad end end end
+if(dc["*"])then local _d=dc["*"]for i=#_d,1,-1 do local ad=_d[i]
+if(ad:dispatchEvent(cc,...))then return true,ad end end end;return false end
+function db:handleEvent(bc,...)ab.handleEvent(self,bc,...)local cc=ac(self,bc,...)return
+self:callChildrenEvent(false,bc,table.unpack(cc))end
+function db:mouse_click(bc,cc,dc)
+if ab.mouse_click(self,bc,cc,dc)then
+local _d=ac(self,"mouse_click",bc,cc,dc)
+local ad,bd=self:callChildrenEvent(true,"mouse_click",table.unpack(_d))
+if(ad)then self.set("focusedChild",bd)return true end;self.set("focusedChild",nil)return true end;return false end
+function db:mouse_up(bc,cc,dc)
+if ab.mouse_up(self,bc,cc,dc)then local _d=ac(self,"mouse_up",bc,cc,dc)
+local ad,bd=self:callChildrenEvent(true,"mouse_up",table.unpack(_d))if(ad)then return true end end;return false end
+function db:mouse_release(bc,cc,dc)ab.mouse_release(self,bc,cc,dc)
+local _d=ac(self,"mouse_release",bc,cc,dc)
+self:callChildrenEvent(false,"mouse_release",table.unpack(_d))end
+function db:mouse_move(bc,cc,dc)
+if ab.mouse_move(self,bc,cc,dc)then
+local _d=ac(self,"mouse_move",bc,cc,dc)
+local ad,bd=self:callChildrenEvent(true,"mouse_move",table.unpack(_d))if(ad)then return true end end;return false end
+function db:mouse_drag(bc,cc,dc)
+if ab.mouse_drag(self,bc,cc,dc)then
+local _d=ac(self,"mouse_drag",bc,cc,dc)
+local ad,bd=self:callChildrenEvent(true,"mouse_drag",table.unpack(_d))if(ad)then return true end end;return false end
+function db:mouse_scroll(bc,cc,dc)local _d=ac(self,"mouse_scroll",bc,cc,dc)
+local ad,bd=self:callChildrenEvent(true,"mouse_scroll",table.unpack(_d))if(ad)then return true end
+if(ab.mouse_scroll(self,bc,cc,dc))then return true end;return false end;function db:key(bc)if self.get("focusedChild")then return
+self.get("focusedChild"):dispatchEvent("key",bc)end
 return true end
-function bb:char(_c)if
+function db:char(bc)if
 self.get("focusedChild")then
-return self.get("focusedChild"):dispatchEvent("char",_c)end;return true end;function bb:key_up(_c)
+return self.get("focusedChild"):dispatchEvent("char",bc)end;return true end;function db:key_up(bc)
 if self.get("focusedChild")then return
-self.get("focusedChild"):dispatchEvent("key_up",_c)end;return true end
-function bb:multiBlit(_c,ac,bc,cc,dc,_d,ad)
-local bd,cd=self.get("width"),self.get("height")bc=_c<1 and math.min(bc+_c-1,bd)or
-math.min(bc,math.max(0,bd-_c+1))cc=ac<1 and math.min(
-cc+ac-1,cd)or
-math.min(cc,math.max(0,cd-ac+1))if
-bc<=0 or cc<=0 then return self end
-da.multiBlit(self,math.max(1,_c),math.max(1,ac),bc,cc,dc,_d,ad)return self end
-function bb:textFg(_c,ac,bc,cc)local dc,_d=self.get("width"),self.get("height")if
-ac<1 or ac>_d then return self end;local ad=_c<1 and(2 -_c)or 1
-local bd=math.min(#bc-
-ad+1,dc-math.max(1,_c)+1)if bd<=0 then return self end
-da.textFg(self,math.max(1,_c),math.max(1,ac),bc:sub(ad,ad+bd-1),cc)return self end
-function bb:textBg(_c,ac,bc,cc)local dc,_d=self.get("width"),self.get("height")if
-ac<1 or ac>_d then return self end;local ad=_c<1 and(2 -_c)or 1
-local bd=math.min(#bc-
-ad+1,dc-math.max(1,_c)+1)if bd<=0 then return self end
-da.textBg(self,math.max(1,_c),math.max(1,ac),bc:sub(ad,ad+bd-1),cc)return self end
-function bb:blit(_c,ac,bc,cc,dc)local _d,ad=self.get("width"),self.get("height")if
-ac<1 or ac>ad then return self end;local bd=_c<1 and(2 -_c)or 1
-local cd=math.min(#bc-
-bd+1,_d-math.max(1,_c)+1)
-local dd=math.min(#cc-bd+1,_d-math.max(1,_c)+1)
-local __a=math.min(#dc-bd+1,_d-math.max(1,_c)+1)if cd<=0 then return self end;local a_a=bc:sub(bd,bd+cd-1)
-local b_a=cc:sub(bd,bd+dd-1)local c_a=dc:sub(bd,bd+__a-1)
-da.blit(self,math.max(1,_c),math.max(1,ac),a_a,b_a,c_a)return self end
-function bb:render()da.render(self)if not self.get("childrenSorted")then
+self.get("focusedChild"):dispatchEvent("key_up",bc)end;return true end
+function db:multiBlit(bc,cc,dc,_d,ad,bd,cd)
+local dd,__a=self.get("width"),self.get("height")dc=bc<1 and math.min(dc+bc-1,dd)or
+math.min(dc,math.max(0,dd-bc+1))_d=cc<1 and math.min(
+_d+cc-1,__a)or
+math.min(_d,math.max(0,__a-cc+1))if dc<=0 or
+_d<=0 then return self end
+ab.multiBlit(self,math.max(1,bc),math.max(1,cc),dc,_d,ad,bd,cd)return self end
+function db:textFg(bc,cc,dc,_d)local ad,bd=self.get("width"),self.get("height")if
+cc<1 or cc>bd then return self end;local cd=bc<1 and(2 -bc)or 1
+local dd=math.min(#dc-
+cd+1,ad-math.max(1,bc)+1)if dd<=0 then return self end
+ab.textFg(self,math.max(1,bc),math.max(1,cc),dc:sub(cd,cd+dd-1),_d)return self end
+function db:textBg(bc,cc,dc,_d)local ad,bd=self.get("width"),self.get("height")if
+cc<1 or cc>bd then return self end;local cd=bc<1 and(2 -bc)or 1
+local dd=math.min(#dc-
+cd+1,ad-math.max(1,bc)+1)if dd<=0 then return self end
+ab.textBg(self,math.max(1,bc),math.max(1,cc),dc:sub(cd,cd+dd-1),_d)return self end
+function db:drawText(bc,cc,dc)local _d,ad=self.get("width"),self.get("height")if cc<1 or
+cc>ad then return self end;local bd=bc<1 and(2 -bc)or 1
+local cd=math.min(
+#dc-bd+1,_d-math.max(1,bc)+1)if cd<=0 then return self end
+ab.drawText(self,math.max(1,bc),math.max(1,cc),dc:sub(bd,bd+cd-1))return self end
+function db:drawFg(bc,cc,dc)local _d,ad=self.get("width"),self.get("height")if
+cc<1 or cc>ad then return self end;local bd=bc<1 and(2 -bc)or 1
+local cd=math.min(#dc-
+bd+1,_d-math.max(1,bc)+1)if cd<=0 then return self end
+ab.drawFg(self,math.max(1,bc),math.max(1,cc),dc:sub(bd,bd+cd-1))return self end
+function db:drawBg(bc,cc,dc)local _d,ad=self.get("width"),self.get("height")if
+cc<1 or cc>ad then return self end;local bd=bc<1 and(2 -bc)or 1
+local cd=math.min(#dc-
+bd+1,_d-math.max(1,bc)+1)if cd<=0 then return self end
+ab.drawBg(self,math.max(1,bc),math.max(1,cc),dc:sub(bd,bd+cd-1))return self end
+function db:blit(bc,cc,dc,_d,ad)local bd,cd=self.get("width"),self.get("height")if
+cc<1 or cc>cd then return self end;local dd=bc<1 and(2 -bc)or 1
+local __a=math.min(#dc-
+dd+1,bd-math.max(1,bc)+1)
+local a_a=math.min(#_d-dd+1,bd-math.max(1,bc)+1)
+local b_a=math.min(#ad-dd+1,bd-math.max(1,bc)+1)if __a<=0 then return self end;local c_a=dc:sub(dd,dd+__a-1)local d_a=_d:sub(dd,
+dd+a_a-1)local _aa=ad:sub(dd,dd+b_a-1)
+ab.blit(self,math.max(1,bc),math.max(1,cc),c_a,d_a,_aa)return self end
+function db:render()ab.render(self)if not self.get("childrenSorted")then
 self:sortChildren()end
 if
-not self.get("childrenEventsSorted")then for _c in pairs(self._values.childrenEvents)do
-self:sortChildrenEvents(_c)end end
-for _c,ac in ipairs(self.get("visibleChildren"))do if ac==self then
-self.basalt.LOGGER.error("CIRCULAR REFERENCE DETECTED!")return end;ac:render()end end
-function bb:destroy()
-for _c,ac in ipairs(self._values.children)do ac:destroy()end;da.destroy(self)return self end;return bb end
+not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents)do
+self:sortChildrenEvents(bc)end end;for bc,cc in ipairs(self.get("visibleChildren"))do if cc==self then
+_b.error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()
+cc:postRender()end end
+function db:destroy()
+for bc,cc in ipairs(self._values.children)do cc:destroy()end;ab.destroy(self)return self end;return db end
 project["elements/Image.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
@@ -870,7 +899,13 @@ self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function _b:textFg(cb,db,_c,ac)
 local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
 self.parent:textFg(cb,db,_c,ac)end;function _b:textBg(cb,db,_c,ac)
 local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
-self.parent:textBg(cb,db,_c,ac)end;function _b:blit(cb,db,_c,ac,bc)
+self.parent:textBg(cb,db,_c,ac)end;function _b:drawText(cb,db,_c)
+local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
+self.parent:drawText(cb,db,_c)end;function _b:drawFg(cb,db,_c)
+local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
+self.parent:drawFg(cb,db,_c)end;function _b:drawBg(cb,db,_c)
+local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
+self.parent:drawBg(cb,db,_c)end;function _b:blit(cb,db,_c,ac,bc)
 local cc,dc=self:calculatePosition()cb=cb+cc-1;db=db+dc-1
 self.parent:blit(cb,db,_c,ac,bc)end
 function _b:isInBounds(cb,db)
@@ -928,7 +963,7 @@ if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
 function _b:render()
 if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
-self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;return _b end
+self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;function _b:postRender()end;return _b end
 project["elements/Scrollbar.lua"] = function(...) local aa=require("elements/VisualElement")
 local ba=require("libraries/colorHex")local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"value",{default=0,type="number",canTriggerRender=true})
@@ -1174,11 +1209,15 @@ function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if(cb<1)then _c=_c+cb-1;cb=1 end
 if(db<1)then ac=ac+db-1;db=1 end;self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
 self._render:textFg(cb,db,_c,ac)end;function ab:textBg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -
 cb)cb=1 end
-self._render:textBg(cb,db,_c,ac)end
-function ab:blit(cb,db,_c,ac,bc)if cb<1 then _c=string.sub(_c,1 -
-cb)ac=string.sub(ac,1 -cb)
-bc=string.sub(bc,1 -cb)cb=1 end
-self._render:blit(cb,db,_c,ac,bc)end;function ab:setCursor(cb,db,_c,ac)local bc=self.get("term")
+self._render:textBg(cb,db,_c,ac)end;function ab:drawText(cb,db,_c)if cb<1 then _c=string.sub(_c,
+1 -cb)cb=1 end
+self._render:text(cb,db,_c)end
+function ab:drawFg(cb,db,_c)if cb<1 then
+_c=string.sub(_c,1 -cb)cb=1 end;self._render:fg(cb,db,_c)end;function ab:drawBg(cb,db,_c)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
+self._render:bg(cb,db,_c)end
+function ab:blit(cb,db,_c,ac,bc)
+if cb<1 then
+_c=string.sub(_c,1 -cb)ac=string.sub(ac,1 -cb)bc=string.sub(bc,1 -cb)cb=1 end;self._render:blit(cb,db,_c,ac,bc)end;function ab:setCursor(cb,db,_c,ac)local bc=self.get("term")
 self._render:setCursor(cb,db,_c,ac)end
 function ab:monitor_touch(cb,db,_c)
 local ac=self.get("term")if ac==nil then return end
@@ -1752,11 +1791,11 @@ if(aca==cca.filter)or(cca.filter==nil)then
 local dca,_da=coroutine.resume(cca.coroutine,aca,...)
 if(not dca)then bd.header="Basalt Schedule Error"bd.error(_da)end;cca.filter=_da end;if(coroutine.status(cca.coroutine)=="dead")then
 __a.removeSchedule(cca.coroutine)end end;if __a._events[aca]then
-for bca,cca in ipairs(__a._events[aca])do cca(...)end end end
-local function _ca()for aca,bca in pairs(c_a)do bca:render()end end
-function __a.update(...)local aca=function(...)dba(...)_ca()end
-local bca,cca=pcall(aca,...)
-if not(bca)then bd.header="Basalt Runtime Error"bd.error(cca)end end;function __a.stop()__a.isRunning=false;term.clear()
+for bca,cca in ipairs(__a._events[aca])do cca(...)end end end;local function _ca()
+for aca,bca in pairs(c_a)do bca:render()bca:postRender()end end
+function __a.update(...)
+local aca=function(...)dba(...)_ca()end;local bca,cca=pcall(aca,...)if not(bca)then bd.header="Basalt Runtime Error"
+bd.error(cca)end end;function __a.stop()__a.isRunning=false;term.clear()
 term.setCursorPos(1,1)end
 function __a.run(aca)if(__a.isRunning)then
 bd.error("Basalt is already running")end;if(aca==nil)then __a.isRunning=true else
@@ -2116,6 +2155,95 @@ function _b.setup(ab)
 ab.defineProperty(ab,"animation",{default=
 nil,type="table"})ab.defineEvent(ab,"timer")end
 function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
+project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
+local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
+function da.new(cb)
+local db=setmetatable({},da)db.commands={pre={},post={}}db.type="pre"db.element=cb;return db end;function da:clear()self.commands={}return self end
+function da:getValue(cb)if
+type(cb)=="function"then return cb(self.element)end;return cb end
+function da:setType(cb)if cb=="pre"or cb=="post"then self.type=cb else
+ca.error("Invalid type. Use 'pre' or 'post'.")end;return self end
+function da:addCommand(cb)
+local db=#self.commands[self.type]+1;self.commands[self.type][db]=cb;return db end
+function da:setCommand(cb,db)if cb>0 and cb<=#self.commands then
+self.commands[cb]=db end;return self end
+function da:removeCommand(cb)self.commands[cb]=nil;return self end
+function da:text(cb,db,_c,ac,bc)
+return
+self:addCommand(function(cc)local dc,_d=self:getValue(cb),self:getValue(db)
+local ad=self:getValue(_c)local bd=self:getValue(ac)local cd=self:getValue(bc)local dd=
+type(bd)=="number"and ba[bd]or bd;local __a=
+type(cd)=="number"and ba[cd]or cd
+cc:drawText(dc,_d,ad)if dd then cc:drawFg(dc,_d,dd)end;if __a then
+cc:drawBg(dc,_d,__a)end end)end;function da:bg(cb,db,_c)return
+self:addCommand(function(ac)ac:drawBg(cb,db,_c)end)end
+function da:fg(cb,db,_c)return self:addCommand(function(ac)
+ac:drawFg(cb,db,_c)end)end
+function da:rect(cb,db,_c,ac,bc,cc,dc)
+return
+self:addCommand(function(_d)local ad,bd=self:getValue(cb),self:getValue(db)
+local cd,dd=self:getValue(_c),self:getValue(ac)local __a=self:getValue(bc)local a_a=self:getValue(cc)
+local b_a=self:getValue(dc)if(type(a_a)=="number")then a_a=ba[a_a]end;if
+(type(b_a)=="number")then b_a=ba[b_a]end
+local c_a=b_a and _b(b_a:rep(cd),1,cd)local d_a=a_a and _b(a_a:rep(cd),1,cd)local _aa=__a and
+_b(__a:rep(cd),1,cd)if b_a and a_a and __a then
+_d:multiBlit(ad,bd,cd,dd,_aa,d_a,c_a)return end
+for i=0,dd-1 do if b_a then
+_d:drawBg(ad,bd+i,c_a)end;if a_a then _d:drawFg(ad,bd+i,d_a)end;if __a then _d:drawText(ad,
+bd+i,_aa)end end end)end
+function da:line(cb,db,_c,ac,bc,cc,dc)
+local function _d(cd,dd,__a,a_a)local b_a={}local c_a=0;local d_a=math.abs(__a-cd)
+local _aa=math.abs(a_a-dd)local aaa=(cd<__a)and 1 or-1
+local baa=(dd<a_a)and 1 or-1;local caa=d_a-_aa
+while true do c_a=c_a+1;b_a[c_a]={x=cd,y=dd}if
+(cd==__a)and(dd==a_a)then break end;local daa=caa*2
+if daa>-_aa then caa=caa-_aa;cd=cd+aaa end;if daa<d_a then caa=caa+d_a;dd=dd+baa end end;return b_a end;local ad=false;local bd
+if
+type(cb)=="function"or type(db)=="function"or type(_c)=="function"or
+type(ac)=="function"then ad=true else
+bd=_d(self:getValue(cb),self:getValue(db),self:getValue(_c),self:getValue(ac))end
+return
+self:addCommand(function(cd)if ad then
+bd=_d(self:getValue(cb),self:getValue(db),self:getValue(_c),self:getValue(ac))end
+local dd=self:getValue(bc)local __a=self:getValue(cc)local a_a=self:getValue(dc)local b_a=
+type(__a)=="number"and ba[__a]or __a;local c_a=type(a_a)==
+"number"and ba[a_a]or a_a
+for d_a,_aa in
+ipairs(bd)do local aaa=math.floor(_aa.x)local baa=math.floor(_aa.y)if dd then
+cd:drawText(aaa,baa,dd)end;if b_a then cd:drawFg(aaa,baa,b_a)end;if c_a then
+cd:drawBg(aaa,baa,c_a)end end end)end
+function da:ellipse(cb,db,_c,ac,bc,cc,dc)
+local function _d(bd,cd,dd,__a)local a_a={}local b_a=0;local c_a=dd*dd;local d_a=__a*__a;local _aa=0;local aaa=__a;local baa=d_a-c_a*__a+
+0.25 *c_a;local caa=0;local daa=2 *c_a*aaa
+local function _ba(aba,bba)b_a=b_a+1;a_a[b_a]={x=
+bd+aba,y=cd+bba}b_a=b_a+1
+a_a[b_a]={x=bd-aba,y=cd+bba}b_a=b_a+1;a_a[b_a]={x=bd+aba,y=cd-bba}b_a=b_a+1;a_a[b_a]={x=bd-aba,y=
+cd-bba}end;_ba(_aa,aaa)
+while caa<daa do _aa=_aa+1;caa=caa+2 *d_a
+if baa<0 then
+baa=baa+d_a+caa else aaa=aaa-1;daa=daa-2 *c_a;baa=baa+d_a+caa-daa end;_ba(_aa,aaa)end;baa=
+d_a* (_aa+0.5)* (_aa+0.5)+c_a* (aaa-1)* (aaa-1)-c_a*d_a;while aaa>0 do
+aaa=aaa-1;daa=daa-2 *c_a;if baa>0 then baa=baa+c_a-daa else _aa=_aa+1
+caa=caa+2 *d_a;baa=baa+c_a-daa+caa end
+_ba(_aa,aaa)end
+return a_a end;local ad=_d(cb,db,_c,ac)
+return
+self:addCommand(function(bd)local cd=self:getValue(bc)
+local dd=self:getValue(cc)local __a=self:getValue(dc)
+local a_a=type(dd)=="number"and ba[dd]or dd
+local b_a=type(__a)=="number"and ba[__a]or __a
+for c_a,d_a in pairs(ad)do local _aa=math.floor(d_a.x)local aaa=math.floor(d_a.y)if cd then
+bd:drawText(_aa,aaa,cd)end;if a_a then bd:drawFg(_aa,aaa,a_a)end;if b_a then
+bd:drawBg(_aa,aaa,b_a)end end end)end;local bb={hooks={}}
+function bb.setup(cb)
+cb.defineProperty(cb,"canvas",{default=nil,type="table",getter=function(db)if not db._values.canvas then
+db._values.canvas=da.new(db)end;return db._values.canvas end})end;function bb.hooks.render(cb)local db=cb.get("canvas")
+if
+db and#db.commands.pre>0 then for _c,ac in ipairs(db.commands.pre)do ac(cb)end end end;function bb.hooks.postRender(cb)
+local db=cb.get("canvas")
+if db and#db.commands.post>0 then for _c,ac in
+ipairs(db.commands.post)do ac(cb)end end end;return
+{VisualElement=bb,API=da} end
 project["plugins/debug.lua"] = function(...) local da=require("log")local _b=require("libraries/colorHex")
 local ab=10;local bb=false
 local function cb(bc)
@@ -2339,7 +2467,8 @@ cc.loadElement(ad)end;return cc._elements[ad].class end;function cc.getElementLi
 return cc._APIs[ad]end;return cc end
 project["init.lua"] = function(...) local da={...}local _b=fs.getDir(da[2])local ab=package.path
 local bb="path;/path/?.lua;/path/?/init.lua;"local cb=bb:gsub("path",_b)package.path=cb.."rom/?"
-local function db(bc)
-local cc=require("errorManager")cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.path=ab
+local function db(bc)package.path=cb..
+"rom/?"local cc=require("errorManager")package.path=ab
+cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.path=ab
 if not _c then db(ac)else return ac end end
 return project["main.lua"]()
