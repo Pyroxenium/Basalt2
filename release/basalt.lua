@@ -2245,55 +2245,55 @@ local db=cb.get("canvas")
 if db and#db.commands.post>0 then for _c,ac in
 ipairs(db.commands.post)do ac(cb)end end end;return
 {VisualElement=bb,API=da} end
-project["plugins/debug.lua"] = function(...) local da=require("log")local _b=require("libraries/colorHex")
-local ab=10;local bb=false
-local function cb(bc)
-local cc={renderCount=0,eventCount={},lastRender=os.epoch("utc"),properties={},children={}}
+project["plugins/debug.lua"] = function(...) local _b=require("log")local ab=require("libraries/colorHex")
+local bb=10;local cb=false;local db={ERROR=1,WARN=2,INFO=3,DEBUG=4}
+local function _c(dc)
+local _d={renderCount=0,eventCount={},lastRender=os.epoch("utc"),properties={},children={}}
 return
-{trackProperty=function(dc,_d)cc.properties[dc]=_d end,trackRender=function()
-cc.renderCount=cc.renderCount+1;cc.lastRender=os.epoch("utc")end,trackEvent=function(dc)cc.eventCount[dc]=(
-cc.eventCount[dc]or 0)+1 end,dump=function()return
-{type=bc.get("type"),id=bc.get("id"),stats=cc}end}end;local db={}function db.debug(bc,cc)bc._debugger=cb(bc)
-bc._debugLevel=cc or DEBUG_LEVELS.INFO;return bc end
-function db.dumpDebug(bc)if
-not bc._debugger then return end;return bc._debugger.dump()end;local _c={}
-function _c.showDebugLog(bc)
-if not bc._debugFrame then local cc=bc.get("width")
-local dc=bc.get("height")
-bc._debugFrame=bc:addFrame("basaltDebugLog"):setWidth(cc):setHeight(dc):setZ(999):listenEvent("mouse_scroll",true)
-bc.basalt.LOGGER.debug("Created debug log frame "..bc._debugFrame.get("name"))
-bc._debugFrame:addButton("basaltDebugLogClose"):setWidth(9):setHeight(1):setX(
-cc-8):setY(dc):setText("Close"):onMouseClick(function()
-bc:hideDebugLog()end)bc._debugFrame._scrollOffset=0
-bc._debugFrame._processedLogs={}
-local function _d(__a,a_a)local b_a={}while#__a>0 do local c_a=__a:sub(1,a_a)table.insert(b_a,c_a)__a=__a:sub(
-a_a+1)end;return b_a end
-local function ad()local __a={}local a_a=bc._debugFrame.get("width")
-for b_a,c_a in
-ipairs(da._logs)do local d_a=_d(c_a.message,a_a)for _aa,aaa in ipairs(d_a)do
-table.insert(__a,{text=aaa,level=c_a.level})end end;return __a end;local bd=#ad()-bc.get("height")bc._scrollOffset=bd
-local cd=bc._debugFrame.render
-bc._debugFrame.render=function(__a)cd(__a)__a._processedLogs=ad()
-local a_a=__a.get("height")-2;local b_a=#__a._processedLogs;local c_a=math.max(0,b_a-a_a)
-__a._scrollOffset=math.min(__a._scrollOffset,c_a)
-for i=1,a_a-2 do local d_a=i+__a._scrollOffset
-local _aa=__a._processedLogs[d_a]
-if _aa then
-local aaa=
-
-_aa.level==da.LEVEL.ERROR and colors.red or _aa.level==
-da.LEVEL.WARN and colors.yellow or _aa.level==da.LEVEL.DEBUG and colors.lightGray or colors.white;__a:textFg(2,i,_aa.text,aaa)end end end;local dd=bc._debugFrame.dispatchEvent
-bc._debugFrame.dispatchEvent=function(__a,a_a,b_a,...)
+{trackProperty=function(ad,bd)_d.properties[ad]=bd end,trackRender=function()
+_d.renderCount=_d.renderCount+1;_d.lastRender=os.epoch("utc")end,trackEvent=function(ad)_d.eventCount[ad]=(
+_d.eventCount[ad]or 0)+1 end,dump=function()return
+{type=dc.get("type"),id=dc.get("id"),stats=_d}end}end;local ac={}
+function ac.debug(dc,_d)dc._debugger=_c(dc)dc._debugLevel=_d or db.INFO;return dc end;function ac.dumpDebug(dc)if not dc._debugger then return end
+return dc._debugger.dump()end;local bc={}
+function bc.openConsole(dc)
 if
-(a_a=="mouse_scroll")then
-__a._scrollOffset=math.max(0,__a._scrollOffset+b_a)__a:updateRender()return true else dd(__a,a_a,b_a,...)end end end;bc._debugFrame.set("visible",true)return bc end
-function _c.hideDebugLog(bc)if bc._debugFrame then
-bc._debugFrame.set("visible",false)end;return bc end;function _c.toggleDebugLog(bc)if bc._debugFrame and bc._debugFrame:isVisible()then
-bc:hideDebugLog()else bc:showDebugLog()end
-return bc end
-local ac={}
-function ac.debugChildren(bc,cc)bc:debug(cc)for dc,_d in pairs(bc.get("children"))do if _d.debug then
-_d:debug(cc)end end;return bc end;return{BaseElement=db,Container=ac,BaseFrame=_c} end
+not dc._debugFrame then local _d=dc.get("width")local ad=dc.get("height")
+dc._debugFrame=dc:addFrame("basaltDebugLog"):setWidth(_d):setHeight(ad):listenEvent("mouse_scroll",true)
+dc._debugFrame:addButton("basaltDebugLogClose"):setWidth(9):setHeight(1):setX(
+_d-8):setY(ad):setText("Close"):onClick(function()
+dc:closeConsole()end)dc._debugFrame._scrollOffset=0
+dc._debugFrame._processedLogs={}
+local function bd(b_a,c_a)local d_a={}while#b_a>0 do local _aa=b_a:sub(1,c_a)table.insert(d_a,_aa)b_a=b_a:sub(
+c_a+1)end;return d_a end
+local function cd()local b_a={}local c_a=dc._debugFrame.get("width")
+for d_a,_aa in
+ipairs(_b._logs)do local aaa=bd(_aa.message,c_a)for baa,caa in ipairs(aaa)do
+table.insert(b_a,{text=caa,level=_aa.level})end end;return b_a end;local dd=#cd()-dc.get("height")dc._scrollOffset=dd
+local __a=dc._debugFrame.render
+dc._debugFrame.render=function(b_a)__a(b_a)b_a._processedLogs=cd()
+local c_a=b_a.get("height")-2;local d_a=#b_a._processedLogs;local _aa=math.max(0,d_a-c_a)
+b_a._scrollOffset=math.min(b_a._scrollOffset,_aa)
+for i=1,c_a-2 do local aaa=i+b_a._scrollOffset
+local baa=b_a._processedLogs[aaa]
+if baa then
+local caa=
+
+baa.level==_b.LEVEL.ERROR and colors.red or baa.level==
+_b.LEVEL.WARN and colors.yellow or baa.level==_b.LEVEL.DEBUG and colors.lightGray or colors.white;b_a:textFg(2,i,baa.text,caa)end end end;local a_a=dc._debugFrame.dispatchEvent
+dc._debugFrame.dispatchEvent=function(b_a,c_a,d_a,...)
+if
+(c_a=="mouse_scroll")then
+b_a._scrollOffset=math.max(0,b_a._scrollOffset+d_a)b_a:updateRender()return true else return a_a(b_a,c_a,d_a,...)end end end
+dc._debugFrame.set("width",dc.get("width"))
+dc._debugFrame.set("height",dc.get("height"))dc._debugFrame.set("visible",true)return dc end
+function bc.closeConsole(dc)if dc._debugFrame then
+dc._debugFrame.set("visible",false)end;return dc end;function bc.toggleConsole(dc)if dc._debugFrame and dc._debugFrame:getVisible()then
+dc:closeConsole()else dc:openConsole()end
+return dc end
+local cc={}
+function cc.debugChildren(dc,_d)dc:debug(_d)for ad,bd in pairs(dc.get("children"))do if bd.debug then
+bd:debug(_d)end end;return dc end;return{BaseElement=ac,Container=cc,BaseFrame=bc} end
 project["plugins/benchmark.lua"] = function(...) local ca=require("log")local da=setmetatable({},{__mode="k"})local function _b()return
 {methods={}}end
 local function ab(_c,ac)local bc=_c[ac]
