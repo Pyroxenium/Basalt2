@@ -93,6 +93,10 @@ export default defineConfig({
                   {text: 'Frame', link: 'references/elements/Frame'},
                 ]},
                 {text: 'Button', link: 'references/elements/Button'},
+                {text: 'Graph', link: 'references/elements/Graph', collapsed: false, items: [
+                    {text: 'BarChart', link: 'references/elements/BarChart'},
+                    {text: 'LineChart', link: 'references/elements/LineChart'},
+                  ]},
                 {text: 'Label', link: 'references/elements/Label'},  
                 {text: 'Input', link: 'references/elements/Input'},
                 {text: 'Checkbox', link: 'references/elements/Checkbox'},
