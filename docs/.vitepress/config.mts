@@ -93,7 +93,7 @@ export default defineConfig({
                   {text: 'Frame', link: 'references/elements/Frame'},
                 ]},
                 {text: 'Button', link: 'references/elements/Button'},
-                {text: 'Graph', link: 'references/elements/Graph', collapsed: false, items: [
+                {text: 'Graph', link: 'references/elements/Graph', collapsed: true, items: [
                     {text: 'BarChart', link: 'references/elements/BarChart'},
                     {text: 'LineChart', link: 'references/elements/LineChart'},
                   ]},
