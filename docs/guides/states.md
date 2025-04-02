@@ -1,93 +1,148 @@
 # State Management in Basalt
 
-States provide a powerful way to manage data and UI synchronization in your Basalt applications.
+States provide a new way to manage data and UI synchronization in your Basalt applications.
 
-## Core Concepts
+## Detailed State Methods
 
-- **States**: Named values stored in frames
-- **Computed States**: States that depend on other states
-- **State Changes**: Automatic UI updates when states change
-- **State Listeners**: React to state changes
-
-## Basic State Methods
-
+### initializeState
 ```lua
--- Initialize states
-frame:initializeState("name", defaultValue, triggerRender)
-frame:setState("name", newValue)
-frame:getState("name")
+BaseFrame:initializeState("name", defaultValue, triggerRender)
+```
+Creates a new state in a BaseFrame:
+- `name`: Name of the state (string)
+- `defaultValue`: Initial value of the state (any type)
+- `triggerRender`: Boolean that determines if changes trigger automatic re-renders
+- Returns: self (for method chaining)
 
--- Computed states
-frame:computed("name", function(self)
-    -- Calculate and return value based on other states
-end)
+### setState
+```lua
+element:setState("name", newValue)
+```
+Updates an existing state's value:
+- `name`: Name of the state to update
+- `newValue`: New value to set
+- Automatically triggers UI updates if triggerRender=true
+- Returns: self (for method chaining)
 
--- Listen to changes
-frame:onStateChange("name", function(self, newValue)
-    -- React to state changes
+### getState
+```lua
+local value = element:getState("name")
+```
+Retrieves the current value of a state:
+- `name`: Name of the state to get
+- Returns: Current value of the state
+
+### computed
+```lua
+element:computed("name", function(self)
+    local otherState = self:getState("otherState")
+    return someCalculation(otherState)
 end)
 ```
+Creates a computed state that depends on other states:
+- `name`: Name of the computed state
+- `function`: Function that calculates the value
+- Automatically recalculates when dependent states change
+- Returns: self (for method chaining)
 
-## Complete Form Example
+### onStateChange
+```lua
+element:onStateChange("name", function(self, newValue)
+    -- React to changes
+    self:someAction(newValue)
+end)
+```
+Registers a listener for state changes:
+- `name`: Name of the state to watch
+- `function`: Callback function receiving the new value
+- Executes whenever the state changes
+- Returns: self (for method chaining)
+
+### bind
+```lua
+local name = form:addInput():bind("text", "name")
+```
+Binds a property to a state
+- `propertyName`: The name of the property
+- `stateName`: The name of the state
+- Returns: self (for method chaining)
+
+## Example: Form Validation
 
 Here's a comprehensive example showing state management in a form:
 
 ```lua
 local main = basalt.getMainFrame()
+    -- Initialize form states
+    :initializeState("username", "", true) -- make them persistent
+    :initializeState("password", "", true) -- make them persistent
+    :initializeState("confirmPassword", "", true) -- make them persistent
+
 local form = main:addFrame()
     :setSize("{parent.width - 4}", "{parent.height - 4}")
-    -- Initialize multiple states
-    :initializeState("username", "")
-    :initializeState("email", "")
-    :initializeState("age", 0)
-    :initializeState("submitted", false)
-    -- Add computed validation state
-    :computed("isValid", function(self)
-        local username = self:getState("username")
-        local email = self:getState("email")
-        local age = self:getState("age")
-        return #username > 0 and email:match(".+@.+") and age > 0
-    end)
+    :setPosition(3, 3)
 
--- Input with state binding
-form:addInput()
-    :onChange(function(self, value)
-        form:setState("username", value)
-    end)
+-- Add computed validation state
+form:computed("isValid", function(self)
+    local username = self:getState("username")
+    local password = self:getState("password")
+    local confirmPass = self:getState("confirmPassword")
+    return #username >= 3 and #password >= 6 and password == confirmPass
+end)
 
--- Button reacting to computed state
-form:addButton()
-    :onStateChange("isValid", function(self, isValid)
-        self:setBackground(isValid and colors.lime or colors.gray)
-    end)
+-- Create labels
+form:addLabel({text="Username:", x = 2, y = 2, foreground = colors.lightGray})
+form:addLabel({text="Password:", x = 2, y = 4, foreground = colors.lightGray})
+form:addLabel({text="Confirm:", x = 2, y = 6, foreground = colors.lightGray})
+
+local userInput = form:addInput({x = 11, y = 2, width = 20, height = 1}):bind("text", "username")
+local passwordInput = form:addInput({x = 11, y = 4, width = 20, height = 1}):bind("text", "password")
+local confirmInput = form:addInput({x = 11, y = 6, width = 20, height = 1}):bind("text", "confirmPassword")
+
+-- Submit button
+local submitBtn = form:addButton()
+    :setText("Submit")
+    :setPosition(2, 8)
+    :setSize(29, 1)
+
+-- Status label
+local statusLabel = form:addLabel()
+    :setPosition(2, 10)
+    :setSize(29, 1)
+
+
+form:onStateChange("isValid", function(self, isValid)
+    if isValid then
+        statusLabel:setText("Form is valid!")
+            :setForeground(colors.green)
+        submitBtn:setBackground(colors.green)
+    else
+        statusLabel:setText("Please fill all fields correctly")
+            :setForeground(colors.red)
+        submitBtn:setBackground(colors.red)
+    end
+end)
 ```
-
-## Best Practices
-
-1. **State Initialization**
-   - Initialize all states at component creation
-   - Use meaningful default values
-   - Consider whether state changes should trigger renders
-
-2. **Computed States**
-   - Use for values that depend on multiple states
-   - Keep computations simple and efficient
-   - Avoid circular dependencies
-
-3. **State Updates**
-   - Update states through setState, not directly
-   - Use onStateChange for side effects
-   - Consider batching multiple state updates
-
-4. **Form Validation**
-   - Use computed states for form validation
-   - Update UI elements based on validation state
-   - Trigger actions only when validation passes
 
 ## Tips
 
-- Use states for data that affects multiple components
-- Consider using tables for complex state
-- Keep state updates minimal and efficient
-- Use meaningful state names
-- Document state dependencies
+1. **State Initialization**
+   - Always initialize states at component creation
+   - Use descriptive state names
+   - Consider carefully whether updates should trigger renders
+
+2. **Computed States**
+   - Use for values derived from other states
+   - Keep calculations simple and performant
+   - Avoid circular dependencies
+
+3. **State Updates**
+   - Only modify states through setState
+   - Use onStateChange for side effects
+   - Batch multiple updates when possible
+
+4. **Common Patterns**
+   - Form validation
+   - UI state management
+   - Data synchronization
+   - Component communication
