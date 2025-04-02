@@ -20,6 +20,8 @@ This is the base frame class. It is the root element of all elements and the onl
 |Method|Returns|Description|
 |---|---|---|
 |[BaseFrame:dispatchEvent](#baseframe-dispatchevent)|-|
+|[BaseFrame:drawBg](#baseframe-drawbg)|-|
+|[BaseFrame:drawFg](#baseframe-drawfg)|-|
 |[BaseFrame:setCursor](#baseframe-setcursor)|-|Sets the cursor position
 
 
@@ -29,6 +31,7 @@ This is the base frame class. It is the root element of all elements and the onl
 |---|---|---|
 |BaseFrame:blit|-|Renders a text with a foreground and background color to the render Object
 |BaseFrame:char|-|Handles character events
+|BaseFrame:drawText|-|Renders a text with a background color to the render Object
 |BaseFrame:init|table|Initializes the Frame instance
 |BaseFrame:key|-|Handles key events
 |BaseFrame:key_up|-|Handles key up events
@@ -42,6 +45,10 @@ This is the base frame class. It is the root element of all elements and the onl
 |BaseFrame:textFg|-|Renders a text with a foreground color to the render Object
 
 ## BaseFrame:dispatchEvent()
+
+## BaseFrame:drawBg()
+
+## BaseFrame:drawFg()
 
 ## BaseFrame:setCursor(x, y, blink)
 Sets the cursor position

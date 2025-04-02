@@ -30,6 +30,9 @@ like Frames, BaseFrames, and more.
 |[Container:addChild](#container-addchild)|Container|Adds a child to the container
 |[Container:callChildrenEvent](#container-callchildrenevent)|boolean|Calls a event on all children
 |[Container:clear](#container-clear)|Container|Clears the container
+|[Container:drawBg](#container-drawbg)|-|
+|[Container:drawFg](#container-drawfg)|-|
+|[Container:drawText](#container-drawtext)|-|
 |[Container:getChild](#container-getchild)|Container?|Removes a child from the container
 |[Container:isChildVisible](#container-ischildvisible)|boolean|Returns whether a child is visible
 |[Container:registerChildEvent](#container-registerchildevent)|Container|Registers the children events of the container
@@ -88,6 +91,12 @@ Clears the container
 
 ### Returns
 * `Container` `self` The container instance
+
+## Container:drawBg()
+
+## Container:drawFg()
+
+## Container:drawText()
 
 ## Container:getChild(path)
 Removes a child from the container

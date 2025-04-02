@@ -32,24 +32,24 @@ Dumps debug information for this element
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseFrame.hideDebugLog](#baseframe-hidedebuglog)|-|Hides the debug log frame
-|[BaseFrame.showDebugLog](#baseframe-showdebuglog)|-|Shows the debug log frame
-|[BaseFrame.toggleDebugLog](#baseframe-toggledebuglog)|-|Toggles the debug log frame
+|[BaseFrame.closeConsole](#baseframe-closeconsole)|-|Hides the debug log frame
+|[BaseFrame.openConsole](#baseframe-openconsole)|-|Shows the debug log frame
+|[BaseFrame.toggleConsole](#baseframe-toggleconsole)|-|Toggles the debug log frame
 
 
-## BaseFrame.hideDebugLog(self)
+## BaseFrame.closeConsole(self)
 Hides the debug log frame
 
 ### Parameters
 * `self` `BaseFrame` The frame to hide debug log for
 
-## BaseFrame.showDebugLog(self)
+## BaseFrame.openConsole(self)
 Shows the debug log frame
 
 ### Parameters
 * `self` `BaseFrame` The frame to show debug log in
 
-## BaseFrame.toggleDebugLog(self)
+## BaseFrame.toggleConsole(self)
 Toggles the debug log frame
 
 ### Parameters
