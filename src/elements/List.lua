@@ -147,8 +147,8 @@ function List:mouse_click(button, x, y)
             self:fireEvent("mouse_click", button, x, y)
             self:fireEvent("select", adjustedIndex, item)
             self:updateRender()
-            return true
         end
+        return true
     end
     return false
 end
