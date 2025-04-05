@@ -3,6 +3,15 @@ local Container = elementManager.getElement("Container")
 ---@configDescription A flexbox container that arranges its children in a flexible layout.
 
 --- This is the Flexbox class. It is a container that arranges its children in a flexible layout.
+--- @usage local flex = main:addFlexbox({background=colors.black, width=30, height=10})
+--- @usage flex:addButton():setFlexGrow(1)
+--- @usage flex:addButton():setFlexGrow(1)
+--- @usage flex:addButton():setFlexGrow(1)
+--- The flexbox element adds the following properties to its children:
+--- 
+--- @usage flex:addButton():setFlexGrow(1) -- The flex-grow property defines the ability for a flex item to grow if necessary.
+--- @usage flex:addButton():setFlexShrink(1) -- The flex-shrink property defines the ability for a flex item to shrink if necessary.
+--- @usage flex:addButton():setFlexBasis(1) -- The flex-basis property defines the default size of an element before the remaining space is distributed.
 ---@class Flexbox : Container
 local Flexbox = setmetatable({}, Container)
 Flexbox.__index = Flexbox
@@ -307,7 +316,6 @@ function Flexbox:addLineBreak()
 end
 
 --- @shortDescription Renders the flexbox and its children
---- @return Flexbox self The flexbox instance
 --- @protected
 function Flexbox:render()
   if(self.get("flexUpdateLayout"))then

@@ -56,6 +56,12 @@ function Input:init(props, basalt)
     return self
 end
 
+--- Sets the cursor position and color
+--- @shortDescription Sets the cursor position and color
+--- @param x number The x position of the cursor
+--- @param y number The y position of the cursor
+--- @param blink boolean Whether the cursor should blink
+--- @param color number The color of the cursor
 function Input:setCursor(x, y, blink, color)
     x = math.min(self.get("width"), math.max(1, x))
     return VisualElement.setCursor(self, x, y, blink, color)
@@ -168,12 +174,16 @@ function Input:updateViewport()
     return self
 end
 
+--- @shortDescription Handles a focus event
+--- @protected
 function Input:focus()
     VisualElement.focus(self)
     self:setCursor(self.get("cursorPos") - self.get("viewOffset"), 1, true, self.get("cursorColor") or self.get("foreground"))
     self:updateRender()
 end
 
+--- @shortDescription Handles a blur event
+--- @protected
 function Input:blur()
     VisualElement.blur(self)
     self:setCursor(1, 1, false, self.get("cursorColor") or self.get("foreground"))

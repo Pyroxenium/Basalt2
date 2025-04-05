@@ -3,12 +3,25 @@ local tHex = require("libraries/colorHex")
 
 --- This is the table class. It provides a sortable data grid with customizable columns,
 --- row selection, and scrolling capabilities.
+--- @usage local people = container:addTable():setWidth(40)
+--- @usage people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
+--- @usage people:setData({{"Alice", 30, "USA"}, {"Bob", 25, "UK"}})
 ---@class Table : VisualElement
 local Table = setmetatable({}, VisualElement)
 Table.__index = Table
 
 ---@property columns table {} List of column definitions with {name, width} properties
-Table.defineProperty(Table, "columns", {default = {}, type = "table"})
+Table.defineProperty(Table, "columns", {default = {}, type = "table", canTriggerRender = true, setter=function(self, value)
+    local t = {}
+    for i, col in ipairs(value) do
+        if type(col) == "string" then
+            t[i] = {name = col, width = #col+1}
+        elseif type(col) == "table" then
+            t[i] = {name = col.name or "", width = col.width or #col.name+1}
+        end
+    end
+    return t
+end})
 ---@property data table {} The table data as array of row arrays
 Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRender = true})
 ---@property selectedRow number? nil Currently selected row index
@@ -55,19 +68,24 @@ end
 --- Sorts the table data by column
 --- @shortDescription Sorts the table data by the specified column
 --- @param columnIndex number The index of the column to sort by
+--- @param fn function? Optional custom sorting function
 --- @return Table self The Table instance
-function Table:sortData(columnIndex)
+function Table:sortData(columnIndex, fn)
     local data = self.get("data")
     local direction = self.get("sortDirection")
-
-    table.sort(data, function(a, b)
-        if direction == "asc" then
-            return a[columnIndex] < b[columnIndex]
-        else
-            return a[columnIndex] > b[columnIndex]
-        end
-    end)
-
+    if not fn then
+        table.sort(data, function(a, b)
+            if direction == "asc" then
+                return a[columnIndex] < b[columnIndex]
+            else
+                return a[columnIndex] > b[columnIndex]
+            end
+        end)
+    else
+        table.sort(data, function(a, b)
+            return fn(a[columnIndex], b[columnIndex])
+        end)
+    end
     self.set("data", data)
     return self
 end
@@ -117,27 +135,30 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Table:mouse_scroll(direction, x, y)
-    local data = self.get("data")
-    local height = self.get("height")
-    local visibleRows = height - 2
-    local maxScroll = math.max(0, #data - visibleRows + 1)
-    local newOffset = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
+    if(VisualElement.mouse_scroll(self, direction, x, y))then
+        local data = self.get("data")
+        local height = self.get("height")
+        local visibleRows = height - 2
+        local maxScroll = math.max(0, #data - visibleRows + 1)
+        local newOffset = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
 
-    self.set("scrollOffset", newOffset)
-    return true
+        self.set("scrollOffset", newOffset)
+        return true
+    end
+    return false
 end
 
 --- @shortDescription Renders the table with headers, data and scrollbar
 --- @protected
 function Table:render()
     VisualElement.render(self)
-
     local columns = self.get("columns")
     local data = self.get("data")
     local selected = self.get("selectedRow")
     local sortCol = self.get("sortColumn")
     local scrollOffset = self.get("scrollOffset")
     local height = self.get("height")
+    local width = self.get("width")
 
     local currentX = 1
     for i, col in ipairs(columns) do
@@ -159,11 +180,11 @@ function Table:render()
             local bg = (rowIndex + 1) == selected and self.get("selectedColor") or self.get("background")
 
             for i, col in ipairs(columns) do
-                local cellText = rowData[i] or ""
+                local cellText = tostring(rowData[i] or "")
                 local paddedText = cellText .. string.rep(" ", col.width - #cellText)
-                self:blit(currentX, y, paddedText,
-                    string.rep(tHex[self.get("foreground")], col.width),
-                    string.rep(tHex[bg], col.width))
+                self:blit(currentX, y, string.sub(paddedText, 1, width-currentX+1),
+                    string.sub(string.rep(tHex[self.get("foreground")], col.width), 1, width-currentX+1),
+                    string.sub(string.rep(tHex[bg], col.width), 1, width-currentX+1))
                 currentX = currentX + col.width
             end
         else

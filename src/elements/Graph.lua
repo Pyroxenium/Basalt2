@@ -5,6 +5,17 @@ local tHex = require("libraries/colorHex")
 ---@configDefault false
 
 --- This is the base class for all graph elements. It is a point based graph.
+--- @usage local graph = main:addGraph()
+--- @usage :addSeries("input", " ", colors.green, colors.green, 10)
+--- @usage :addSeries("output", " ", colors.red, colors.red, 10)
+--- @usage 
+--- @usage basalt.schedule(function()
+--- @usage     while true do
+--- @usage         graph:addPoint("input", math.random(1,100))
+--- @usage         graph:addPoint("output", math.random(1,100))
+--- @usage         sleep(2)
+--- @usage     end
+--- @usage end)
 --- @class Graph : VisualElement
 local Graph = setmetatable({}, VisualElement)
 Graph.__index = Graph
@@ -155,6 +166,27 @@ function Graph:setSeriesPointCount(name, count)
         end
     end
     self:updateRender()
+    return self
+end
+
+--- Clears all points from a series
+--- @shortDescription Clears all points from a series
+--- @param name? string The name of the series
+--- @return Graph self The graph instance
+function Graph:clear(seriesName)
+    local series = self.get("series")
+    if seriesName then
+        for _, s in ipairs(series) do
+            if s.name == seriesName then
+                s.data = {}
+                break
+            end
+        end
+    else
+        for _, s in ipairs(series) do
+            s.data = {}
+        end
+    end
     return self
 end
 

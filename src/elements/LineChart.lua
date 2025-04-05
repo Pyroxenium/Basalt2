@@ -5,7 +5,18 @@ local tHex = require("libraries/colorHex")
 --- @configDescription A line chart element based on the graph element
 ---@configDefault false
 
---- This is the line chart class. It is based on the graph element. It draws lines between points.
+--- The Line Chart element visualizes data series as connected line graphs. It plots points on a coordinate system and connects them with lines.
+--- @usage local chart = main:addLineChart()
+--- @usage :addSeries("input", " ", colors.green, colors.green, 10)
+--- @usage :addSeries("output", " ", colors.red, colors.red, 10)
+--- @usage 
+--- @usage basalt.schedule(function()
+--- @usage     while true do
+--- @usage         chart:addPoint("input", math.random(1,100))
+--- @usage         chart:addPoint("output", math.random(1,100))
+--- @usage         sleep(2)
+--- @usage     end
+--- @usage end)
 --- @class LineChart : Graph
 local LineChart = setmetatable({}, Graph)
 LineChart.__index = LineChart

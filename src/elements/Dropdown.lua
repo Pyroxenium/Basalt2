@@ -6,6 +6,12 @@ local tHex = require("libraries/colorHex")
 ---@configDefault false
 
 --- This is the dropdown class. It is a visual element that can show a list of selectable items in a dropdown menu.
+--- @usage local dropdown = main:addDropdown()
+--- @usage dropdown:setItems({
+--- @usage     {text = "Item 1", callback = function() basalt.LOGGER.debug("Item 1 selected") end},
+--- @usage     {text = "Item 2", callback = function() basalt.LOGGER.debug("Item 2 selected") end},
+--- @usage     {text = "Item 3", callback = function() basalt.LOGGER.debug("Item 3 selected") end},
+--- @usage })
 ---@class Dropdown : List
 local Dropdown = setmetatable({}, List)
 Dropdown.__index = Dropdown

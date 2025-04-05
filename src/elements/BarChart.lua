@@ -5,7 +5,18 @@ local tHex = require("libraries/colorHex")
 --- @configDescription A bar chart element based on the graph element.
 ---@configDefault false
 
---- This is the bar chart class. It is based on the graph element. It draws bar based points.
+--- The Bar Chart element is designed for visualizing data series as vertical bars. It displays multiple values as side-by-side bars where each bar's height represents its value.
+--- @usage local chart = main:addBarChart()
+--- @usage :addSeries("input", " ", colors.green, colors.green, 5)
+--- @usage :addSeries("output", " ", colors.red, colors.red, 5)
+--- @usage 
+--- @usage basalt.schedule(function()
+--- @usage     while true do
+--- @usage         chart:addPoint("input", math.random(1,100))
+--- @usage         chart:addPoint("output", math.random(1,100))
+--- @usage         sleep(2)
+--- @usage     end
+--- @usage end)
 --- @class BarChart : Graph
 local BarChart = setmetatable({}, BaseGraph)
 BarChart.__index = BarChart

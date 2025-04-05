@@ -6,7 +6,10 @@ local colorHex = require("libraries/colorHex")
 ---@configDescription The Display is a special element which uses the cc window API which you can use.
 ---@configDefault false
 
---- The Display is a special element where you can use the window (term) API to draw on a element, useful when you need to use external APIs.
+--- The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs.
+--- @usage local display = main:addDisplay() -- Create a display element
+--- @usage local displayWindow = display:getWindow() -- Get the window object of the display
+--- @usage displayWindow.write("Hello World!") -- Write "Hello World!" to the display
 ---@class Display : VisualElement
 local Display = setmetatable({}, VisualElement)
 Display.__index = Display
