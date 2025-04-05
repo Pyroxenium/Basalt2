@@ -13,6 +13,7 @@ minified_elementDirectory["Image"] = {}
 minified_elementDirectory["Flexbox"] = {}
 minified_elementDirectory["VisualElement"] = {}
 minified_elementDirectory["Scrollbar"] = {}
+minified_elementDirectory["Switch"] = {}
 minified_elementDirectory["Tree"] = {}
 minified_elementDirectory["Label"] = {}
 minified_elementDirectory["Button"] = {}
@@ -1029,6 +1030,13 @@ self:blit(1,i,bc,ba[self.get("foreground")],ba[self.get("background")])else
 self:blit(i,1,bc,ba[self.get("foreground")],ba[self.get("background")])end end
 for i=dc,dc+cb-1 do if cc then self:blit(1,i,db,ba[_c],ba[ac])else
 self:blit(i,1,db,ba[_c],ba[ac])end end end;return ca end
+project["elements/Switch.lua"] = function(...) local d=require("elementManager")
+local _a=d.getElement("VisualElement")local aa=setmetatable({},_a)aa.__index=aa
+aa.defineProperty(aa,"checked",{default=false,type="boolean",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
+aa.defineEvent(aa,"mouse_up")
+function aa.new()local ba=setmetatable({},aa):__init()
+ba.set("width",2)ba.set("height",1)ba.set("z",5)return ba end
+function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Switch")end;function aa:render()_a.render(self)end;return aa end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
@@ -1609,8 +1617,7 @@ bb={text=bb}ab[_b]=bb end;if
 not self.get("multiSelection")then
 for cb,db in ipairs(ab)do if type(db)=="table"then db.selected=false end end end
 bb.selected=not bb.selected;if bb.callback then bb.callback(self)end
-self:fireEvent("mouse_click",_a,aa,ba)self:fireEvent("select",_b,bb)self:updateRender()return
-true end end;return false end
+self:fireEvent("mouse_click",_a,aa,ba)self:fireEvent("select",_b,bb)self:updateRender()end;return true end;return false end
 function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then local ca=self.get("offset")
 local da=math.max(0,#
