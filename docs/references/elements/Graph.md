@@ -1,6 +1,22 @@
 # Graph : VisualElement
 This is the base class for all graph elements. It is a point based graph.
 
+### Usage
+ ```lua
+local graph = main:addGraph()
+:addSeries("input", " ", colors.green, colors.green, 10)
+:addSeries("output", " ", colors.red, colors.red, 10)
+
+basalt.schedule(function()
+while true do
+graph:addPoint("input", math.random(1,100))
+graph:addPoint("output", math.random(1,100))
+sleep(2)
+end
+end)
+```
+
+
 ## Properties
 
 |Property|Type|Default|Description|
@@ -16,6 +32,7 @@ This is the base class for all graph elements. It is a point based graph.
 |[Graph:addPoint](#graph-addpoint)|Graph|Adds a point to a series
 |[Graph:addSeries](#graph-addseries)|-|Adds a series to the graph
 |[Graph:changeSeriesVisibility](#graph-changeseriesvisibility)|Graph|Changes the visibility of a series
+|[Graph:clear](#graph-clear)|Graph|Clears all points from a series
 |[Graph:focusSeries](#graph-focusseries)|Graph|Focuses a series
 |[Graph:getSeries](#graph-getseries)|table?|Gets a series from the graph
 |[Graph:removeSeries](#graph-removeseries)|Graph|Removes a series from the graph
@@ -52,6 +69,15 @@ This is the base class for all graph elements. It is a point based graph.
 ### Parameters
 * `name` `string` The name of the series
 * `visible` `boolean` Whether the series should be visible
+
+### Returns
+* `Graph` `self` The graph instance
+
+## Graph:clear(name?)
+Clears all points from a series
+
+### Parameters
+* `name` *(optional)* `string` The name of the series
 
 ### Returns
 * `Graph` `self` The graph instance

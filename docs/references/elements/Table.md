@@ -2,6 +2,14 @@
 This is the table class. It provides a sortable data grid with customizable columns,
 row selection, and scrolling capabilities.
 
+### Usage
+ ```lua
+local people = container:addTable():setWidth(40)
+people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
+people:setData({{"Alice", 30, "USA"}, {"Bob", 25, "UK"}})
+```
+
+
 ## Properties
 
 |Property|Type|Default|Description|
@@ -32,11 +40,12 @@ row selection, and scrolling capabilities.
 |Table:mouse_scroll|boolean|Handles scrolling through the table data
 |Table:render|-|Renders the table with headers, data and scrollbar
 
-## Table:sortData(columnIndex)
+## Table:sortData(columnIndex, fn)
 Sorts the table data by column
 
 ### Parameters
 * `columnIndex` `number` The index of the column to sort by
+* `fn` `function?` Optional custom sorting function
 
 ### Returns
 * `Table` `self` The Table instance

@@ -1,6 +1,12 @@
 # Container : VisualElement
-The container class. It is a visual element that can contain other elements. It is the base class for all containers,
-like Frames, BaseFrames, and more.
+The Container class serves as a fundamental building block for organizing UI elements. It acts as a parent element that can hold and manage child elements, providing layout management, event propagation, and rendering capabilities. Used as base class for Frames, Windows, and other container-like elements.
+
+### Usage
+ ```lua
+local container = basalt.getMainFrame()
+container:addButton()  -- Add a child element
+```
+
 
 ## Properties
 

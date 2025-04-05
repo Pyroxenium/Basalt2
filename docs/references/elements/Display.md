@@ -1,5 +1,13 @@
 # Display : VisualElement
-The Display is a special element where you can use the window (term) API to draw on a element, useful when you need to use external APIs.
+The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs.
+
+### Usage
+ ```lua
+local display = main:addDisplay() -- Create a display element
+local displayWindow = display:getWindow() -- Get the window object of the display
+displayWindow.write("Hello World!") -- Write "Hello World!" to the display
+```
+
 
 ## Functions
 

@@ -22,9 +22,7 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Input:blur](#input-blur)|-|
-|[Input:focus](#input-focus)|-|
-|[Input:setCursor](#input-setcursor)|-|
+|[Input:setCursor](#input-setcursor)|-|Sets the cursor position and color
 |[Input:updateViewport](#input-updateviewport)|Input|Updates the input's viewport
 
 
@@ -32,17 +30,22 @@ cursor movement, text manipulation, placeholder text, and input validation.
 
 |Method|Returns|Description|
 |---|---|---|
+|Input:blur|-|Handles a blur event
 |Input:char|boolean|Handles char events
+|Input:focus|-|Handles a focus event
 |Input:init|Input|Initializes the Input instance
 |Input:key|boolean|Handles key events
 |Input:mouse_click|boolean|Handles mouse click events
 |Input:render|-|Renders the input element
 
-## Input:blur()
+## Input:setCursor(x, y, blink, color)
+Sets the cursor position and color
 
-## Input:focus()
-
-## Input:setCursor()
+### Parameters
+* `x` `number` The x position of the cursor
+* `y` `number` The y position of the cursor
+* `blink` `boolean` Whether the cursor should blink
+* `color` `number` The color of the cursor
 
 ## Input:updateViewport()
 Updates the input's viewport

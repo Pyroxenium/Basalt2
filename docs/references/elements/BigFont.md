@@ -1,5 +1,12 @@
 # BigFont : VisualElement
-The BigFont element is a text element that displays large text.
+The BigFont element is a text element that displays larger text. It uses Wojbie's BigFont API to render the text in a larger font size. Credits to Wojbie for the original API.
+
+### Usage
+ ```lua
+local font = main:addBigFont()
+font:setText("Hello World!")
+```
+
 
 ## Properties
 
