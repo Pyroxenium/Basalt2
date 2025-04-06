@@ -178,6 +178,14 @@ function BaseElement:applyTheme()
             end
         end
     end
+    if(self:isType("Container"))then
+        local children = self.get("children")
+        for _, child in ipairs(children) do
+            if(child and child.applyTheme)then
+                child:applyTheme()
+            end
+        end
+    end
     return self
 end
 
