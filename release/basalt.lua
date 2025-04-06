@@ -1338,6 +1338,9 @@ function ca:setSeriesPointCount(da,_b)local ab=self.get("series")
 for bb,cb in ipairs(ab)do if cb.name==da then
 cb.pointCount=_b;while#cb.data>_b do table.remove(cb.data,1)end
 break end end;self:updateRender()return self end
+function ca:clear(da)local _b=self.get("series")
+if da then for ab,bb in ipairs(_b)do
+if bb.name==da then bb.data={}break end end else for ab,bb in ipairs(_b)do bb.data={}end end;return self end
 function ca:render()aa.render(self)local da=self.get("width")
 local _b=self.get("height")local ab=self.get("minValue")local bb=self.get("maxValue")
 local cb=self.get("series")
@@ -1453,7 +1456,11 @@ local db,_c=cb.window.getSize()for y=1,_c do local ac,bc,cc=cb.window.getLine(y)
 self:blit(1,y,ac,bc,cc)end end end end;return _b end
 project["elements/Table.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"columns",{default={},type="table"})
+aa.defineProperty(aa,"columns",{default={},type="table",canTriggerRender=true,setter=function(ba,ca)local da={}
+for _b,ab in
+ipairs(ca)do if type(ab)=="string"then da[_b]={name=ab,width=#ab+1}elseif type(ab)=="table"then
+da[_b]={name=
+ab.name or"",width=ab.width or#ab.name+1}end end;return da end})
 aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true})
 aa.defineProperty(aa,"selectedRow",{default=nil,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"headerColor",{default=colors.blue,type="color"})
@@ -1466,10 +1473,12 @@ aa.defineEvent(aa,"mouse_scroll")
 function aa.new()local ba=setmetatable({},aa):__init()
 ba.set("width",30)ba.set("height",10)ba.set("z",5)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Table")return self end
-function aa:sortData(ba)local ca=self.get("data")
-local da=self.get("sortDirection")
-table.sort(ca,function(_b,ab)
-if da=="asc"then return _b[ba]<ab[ba]else return _b[ba]>ab[ba]end end)self.set("data",ca)return self end
+function aa:sortData(ba,ca)local da=self.get("data")
+local _b=self.get("sortDirection")
+if not ca then
+table.sort(da,function(ab,bb)
+if _b=="asc"then return ab[ba]<bb[ba]else return ab[ba]>bb[ba]end end)else
+table.sort(da,function(ab,bb)return ca(ab[ba],bb[ba])end)end;self.set("data",da)return self end
 function aa:mouse_click(ba,ca,da)
 if not d.mouse_click(self,ba,ca,da)then return false end;local _b,ab=self:getRelativePosition(ca,da)
 if ab==1 then local bb=1
@@ -1483,30 +1492,33 @@ self.set("sortDirection","asc")end;self:sortData(cb)break end;bb=bb+db.width end
 if ab>1 then local bb=ab-2 +self.get("scrollOffset")if bb>=0 and bb<#
 self.get("data")then
 self.set("selectedRow",bb+1)end end;return true end
-function aa:mouse_scroll(ba,ca,da)local _b=self.get("data")local ab=self.get("height")
-local bb=ab-2;local cb=math.max(0,#_b-bb+1)
+function aa:mouse_scroll(ba,ca,da)
+if(d.mouse_scroll(self,ba,ca,da))then local _b=self.get("data")
+local ab=self.get("height")local bb=ab-2;local cb=math.max(0,#_b-bb+1)
 local db=math.min(cb,math.max(0,
-self.get("scrollOffset")+ba))self.set("scrollOffset",db)return true end
+self.get("scrollOffset")+ba))self.set("scrollOffset",db)return true end;return false end
 function aa:render()d.render(self)local ba=self.get("columns")
 local ca=self.get("data")local da=self.get("selectedRow")
 local _b=self.get("sortColumn")local ab=self.get("scrollOffset")local bb=self.get("height")
-local cb=1
-for _c,ac in ipairs(ba)do local bc=ac.name;if _c==_b then
-bc=bc.. (self.get("sortDirection")=="asc"and
-"\30"or"\31")end
-self:textFg(cb,1,bc:sub(1,ac.width),self.get("headerColor"))cb=cb+ac.width end;local db=bb-2
-for y=2,bb do local _c=y-2 +ab;local ac=ca[_c+1]
-if ac and(_c+1)<=#ca then cb=1
-local bc=
-(_c+1)==da and self.get("selectedColor")or self.get("background")
-for cc,dc in ipairs(ba)do local _d=ac[cc]or""
-local ad=_d..string.rep(" ",dc.width-#_d)
-self:blit(cb,y,ad,string.rep(_a[self.get("foreground")],dc.width),string.rep(_a[bc],dc.width))cb=cb+dc.width end else
+local cb=self.get("width")local db=1
+for ac,bc in ipairs(ba)do local cc=bc.name;if ac==_b then
+cc=cc.. (
+self.get("sortDirection")=="asc"and"\30"or"\31")end
+self:textFg(db,1,cc:sub(1,bc.width),self.get("headerColor"))db=db+bc.width end;local _c=bb-2
+for y=2,bb do local ac=y-2 +ab;local bc=ca[ac+1]
+if bc and(ac+1)<=#ca then db=1
+local cc=
+(ac+1)==da and self.get("selectedColor")or self.get("background")
+for dc,_d in ipairs(ba)do local ad=tostring(bc[dc]or"")local bd=ad..
+string.rep(" ",_d.width-#ad)
+self:blit(db,y,string.sub(bd,1,cb-db+1),string.sub(string.rep(_a[self.get("foreground")],_d.width),1,
+cb-db+1),string.sub(string.rep(_a[cc],_d.width),1,
+cb-db+1))db=db+_d.width end else
 self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end
-if#ca>bb-2 then local _c=bb-2
-local ac=math.max(1,math.floor(_c* (bb-2)/#ca))local bc=#ca- (bb-2)+1;local cc=ab/bc
-local dc=2 +math.floor(cc* (_c-ac))if ab>=bc then dc=bb-ac end;for y=2,bb do
-self:blit(self.get("width"),y,"\127",_a[colors.gray],_a[colors.gray])end;for y=dc,math.min(bb,dc+ac-1)do
+if#ca>bb-2 then local ac=bb-2
+local bc=math.max(1,math.floor(ac* (bb-2)/#ca))local cc=#ca- (bb-2)+1;local dc=ab/cc
+local _d=2 +math.floor(dc* (ac-bc))if ab>=cc then _d=bb-bc end;for y=2,bb do
+self:blit(self.get("width"),y,"\127",_a[colors.gray],_a[colors.gray])end;for y=_d,math.min(bb,_d+bc-1)do
 self:blit(self.get("width"),y,"\127",_a[colors.white],_a[colors.white])end end end;return aa end
 project["elements/Slider.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
@@ -1543,20 +1555,29 @@ if ba then self:textFg(1,1,_b,self.get("barColor"))
 self:textBg(ca,1," ",self.get("sliderColor"))else
 for y=1,aa do self:textFg(1,y,da,self.get("barColor"))end
 self:textFg(1,ca,"\140",self.get("sliderColor"))end end;return d end
-project["elements/ProgressBar.lua"] = function(...) local c=require("elements/VisualElement")
-local d=setmetatable({},c)d.__index=d
-d.defineProperty(d,"progress",{default=0,type="number",canTriggerRender=true})
-d.defineProperty(d,"showPercentage",{default=false,type="boolean"})
-d.defineProperty(d,"progressColor",{default=colors.black,type="color"})
-function d.new()local _a=setmetatable({},d):__init()
-_a.set("width",10)_a.set("height",1)return _a end
-function d:init(_a,aa)c.init(self,_a,aa)self.set("type","ProgressBar")end
-function d:render()c.render(self)local _a=self.get("width")
-local aa=math.min(100,math.max(0,self.get("progress")))local ba=math.floor((_a*aa)/100)for i=1,self.get("height")do
-self:textBg(1,i,string.rep(" ",ba),self.get("progressColor"))end;if self.get("showPercentage")then local ca=
-tostring(aa).."%"
-local da=math.floor((_a-#ca)/2)+1
-self:textFg(da,1,ca,self.get("foreground"))end end;return d end
+project["elements/ProgressBar.lua"] = function(...) local d=require("elements/VisualElement")
+local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
+aa.defineProperty(aa,"progress",{default=0,type="number",canTriggerRender=true})
+aa.defineProperty(aa,"showPercentage",{default=false,type="boolean"})
+aa.defineProperty(aa,"progressColor",{default=colors.black,type="color"})
+aa.defineProperty(aa,"direction",{default="right",type="string"})
+function aa.new()local ba=setmetatable({},aa):__init()
+ba.set("width",25)ba.set("height",3)return ba end;function aa:init(ba,ca)d.init(self,ba,ca)
+self.set("type","ProgressBar")end
+function aa:render()d.render(self)
+local ba=self.get("width")local ca=self.get("height")
+local da=math.min(100,math.max(0,self.get("progress")))local _b=math.floor((ba*da)/100)
+local ab=math.floor((ca*da)/100)local bb=self.get("direction")
+local cb=self.get("progressColor")
+if bb=="right"then
+self:multiBlit(1,1,_b,ca," ",_a[self.get("foreground")],_a[cb])elseif bb=="left"then
+self:multiBlit(ba-_b+1,1,_b,ca," ",_a[self.get("foreground")],_a[cb])elseif bb=="up"then
+self:multiBlit(1,ca-ab+1,ba,ab," ",_a[self.get("foreground")],_a[cb])elseif bb=="down"then
+self:multiBlit(1,1,ba,ab," ",_a[self.get("foreground")],_a[cb])end
+if self.get("showPercentage")then local db=tostring(da).."%"local _c=math.floor(
+(ba-#db)/2)+1
+local ac=math.floor((ca-1)/2)+1
+self:textFg(_c,ac,db,self.get("foreground"))end end;return aa end
 project["elements/Display.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")
 local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
