@@ -1815,9 +1815,11 @@ c_a[a_a]:dispatchEvent(aca,...)elseif(cba[aca])then
 if(b_a~=nil)then b_a:dispatchEvent(aca,...)end else
 for bca,cca in pairs(c_a)do cca:dispatchEvent(aca,...)end end
 for bca,cca in ipairs(__a._schedule)do
+if
+(coroutine.status(cca.coroutine)=="suspended")then
 if(aca==cca.filter)or(cca.filter==nil)then
 local dca,_da=coroutine.resume(cca.coroutine,aca,...)
-if(not dca)then bd.header="Basalt Schedule Error"bd.error(_da)end;cca.filter=_da end;if(coroutine.status(cca.coroutine)=="dead")then
+if(not dca)then bd.header="Basalt Schedule Error"bd.error(_da)end;cca.filter=_da end end;if(coroutine.status(cca.coroutine)=="dead")then
 __a.removeSchedule(cca.coroutine)end end;if __a._events[aca]then
 for bca,cca in ipairs(__a._events[aca])do cca(...)end end end;local function _ca()
 for aca,bca in pairs(c_a)do bca:render()bca:postRender()end end
