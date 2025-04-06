@@ -195,6 +195,10 @@ end)
 
 --- This module provides reactive functionality for elements, it adds no new functionality for elements. 
 --- It is used to evaluate expressions in property values and update the element when the expression changes.
+--- @usage local button = main:addButton({text="Exit"})
+--- @usage button:setX("{parent.x - 12}")
+--- @usage button:setBackground("{self.clicked and colors.red or colors.green}")
+--- @usage button:setWidth("{self.text:len() + 2}")
 ---@class Reactive
 local BaseElement = {}
 

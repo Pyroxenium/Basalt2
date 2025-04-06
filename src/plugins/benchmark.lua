@@ -39,9 +39,6 @@ end
 
 ---@splitClass
 
---- This is the benchmark plugin. It provides performance measurement tools for elements and methods,
---- with support for hierarchical profiling and detailed statistics.
---- The following methods are available for BaseElement
 ---@class BaseElement
 local BaseElement = {}
 
@@ -298,8 +295,10 @@ function Container:stopContainerBenchmark(methodName)
     return self
 end
 
---- Benchmark API methods
----@class BenchmarkAPI
+--- This is the benchmark plugin. It provides performance measurement tools for elements and methods,
+--- with support for hierarchical profiling and detailed statistics. The plugin is meant to be used for very big projects
+--- where performance is critical. It allows you to measure the time taken by specific methods and log the results.
+---@class Benchmark
 local API = {}
 
 --- Starts a custom benchmark

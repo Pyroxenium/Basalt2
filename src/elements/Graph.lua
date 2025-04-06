@@ -55,6 +55,7 @@ end
 --- @param bgCol number The background color of the series
 --- @param fgCol number The foreground color of the series
 --- @param pointCount number The number of points in the series
+--- @return Graph self The graph instance
 function Graph:addSeries(name, symbol, bgCol, fgCol, pointCount)
     local series = self.get("series")
     table.insert(series, {

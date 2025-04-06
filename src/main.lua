@@ -238,13 +238,15 @@ local function updateEvent(event, ...)
     end
 
     for _, func in ipairs(basalt._schedule) do
-        if(event==func.filter)or(func.filter==nil)then
-            local ok, result = coroutine.resume(func.coroutine, event, ...)
-            if(not ok)then
-                errorManager.header = "Basalt Schedule Error"
-                errorManager.error(result)
+        if(coroutine.status(func.coroutine)=="suspended")then
+            if(event==func.filter)or(func.filter==nil)then
+                local ok, result = coroutine.resume(func.coroutine, event, ...)
+                if(not ok)then
+                    errorManager.header = "Basalt Schedule Error"
+                    errorManager.error(result)
+                end
+                func.filter = result
             end
-            func.filter = result
         end
         if(coroutine.status(func.coroutine)=="dead")then
             basalt.removeSchedule(func.coroutine)
