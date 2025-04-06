@@ -222,7 +222,7 @@ local keyEvents = {
 }
 
 local function updateEvent(event, ...)
-    if(event=="terminate")then basalt.stop() end
+    if(event=="terminate")then basalt.stop() return end
     if lazyElementsEventHandler(event, ...) then return end
 
     if(mouseEvents[event])then
@@ -272,6 +272,7 @@ end
 --- @vararg any The event to run with
 function basalt.update(...)
     local f = function(...)
+        basalt.isRunning = true
         updateEvent(...)
         renderFrames()
     end
@@ -280,6 +281,7 @@ function basalt.update(...)
         errorManager.header = "Basalt Runtime Error"
         errorManager.error(err)
     end
+    basalt.isRunning = false
 end
 
 --- Stops the Basalt runtime

@@ -1,3 +1,4 @@
+local errorManager = require("errorManager")
 local defaultTheme = {
     default = {
         background = colors.lightGray,
@@ -160,7 +161,21 @@ function BaseElement:applyTheme()
     local styles = self:getTheme()
     if(styles ~= nil) then
         for prop, value in pairs(styles) do
-            self.set(prop, value)
+            local config = self._properties[prop]
+            if(config)then
+                if((config.type)=="color")then
+                    if(type(value)=="string")then
+                        if(colors[value])then
+                            value = colors[value]
+                        else
+                            errorManager.error("Invalid color '" .. value .. "' for property '" .. prop .. "' in theme for " .. self._values.type)
+                        end
+                    end
+                end
+                self.set(prop, value)
+            else
+                errorManager.error("Invalid property '" .. prop .. "' in theme for " .. self._values.type)
+            end
         end
     end
     return self
@@ -205,6 +220,11 @@ function ThemeAPI.loadTheme(path)
         local content = file.readAll()
         file.close()
         themes.default = textutils.unserializeJSON(content)
+        if not themes.default then
+            errorManager.error("Failed to load theme from " .. path)
+        end
+    else
+        errorManager.error("Could not open theme file: " .. path)
     end
 end
 
