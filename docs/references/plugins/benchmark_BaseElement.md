@@ -1,7 +1,4 @@
 # BaseElement
-This is the benchmark plugin. It provides performance measurement tools for elements and methods,
-with support for hierarchical profiling and detailed statistics.
-The following methods are available for BaseElement
 
 ## Functions
 

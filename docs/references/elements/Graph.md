@@ -30,7 +30,7 @@ end)
 |Method|Returns|Description|
 |---|---|---|
 |[Graph:addPoint](#graph-addpoint)|Graph|Adds a point to a series
-|[Graph:addSeries](#graph-addseries)|-|Adds a series to the graph
+|[Graph:addSeries](#graph-addseries)|Graph|Adds a series to the graph
 |[Graph:changeSeriesVisibility](#graph-changeseriesvisibility)|Graph|Changes the visibility of a series
 |[Graph:clear](#graph-clear)|Graph|Clears all points from a series
 |[Graph:focusSeries](#graph-focusseries)|Graph|Focuses a series
@@ -63,6 +63,9 @@ end)
 * `bgCol` `number` The background color of the series
 * `fgCol` `number` The foreground color of the series
 * `pointCount` `number` The number of points in the series
+
+### Returns
+* `Graph` `self` The graph instance
 
 ## Graph:changeSeriesVisibility(name, visible)
 

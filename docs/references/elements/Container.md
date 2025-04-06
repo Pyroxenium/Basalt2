@@ -1,5 +1,5 @@
 # Container : VisualElement
-The Container class serves as a fundamental building block for organizing UI elements. It acts as a parent element that can hold and manage child elements, providing layout management, event propagation, and rendering capabilities. Used as base class for Frames, Windows, and other container-like elements.
+The Container class serves as a fundamental building block for organizing UI elements. It acts as a parent element that can hold and manage child elements.
 
 ### Usage
  ```lua

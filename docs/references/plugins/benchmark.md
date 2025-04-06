@@ -1,5 +1,7 @@
-# BenchmarkAPI
-Benchmark API methods
+# Benchmark
+This is the benchmark plugin. It provides performance measurement tools for elements and methods,
+with support for hierarchical profiling and detailed statistics. The plugin is meant to be used for very big projects
+where performance is critical. It allows you to measure the time taken by specific methods and log the results.
 
 ## Functions
 
