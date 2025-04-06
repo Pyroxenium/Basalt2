@@ -1808,8 +1808,8 @@ function __a.removeSchedule(aca)
 for bca,cca in ipairs(__a._schedule)do if(cca.coroutine==aca)then
 table.remove(__a._schedule,bca)return true end end;return false end
 local bba={mouse_click=true,mouse_up=true,mouse_scroll=true,mouse_drag=true}local cba={key=true,key_up=true,char=true}
-local function dba(aca,...)
-if(aca=="terminate")then __a.stop()end;if aba(aca,...)then return end
+local function dba(aca,...)if(aca=="terminate")then __a.stop()
+return end;if aba(aca,...)then return end
 if(bba[aca])then
 c_a[a_a]:dispatchEvent(aca,...)elseif(cba[aca])then
 if(b_a~=nil)then b_a:dispatchEvent(aca,...)end else
@@ -1823,9 +1823,10 @@ if(not dca)then bd.header="Basalt Schedule Error"bd.error(_da)end;cca.filter=_da
 __a.removeSchedule(cca.coroutine)end end;if __a._events[aca]then
 for bca,cca in ipairs(__a._events[aca])do cca(...)end end end;local function _ca()
 for aca,bca in pairs(c_a)do bca:render()bca:postRender()end end
-function __a.update(...)
-local aca=function(...)dba(...)_ca()end;local bca,cca=pcall(aca,...)if not(bca)then bd.header="Basalt Runtime Error"
-bd.error(cca)end end;function __a.stop()__a.isRunning=false;term.clear()
+function __a.update(...)local aca=function(...)__a.isRunning=true
+dba(...)_ca()end
+local bca,cca=pcall(aca,...)
+if not(bca)then bd.header="Basalt Runtime Error"bd.error(cca)end;__a.isRunning=false end;function __a.stop()__a.isRunning=false;term.clear()
 term.setCursorPos(1,1)end
 function __a.run(aca)if(__a.isRunning)then
 bd.error("Basalt is already running")end;if(aca==nil)then __a.isRunning=true else
@@ -2402,42 +2403,55 @@ function db.getStats(_c)local ac=da[_c]if not ac then return nil end;return
 {averageTime=ac.totalTime/ac.calls,totalTime=ac.totalTime,calls=ac.calls,minTime=ac.minTime,maxTime=ac.maxTime,lastTime=ac.lastTime}end;function db.clear(_c)da[_c]=nil end;function db.clearAll()for _c,ac in pairs(da)do
 if ac.custom then da[_c]=nil end end end;return
 {BaseElement=bb,Container=cb,API=db} end
-project["plugins/theme.lua"] = function(...) 
-local _b={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local ab={default=_b}local bb="default"
-local cb={hooks={postInit={pre=function(dc)dc:applyTheme()end}}}
-function cb.____getElementPath(dc,_d)if _d then table.insert(_d,1,dc._values.type)else
-_d={dc._values.type}end;local ad=dc.parent;if ad then return
-ad.____getElementPath(ad,_d)else return _d end end
-local function db(dc,_d)local ad=dc
-for i=1,#_d do local bd=false;local cd=_d[i]for dd,__a in ipairs(cd)do
-if ad[__a]then ad=ad[__a]bd=true;break end end;if not bd then return nil end end;return ad end
-local function _c(dc,_d)local ad={}
-if dc.default then for bd,cd in pairs(dc.default)do
-if type(cd)~="table"then ad[bd]=cd end end;if dc.default[_d]then
-for bd,cd in
-pairs(dc.default[_d])do if type(cd)~="table"then ad[bd]=cd end end end end;return ad end
-local function ac(dc,_d,ad,bd,cd)
+project["plugins/theme.lua"] = function(...) local ab=require("errorManager")
+local bb={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local cb={default=bb}local db="default"
+local _c={hooks={postInit={pre=function(ad)ad:applyTheme()end}}}
+function _c.____getElementPath(ad,bd)if bd then table.insert(bd,1,ad._values.type)else
+bd={ad._values.type}end;local cd=ad.parent;if cd then return
+cd.____getElementPath(cd,bd)else return bd end end
+local function ac(ad,bd)local cd=ad
+for i=1,#bd do local dd=false;local __a=bd[i]for a_a,b_a in ipairs(__a)do
+if cd[b_a]then cd=cd[b_a]dd=true;break end end;if not dd then return nil end end;return cd end
+local function bc(ad,bd)local cd={}
+if ad.default then for dd,__a in pairs(ad.default)do
+if type(__a)~="table"then cd[dd]=__a end end;if ad.default[bd]then
+for dd,__a in
+pairs(ad.default[bd])do if type(__a)~="table"then cd[dd]=__a end end end end;return cd end
+local function cc(ad,bd,cd,dd,__a)
 if
-_d.default and _d.default.names and _d.default.names[bd]then for dd,__a in pairs(_d.default.names[bd])do
-if type(__a)~="table"then dc[dd]=__a end end end
+bd.default and bd.default.names and bd.default.names[dd]then for a_a,b_a in pairs(bd.default.names[dd])do
+if type(b_a)~="table"then ad[a_a]=b_a end end end
 if
 
-_d.default and _d.default[ad]and _d.default[ad].names and _d.default[ad].names[bd]then
-for dd,__a in pairs(_d.default[ad].names[bd])do if
-type(__a)~="table"then dc[dd]=__a end end end;if cd and cd.names and cd.names[bd]then
-for dd,__a in pairs(cd.names[bd])do if type(__a)~=
-"table"then dc[dd]=__a end end end end
-local function bc(dc,_d,ad,bd)local cd={}local dd=db(dc,_d)
-if dd then for __a,a_a in pairs(dd)do
-if type(a_a)~="table"then cd[__a]=a_a end end end;if next(cd)==nil then cd=_c(dc,ad)end;ac(cd,dc,ad,bd,dd)
-return cd end
-function cb:applyTheme()local dc=self:getTheme()if(dc~=nil)then
-for _d,ad in pairs(dc)do self.set(_d,ad)end end;return self end
-function cb:getTheme()local dc=self:____getElementPath()
-local _d=self.get("type")local ad=self.get("name")return bc(ab[bb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)ab.default=dc end
-function cc.getTheme()return ab.default end
-function cc.loadTheme(dc)local _d=fs.open(dc,"r")if _d then local ad=_d.readAll()_d.close()
-ab.default=textutils.unserializeJSON(ad)end end;return{BaseElement=cb,API=cc} end
+bd.default and bd.default[cd]and bd.default[cd].names and bd.default[cd].names[dd]then
+for a_a,b_a in pairs(bd.default[cd].names[dd])do if
+type(b_a)~="table"then ad[a_a]=b_a end end end;if __a and __a.names and __a.names[dd]then
+for a_a,b_a in pairs(__a.names[dd])do if
+type(b_a)~="table"then ad[a_a]=b_a end end end end
+local function dc(ad,bd,cd,dd)local __a={}local a_a=ac(ad,bd)
+if a_a then for b_a,c_a in pairs(a_a)do
+if type(c_a)~="table"then __a[b_a]=c_a end end end;if next(__a)==nil then __a=bc(ad,cd)end
+cc(__a,ad,cd,dd,a_a)return __a end
+function _c:applyTheme()local ad=self:getTheme()
+if(ad~=nil)then
+for bd,cd in pairs(ad)do
+local dd=self._properties[bd]
+if(dd)then
+if( (dd.type)=="color")then
+if(type(cd)=="string")then if(colors[cd])then cd=colors[cd]else
+ab.error(
+"Invalid color '"..cd..
+"' for property '"..bd.."' in theme for "..self._values.type)end end end;self.set(bd,cd)else
+ab.error("Invalid property '"..bd..
+"' in theme for "..self._values.type)end end end;return self end
+function _c:getTheme()local ad=self:____getElementPath()
+local bd=self.get("type")local cd=self.get("name")return dc(cb[db],ad,bd,cd)end;local _d={}function _d.setTheme(ad)cb.default=ad end
+function _d.getTheme()return cb.default end
+function _d.loadTheme(ad)local bd=fs.open(ad,"r")
+if bd then local cd=bd.readAll()bd.close()
+cb.default=textutils.unserializeJSON(cd)if not cb.default then
+ab.error("Failed to load theme from "..ad)end else
+ab.error("Could not open theme file: "..ad)end end;return{BaseElement=_c,API=_d} end
 project["elementManager.lua"] = function(...) local ab=table.pack(...)
 local bb=fs.getDir(ab[2]or"basalt")local cb=ab[1]if(bb==nil)then
 error("Unable to find directory "..
