@@ -156,8 +156,9 @@ end
 --- Applies the current theme to this element
 --- @shortDescription Applies theme styles to the element
 --- @param self BaseElement The element to apply theme to
+--- @param applyToChildren boolean? Whether to apply theme to child elements (default: true)
 --- @return BaseElement self The element instance
-function BaseElement:applyTheme()
+function BaseElement:applyTheme(applyToChildren)
     local styles = self:getTheme()
     if(styles ~= nil) then
         for prop, value in pairs(styles) do
@@ -167,8 +168,6 @@ function BaseElement:applyTheme()
                     if(type(value)=="string")then
                         if(colors[value])then
                             value = colors[value]
-                        else
-                            errorManager.error("Invalid color '" .. value .. "' for property '" .. prop .. "' in theme for " .. self._values.type)
                         end
                     end
                 end
@@ -178,11 +177,13 @@ function BaseElement:applyTheme()
             end
         end
     end
-    if(self:isType("Container"))then
-        local children = self.get("children")
-        for _, child in ipairs(children) do
-            if(child and child.applyTheme)then
-                child:applyTheme()
+    if(applyToChildren~=false)then
+        if(self:isType("Container"))then
+            local children = self.get("children")
+            for _, child in ipairs(children) do
+                if(child and child.applyTheme)then
+                    child:applyTheme()
+                end
             end
         end
     end
