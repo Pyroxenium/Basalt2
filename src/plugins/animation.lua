@@ -411,8 +411,6 @@ Animation.registerAnimation("scrollText", {
     end
 })
 
----@splitClass
-
 --- Adds additional methods for VisualElement when adding animation plugin
 --- @class VisualElement
 local VisualElement = {hooks={}}

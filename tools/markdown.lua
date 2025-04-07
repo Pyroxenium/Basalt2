@@ -18,7 +18,8 @@ local commentTypes = {
     "protected",
     "field",
     "vararg",
-    "splitClass"
+    "splitClass",
+    "title"
 }
 
 local function extractComment(line)
@@ -64,13 +65,13 @@ local function getFunctionName(line)
     return line:match(pattern)
 end
 
-function markdown.parse(content)
+function markdown.parse(content, file)
     local blocks = {}
     local properties = {}
     local combinedProperties = {}
     local events = {}
     local fields = {}
-    local currentBlock = {type = "comment", desc = {}}
+    local currentBlock = {type = "comment", desc = {}, file = file}
     local skipNextFunction = false
     local currentClass = "None"
     local splitNextClass = false
@@ -79,7 +80,7 @@ function markdown.parse(content)
         if line:match("^%s*$") or line == "" then
             if hasBlockContent(currentBlock) then
                 table.insert(blocks, currentBlock)
-                currentBlock = {type = "comment", desc = {}}
+                currentBlock = {type = "comment", desc = {}, file = file}
             end
         else
             local comment, isDoc = extractComment(line)
@@ -94,6 +95,9 @@ function markdown.parse(content)
                     splitNextClass = true
                 elseif(commentType == "protected")then
                     currentBlock.protected = true
+                elseif(commentType == "title")then
+                    currentBlock.title = value
+                    currentBlock.type = "title"
                 else
                     if(commentType == "module")then
                         currentBlock.usageIsActive = false
@@ -435,6 +439,13 @@ local function markdownClass(block)
     return output
 end
 
+local function markdownClassGroup(blocks)
+
+end
+
+local log = require("Basalt2/src/log")
+log._enabled = true
+log._logToFile = true
 function markdown.makeMarkdown()
     local classes = {}
     local output = ""
@@ -447,6 +458,7 @@ function markdown.makeMarkdown()
             output = output .. markdownModule(block)]]
         elseif block.type == "class" then
             classes[block.className] = {content=markdownClass(block), data=block}
+            log.debug("Class found: " .. block.className)
         end
     end
 
@@ -462,7 +474,7 @@ function markdown.parseFile(source)
     local input = file:read("*a")
     file:close()
 
-    return markdown.parse(input)
+    return markdown.parse(input, source)
 end
 
 function markdown.saveToFile(source, output)

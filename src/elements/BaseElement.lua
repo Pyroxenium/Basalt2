@@ -81,6 +81,10 @@ end
 --- @return table self The initialized instance
 --- @protected
 function BaseElement:init(props, basalt)
+    if self._initialized then
+        return self
+    end
+    self._initialized = true
     self._props = props
     self._values.id = uuid()
     self.basalt = basalt
@@ -122,6 +126,10 @@ end
 --- @return table self The BaseElement instance
 --- @protected
 function BaseElement:postInit()
+    if self._postInitialized then
+        return self
+    end
+    self._postInitialized = true
     if(self._props)then
         for k,v in pairs(self._props)do
             self.set(k, v)

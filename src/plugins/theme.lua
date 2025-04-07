@@ -39,6 +39,8 @@ local themes = {
     default = defaultTheme
 }
 
+---@title title
+
 local currentTheme = "default"
 
 --- This is the theme plugin. It provides a theming system that allows for consistent styling across elements

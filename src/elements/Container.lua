@@ -142,6 +142,7 @@ function Container:addChild(child)
 
     table.insert(self._values.children, child)
     child.parent = self
+    child:postInit()
     self.set("childrenSorted", false)
     self:registerChildrenEvents(child)
     return self
