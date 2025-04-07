@@ -2432,21 +2432,18 @@ local function dc(ad,bd,cd,dd)local __a={}local a_a=ac(ad,bd)
 if a_a then for b_a,c_a in pairs(a_a)do
 if type(c_a)~="table"then __a[b_a]=c_a end end end;if next(__a)==nil then __a=bc(ad,cd)end
 cc(__a,ad,cd,dd,a_a)return __a end
-function _c:applyTheme()local ad=self:getTheme()
-if(ad~=nil)then
-for bd,cd in pairs(ad)do
-local dd=self._properties[bd]
-if(dd)then
-if( (dd.type)=="color")then
-if(type(cd)=="string")then if(colors[cd])then cd=colors[cd]else
-ab.error(
-"Invalid color '"..cd..
-"' for property '"..bd.."' in theme for "..self._values.type)end end end;self.set(bd,cd)else
-ab.error("Invalid property '"..bd..
-"' in theme for "..self._values.type)end end end;if(self:isType("Container"))then local bd=self.get("children")
-for cd,dd in ipairs(bd)do if(dd and
-dd.applyTheme)then dd:applyTheme()end end end
-return self end
+function _c:applyTheme(ad)local bd=self:getTheme()
+if(bd~=nil)then
+for cd,dd in pairs(bd)do
+local __a=self._properties[cd]
+if(__a)then
+if( (__a.type)=="color")then if(type(dd)=="string")then
+if(colors[dd])then dd=colors[dd]end end end;self.set(cd,dd)else
+ab.error("Invalid property '"..cd..
+"' in theme for "..self._values.type)end end end
+if(ad~=false)then if(self:isType("Container"))then local cd=self.get("children")
+for dd,__a in
+ipairs(cd)do if(__a and __a.applyTheme)then __a:applyTheme()end end end end;return self end
 function _c:getTheme()local ad=self:____getElementPath()
 local bd=self.get("type")local cd=self.get("name")return dc(cb[db],ad,bd,cd)end;local _d={}function _d.setTheme(ad)cb.default=ad end
 function _d.getTheme()return cb.default end
