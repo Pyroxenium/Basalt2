@@ -2443,7 +2443,10 @@ ab.error(
 "Invalid color '"..cd..
 "' for property '"..bd.."' in theme for "..self._values.type)end end end;self.set(bd,cd)else
 ab.error("Invalid property '"..bd..
-"' in theme for "..self._values.type)end end end;return self end
+"' in theme for "..self._values.type)end end end;if(self:isType("Container"))then local bd=self.get("children")
+for cd,dd in ipairs(bd)do if(dd and
+dd.applyTheme)then dd:applyTheme()end end end
+return self end
 function _c:getTheme()local ad=self:____getElementPath()
 local bd=self.get("type")local cd=self.get("name")return dc(cb[db],ad,bd,cd)end;local _d={}function _d.setTheme(ad)cb.default=ad end
 function _d.getTheme()return cb.default end
