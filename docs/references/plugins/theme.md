@@ -10,11 +10,12 @@ with support for inheritance, named styles, and dynamic theme switching.
 |[BaseElement:getTheme](#baseelement-gettheme)|table|Gets theme properties for the element
 
 
-## BaseElement:applyTheme(self)
+## BaseElement:applyTheme(self, applyToChildren)
 Applies the current theme to this element
 
 ### Parameters
 * `self` `BaseElement` The element to apply theme to
+* `applyToChildren` `boolean?` Whether to apply theme to child elements (default: true)
 
 ### Returns
 * `BaseElement` `self` The element instance
