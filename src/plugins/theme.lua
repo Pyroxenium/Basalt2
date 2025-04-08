@@ -50,6 +50,9 @@ local BaseElement = {
     hooks = {
         postInit = {
             pre = function(self)
+                if self._postInitialized then
+                    return self
+                end
                 self:applyTheme()
             end
         }

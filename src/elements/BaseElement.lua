@@ -252,22 +252,12 @@ end
 --- Destroys the element and cleans up all references
 --- @shortDescription Destroys the element and cleans up all references
 function BaseElement:destroy()
-    if self.parent then
-        self.parent:removeChild(self)
-    end
-
     for event in pairs(self._registeredEvents) do
         self:listenEvent(event, false)
     end
-    self._values.eventCallbacks = {}
-
-    self._props = nil
-    self._values = nil
-    self.basalt = nil
-    self.parent = nil
-    self.__index = nil
-
-    setmetatable(self, nil)
+    if(self.parent) then
+        self.parent:removeChild(self)
+    end
 end
 
 --- Requests a render update for this element

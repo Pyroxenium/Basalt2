@@ -41,9 +41,7 @@ function Canvas:addCommand(drawFn)
 end
 
 function Canvas:setCommand(index, drawFn)
-    if index > 0 and index <= #self.commands then
-        self.commands[index] = drawFn
-    end
+    self.commands[index] = drawFn
     return self
 end
 
@@ -92,12 +90,7 @@ function Canvas:rect(x, y, width, height, char, fg, bg)
         local bgLine = _bg and sub(_bg:rep(_width), 1, _width)
         local fgLine = _fg and sub(_fg:rep(_width), 1, _width)
         local textLine = _char and sub(_char:rep(_width), 1, _width)
-
-        if _bg and _fg and _char then
-            render:multiBlit(_x, _y, _width, _height, textLine, fgLine, bgLine)
-            return
-        end
-
+        
         for i = 0, _height - 1 do
             if _bg then render:drawBg(_x, _y + i, bgLine) end
             if _fg then render:drawFg(_x, _y + i, fgLine) end
@@ -261,7 +254,7 @@ end
 function VisualElement.hooks.render(self)
     local canvas = self.get("canvas")
     if canvas and #canvas.commands.pre > 0 then
-        for _, cmd in ipairs(canvas.commands.pre) do
+        for _, cmd in pairs(canvas.commands.pre) do
             cmd(self)
         end
     end
@@ -270,7 +263,7 @@ end
 function VisualElement.hooks.postRender(self)
     local canvas = self.get("canvas")
     if canvas and #canvas.commands.post > 0 then
-        for _, cmd in ipairs(canvas.commands.post) do
+        for _, cmd in pairs(canvas.commands.post) do
             cmd(self)
         end
     end

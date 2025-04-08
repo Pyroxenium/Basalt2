@@ -87,7 +87,7 @@ function Input:char(char)
 
     local relPos = self.get("cursorPos") - self.get("viewOffset")
     self:setCursor(relPos, 1, true, self.get("cursorColor") or self.get("foreground"))
-
+    VisualElement.char(self, char)
     return true
 end
 
@@ -127,6 +127,7 @@ function Input:key(key)
 
     local relativePos = self.get("cursorPos") - self.get("viewOffset")
     self:setCursor(relativePos, 1, true, self.get("cursorColor") or self.get("foreground"))
+    VisualElement.key(self, key)
     return true
 end
 

@@ -23,10 +23,11 @@ BasaltProgram.__index = BasaltProgram
 local newPackage = dofile("rom/modules/main/cc/require.lua").make
 
 ---@private
-function BasaltProgram.new()
+function BasaltProgram.new(program)
     local self = setmetatable({}, BasaltProgram)
     self.env = {}
     self.args = {}
+    self.program = program
     return self
 end
 
@@ -62,6 +63,13 @@ function BasaltProgram:run(path, width, height)
             local ok, result = coroutine.resume(self.coroutine)
             term.redirect(current)
             if not ok then
+                if self.onError then
+                    local result = self.onError(self.program, result)
+                    if(result==false)then
+                        self.filter = nil
+                        return
+                    end
+                end
                 errorManager.header = "Basalt Program Error ".. path
                 errorManager.error(result)
             end
@@ -95,6 +103,13 @@ function BasaltProgram:resume(event, ...)
     if ok then
         self.filter = result
     else
+        if self.onError then
+            local result = self.onError(self.program, result)
+            if(result==false)then
+                self.filter = nil
+                return ok, result
+            end
+        end
         errorManager.header = "Basalt Program Error"
         errorManager.error(result)
     end
@@ -103,7 +118,9 @@ end
 
 ---@private
 function BasaltProgram:stop()
-
+    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then return end
+    coroutine.close(self.coroutine)
+    self.coroutine = nil
 end
 
 --- @shortDescription Creates a new Program instance
@@ -135,10 +152,32 @@ end
 function Program:execute(path)
     self.set("path", path)
     self.set("running", true)
-    local program = BasaltProgram.new()
+    local program = BasaltProgram.new(self)
     self.set("program", program)
     program:run(path, self.get("width"), self.get("height"))
     self:updateRender()
+    return self
+end
+
+--- Sends an event to the program
+--- @shortDescription Sends an event to the program
+--- @param event string The event to send
+--- @param ... any The event arguments
+--- @return Program self The Program instance
+function Program:sendEvent(event, ...)
+    self:dispatchEvent(event, ...)
+    return self
+end
+
+--- Registers a callback for the program's error event, if the function returns false, the program won't stop
+--- @shortDescription Registers a callback for the program's error event
+--- @param fn function The callback function to register
+--- @return Program self The Program instance
+function Program:onError(fn)
+    local program = self.get("program")
+    if program then
+        program.onError = fn
+    end
     return self
 end
 

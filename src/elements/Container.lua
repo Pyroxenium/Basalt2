@@ -139,12 +139,13 @@ function Container:addChild(child)
     if child == self then
         error("Cannot add container to itself")
     end
-
-    table.insert(self._values.children, child)
-    child.parent = self
-    child:postInit()
-    self.set("childrenSorted", false)
-    self:registerChildrenEvents(child)
+    if(child ~= nil)then
+        table.insert(self._values.children, child)
+        child.parent = self
+        child:postInit()
+        self.set("childrenSorted", false)
+        self:registerChildrenEvents(child)
+    end
     return self
 end
 
@@ -254,9 +255,11 @@ end
 --- @param child table The child to unregister events for
 --- @return Container self The container instance
 function Container:removeChildrenEvents(child)
-    if(child._registeredEvents == nil)then return self end
-    for event in pairs(child._registeredEvents) do
-        self:unregisterChildEvent(child, event)
+    if child ~= nil then
+        if(child._registeredEvents == nil)then return self end
+        for event in pairs(child._registeredEvents) do
+            self:unregisterChildEvent(child, event)
+        end
     end
     return self
 end
