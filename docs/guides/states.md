@@ -6,12 +6,13 @@ States provide a new way to manage data and UI synchronization in your Basalt ap
 
 ### initializeState
 ```lua
-BaseFrame:initializeState("name", defaultValue, triggerRender)
+BaseFrame:initializeState("name", defaultValue, persistent, path?)
 ```
 Creates a new state in a BaseFrame:
 - `name`: Name of the state (string)
 - `defaultValue`: Initial value of the state (any type)
-- `triggerRender`: Boolean that determines if changes trigger automatic re-renders
+- `persistent?`: Boolean that determines if the state should be stored into a file
+- `path?`: The path the state should be stored to (default: states/BaseFrameNAME.state)
 - Returns: self (for method chaining)
 
 ### setState
