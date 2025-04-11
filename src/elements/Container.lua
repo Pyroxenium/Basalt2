@@ -24,7 +24,7 @@ Container.defineProperty(Container, "childrenEvents", {default = {}, type = "tab
 ---@property eventListenerCount table {} The event listener count of the container
 Container.defineProperty(Container, "eventListenerCount", {default = {}, type = "table"})
 ---@property focusedChild table nil The focused child of the container
-Container.defineProperty(Container, "focusedChild", {default = nil, type = "table", setter = function(self, value, internal)
+Container.defineProperty(Container, "focusedChild", {default = nil, type = "table", allowNil=true, setter = function(self, value, internal)
     local oldChild = self._values.focusedChild
 
     if value == oldChild then return value end

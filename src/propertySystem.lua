@@ -51,6 +51,7 @@ function PropertySystem.defineProperty(class, name, config)
         canTriggerRender = config.canTriggerRender,
         getter = config.getter,
         setter = config.setter,
+        allowNil = config.allowNil,
     }
 
     local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
@@ -69,7 +70,15 @@ function PropertySystem.defineProperty(class, name, config)
         value = applyHooks(self, name, value, config)
 
         if type(value) ~= "function" then
-            expect(2, value, config.type)
+            if config.type == "table" then
+                if value == nil then
+                    if not config.allowNil then
+                        expect(2, value, config.type)
+                    end
+                end
+            else
+                expect(2, value, config.type)
+            end
         end
 
         if config.setter then
