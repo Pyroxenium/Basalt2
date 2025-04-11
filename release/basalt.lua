@@ -521,9 +521,10 @@ local bd,cd=bc.get("x"),bc.get("y")local dd,__a=bc.get("width"),bc.get("height")
 
 (a_a+dd>0)and(a_a<=cc)and(b_a+__a>0)and(b_a<=dc)end
 function db:addChild(bc)
-if bc==self then error("Cannot add container to itself")end;table.insert(self._values.children,bc)
-bc.parent=self;self.set("childrenSorted",false)
-self:registerChildrenEvents(bc)return self end
+if bc==self then error("Cannot add container to itself")end;if(bc~=nil)then table.insert(self._values.children,bc)
+bc.parent=self;bc:postInit()self.set("childrenSorted",false)
+self:registerChildrenEvents(bc)end;return
+self end
 local function _c(bc,cc)local dc={}
 for _d,ad in ipairs(cc)do if bc:isChildVisible(ad)and ad.get("visible")then
 table.insert(dc,ad)end end
@@ -550,9 +551,10 @@ if _d==bc then return self end end
 self.set("childrenEventsSorted",false)
 table.insert(self._values.childrenEvents[cc],bc)self._values.eventListenerCount[cc]=
 self._values.eventListenerCount[cc]+1;return self end
-function db:removeChildrenEvents(bc)if(bc._registeredEvents==nil)then return self end
-for cc in
-pairs(bc._registeredEvents)do self:unregisterChildEvent(bc,cc)end;return self end
+function db:removeChildrenEvents(bc)
+if bc~=nil then
+if(bc._registeredEvents==nil)then return self end;for cc in pairs(bc._registeredEvents)do
+self:unregisterChildEvent(bc,cc)end end;return self end
 function db:unregisterChildEvent(bc,cc)
 if self._values.childrenEvents[cc]then
 for dc,_d in
@@ -935,8 +937,8 @@ self:fireEvent("mouse_scroll",cb,self:getRelativePosition(db,_c))return true end
 function _b:mouse_drag(cb,db,_c)if(self.get("clicked"))then
 self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
 self:fireEvent("blur")self:setCursor(1,1,false)end
-function _b:key(cb)if
-(self.get("focused"))then self:fireEvent("key",cb)end end;function _b:key_up(cb)
+function _b:key(cb,db)if
+(self.get("focused"))then self:fireEvent("key",cb,db)end end;function _b:key_up(cb)
 if(self.get("focused"))then self:fireEvent("key_up",cb)end end;function _b:char(cb)if(self.get("focused"))then
 self:fireEvent("char",cb)end end
 function _b:calculatePosition()
@@ -1152,20 +1154,20 @@ false end
 self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
 self.get("cursorPos")-self.get("viewOffset")
 self:setCursor(bb,1,true,
-self.get("cursorColor")or self.get("foreground"))return true end
-function aa:key(ba)if not self.get("focused")then return false end
-local ca=self.get("cursorPos")local da=self.get("text")local _b=self.get("viewOffset")
-local ab=self.get("width")
-if ba==keys.left then if ca>1 then self.set("cursorPos",ca-1)
-if ca-1 <=_b then self.set("viewOffset",math.max(0,
-ca-2))end end elseif ba==keys.right then if ca<=#da then self.set("cursorPos",
-ca+1)if ca-_b>=ab then
-self.set("viewOffset",ca-ab+1)end end elseif
-ba==keys.backspace then if ca>1 then
-self.set("text",da:sub(1,ca-2)..da:sub(ca))self.set("cursorPos",ca-1)self:updateRender()
+self.get("cursorColor")or self.get("foreground"))d.char(self,ba)return true end
+function aa:key(ba,ca)if not self.get("focused")then return false end
+local da=self.get("cursorPos")local _b=self.get("text")local ab=self.get("viewOffset")
+local bb=self.get("width")
+if ba==keys.left then if da>1 then self.set("cursorPos",da-1)
+if da-1 <=ab then self.set("viewOffset",math.max(0,
+da-2))end end elseif ba==keys.right then if da<=#_b then self.set("cursorPos",
+da+1)if da-ab>=bb then
+self.set("viewOffset",da-bb+1)end end elseif
+ba==keys.backspace then if da>1 then
+self.set("text",_b:sub(1,da-2).._b:sub(da))self.set("cursorPos",da-1)self:updateRender()
 self:updateViewport()end end
-local bb=self.get("cursorPos")-self.get("viewOffset")
-self:setCursor(bb,1,true,self.get("cursorColor")or self.get("foreground"))return true end
+local cb=self.get("cursorPos")-self.get("viewOffset")
+self:setCursor(cb,1,true,self.get("cursorColor")or self.get("foreground"))d.key(self,ba,ca)return true end
 function aa:mouse_click(ba,ca,da)
 if d.mouse_click(self,ba,ca,da)then
 local _b,ab=self:getRelativePosition(ca,da)local bb=self.get("text")local cb=self.get("viewOffset")
@@ -1266,18 +1268,19 @@ ba[da]=function(bb,...)
 for cb,db in ipairs(_b)do if not bb._registeredEvents[db]then
 bb:listenEvent(db,true)end end;bb:registerCallback(ab,...)return bb end end
 function aa.new()local ba=setmetatable({},aa):__init()return ba end
-function aa:init(ba,ca)self._props=ba;self._values.id=_a()self.basalt=ca
-self._registeredEvents={}local da=getmetatable(self).__index;local _b={}da=self
+function aa:init(ba,ca)if self._initialized then return self end;self._initialized=true
+self._props=ba;self._values.id=_a()self.basalt=ca;self._registeredEvents={}
+local da=getmetatable(self).__index;local _b={}da=self
 while da do
-if
-type(da)=="table"and da._eventConfigs then for ab,bb in pairs(da._eventConfigs)do
-if not _b[ab]then _b[ab]=bb end end end
+if type(da)=="table"and da._eventConfigs then for ab,bb in
+pairs(da._eventConfigs)do if not _b[ab]then _b[ab]=bb end end end
 da=getmetatable(da)and getmetatable(da).__index end
 for ab,bb in pairs(_b)do self._registeredEvents[bb.requires]=true end;if self._callbacks then
 for ab,bb in pairs(self._callbacks)do self[bb]=function(cb,...)
 cb:registerCallback(ab,...)return cb end end end
 return self end
-function aa:postInit()if(self._props)then
+function aa:postInit()if self._postInitialized then return self end
+self._postInitialized=true;if(self._props)then
 for ba,ca in pairs(self._props)do self.set(ba,ca)end end;self._props=nil;return self end;function aa:isType(ba)
 for ca,da in ipairs(self._values.type)do if da==ba then return true end end;return false end
 function aa:listenEvent(ba,ca)ca=
@@ -1299,14 +1302,12 @@ ipairs(self.get("eventCallbacks")[ba])do local _b=da(self,...)return _b end end;
 self:handleEvent(ba,...)end;function aa:handleEvent(ba,...)return
 false end
 function aa:onChange(ba,ca)self:observe(ba,ca)return self end;function aa:getBaseFrame()
-if self.parent then return self.parent:getBaseFrame()end;return self end
-function aa:destroy()if self.parent then
-self.parent:removeChild(self)end;for ba in pairs(self._registeredEvents)do
-self:listenEvent(ba,false)end;self._values.eventCallbacks={}self._props=
-nil;self._values=nil;self.basalt=nil;self.parent=nil
-self.__index=nil;setmetatable(self,nil)end
-function aa:updateRender()if(self.parent)then self.parent:updateRender()else
-self._renderUpdate=true end;return self end;return aa end
+if self.parent then return self.parent:getBaseFrame()end;return self end;function aa:destroy()for ba in
+pairs(self._registeredEvents)do self:listenEvent(ba,false)end
+if
+(self.parent)then self.parent:removeChild(self)end end;function aa:updateRender()
+if
+(self.parent)then self.parent:updateRender()else self._renderUpdate=true end;return self end;return aa end
 project["elements/Graph.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
@@ -1409,7 +1410,7 @@ _b.defineProperty(_b,"program",{default=nil,type="table"})
 _b.defineProperty(_b,"path",{default="",type="string"})
 _b.defineProperty(_b,"running",{default=false,type="boolean"})_b.defineEvent(_b,"*")local ab={}ab.__index=ab
 local bb=dofile("rom/modules/main/cc/require.lua").make
-function ab.new()local cb=setmetatable({},ab)cb.env={}cb.args={}return cb end
+function ab.new(cb)local db=setmetatable({},ab)db.env={}db.args={}db.program=cb;return db end
 function ab:run(cb,db,_c)
 self.window=window.create(term.current(),1,1,db,_c,false)local ac=shell.resolveProgram(cb)
 if(ac~=nil)then
@@ -1422,29 +1423,39 @@ self.coroutine=coroutine.create(function()local cd=load(cc,cb,"bt",dc)
 if cd then
 local dd=term.current()term.redirect(self.window)
 local __a=cd(cb,table.unpack(self.args))term.redirect(dd)return __a end end)local _d=term.current()term.redirect(self.window)
-local ad,bd=coroutine.resume(self.coroutine)term.redirect(_d)if not ad then
-da.header="Basalt Program Error "..cb;da.error(bd)end else
-da.header="Basalt Program Error "..cb;da.error("File not found")end else da.header="Basalt Program Error"
+local ad,bd=coroutine.resume(self.coroutine)term.redirect(_d)
+if not ad then
+if self.onError then
+local cd=self.onError(self.program,bd)if(cd==false)then self.filter=nil;return end end;da.header="Basalt Program Error "..cb;da.error(bd)end else da.header="Basalt Program Error "..cb
+da.error("File not found")end else da.header="Basalt Program Error"
 da.error("Program "..cb.." not found")end end
 function ab:resize(cb,db)self.window.reposition(1,1,cb,db)end
 function ab:resume(cb,...)if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then return end
 if(
 self.filter~=nil)then if(cb~=self.filter)then return end;self.filter=nil end;local db=term.current()term.redirect(self.window)
-local _c,ac=coroutine.resume(self.coroutine,cb,...)term.redirect(db)if _c then self.filter=ac else
-da.header="Basalt Program Error"da.error(ac)end;return _c,ac end;function ab:stop()end;function _b.new()
-local cb=setmetatable({},_b):__init()cb.set("z",5)cb.set("width",30)cb.set("height",12)
-return cb end
-function _b:init(cb,db)
-ca.init(self,cb,db)self.set("type","Program")return self end
-function _b:execute(cb)self.set("path",cb)self.set("running",true)
-local db=ab.new()self.set("program",db)
+local _c,ac=coroutine.resume(self.coroutine,cb,...)term.redirect(db)
+if _c then self.filter=ac else
+if self.onError then
+local bc=self.onError(self.program,ac)if(bc==false)then self.filter=nil;return _c,bc end end;da.header="Basalt Program Error"da.error(ac)end;return _c,ac end
+function ab:stop()if self.coroutine==nil or
+coroutine.status(self.coroutine)=="dead"then return end
+coroutine.close(self.coroutine)self.coroutine=nil end
+function _b.new()local cb=setmetatable({},_b):__init()
+cb.set("z",5)cb.set("width",30)cb.set("height",12)return cb end;function _b:init(cb,db)ca.init(self,cb,db)self.set("type","Program")
+return self end
+function _b:execute(cb)
+self.set("path",cb)self.set("running",true)local db=ab.new(self)
+self.set("program",db)
 db:run(cb,self.get("width"),self.get("height"))self:updateRender()return self end
-function _b:dispatchEvent(cb,...)local db=self.get("program")
-local _c=ca.dispatchEvent(self,cb,...)
+function _b:sendEvent(cb,...)self:dispatchEvent(cb,...)return self end;function _b:onError(cb)local db=self.get("program")if db then db.onError=cb end
+return self end
+function _b:dispatchEvent(cb,...)
+local db=self.get("program")local _c=ca.dispatchEvent(self,cb,...)
 if db then db:resume(cb,...)
-if(self.get("focused"))then
-local ac=db.window.getCursorBlink()local bc,cc=db.window.getCursorPos()
+if
+(self.get("focused"))then local ac=db.window.getCursorBlink()
+local bc,cc=db.window.getCursorPos()
 self:setCursor(bc,cc,ac,db.window.getTextColor())end;self:updateRender()end;return _c end
 function _b:focus()
 if(ca.focus(self))then local cb=self.get("program")if cb then
@@ -2197,17 +2208,16 @@ cb=="pre"or cb=="post"then self.type=cb else
 ca.error("Invalid type. Use 'pre' or 'post'.")end;return self end
 function da:addCommand(cb)
 local db=#self.commands[self.type]+1;self.commands[self.type][db]=cb;return db end
-function da:setCommand(cb,db)if cb>0 and cb<=#self.commands then
-self.commands[cb]=db end;return self end
-function da:removeCommand(cb)self.commands[cb]=nil;return self end
+function da:setCommand(cb,db)self.commands[cb]=db;return self end;function da:removeCommand(cb)
+table.remove(self.commands[self.type],cb)return self end
 function da:text(cb,db,_c,ac,bc)
 return
-self:addCommand(function(cc)local dc,_d=self:getValue(cb),self:getValue(db)
-local ad=self:getValue(_c)local bd=self:getValue(ac)local cd=self:getValue(bc)local dd=
-type(bd)=="number"and ba[bd]or bd;local __a=
-type(cd)=="number"and ba[cd]or cd
-cc:drawText(dc,_d,ad)if dd then cc:drawFg(dc,_d,dd)end;if __a then
-cc:drawBg(dc,_d,__a)end end)end;function da:bg(cb,db,_c)return
+self:addCommand(function(cc)
+local dc,_d=self:getValue(cb),self:getValue(db)local ad=self:getValue(_c)local bd=self:getValue(ac)
+local cd=self:getValue(bc)
+local dd=type(bd)=="number"and ba[bd]:rep(#_c)or bd
+local __a=type(cd)=="number"and ba[cd]:rep(#_c)or cd;cc:drawText(dc,_d,ad)
+if dd then cc:drawFg(dc,_d,dd)end;if __a then cc:drawBg(dc,_d,__a)end end)end;function da:bg(cb,db,_c)return
 self:addCommand(function(ac)ac:drawBg(cb,db,_c)end)end
 function da:fg(cb,db,_c)return self:addCommand(function(ac)
 ac:drawFg(cb,db,_c)end)end
@@ -2218,11 +2228,10 @@ local cd,dd=self:getValue(_c),self:getValue(ac)local __a=self:getValue(bc)local 
 local b_a=self:getValue(dc)if(type(a_a)=="number")then a_a=ba[a_a]end;if
 (type(b_a)=="number")then b_a=ba[b_a]end
 local c_a=b_a and _b(b_a:rep(cd),1,cd)local d_a=a_a and _b(a_a:rep(cd),1,cd)local _aa=__a and
-_b(__a:rep(cd),1,cd)if b_a and a_a and __a then
-_d:multiBlit(ad,bd,cd,dd,_aa,d_a,c_a)return end
-for i=0,dd-1 do if b_a then
-_d:drawBg(ad,bd+i,c_a)end;if a_a then _d:drawFg(ad,bd+i,d_a)end;if __a then _d:drawText(ad,
-bd+i,_aa)end end end)end
+_b(__a:rep(cd),1,cd)
+for i=0,dd-1 do
+if b_a then _d:drawBg(ad,bd+i,c_a)end;if a_a then _d:drawFg(ad,bd+i,d_a)end;if __a then
+_d:drawText(ad,bd+i,_aa)end end end)end
 function da:line(cb,db,_c,ac,bc,cc,dc)
 local function _d(cd,dd,__a,a_a)local b_a={}local c_a=0;local d_a=math.abs(__a-cd)
 local _aa=math.abs(a_a-dd)local aaa=(cd<__a)and 1 or-1
@@ -2271,11 +2280,10 @@ function bb.setup(cb)
 cb.defineProperty(cb,"canvas",{default=nil,type="table",getter=function(db)if not db._values.canvas then
 db._values.canvas=da.new(db)end;return db._values.canvas end})end;function bb.hooks.render(cb)local db=cb.get("canvas")
 if
-db and#db.commands.pre>0 then for _c,ac in ipairs(db.commands.pre)do ac(cb)end end end;function bb.hooks.postRender(cb)
-local db=cb.get("canvas")
-if db and#db.commands.post>0 then for _c,ac in
-ipairs(db.commands.post)do ac(cb)end end end;return
-{VisualElement=bb,API=da} end
+db and#db.commands.pre>0 then for _c,ac in pairs(db.commands.pre)do ac(cb)end end end
+function bb.hooks.postRender(cb)
+local db=cb.get("canvas")if db and#db.commands.post>0 then for _c,ac in pairs(db.commands.post)do
+ac(cb)end end end;return{VisualElement=bb,API=da} end
 project["plugins/debug.lua"] = function(...) local _b=require("log")local ab=require("libraries/colorHex")
 local bb=10;local cb=false;local db={ERROR=1,WARN=2,INFO=3,DEBUG=4}
 local function _c(dc)
@@ -2405,7 +2413,8 @@ if ac.custom then da[_c]=nil end end end;return
 {BaseElement=bb,Container=cb,API=db} end
 project["plugins/theme.lua"] = function(...) local ab=require("errorManager")
 local bb={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local cb={default=bb}local db="default"
-local _c={hooks={postInit={pre=function(ad)ad:applyTheme()end}}}
+local _c={hooks={postInit={pre=function(ad)if ad._postInitialized then return ad end
+ad:applyTheme()end}}}
 function _c.____getElementPath(ad,bd)if bd then table.insert(bd,1,ad._values.type)else
 bd={ad._values.type}end;local cd=ad.parent;if cd then return
 cd.____getElementPath(cd,bd)else return bd end end
