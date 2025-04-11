@@ -51,14 +51,14 @@ local label = frame:addLabel()
 ### Linked Properties
 
 ```lua
-local slider = frame:addSlider()
+local slider = frame:addSlider("mySlider")
     :setPosition(2, 2)
     :setSize(10, 1)
 
-local progress = frame:addProgressbar()
+local progress = frame:addProgressBar()
     :setPosition(2, 4)
     :setSize(10, 1)
-    :setProgress("{slider.value}")  -- Progress syncs with slider value
+    :setProgress("{mySlider.value}")  -- Progress syncs with slider value
 ```
 
 ## Syntax
