@@ -46,7 +46,8 @@ function Canvas:setCommand(index, drawFn)
 end
 
 function Canvas:removeCommand(index)
-    self.commands[index] = nil
+    --self.commands[self.type][index] = nil
+    table.remove(self.commands[self.type], index)
     return self
 end
 
@@ -56,8 +57,8 @@ function Canvas:text(x, y, text, fg, bg)
         local _text = self:getValue(text)
         local _fg = self:getValue(fg)
         local _bg = self:getValue(bg)
-        local __fg = type(_fg) == "number" and tHex[_fg] or _fg
-        local __bg = type(_bg) == "number" and tHex[_bg] or _bg
+        local __fg = type(_fg) == "number" and tHex[_fg]:rep(#text) or _fg
+        local __bg = type(_bg) == "number" and tHex[_bg]:rep(#text) or _bg
         render:drawText(_x, _y, _text)
         if __fg then render:drawFg(_x, _y, __fg) end
         if __bg then render:drawBg(_x, _y, __bg) end
@@ -90,7 +91,7 @@ function Canvas:rect(x, y, width, height, char, fg, bg)
         local bgLine = _bg and sub(_bg:rep(_width), 1, _width)
         local fgLine = _fg and sub(_fg:rep(_width), 1, _width)
         local textLine = _char and sub(_char:rep(_width), 1, _width)
-        
+
         for i = 0, _height - 1 do
             if _bg then render:drawBg(_x, _y + i, bgLine) end
             if _fg then render:drawFg(_x, _y + i, fgLine) end
