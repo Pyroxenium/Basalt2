@@ -332,9 +332,9 @@ end
 --- @shortDescription Handles a key event
 --- @param key number The key that was pressed
 --- @protected
-function VisualElement:key(key)
+function VisualElement:key(key, held)
     if(self.get("focused"))then
-        self:fireEvent("key", key)
+        self:fireEvent("key", key, held)
     end
 end
 

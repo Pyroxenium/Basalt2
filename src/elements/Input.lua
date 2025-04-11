@@ -95,7 +95,7 @@ end
 --- @param key number The key that was pressed
 --- @return boolean handled Whether the event was handled
 --- @protected
-function Input:key(key)
+function Input:key(key, held)
     if not self.get("focused") then return false end
     local pos = self.get("cursorPos")
     local text = self.get("text")
@@ -127,7 +127,7 @@ function Input:key(key)
 
     local relativePos = self.get("cursorPos") - self.get("viewOffset")
     self:setCursor(relativePos, 1, true, self.get("cursorColor") or self.get("foreground"))
-    VisualElement.key(self, key)
+    VisualElement.key(self, key, held)
     return true
 end
 

@@ -50,11 +50,11 @@ jobs:
           rm -rf gh-pages/docs/references
           mkdir -p gh-pages/docs/references
 
-      - name: Generate Documentation
-        run: |
-          lua tools/generate-docs.lua
+      #- name: Generate Documentation
+      #  run: |
+      #    lua tools/generate-docs.lua
 
-          cp -r build_docs/docs/references/* gh-pages/docs/references/
+      #    cp -r build_docs/docs/references/* gh-pages/docs/references/
 
       # Step 5: Deploy Documentation
       - name: Deploy Documentation
