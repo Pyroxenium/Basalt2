@@ -122,7 +122,7 @@ function BaseElement:getState(name)
     end
 
     if states[name].computed then
-        return states[name].value(self)
+        return states[name].computeFn(self)
     end
     return states[name].value
 end
