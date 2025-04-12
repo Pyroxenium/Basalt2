@@ -79,15 +79,18 @@ local function bb(cb,db,_c,ac)for bc,cc in ipairs(_b._setterHooks)do
 local dc=cc(cb,db,_c,ac)if dc~=nil then _c=dc end end;return _c end
 function _b.defineProperty(cb,db,_c)
 if not rawget(cb,'_properties')then cb._properties={}end
-cb._properties[db]={type=_c.type,default=_c.default,canTriggerRender=_c.canTriggerRender,getter=_c.getter,setter=_c.setter}local ac=db:sub(1,1):upper()..db:sub(2)
+cb._properties[db]={type=_c.type,default=_c.default,canTriggerRender=_c.canTriggerRender,getter=_c.getter,setter=_c.setter,allowNil=_c.allowNil}local ac=db:sub(1,1):upper()..db:sub(2)
 cb[
 "get"..ac]=function(bc,...)ca(1,bc,"element")local cc=bc._values[db]
 if type(cc)==
 "function"and _c.type~="function"then cc=cc(bc)end
 return _c.getter and _c.getter(bc,cc,...)or cc end
 cb["set"..ac]=function(bc,cc,...)ca(1,bc,"element")cc=bb(bc,db,cc,_c)if
-type(cc)~="function"then ca(2,cc,_c.type)end;if _c.setter then
-cc=_c.setter(bc,cc,...)end;bc:_updateProperty(db,cc)return bc end end
+type(cc)~="function"then
+if _c.type=="table"then if cc==nil then
+if not _c.allowNil then ca(2,cc,_c.type)end end else ca(2,cc,_c.type)end end;if
+_c.setter then cc=_c.setter(bc,cc,...)end
+bc:_updateProperty(db,cc)return bc end end
 function _b.combineProperties(cb,db,...)local _c={...}for bc,cc in pairs(_c)do
 if not cb._properties[cc]then da.error("Property not found: "..
 cc)end end;local ac=
@@ -492,7 +495,7 @@ db.defineProperty(db,"childrenSorted",{default=true,type="boolean"})
 db.defineProperty(db,"childrenEventsSorted",{default=true,type="boolean"})
 db.defineProperty(db,"childrenEvents",{default={},type="table"})
 db.defineProperty(db,"eventListenerCount",{default={},type="table"})
-db.defineProperty(db,"focusedChild",{default=nil,type="table",setter=function(bc,cc,dc)local _d=bc._values.focusedChild
+db.defineProperty(db,"focusedChild",{default=nil,type="table",allowNil=true,setter=function(bc,cc,dc)local _d=bc._values.focusedChild
 if cc==_d then return cc end
 if _d then
 if _d:isType("Container")then _d.set("focusedChild",nil,true)end;_d.set("focused",false,true)end
