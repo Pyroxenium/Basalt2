@@ -2002,7 +2002,7 @@ self end
 function ca:getState(da)local _b=self:getBaseFrame()local ab=_b.get("states")if
 not ab[da]then
 aa.error("State '"..da.."' not initialized")end;if ab[da].computed then
-return ab[da].value(self)end;return ab[da].value end
+return ab[da].computeFn(self)end;return ab[da].value end
 function ca:onStateChange(da,_b)local ab=self:getBaseFrame()if
 not ab.get("states")[da]then
 aa.error("Cannot observe state '"..da.."': State not initialized")return self end
