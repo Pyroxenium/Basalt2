@@ -36,6 +36,7 @@ end})
 --- @private
 function Label.new()
     local self = setmetatable({}, Label):__init()
+    self.class = Label
     self.set("z", 3)
     self.set("foreground", colors.black)
     self.set("backgroundEnabled", false)

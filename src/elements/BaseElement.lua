@@ -6,7 +6,6 @@ local uuid = require("libraries/utils").uuid
 --- @class BaseElement : PropertySystem
 local BaseElement = setmetatable({}, PropertySystem)
 BaseElement.__index = BaseElement
-BaseElement._events = {}
 
 --- @property type string BaseElement The type identifier of the element
 BaseElement.defineProperty(BaseElement, "type", {default = {"BaseElement"}, type = "string", setter=function(self, value)
@@ -72,6 +71,7 @@ end
 --- @private
 function BaseElement.new()
     local self = setmetatable({}, BaseElement):__init()
+    self.class = BaseElement
     return self
 end
 
@@ -93,7 +93,7 @@ function BaseElement:init(props, basalt)
     local currentClass = getmetatable(self).__index
 
     local events = {}
-    currentClass = self
+    currentClass = self.class
 
     while currentClass do
         if type(currentClass) == "table" and currentClass._eventConfigs then

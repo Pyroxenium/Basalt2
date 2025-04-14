@@ -28,6 +28,7 @@ Slider.defineEvent(Slider, "mouse_up")
 --- @private
 function Slider.new()
     local self = setmetatable({}, Slider):__init()
+    self.class = Slider
     self.set("width", 8)
     self.set("height", 1)
     self.set("backgroundEnabled", false)

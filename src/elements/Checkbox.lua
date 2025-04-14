@@ -45,6 +45,7 @@ end
 --- @protected
 function Checkbox:init(props, basalt)
     VisualElement.init(self, props, basalt)
+    self.class = Checkbox
     self.set("type", "Checkbox")
 end
 

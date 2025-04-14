@@ -91,6 +91,7 @@ end
 --- @private
 function Container.new()
     local self = setmetatable({}, Container):__init()
+    self.class = Container
     return self
 end
 

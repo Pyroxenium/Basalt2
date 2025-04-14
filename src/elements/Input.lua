@@ -40,6 +40,7 @@ Input.defineEvent(Input, "char")
 --- @private
 function Input.new()
     local self = setmetatable({}, Input):__init()
+    self.class = Input
     self.set("width", 8)
     self.set("z", 3)
     return self

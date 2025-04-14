@@ -27,6 +27,7 @@ LineChart.__index = LineChart
 --- @private
 function LineChart.new()
     local self = setmetatable({}, LineChart):__init()
+    self.class = LineChart
     return self
 end
 

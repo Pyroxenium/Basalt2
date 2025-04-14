@@ -246,6 +246,7 @@ end
 --- @private
 function Flexbox.new()
     local self = setmetatable({}, Flexbox):__init()
+    self.class = Flexbox
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.blue)

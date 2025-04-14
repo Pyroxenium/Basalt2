@@ -26,6 +26,7 @@ Frame.defineProperty(Frame, "draggingMap", {default = {{x=1, y=1, width="width",
 --- @private
 function Frame.new()
     local self = setmetatable({}, Frame):__init()
+    self.class = Frame
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.gray)

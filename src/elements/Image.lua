@@ -31,6 +31,7 @@ Image.combineProperties(Image, "offset", "offsetX", "offsetY")
 --- @private
 function Image.new()
     local self = setmetatable({}, Image):__init()
+    self.class = Image
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.black)

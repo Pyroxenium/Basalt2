@@ -36,6 +36,7 @@ TextBox.defineEvent(TextBox, "mouse_scroll")
 --- @private
 function TextBox.new()
     local self = setmetatable({}, TextBox):__init()
+    self.class = TextBox
     self.set("width", 20)
     self.set("height", 10)
     return self

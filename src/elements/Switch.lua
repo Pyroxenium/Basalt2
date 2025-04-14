@@ -18,6 +18,7 @@ Switch.defineEvent(Switch, "mouse_up")
 --- @private
 function Switch.new()
     local self = setmetatable({}, Switch):__init()
+    self.class = Switch
     self.set("width", 2)
     self.set("height", 1)
     self.set("z", 5)

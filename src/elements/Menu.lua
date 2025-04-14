@@ -18,6 +18,7 @@ Menu.defineProperty(Menu, "separatorColor", {default = colors.gray, type = "colo
 --- @private
 function Menu.new()
     local self = setmetatable({}, Menu):__init()
+    self.class = Menu
     self.set("width", 30)
     self.set("height", 1)
     self.set("background", colors.gray)

@@ -33,6 +33,7 @@ Graph.defineProperty(Graph, "series", {default = {}, type = "table", canTriggerR
 --- @private
 function Graph.new()
     local self = setmetatable({}, Graph):__init()
+    self.class = Graph
     return self
 end
 

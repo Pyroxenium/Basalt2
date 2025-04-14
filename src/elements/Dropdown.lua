@@ -31,6 +31,7 @@ Dropdown.defineProperty(Dropdown, "dropSymbol", {default = "\31", type = "string
 --- @private
 function Dropdown.new()
     local self = setmetatable({}, Dropdown):__init()
+    self.class = Dropdown
     self.set("width", 16)
     self.set("height", 1)
     self.set("z", 8)

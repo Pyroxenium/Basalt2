@@ -27,6 +27,7 @@ BarChart.__index = BarChart
 --- @private
 function BarChart.new()
     local self = setmetatable({}, BarChart):__init()
+    self.class = BarChart
     return self
 end
 

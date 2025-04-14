@@ -114,6 +114,7 @@ local max, min = math.max, math.min
 --- @private
 function VisualElement.new()
     local self = setmetatable({}, VisualElement):__init()
+    self.class = VisualElement
     return self
 end
 

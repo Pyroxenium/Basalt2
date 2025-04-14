@@ -128,6 +128,7 @@ end
 --- @private
 function Program.new()
     local self = setmetatable({}, Program):__init()
+    self.class = Program
     self.set("z", 5)
     self.set("width", 30)
     self.set("height", 12)

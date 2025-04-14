@@ -48,6 +48,7 @@ Table.defineEvent(Table, "mouse_scroll")
 --- @private
 function Table.new()
     local self = setmetatable({}, Table):__init()
+    self.class = Table
     self.set("width", 30)
     self.set("height", 10)
     self.set("z", 5)

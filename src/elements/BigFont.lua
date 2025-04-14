@@ -167,6 +167,7 @@ end})
 --- @private
 function BigFont.new()
     local self = setmetatable({}, BigFont):__init()
+    self.class = BigFont
     self.set("width", 16)
     self.set("height", 3)
     self.set("z", 5)

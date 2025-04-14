@@ -30,6 +30,7 @@ List.defineEvent(List, "mouse_scroll")
 --- @private
 function List.new()
     local self = setmetatable({}, List):__init()
+    self.class = List
     self.set("width", 16)
     self.set("height", 8)
     self.set("z", 5)

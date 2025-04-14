@@ -19,6 +19,7 @@ Button.defineEvent(Button, "mouse_up")
 --- @private
 function Button.new()
     local self = setmetatable({}, Button):__init()
+    self.class = Button
     self.set("width", 10)
     self.set("height", 3)
     self.set("z", 5)

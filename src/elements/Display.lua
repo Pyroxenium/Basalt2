@@ -19,6 +19,7 @@ Display.__index = Display
 --- @private
 function Display.new()
     local self = setmetatable({}, Display):__init()
+    self.class = Display
     self.set("width", 25)
     self.set("height", 8)
     self.set("z", 5)

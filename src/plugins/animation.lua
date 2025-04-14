@@ -265,6 +265,7 @@ function Animation:event(event, timerId)
         if #remaining > 0 then
             self.timer = os.startTimer(0.05)
         end
+        return true
     end
 end
 
@@ -416,13 +417,12 @@ Animation.registerAnimation("scrollText", {
 local VisualElement = {hooks={}}
 
 ---@private
-function VisualElement.hooks.dispatchEvent(self, event, ...)
+function VisualElement.hooks.handleEvent(self, event, ...)
     if event == "timer" then
         local animation = self.get("animation")
         if animation then
             animation:event(event, ...)
         end
-        return true
     end
 end
 

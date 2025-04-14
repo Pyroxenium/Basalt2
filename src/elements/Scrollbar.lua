@@ -49,6 +49,7 @@ Scrollbar.defineEvent(Scrollbar, "mouse_scroll")
 --- @private
 function Scrollbar.new()
     local self = setmetatable({}, Scrollbar):__init()
+    self.class = Scrollbar
     self.set("width", 1)
     self.set("height", 10)
     return self

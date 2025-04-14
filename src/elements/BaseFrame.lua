@@ -57,6 +57,7 @@ end})
 --- @private
 function BaseFrame.new()
     local self = setmetatable({}, BaseFrame):__init()
+    self.class = BaseFrame
     return self
 end
 

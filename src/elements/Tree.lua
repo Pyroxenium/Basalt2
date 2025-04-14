@@ -37,6 +37,7 @@ Tree.defineEvent(Tree, "mouse_scroll")
 --- @private
 function Tree.new()
     local self = setmetatable({}, Tree):__init()
+    self.class = Tree
     self.set("width", 30)
     self.set("height", 10)
     self.set("z", 5)

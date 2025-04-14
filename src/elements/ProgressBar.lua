@@ -25,6 +25,7 @@ ProgressBar.defineProperty(ProgressBar, "direction", {default = "right", type = 
 --- @private
 function ProgressBar.new()
     local self = setmetatable({}, ProgressBar):__init()
+    self.class = ProgressBar
     self.set("width", 25)
     self.set("height", 3)
     return self
