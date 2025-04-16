@@ -65,20 +65,20 @@ function BaseElement:setState(name, value)
     if states[name].persist then
         local file = "states/" .. main.get("name") .. ".state"
         local persistedData = {}
-        
+
         if fs.exists(file) then
             local f = fs.open(file, "r")
             persistedData = textutils.unserialize(f.readAll()) or {}
             f.close()
         end
-        
+
         persistedData[name] = value
-        
+
         local dir = fs.getDir(file)
         if not fs.exists(dir) then
             fs.makeDir(dir)
         end
-        
+
         local f = fs.open(file, "w")
         f.write(textutils.serialize(persistedData))
         f.close()
@@ -89,7 +89,7 @@ function BaseElement:setState(name, value)
     -- Trigger observers
     if observers[name] then
         for _, callback in ipairs(observers[name]) do
-            callback(self, name, value, states[name].value)
+            callback(self, name, value)
         end
     end
 
@@ -99,7 +99,7 @@ function BaseElement:setState(name, value)
             state.value = state.computeFn(self)
             if observers[stateName] then
                 for _, callback in ipairs(observers[stateName]) do
-                    callback(self, state.value)
+                    callback(self, stateName, state.value)
                 end
             end
         end
@@ -201,14 +201,14 @@ function BaseElement:bind(propertyName, stateName)
         self.set(propertyName, main:getState(stateName))
     end
 
-    self:onChange(propertyName, function(self, value)
+    self:onChange(propertyName, function(_, name, value)
         if internalCall then return end
         internalCall = true
         self:setState(stateName, value)
         internalCall = false
     end)
 
-    self:onStateChange(stateName, function(self, value)
+    self:onStateChange(stateName, function(_, name, value)
         if internalCall then return end
         internalCall = true
         if self.get(propertyName) ~= nil then
