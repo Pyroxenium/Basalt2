@@ -2003,20 +2003,19 @@ local db="states/"..ab.get("name")..".state"local _c={}
 if fs.exists(db)then local cc=fs.open(db,"r")_c=
 textutils.unserialize(cc.readAll())or{}cc.close()end;_c[da]=_b;local ac=fs.getDir(db)if not fs.exists(ac)then
 fs.makeDir(ac)end;local bc=fs.open(db,"w")
-bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b;if cb[da]then
-for db,_c in ipairs(cb[da])do _c(self,da,_b)end end
-for db,_c in pairs(bb)do
-if _c.computed then
-_c.value=_c.computeFn(self)if cb[db]then
-for ac,bc in ipairs(cb[db])do bc(self,db,_c.value)end end end end;return self end
+bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b
+if cb[da]then for db,_c in ipairs(cb[da])do _c(da,_b)end end;for db,_c in pairs(bb)do
+if _c.computed then _c.value=_c.computeFn(self)if cb[db]then for ac,bc in ipairs(cb[db])do
+bc(db,_c.value)end end end end
+return self end
 function ca:getState(da)local _b=self:getBaseFrame()local ab=_b.get("states")if
 not ab[da]then
 aa.error("State '"..da.."' not initialized")end;if ab[da].computed then
 return ab[da].computeFn(self)end;return ab[da].value end
-function ca:onStateChange(da,_b)local ab=self:getBaseFrame()if
-not ab.get("states")[da]then
+function ca:onStateChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("states")[da]if not bb then
 aa.error("Cannot observe state '"..da.."': State not initialized")return self end
-local bb=ab.get("stateObserver")if not bb[da]then bb[da]={}end;table.insert(bb[da],_b)
+local cb=ab.get("stateObserver")if not cb[da]then cb[da]={}end;table.insert(cb[da],_b)
 return self end
 function ca:removeStateChange(da,_b)local ab=self:getBaseFrame()
 local bb=ab.get("stateObserver")
@@ -2029,9 +2028,9 @@ bb[da]={computeFn=_b,value=_b(self),computed=true}return self end
 function ca:bind(da,_b)_b=_b or da;local ab=self:getBaseFrame()local bb=false
 if
 self.get(da)~=nil then self.set(da,ab:getState(_b))end
-self:onChange(da,function(cb,db,_c)if bb then return end;bb=true;self:setState(_b,_c)bb=false end)
-self:onStateChange(_b,function(cb,db,_c)if bb then return end;bb=true;if self.get(da)~=nil then
-self.set(da,_c)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
+self:onChange(da,function(cb,db)if bb then return end;bb=true;cb:setState(_b,db)bb=false end)
+self:onStateChange(_b,function(cb,db)if bb then return end;bb=true;if self.get(da)~=nil then
+self.set(da,db)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
 project["plugins/reactive.lua"] = function(...) local ab=require("errorManager")
 local bb=require("propertySystem")local cb={colors=true,math=true,clamp=true,round=true}
 local db={clamp=function(ad,bd,cd)return
