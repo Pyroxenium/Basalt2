@@ -363,10 +363,11 @@ local bc=ac.getElement("VisualElement")local cc=setmetatable({},bc)cc.__index=cc
 cc.defineProperty(cc,"text",{default="BigFont",type="string",canTriggerRender=true,setter=function(dc,_d)
 dc.bigfontText=_c(dc.get("fontSize"),_d,dc.get("foreground"),dc.get("background"))return _d end})
 cc.defineProperty(cc,"fontSize",{default=1,type="number",canTriggerRender=true,setter=function(dc,_d)
-dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})
-function cc.new()local dc=setmetatable({},cc):__init()
-dc.set("width",16)dc.set("height",3)dc.set("z",5)return dc end
-function cc:init(dc,_d)bc.init(self,dc,_d)self.set("type","BigFont")
+dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})function cc.new()local dc=setmetatable({},cc):__init()
+dc.class=cc;dc.set("width",16)dc.set("height",3)dc.set("z",5)
+return dc end
+function cc:init(dc,_d)
+bc.init(self,dc,_d)self.set("type","BigFont")
 self:observe("background",function(ad,bd)
 ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),ad.get("foreground"),bd)end)
 self:observe("foreground",function(ad,bd)
@@ -391,7 +392,7 @@ _b.defineProperty(_b,"cursorColor",{default=nil,type="color"})_b.defineEvent(_b,
 _b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
 _b.defineEvent(_b,"mouse_scroll")
 function _b.new()local _c=setmetatable({},_b):__init()
-_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
+_c.class=_b;_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
 return self end;function _b:addSyntaxPattern(_c,ac)
 table.insert(self.get("syntaxPatterns"),{pattern=_c,color=ac})return self end
 local function ab(_c,ac)
@@ -467,8 +468,9 @@ self:setCursor(bd,cd,true,self.get("cursorColor")or self.get("foreground"))end e
 project["elements/LineChart.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=ba.getElement("Graph")
 local _b=require("libraries/colorHex")local ab=setmetatable({},da)ab.__index=ab;function ab.new()
-local cb=setmetatable({},ab):__init()return cb end;function ab:init(cb,db)da.init(self,cb,db)
-self.set("type","LineChart")return self end
+local cb=setmetatable({},ab):__init()cb.class=ab;return cb end
+function ab:init(cb,db)
+da.init(self,cb,db)self.set("type","LineChart")return self end
 local function bb(cb,db,_c,ac,bc,cc,dc,_d)local ad=ac-db;local bd=bc-_c
 local cd=math.max(math.abs(ad),math.abs(bd))
 for i=0,cd do local dd=cd==0 and 0 or i/cd
@@ -514,9 +516,10 @@ if dc~="BaseFrame"then
 db["add"..dc]=function(_d,...)bb(1,_d,"table")
 local ad=_d.basalt.create(bc,...)_d:addChild(ad)ad:postInit()return ad end
 db["addDelayed"..dc]=function(_d,ad)bb(1,_d,"table")
-local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end
-function db.new()local bc=setmetatable({},db):__init()return bc end
-function db:init(bc,cc)ab.init(self,bc,cc)self.set("type","Container")end
+local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end;function db.new()local bc=setmetatable({},db):__init()
+bc.class=db;return bc end
+function db:init(bc,cc)
+ab.init(self,bc,cc)self.set("type","Container")end
 function db:isChildVisible(bc)if(bc.get("visible")==false)then return false end
 local cc,dc=self.get("width"),self.get("height")local _d,ad=self.get("offsetX"),self.get("offsetY")
 local bd,cd=bc.get("x"),bc.get("y")local dd,__a=bc.get("width"),bc.get("height")local a_a;local b_a;if
@@ -681,7 +684,7 @@ _b.defineProperty(_b,"offsetX",{default=0,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"offsetY",{default=0,type="number",canTriggerRender=true})
 _b.combineProperties(_b,"offset","offsetX","offsetY")
 function _b.new()local cb=setmetatable({},_b):__init()
-cb.set("width",12)cb.set("height",6)
+cb.class=_b;cb.set("width",12)cb.set("height",6)
 cb.set("background",colors.black)cb.set("z",5)return cb end;function _b:init(cb,db)ca.init(self,cb,db)self.set("type","Image")
 return self end
 function _b:resizeImage(cb,db)
@@ -843,7 +846,7 @@ local function ac(bc,cc,dc,_d,ad)local bd=cb(bc,cc,dc,ad)
 if cc=="row"then
 for cd,dd in pairs(bd)do db(bc,dd,dc,_d)end else for cd,dd in pairs(bd)do _c(bc,dd,dc,_d)end end;bc.set("flexUpdateLayout",false)end
 function ab.new()local bc=setmetatable({},ab):__init()
-bc.set("width",12)bc.set("height",6)
+bc.class=ab;bc.set("width",12)bc.set("height",6)
 bc.set("background",colors.blue)bc.set("z",10)
 bc:observe("width",function()
 bc.set("flexUpdateLayout",true)end)
@@ -897,28 +900,28 @@ _b.registerEventCallback(_b,"Enter","mouse_enter","mouse_move")
 _b.registerEventCallback(_b,"LeEave","mouse_leave","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
 _b.registerEventCallback(_b,"Blur","blur","focus")_b.registerEventCallback(_b,"Key","key","key_up")
 _b.registerEventCallback(_b,"Char","char")_b.registerEventCallback(_b,"KeyUp","key_up","key")
-local ab,bb=math.max,math.min
-function _b.new()local cb=setmetatable({},_b):__init()return cb end;function _b:init(cb,db)ca.init(self,cb,db)
-self.set("type","VisualElement")end;function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)
-local _d,ad=self:calculatePosition()cb=cb+_d-1;db=db+ad-1
-self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function _b:textFg(cb,db,_c,ac)
-local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
-self.parent:textFg(cb,db,_c,ac)end;function _b:textBg(cb,db,_c,ac)
-local bc,cc=self:calculatePosition()cb=cb+bc-1;db=db+cc-1
-self.parent:textBg(cb,db,_c,ac)end;function _b:drawText(cb,db,_c)
-local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
-self.parent:drawText(cb,db,_c)end;function _b:drawFg(cb,db,_c)
-local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
-self.parent:drawFg(cb,db,_c)end;function _b:drawBg(cb,db,_c)
-local ac,bc=self:calculatePosition()cb=cb+ac-1;db=db+bc-1
-self.parent:drawBg(cb,db,_c)end;function _b:blit(cb,db,_c,ac,bc)
-local cc,dc=self:calculatePosition()cb=cb+cc-1;db=db+dc-1
-self.parent:blit(cb,db,_c,ac,bc)end
-function _b:isInBounds(cb,db)
-local _c,ac=self.get("x"),self.get("y")local bc,cc=self.get("width"),self.get("height")if
-(self.get("ignoreOffset"))then
-if(self.parent)then cb=cb-self.parent.get("offsetX")db=
-db-self.parent.get("offsetY")end end;return
+local ab,bb=math.max,math.min;function _b.new()local cb=setmetatable({},_b):__init()
+cb.class=_b;return cb end
+function _b:init(cb,db)
+ca.init(self,cb,db)self.set("type","VisualElement")end
+function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d,ad=self:calculatePosition()cb=cb+_d-1
+db=db+ad-1;self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end
+function _b:textFg(cb,db,_c,ac)local bc,cc=self:calculatePosition()cb=cb+bc-1
+db=db+cc-1;self.parent:textFg(cb,db,_c,ac)end
+function _b:textBg(cb,db,_c,ac)local bc,cc=self:calculatePosition()cb=cb+bc-1
+db=db+cc-1;self.parent:textBg(cb,db,_c,ac)end
+function _b:drawText(cb,db,_c)local ac,bc=self:calculatePosition()cb=cb+ac-1
+db=db+bc-1;self.parent:drawText(cb,db,_c)end
+function _b:drawFg(cb,db,_c)local ac,bc=self:calculatePosition()cb=cb+ac-1
+db=db+bc-1;self.parent:drawFg(cb,db,_c)end
+function _b:drawBg(cb,db,_c)local ac,bc=self:calculatePosition()cb=cb+ac-1
+db=db+bc-1;self.parent:drawBg(cb,db,_c)end
+function _b:blit(cb,db,_c,ac,bc)local cc,dc=self:calculatePosition()cb=cb+cc-1
+db=db+dc-1;self.parent:blit(cb,db,_c,ac,bc)end
+function _b:isInBounds(cb,db)local _c,ac=self.get("x"),self.get("y")
+local bc,cc=self.get("width"),self.get("height")if(self.get("ignoreOffset"))then
+if(self.parent)then
+cb=cb-self.parent.get("offsetX")db=db-self.parent.get("offsetY")end end;return
 cb>=_c and cb<=
 _c+bc-1 and db>=ac and db<=ac+cc-1 end
 function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self.set("clicked",true)
@@ -990,7 +993,7 @@ ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true
 ca.defineEvent(ca,"mouse_release")ca.defineEvent(ca,"mouse_drag")
 ca.defineEvent(ca,"mouse_scroll")
 function ca.new()local ab=setmetatable({},ca):__init()
-ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","Scrollbar")return
+ab.class=ca;ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","Scrollbar")return
 self end
 function ca:attach(ab,bb)
 self.set("attachedElement",ab)self.set("attachedProperty",bb.property)self.set("minValue",
@@ -1038,10 +1041,11 @@ self:blit(i,1,db,ba[_c],ba[ac])end end end;return ca end
 project["elements/Switch.lua"] = function(...) local d=require("elementManager")
 local _a=d.getElement("VisualElement")local aa=setmetatable({},_a)aa.__index=aa
 aa.defineProperty(aa,"checked",{default=false,type="boolean",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
-aa.defineEvent(aa,"mouse_up")
-function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",2)ba.set("height",1)ba.set("z",5)return ba end
-function aa:init(ba,ca)_a.init(self,ba,ca)self.set("type","Switch")end;function aa:render()_a.render(self)end;return aa end
+aa.defineEvent(aa,"mouse_up")function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;ba.set("width",2)ba.set("height",1)ba.set("z",5)
+return ba end;function aa:init(ba,ca)
+_a.init(self,ba,ca)self.set("type","Switch")end;function aa:render()
+_a.render(self)end;return aa end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
@@ -1052,10 +1056,11 @@ ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=tr
 ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
 ba.defineProperty(ba,"nodeColor",{default=colors.white,type="color"})
 ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="color"})ba.defineEvent(ba,"mouse_click")
-ba.defineEvent(ba,"mouse_scroll")
-function ba.new()local da=setmetatable({},ba):__init()
-da.set("width",30)da.set("height",10)da.set("z",5)return da end
-function ba:init(da,_b)_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
+ba.defineEvent(ba,"mouse_scroll")function ba.new()local da=setmetatable({},ba):__init()
+da.class=ba;da.set("width",30)da.set("height",10)da.set("z",5)
+return da end
+function ba:init(da,_b)
+_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
 self:updateRender()return self end
 function ba:collapseNode(da)self.get("expandedNodes")[da]=
 nil;self:updateRender()return self end;function ba:toggleNode(da)if self.get("expandedNodes")[da]then
@@ -1107,7 +1112,7 @@ ca.defineProperty(ca,"autoSize",{default=true,type="boolean",canTriggerRender=tr
 da.set("width",#da.get("text"))else
 da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
-da.set("z",3)da.set("foreground",colors.black)
+da.class=ca;da.set("z",3)da.set("foreground",colors.black)
 da.set("backgroundEnabled",false)return da end
 function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
 self.set("background",self.parent.get("background"))
@@ -1123,11 +1128,12 @@ project["elements/Button.lua"] = function(...) local _a=require("elementManager"
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"text",{default="Button",type="string",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
-ca.defineEvent(ca,"mouse_up")
-function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",10)da.set("height",3)da.set("z",5)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Button")end
-function ca:render()aa.render(self)local da=self.get("text")
+ca.defineEvent(ca,"mouse_up")function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",10)da.set("height",3)da.set("z",5)
+return da end;function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","Button")end
+function ca:render()
+aa.render(self)local da=self.get("text")
 da=da:sub(1,self.get("width"))
 local _b,ab=ba(da,self.get("width"),self.get("height"))
 self:textFg(_b,ab,da,self.get("foreground"))end;return ca end
@@ -1146,7 +1152,7 @@ aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})
 aa.defineProperty(aa,"replaceChar",{default=nil,type="string",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
 function aa.new()
-local ba=setmetatable({},aa):__init()ba.set("width",8)ba.set("z",3)return ba end
+local ba=setmetatable({},aa):__init()ba.class=aa;ba.set("width",8)ba.set("z",3)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
 function aa:setCursor(ba,ca,da,_b)
 ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
@@ -1214,12 +1220,13 @@ db==nil or db.setCursorPos==nil then return db end;if(bb(db))then
 cb._peripheralName=peripheral.getName(db)end;cb._values.term=db
 if
 cb.basalt.getActiveFrame(db)==nil then cb.basalt.setActiveFrame(cb)end;cb._render=_b.new(db)cb._renderUpdate=true;local _c,ac=db.getSize()
-cb.set("width",_c)cb.set("height",ac)return db end})
-function ab.new()local cb=setmetatable({},ab):__init()return cb end
-function ab:init(cb,db)ca.init(self,cb,db)
-self.set("term",term.current())self.set("type","BaseFrame")return self end
-function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if(cb<1)then _c=_c+cb-1;cb=1 end
-if(db<1)then ac=ac+db-1;db=1 end;self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
+cb.set("width",_c)cb.set("height",ac)return db end})function ab.new()local cb=setmetatable({},ab):__init()
+cb.class=ab;return cb end;function ab:init(cb,db)
+ca.init(self,cb,db)self.set("term",term.current())
+self.set("type","BaseFrame")return self end
+function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if
+(cb<1)then _c=_c+cb-1;cb=1 end;if(db<1)then ac=ac+db-1;db=1 end
+self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
 self._render:textFg(cb,db,_c,ac)end;function ab:textBg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -
 cb)cb=1 end
 self._render:textBg(cb,db,_c,ac)end;function ab:drawText(cb,db,_c)if cb<1 then _c=string.sub(_c,
@@ -1254,7 +1261,7 @@ if(self._renderUpdate)then if self._render~=nil then ca.render(self)
 self._render:render()self._renderUpdate=false end end end
 return ab end
 project["elements/BaseElement.lua"] = function(...) local d=require("propertySystem")
-local _a=require("libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa;aa._events={}
+local _a=require("libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"type",{default={"BaseElement"},type="string",setter=function(ba,ca)if
 type(ca)=="string"then table.insert(ba._values.type,1,ca)return
 ba._values.type end;return ca end,getter=function(ba,ca,da)if
@@ -1269,11 +1276,12 @@ function aa.registerEventCallback(ba,ca,...)
 local da=ca:match("^on")and ca or"on"..ca;local _b={...}local ab=_b[1]
 ba[da]=function(bb,...)
 for cb,db in ipairs(_b)do if not bb._registeredEvents[db]then
-bb:listenEvent(db,true)end end;bb:registerCallback(ab,...)return bb end end
-function aa.new()local ba=setmetatable({},aa):__init()return ba end
-function aa:init(ba,ca)if self._initialized then return self end;self._initialized=true
-self._props=ba;self._values.id=_a()self.basalt=ca;self._registeredEvents={}
-local da=getmetatable(self).__index;local _b={}da=self
+bb:listenEvent(db,true)end end;bb:registerCallback(ab,...)return bb end end;function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;return ba end
+function aa:init(ba,ca)
+if self._initialized then return self end;self._initialized=true;self._props=ba;self._values.id=_a()
+self.basalt=ca;self._registeredEvents={}local da=getmetatable(self).__index
+local _b={}da=self.class
 while da do
 if type(da)=="table"and da._eventConfigs then for ab,bb in
 pairs(da._eventConfigs)do if not _b[ab]then _b[ab]=bb end end end
@@ -1316,13 +1324,13 @@ local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"minValue",{default=0,type="number",canTriggerRender=true})
 ca.defineProperty(ca,"maxValue",{default=100,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"series",{default={},type="table",canTriggerRender=true})
-function ca.new()local da=setmetatable({},ca):__init()return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Graph")
-self.set("width",20)self.set("height",10)return self end
-function ca:addSeries(da,_b,ab,bb,cb)local db=self.get("series")
-table.insert(db,{name=da,symbol=_b or" ",bgColor=ab or colors.white,fgColor=
-bb or colors.black,pointCount=cb or self.get("width"),data={},visible=true})self:updateRender()return self end
+ca.defineProperty(ca,"series",{default={},type="table",canTriggerRender=true})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;return da end;function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","Graph")self.set("width",20)
+self.set("height",10)return self end
+function ca:addSeries(da,_b,ab,bb,cb)
+local db=self.get("series")
+table.insert(db,{name=da,symbol=_b or" ",bgColor=ab or colors.white,fgColor=bb or colors.black,pointCount=cb or self.get("width"),data={},visible=true})self:updateRender()return self end
 function ca:removeSeries(da)local _b=self.get("series")for ab,bb in ipairs(_b)do if bb.name==da then
 table.remove(_b,ab)break end end
 self:updateRender()return self end
@@ -1363,7 +1371,7 @@ if _b then da:listenEvent("mouse_click",true)
 da:listenEvent("mouse_up",true)da:listenEvent("mouse_drag",true)end;return _b end})
 ca.defineProperty(ca,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
 function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",12)da.set("height",6)
+da.class=ca;da.set("width",12)da.set("height",6)
 da.set("background",colors.gray)da.set("z",10)return da end;function ca:init(da,_b)ba.init(self,da,_b)self.set("type","Frame")
 return self end
 function ca:mouse_click(da,_b,ab)
@@ -1396,12 +1404,12 @@ local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;retur
 d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
 local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
 d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")function d.new()
-local _a=setmetatable({},d):__init()return _a end;function d:init(_a,aa)c.init(self,_a,aa)
-self.set("type","Checkbox")end
+local _a=setmetatable({},d):__init()return _a end
+function d:init(_a,aa)c.init(self,_a,aa)
+self.class=d;self.set("type","Checkbox")end
 function d:mouse_click(_a,aa,ba)
 if c.mouse_click(self,_a,aa,ba)then
-self.set("checked",
-not self.get("checked"))
+self.set("checked",not self.get("checked"))
 self:fireEvent("change",self.get("checked"))return true end;return false end
 function d:render()c.render(self)local _a=self.get("checked")
 local aa=self.get("text")local ba=self.get("checkedText")
@@ -1443,13 +1451,13 @@ if self.onError then
 local bc=self.onError(self.program,ac)if(bc==false)then self.filter=nil;return _c,bc end end;da.header="Basalt Program Error"da.error(ac)end;return _c,ac end
 function ab:stop()if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then return end
-coroutine.close(self.coroutine)self.coroutine=nil end
-function _b.new()local cb=setmetatable({},_b):__init()
-cb.set("z",5)cb.set("width",30)cb.set("height",12)return cb end;function _b:init(cb,db)ca.init(self,cb,db)self.set("type","Program")
-return self end
-function _b:execute(cb)
-self.set("path",cb)self.set("running",true)local db=ab.new(self)
-self.set("program",db)
+coroutine.close(self.coroutine)self.coroutine=nil end;function _b.new()local cb=setmetatable({},_b):__init()
+cb.class=_b;cb.set("z",5)cb.set("width",30)cb.set("height",12)
+return cb end
+function _b:init(cb,db)
+ca.init(self,cb,db)self.set("type","Program")return self end
+function _b:execute(cb)self.set("path",cb)self.set("running",true)
+local db=ab.new(self)self.set("program",db)
 db:run(cb,self.get("width"),self.get("height"))self:updateRender()return self end
 function _b:sendEvent(cb,...)self:dispatchEvent(cb,...)return self end;function _b:onError(cb)local db=self.get("program")if db then db.onError=cb end
 return self end
@@ -1483,10 +1491,11 @@ aa.defineProperty(aa,"gridColor",{default=colors.gray,type="color"})
 aa.defineProperty(aa,"sortColumn",{default=nil,type="number"})
 aa.defineProperty(aa,"sortDirection",{default="asc",type="string"})
 aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
-aa.defineEvent(aa,"mouse_scroll")
-function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",30)ba.set("height",10)ba.set("z",5)return ba end
-function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Table")return self end
+aa.defineEvent(aa,"mouse_scroll")function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;ba.set("width",30)ba.set("height",10)ba.set("z",5)
+return ba end
+function aa:init(ba,ca)
+d.init(self,ba,ca)self.set("type","Table")return self end
 function aa:sortData(ba,ca)local da=self.get("data")
 local _b=self.get("sortDirection")
 if not ca then
@@ -1541,12 +1550,12 @@ d.defineProperty(d,"max",{default=100,type="number"})
 d.defineProperty(d,"horizontal",{default=true,type="boolean",canTriggerRender=true})
 d.defineProperty(d,"barColor",{default=colors.gray,type="color",canTriggerRender=true})
 d.defineProperty(d,"sliderColor",{default=colors.blue,type="color",canTriggerRender=true})d.defineEvent(d,"mouse_click")
-d.defineEvent(d,"mouse_drag")d.defineEvent(d,"mouse_up")function d.new()
-local _a=setmetatable({},d):__init()_a.set("width",8)_a.set("height",1)
-_a.set("backgroundEnabled",false)return _a end;function d:init(_a,aa)
-c.init(self,_a,aa)self.set("type","Slider")end
-function d:getValue()
-local _a=self.get("step")local aa=self.get("max")
+d.defineEvent(d,"mouse_drag")d.defineEvent(d,"mouse_up")
+function d.new()
+local _a=setmetatable({},d):__init()_a.class=d;_a.set("width",8)_a.set("height",1)
+_a.set("backgroundEnabled",false)return _a end
+function d:init(_a,aa)c.init(self,_a,aa)self.set("type","Slider")end
+function d:getValue()local _a=self.get("step")local aa=self.get("max")
 local ba=
 self.get("horizontal")and self.get("width")or self.get("height")return math.floor((_a-1)* (aa/ (ba-1)))end
 function d:mouse_click(_a,aa,ba)
@@ -1576,7 +1585,7 @@ aa.defineProperty(aa,"showPercentage",{default=false,type="boolean"})
 aa.defineProperty(aa,"progressColor",{default=colors.black,type="color"})
 aa.defineProperty(aa,"direction",{default="right",type="string"})
 function aa.new()local ba=setmetatable({},aa):__init()
-ba.set("width",25)ba.set("height",3)return ba end;function aa:init(ba,ca)d.init(self,ba,ca)
+ba.class=aa;ba.set("width",25)ba.set("height",3)return ba end;function aa:init(ba,ca)d.init(self,ba,ca)
 self.set("type","ProgressBar")end
 function aa:render()d.render(self)
 local ba=self.get("width")local ca=self.get("height")
@@ -1596,8 +1605,8 @@ project["elements/Display.lua"] = function(...) local ba=require("elementManager
 local ca=ba.getElement("VisualElement")
 local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
 local ab=require("libraries/colorHex")local bb=setmetatable({},ca)bb.__index=bb;function bb.new()
-local cb=setmetatable({},bb):__init()cb.set("width",25)cb.set("height",8)cb.set("z",5)
-return cb end
+local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",25)cb.set("height",8)
+cb.set("z",5)return cb end
 function bb:init(cb,db)
 ca.init(self,cb,db)self.set("type","Display")
 self._window=window.create(db.getActiveFrame():getTerm(),1,1,self.get("width"),self.get("height"),false)local _c=self._window.reposition;local ac=self._window.blit
@@ -1629,7 +1638,7 @@ d.defineProperty(d,"offset",{default=0,type="number",canTriggerRender=true})
 d.defineProperty(d,"selectedBackground",{default=colors.blue,type="color"})
 d.defineProperty(d,"selectedForeground",{default=colors.white,type="color"})d.defineEvent(d,"mouse_click")
 d.defineEvent(d,"mouse_scroll")
-function d.new()local _a=setmetatable({},d):__init()
+function d.new()local _a=setmetatable({},d):__init()_a.class=d
 _a.set("width",16)_a.set("height",8)_a.set("z",5)
 _a.set("background",colors.gray)return _a end
 function d:init(_a,aa)c.init(self,_a,aa)self.set("type","List")return self end;function d:addItem(_a)local aa=self.get("items")table.insert(aa,_a)
@@ -1683,17 +1692,18 @@ local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"isOpen",{default=false,type="boolean",canTriggerRender=true})
 ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
 ca.defineProperty(ca,"selectedText",{default="",type="string"})
-ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})
-function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",16)da.set("height",1)da.set("z",8)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Dropdown")
-return self end
-function ca:mouse_click(da,_b,ab)if not
-_a.mouse_click(self,da,_b,ab)then return false end
-local bb,cb=self:getRelativePosition(_b,ab)
-if cb==1 then
-self.set("isOpen",not self.get("isOpen"))if not self.get("isOpen")then self.set("height",1)else
-self.set("height",1 +math.min(self.get("dropdownHeight"),
-#self.get("items")))end
+ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
+return da end
+function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","Dropdown")return self end
+function ca:mouse_click(da,_b,ab)
+if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+if cb==1 then self.set("isOpen",not
+self.get("isOpen"))if
+not self.get("isOpen")then self.set("height",1)else
+self.set("height",1 +math.min(self.get("dropdownHeight"),#
+self.get("items")))end
 return true elseif
 self.get("isOpen")and cb>1 and self.get("selectable")then local db=(cb-1)+self.get("offset")
 local _c=self.get("items")
@@ -1729,14 +1739,14 @@ i+1,bc,_d)end end end end end;return ca end
 project["elements/BarChart.lua"] = function(...) local aa=require("elementManager")
 local ba=aa.getElement("VisualElement")local ca=aa.getElement("Graph")
 local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b;function _b.new()
-local ab=setmetatable({},_b):__init()return ab end;function _b:init(ab,bb)ca.init(self,ab,bb)
-self.set("type","BarChart")return self end
-function _b:render()
-ba.render(self)local ab=self.get("width")local bb=self.get("height")
-local cb=self.get("minValue")local db=self.get("maxValue")local _c=self.get("series")local ac=0
-local bc={}
-for ad,bd in pairs(_c)do if(bd.visible)then
-if#bd.data>0 then ac=ac+1;table.insert(bc,bd)end end end;local cc=ac;local dc=1
+local ab=setmetatable({},_b):__init()ab.class=_b;return ab end
+function _b:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","BarChart")return self end
+function _b:render()ba.render(self)local ab=self.get("width")
+local bb=self.get("height")local cb=self.get("minValue")local db=self.get("maxValue")
+local _c=self.get("series")local ac=0;local bc={}
+for ad,bd in pairs(_c)do if(bd.visible)then if#bd.data>0 then ac=ac+1
+table.insert(bc,bd)end end end;local cc=ac;local dc=1
 local _d=math.min(bc[1]and bc[1].pointCount or 0,math.floor((ab+dc)/ (
 cc+dc)))
 for groupIndex=1,_d do local ad=( (groupIndex-1)* (cc+dc))+1
@@ -1748,11 +1758,11 @@ self:blit(__a,barY,cd.symbol,da[cd.fgColor],da[cd.bgColor])end end end end end;r
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})function ca.new()local da=setmetatable({},ca):__init()
-da.set("width",30)da.set("height",1)
+ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})
+function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",30)da.set("height",1)
 da.set("background",colors.gray)return da end
-function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","Menu")return self end
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Menu")return self end
 function ca:setItems(da)local _b={}local ab=0
 for bb,cb in ipairs(da)do
 if cb.separator then
@@ -2147,7 +2157,8 @@ if self.currentSequence<#self.sequences then
 self.currentSequence=self.currentSequence+1;_c={}
 local bc=self.sequenceCallbacks[self.currentSequence]if bc and bc.start then bc.start(self.element)end
 for cc,dc in
-ipairs(self.sequences[self.currentSequence])do dc:start()table.insert(_c,dc)end end end;if#_c>0 then self.timer=os.startTimer(0.05)end end end
+ipairs(self.sequences[self.currentSequence])do dc:start()table.insert(_c,dc)end end end;if#_c>0 then self.timer=os.startTimer(0.05)end
+return true end end
 da.registerAnimation("move",{start=function(ab)ab.startX=ab.element.get("x")
 ab.startY=ab.element.get("y")end,update=function(ab,bb)local cb=ab.startX+
 (ab.args[1]-ab.startX)*bb;local db=ab.startY+
@@ -2193,12 +2204,11 @@ da.registerAnimation("scrollText",{start=function(ab)ab.width=ab.element.get("wi
 ab.targetText=ab.args[2]ab.element.set(ab.args[1],"")end,update=function(ab,bb)local cb=math.floor(
 ab.width* (1 -bb))
 local db=string.rep(" ",cb)
-ab.element.set(ab.args[1],db..ab.targetText)return bb>=1 end})local _b={hooks={}}function _b.hooks.dispatchEvent(ab,bb,...)
-if bb=="timer"then local cb=ab.get("animation")if
-cb then cb:event(bb,...)end;return true end end
+ab.element.set(ab.args[1],db..ab.targetText)return bb>=1 end})local _b={hooks={}}
+function _b.hooks.handleEvent(ab,bb,...)if bb=="timer"then local cb=ab.get("animation")if cb then
+cb:event(bb,...)end end end
 function _b.setup(ab)
-ab.defineProperty(ab,"animation",{default=
-nil,type="table"})ab.defineEvent(ab,"timer")end
+ab.defineProperty(ab,"animation",{default=nil,type="table"})ab.defineEvent(ab,"timer")end
 function _b:animate()local ab=da.new(self)self.set("animation",ab)return ab end;return{VisualElement=_b} end
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
