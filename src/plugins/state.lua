@@ -89,7 +89,7 @@ function BaseElement:setState(name, value)
     -- Trigger observers
     if observers[name] then
         for _, callback in ipairs(observers[name]) do
-            callback(self, name, value)
+            callback(name, value)
         end
     end
 
@@ -99,7 +99,7 @@ function BaseElement:setState(name, value)
             state.value = state.computeFn(self)
             if observers[stateName] then
                 for _, callback in ipairs(observers[stateName]) do
-                    callback(self, stateName, state.value)
+                    callback(stateName, state.value)
                 end
             end
         end
@@ -135,12 +135,12 @@ end
 --- @return BaseElement self The element instance
 function BaseElement:onStateChange(stateName, callback)
     local main = self:getBaseFrame()
-    if not main.get("states")[stateName] then
+    local state = main.get("states")[stateName]
+    if not state then
         errorManager.error("Cannot observe state '" .. stateName .. "': State not initialized")
         return self
     end
     local observers = main.get("stateObserver")
-
     if not observers[stateName] then
         observers[stateName] = {}
     end
@@ -157,7 +157,7 @@ end
 function BaseElement:removeStateChange(stateName, callback)
     local main = self:getBaseFrame()
     local observers = main.get("stateObserver")
-    
+
     if observers[stateName] then
         for i, observer in ipairs(observers[stateName]) do
             if observer == callback then
@@ -201,14 +201,14 @@ function BaseElement:bind(propertyName, stateName)
         self.set(propertyName, main:getState(stateName))
     end
 
-    self:onChange(propertyName, function(_, name, value)
+    self:onChange(propertyName, function(self, value)
         if internalCall then return end
         internalCall = true
         self:setState(stateName, value)
         internalCall = false
     end)
 
-    self:onStateChange(stateName, function(_, name, value)
+    self:onStateChange(stateName, function(name, value)
         if internalCall then return end
         internalCall = true
         if self.get(propertyName) ~= nil then
