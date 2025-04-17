@@ -1403,14 +1403,13 @@ d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,sette
 local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
 d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
 local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
-d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")function d.new()
-local _a=setmetatable({},d):__init()return _a end
-function d:init(_a,aa)c.init(self,_a,aa)
-self.class=d;self.set("type","Checkbox")end
-function d:mouse_click(_a,aa,ba)
-if c.mouse_click(self,_a,aa,ba)then
-self.set("checked",not self.get("checked"))
-self:fireEvent("change",self.get("checked"))return true end;return false end
+d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")
+d.defineEvent(d,"mouse_up")function d.new()local _a=setmetatable({},d):__init()_a.class=d
+_a.set("backgroundEnabled",false)return _a end
+function d:init(_a,aa)
+c.init(self,_a,aa)self.set("type","Checkbox")end
+function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
+self.set("checked",not self.get("checked"))return true end;return false end
 function d:render()c.render(self)local _a=self.get("checked")
 local aa=self.get("text")local ba=self.get("checkedText")
 local ca=string.sub(_a and ba or aa,1,self.get("width"))self:textFg(1,1,ca,self.get("foreground"))end;return d end
