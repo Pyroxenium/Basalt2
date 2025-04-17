@@ -30,12 +30,15 @@ end})
 Checkbox.defineProperty(Checkbox, "autoSize", {default = true, type = "boolean"})
 
 Checkbox.defineEvent(Checkbox, "mouse_click")
+Checkbox.defineEvent(Checkbox, "mouse_up")
 
 --- @shortDescription Creates a new Checkbox instance
 --- @return Checkbox self The created instance
 --- @protected
 function Checkbox.new()
     local self = setmetatable({}, Checkbox):__init()
+    self.class = Checkbox
+    self.set("backgroundEnabled", false)
     return self
 end
 
@@ -45,7 +48,6 @@ end
 --- @protected
 function Checkbox:init(props, basalt)
     VisualElement.init(self, props, basalt)
-    self.class = Checkbox
     self.set("type", "Checkbox")
 end
 
@@ -58,7 +60,6 @@ end
 function Checkbox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         self.set("checked", not self.get("checked"))
-        self:fireEvent("change", self.get("checked"))
         return true
     end
     return false
