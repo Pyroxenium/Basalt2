@@ -68,17 +68,15 @@ local lineBreakElement = {
   getVisible = function(self) return true end,
 }
 
-
 local function sortElements(self, direction, spacing, wrap)
-    -- Pre-allocate tables to reduce dynamic expansion
-    local elements = self.get("children")
     local sortedElements = {}
     local visibleElements = {}
     local childCount = 0
     
-    -- First gather all visible elements
-    for _, elem in pairs(elements) do
-        if elem:getVisible() then
+    -- We can't use self.get("visibleChildren") here 
+    --because it would exclude elements that are obscured
+    for _, elem in pairs(self.get("children")) do
+        if elem.get("visible") then
             table.insert(visibleElements, elem)
             if elem ~= lineBreakElement then
                 childCount = childCount + 1
@@ -86,19 +84,16 @@ local function sortElements(self, direction, spacing, wrap)
         end
     end
     
-    -- No visible elements, nothing to layout
+    
     if childCount == 0 then
         return sortedElements
     end
     
-    -- Use known size to pre-allocate array
     if not wrap then
-        -- No-wrap mode, all elements in one row/column
         sortedElements[1] = {offset=1}
         
         for _, elem in ipairs(visibleElements) do
             if elem == lineBreakElement then
-                -- Create new line
                 local nextIndex = #sortedElements + 1
                 if sortedElements[nextIndex] == nil then
                     sortedElements[nextIndex] = {offset=1}
@@ -108,41 +103,32 @@ local function sortElements(self, direction, spacing, wrap)
             end
         end
     else
-        -- Wrap mode, need to calculate rows/columns more optimally
         local containerSize = direction == "row" and self.get("width") or self.get("height")
         
-        -- First split elements by line breaks
         local segments = {{}}
         local currentSegment = 1
         
         for _, elem in ipairs(visibleElements) do
             if elem == lineBreakElement then
-                -- Start a new segment
                 currentSegment = currentSegment + 1
                 segments[currentSegment] = {}
             else
-                -- Add to current segment
                 table.insert(segments[currentSegment], elem)
             end
         end
         
-        -- Now process each segment optimally
         for segmentIndex, segment in ipairs(segments) do
             if #segment == 0 then
-                -- Empty segment (consecutive line breaks)
                 sortedElements[#sortedElements + 1] = {offset=1}
             else
-                -- Try to pack elements optimally within this segment
                 local rows = {}
                 local currentRow = {}
                 local currentWidth = 0
                 
                 for _, elem in ipairs(segment) do
-                    -- Get intrinsic size if available, otherwise use current size
                     local intrinsicSize = 0
                     local currentSize = direction == "row" and elem.get("width") or elem.get("height")
                     
-                    -- Try to get intrinsic size, safely
                     local hasIntrinsic = false
                     if direction == "row" then
                         local ok, intrinsicWidth = pcall(function() return elem.get("intrinsicWidth") end)
@@ -158,35 +144,28 @@ local function sortElements(self, direction, spacing, wrap)
                         end
                     end
                     
-                    -- Fall back to current size if no intrinsic size
                     local elemSize = hasIntrinsic and intrinsicSize or currentSize
                     
                     local spaceNeeded = elemSize
                     
-                    -- Add spacing if not first element in row
                     if #currentRow > 0 then
                         spaceNeeded = spaceNeeded + spacing
                     end
                     
-                    -- Check if element fits in current row
                     if currentWidth + spaceNeeded <= containerSize or #currentRow == 0 then
-                        -- Element fits or it's first element (must place even if too large)
                         table.insert(currentRow, elem)
                         currentWidth = currentWidth + spaceNeeded
                     else
-                        -- Element doesn't fit, start new row
                         table.insert(rows, currentRow)
                         currentRow = {elem}
                         currentWidth = elemSize
                     end
                 end
                 
-                -- Don't forget the last row
                 if #currentRow > 0 then
                     table.insert(rows, currentRow)
                 end
                 
-                -- Add rows to sorted elements
                 for _, row in ipairs(rows) do
                     sortedElements[#sortedElements + 1] = {offset=1}
                     for _, elem in ipairs(row) do
@@ -197,7 +176,6 @@ local function sortElements(self, direction, spacing, wrap)
         end
     end
     
-    -- Filter out empty rows/columns
     local filteredElements = {}
     for i, rowOrColumn in ipairs(sortedElements) do
         if #rowOrColumn > 0 then
@@ -640,44 +618,27 @@ end
 
 -- Optimize updateLayout function
 local function updateLayout(self, direction, spacing, justifyContent, wrap)
-    -- Check essential properties for layout
     if self.get("width") <= 0 or self.get("height") <= 0 then
         return
     end
     
-    -- Force direction to be valid
     direction = (direction == "row" or direction == "column") and direction or "row"
     
-    -- Check if container size has changed since last layout
     local currentWidth, currentHeight = self.get("width"), self.get("height")
-    local lastWidth = self.get("_lastLayoutWidth") or 0
-    local lastHeight = self.get("_lastLayoutHeight") or 0
-    local sizeChanged = currentWidth ~= lastWidth or currentHeight ~= lastHeight
+    local sizeChanged = currentWidth ~= self._lastLayoutWidth or currentHeight ~= self._lastLayoutHeight
     
-    -- Store current size for next comparison
-    self.set("_lastLayoutWidth", currentWidth)
-    self.set("_lastLayoutHeight", currentHeight)
+    self._lastLayoutWidth = currentWidth
+    self._lastLayoutHeight = currentHeight
     
-    -- If container size increased, we might need to reset flexGrow items to recalculate
-    if wrap and sizeChanged and (currentWidth > lastWidth or currentHeight > lastHeight) then
-        -- Get reference to all children
-        local allChildren = self.get("children")
-        
-        -- Reset flex items to intrinsic size temporarily to allow reflow
-        for _, child in pairs(allChildren) do
+    if wrap and sizeChanged and (currentWidth > self._lastLayoutWidth or currentHeight > self._lastLayoutHeight) then
+        for _, child in pairs(self.get("children")) do
             if child ~= lineBreakElement and child:getVisible() and child.get("flexGrow") and child.get("flexGrow") > 0 then
                 if direction == "row" then
-                    -- Store the actual width temporarily
-                    local actualWidth = child.get("width")
-                    -- Reset to intrinsic width for layout calculation
                     local ok, value = pcall(function() return child.get("intrinsicWidth") end)
                     if ok and value then
                         child.set("width", value)
                     end
                 else
-                    -- Store the actual height temporarily
-                    local actualHeight = child.get("height")
-                    -- Reset to intrinsic height for layout calculation
                     local ok, value = pcall(function() return child.get("intrinsicHeight") end)
                     if ok and value then
                         child.set("height", value)
@@ -687,94 +648,70 @@ local function updateLayout(self, direction, spacing, justifyContent, wrap)
         end
     end
     
-    -- Get all elements that need layout
     local elements = sortElements(self, direction, spacing, wrap)
+    if #elements == 0 then return end
     
-    -- Debug: Check what elements were found
-    if #elements == 0 then
-        return -- No elements to layout
-    end
-    
-    -- Based on direction, select layout function, avoid checking every iteration
     local layoutFunction = direction == "row" and calculateRow or calculateColumn
     
-    -- Apply layout calculation with vertical offset
     if direction == "row" and wrap then
-        -- In row direction with wrap, we need to offset each row vertically
         local currentY = 1
         for i, rowOrColumn in ipairs(elements) do
-            -- Skip empty rows
-            if #rowOrColumn == 0 then goto continue end
-            
-            -- First, set the vertical offset for this row
-            for _, element in ipairs(rowOrColumn) do
-                if element ~= lineBreakElement then
-                    element.set("y", currentY)
+            if #rowOrColumn > 0 then
+                for _, element in ipairs(rowOrColumn) do
+                    if element ~= lineBreakElement then
+                        element.set("y", currentY)
+                    end
+                end
+                
+                layoutFunction(self, rowOrColumn, spacing, justifyContent)
+                
+                local rowHeight = 0
+                for _, element in ipairs(rowOrColumn) do
+                    if element ~= lineBreakElement then
+                        rowHeight = math.max(rowHeight, element.get("height"))
+                    end
+                end
+                
+                if i < #elements then
+                    currentY = currentY + rowHeight + spacing
+                else
+                    currentY = currentY + rowHeight
                 end
             end
-            
-            -- Apply the row layout
-            layoutFunction(self, rowOrColumn, spacing, justifyContent)
-            
-            -- Calculate height for this row (maximum element height)
-            local rowHeight = 0
-            for _, element in ipairs(rowOrColumn) do
-                if element ~= lineBreakElement then
-                    rowHeight = math.max(rowHeight, element.get("height"))
-                end
-            end
-            
-            -- Move to next row (add spacing only if not the last row)
-            if i < #elements then
-                currentY = currentY + rowHeight + spacing
-            else
-                currentY = currentY + rowHeight
-            end
-            
-            ::continue::
         end
     elseif direction == "column" and wrap then
-        -- In column direction with wrap, we need to offset each column horizontally
         local currentX = 1
         for i, rowOrColumn in ipairs(elements) do
-            -- Skip empty columns
-            if #rowOrColumn == 0 then goto continue end
-            
-            -- First, set the horizontal offset for this column
-            for _, element in ipairs(rowOrColumn) do
-                if element ~= lineBreakElement then
-                    element.set("x", currentX)
+            if #rowOrColumn > 0 then
+                for _, element in ipairs(rowOrColumn) do
+                    if element ~= lineBreakElement then
+                        element.set("x", currentX)
+                    end
+                end
+                
+                layoutFunction(self, rowOrColumn, spacing, justifyContent)
+                
+                local columnWidth = 0
+                for _, element in ipairs(rowOrColumn) do
+                    if element ~= lineBreakElement then
+                        columnWidth = math.max(columnWidth, element.get("width"))
+                    end
+                end
+                
+                if i < #elements then
+                    currentX = currentX + columnWidth + spacing
+                else
+                    currentX = currentX + columnWidth
                 end
             end
-            
-            -- Apply the column layout
-            layoutFunction(self, rowOrColumn, spacing, justifyContent)
-            
-            -- Calculate width for this column (maximum element width)
-            local columnWidth = 0
-            for _, element in ipairs(rowOrColumn) do
-                if element ~= lineBreakElement then
-                    columnWidth = math.max(columnWidth, element.get("width"))
-                end
-            end
-            
-            -- Move to next column (add spacing only if not the last column)
-            if i < #elements then
-                currentX = currentX + columnWidth + spacing
-            else
-                currentX = currentX + columnWidth
-            end
-            
-            ::continue::
         end
     else
-        -- Simple case: no wrapping
-        for i, rowOrColumn in ipairs(elements) do
+        for _, rowOrColumn in ipairs(elements) do
             layoutFunction(self, rowOrColumn, spacing, justifyContent)
         end
     end
-    
-    -- Reset layout update flag
+    self:sortChildren()
+    self.set("childrenEventsSorted", false)
     self.set("flexUpdateLayout", false)
 end
 
@@ -789,11 +726,9 @@ function Flexbox.new()
     self.set("background", colors.blue)
     self.set("z", 10)
     
-    -- Add instance properties for layout tracking
-    self:instanceProperty("_lastLayoutWidth", {default = 0, type = "number"})
-    self:instanceProperty("_lastLayoutHeight", {default = 0, type = "number"})
+    self._lastLayoutWidth = 0
+    self._lastLayoutHeight = 0
     
-    -- Add observers for properties that affect layout
     self:observe("width", function() self.set("flexUpdateLayout", true) end)
     self:observe("height", function() self.set("flexUpdateLayout", true) end)
     self:observe("flexDirection", function() self.set("flexUpdateLayout", true) end)
@@ -831,20 +766,18 @@ function Flexbox:addChild(element)
         element:instanceProperty("intrinsicWidth", {default = element.get("width"), type = "number"})
         element:instanceProperty("intrinsicHeight", {default = element.get("height"), type = "number"})
         
-        -- Add observer to child element's flexGrow and flexShrink properties
         element:observe("flexGrow", function() self.set("flexUpdateLayout", true) end)
         element:observe("flexShrink", function() self.set("flexUpdateLayout", true) end)
         
-        -- Add observer for size changes to track intrinsic size
-        element:observe("width", function(_, oldW, newW) 
+        element:observe("width", function(_, newValue, oldValue) 
             if element.get("flexGrow") == 0 then 
-                element.set("intrinsicWidth", newW) 
+                element.set("intrinsicWidth", newValue) 
             end
             self.set("flexUpdateLayout", true)
         end)
-        element:observe("height", function(_, oldH, newH) 
+        element:observe("height", function(_, newValue, oldValue) 
             if element.get("flexGrow") == 0 then 
-                element.set("intrinsicHeight", newH) 
+                element.set("intrinsicHeight", newValue) 
             end
             self.set("flexUpdateLayout", true)
         end)
