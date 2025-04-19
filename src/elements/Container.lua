@@ -302,7 +302,6 @@ end
 function Container:removeChild(child)
     for i,v in ipairs(self._values.children) do
         if v.get("id") == child.get("id") then
-            self.basalt.LOGGER.debug("Removing child: "..child:getType())
             table.remove(self._values.children, i)
             child.parent = nil
             break
