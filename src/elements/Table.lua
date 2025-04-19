@@ -183,7 +183,10 @@ function Table:render()
             for i, col in ipairs(columns) do
                 local cellText = tostring(rowData[i] or "")
                 local paddedText = cellText .. string.rep(" ", col.width - #cellText)
-                self:blit(currentX, y, string.sub(paddedText, 1, width-currentX+1),
+                if i < #columns then
+                    paddedText = string.sub(paddedText, 1, col.width - 1) .. " "
+                end
+                self:blit(currentX, y, string.sub(paddedText, 1, col.width),
                     string.sub(string.rep(tHex[self.get("foreground")], col.width), 1, width-currentX+1),
                     string.sub(string.rep(tHex[bg], col.width), 1, width-currentX+1))
                 currentX = currentX + col.width
