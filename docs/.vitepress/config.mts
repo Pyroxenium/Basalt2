@@ -90,14 +90,18 @@ export default defineConfig({
               {text: 'VisualElement', link: 'references/elements/VisualElement', collapsed: false, items: [
                 {text: 'Container', link: 'references/elements/Container', collapsed: true, items: [
                   {text: 'BaseFrame', link: 'references/elements/BaseFrame'},
+                  {text: 'Flexbox', link: 'references/elements/Flexbox'},
                   {text: 'Frame', link: 'references/elements/Frame'},
                 ]},
+                {text: 'BigFont', link: 'references/elements/BigFont'},
                 {text: 'Button', link: 'references/elements/Button'},
+                {text: 'Display', link: 'references/elements/Display'},
                 {text: 'Graph', link: 'references/elements/Graph', collapsed: true, items: [
                     {text: 'BarChart', link: 'references/elements/BarChart'},
                     {text: 'LineChart', link: 'references/elements/LineChart'},
                   ]},
                 {text: 'Label', link: 'references/elements/Label'},  
+                {text: 'Image', link: 'references/elements/Image'},
                 {text: 'Input', link: 'references/elements/Input'},
                 {text: 'Checkbox', link: 'references/elements/Checkbox'},
                 {text: 'List', link: 'references/elements/List', collapsed: true,
@@ -107,7 +111,9 @@ export default defineConfig({
                   ]
                 },
                 {text: 'Table', link: 'references/elements/Table'},
+                {text: 'TextBox', link: 'references/elements/TextBox'},
                 {text: 'Tree', link: 'references/elements/Tree'},
+                {text: 'ScrollBar', link: 'references/elements/ScrollBar'},
                 {text: 'Slider', link: 'references/elements/Slider'},
                 {text: 'ProgressBar', link: 'references/elements/ProgressBar'},
                 {text: 'Program', link: 'references/elements/Program'},
