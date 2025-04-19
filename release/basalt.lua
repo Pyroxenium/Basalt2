@@ -575,10 +575,8 @@ self._values.childrenEvents[cc]=nil;self._values.eventListenerCount[cc]=nil;if s
 self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)
 self:updateRender()break end end end;return self end
 function db:removeChild(bc)
-for cc,dc in ipairs(self._values.children)do
-if
-dc.get("id")==bc.get("id")then
-self.basalt.LOGGER.debug("Removing child: "..bc:getType())table.remove(self._values.children,cc)
+for cc,dc in ipairs(self._values.children)do if
+dc.get("id")==bc.get("id")then table.remove(self._values.children,cc)
 bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
 self.set("childrenSorted",false)return self end
 function db:getChild(bc)
