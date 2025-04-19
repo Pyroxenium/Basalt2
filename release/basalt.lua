@@ -997,7 +997,7 @@ ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true
 ca.defineEvent(ca,"mouse_release")ca.defineEvent(ca,"mouse_drag")
 ca.defineEvent(ca,"mouse_scroll")
 function ca.new()local ab=setmetatable({},ca):__init()
-ab.class=ca;ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","Scrollbar")return
+ab.class=ca;ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","ScrollBar")return
 self end
 function ca:attach(ab,bb)
 self.set("attachedElement",ab)self.set("attachedProperty",bb.property)self.set("minValue",
