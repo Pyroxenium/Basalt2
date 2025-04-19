@@ -1246,8 +1246,8 @@ self._render:setCursor(cb,db,_c,ac)end
 function ab:monitor_touch(cb,db,_c)
 local ac=self.get("term")if ac==nil then return end
 if(bb(ac))then if self._peripheralName==cb then
-self:mouse_click(0,db,_c)
-self.basalt.schedule(function()sleep(0.1)self:mouse_up(0,db,_c)end)end end end;function ab:mouse_click(cb,db,_c)ca.mouse_click(self,cb,db,_c)
+self:mouse_click(1,db,_c)
+self.basalt.schedule(function()sleep(0.1)self:mouse_up(1,db,_c)end)end end end;function ab:mouse_click(cb,db,_c)ca.mouse_click(self,cb,db,_c)
 self.basalt.setFocus(self)end
 function ab:mouse_up(cb,db,_c)
 ca.mouse_up(self,cb,db,_c)ca.mouse_release(self,cb,db,_c)end
@@ -1564,11 +1564,12 @@ function d:getValue()local _a=self.get("step")local aa=self.get("max")
 local ba=
 self.get("horizontal")and self.get("width")or self.get("height")return math.floor((_a-1)* (aa/ (ba-1)))end
 function d:mouse_click(_a,aa,ba)
-if _a==1 and self:isInBounds(aa,ba)then
+self.basalt.LOGGER.debug("Slider:mouse_click",_a,aa,ba)
+if self:isInBounds(aa,ba)then
 local ca,da=self:getRelativePosition(aa,ba)
 local _b=self.get("horizontal")and ca or da;local ab=self.get("horizontal")and self.get("width")or
 self.get("height")
-self.set("step",math.min(ab,math.max(1,_b)))self:updateRender()return true end end;d.mouse_drag=d.mouse_click
+self.set("step",math.min(ab,math.max(1,_b)))self:updateRender()return true end;return false end;d.mouse_drag=d.mouse_click
 function d:mouse_scroll(_a,aa,ba)
 if self:isInBounds(aa,ba)then
 local ca=self.get("step")local da=self.get("horizontal")and self.get("width")or
