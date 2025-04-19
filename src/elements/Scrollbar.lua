@@ -1,77 +1,77 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
 
----A scrollbar element that can be attached to other elements to control their scroll properties
----@class Scrollbar : VisualElement
-local Scrollbar = setmetatable({}, VisualElement)
-Scrollbar.__index = Scrollbar
+---A ScrollBar element that can be attached to other elements to control their scroll properties
+---@class ScrollBar : VisualElement
+local ScrollBar = setmetatable({}, VisualElement)
+ScrollBar.__index = ScrollBar
 
 ---@property value number 0 Current scroll value
-Scrollbar.defineProperty(Scrollbar, "value", {default = 0, type = "number", canTriggerRender = true})
+ScrollBar.defineProperty(ScrollBar, "value", {default = 0, type = "number", canTriggerRender = true})
 ---@property min number 0 Minimum scroll value
-Scrollbar.defineProperty(Scrollbar, "min", {default = 0, type = "number", canTriggerRender = true})
+ScrollBar.defineProperty(ScrollBar, "min", {default = 0, type = "number", canTriggerRender = true})
 ---@property max number 100 Maximum scroll value
-Scrollbar.defineProperty(Scrollbar, "max", {default = 100, type = "number", canTriggerRender = true})
+ScrollBar.defineProperty(ScrollBar, "max", {default = 100, type = "number", canTriggerRender = true})
 ---@property step number 1 Step size for scroll operations
-Scrollbar.defineProperty(Scrollbar, "step", {default = 10, type = "number"})
----@property dragMultiplier number 1 How fast the scrollbar moves when dragging
-Scrollbar.defineProperty(Scrollbar, "dragMultiplier", {default = 1, type = "number"})
----@property symbol string " " Symbol used for the scrollbar handle
-Scrollbar.defineProperty(Scrollbar, "symbol", {default = " ", type = "string", canTriggerRender = true})
----@property backgroundSymbol string "\127" Symbol used for the scrollbar background
-Scrollbar.defineProperty(Scrollbar, "symbolColor", {default = colors.gray, type = "color", canTriggerRender = true})
----@property symbolBackgroundColor color black Background color of the scrollbar handle
-Scrollbar.defineProperty(Scrollbar, "symbolBackgroundColor", {default = colors.black, type = "color", canTriggerRender = true})
----@property backgroundSymbol string "\127" Symbol used for the scrollbar background
-Scrollbar.defineProperty(Scrollbar, "backgroundSymbol", {default = "\127", type = "string", canTriggerRender = true})
----@property attachedElement table? nil The element this scrollbar is attached to
-Scrollbar.defineProperty(Scrollbar, "attachedElement", {default = nil, type = "table"})
+ScrollBar.defineProperty(ScrollBar, "step", {default = 10, type = "number"})
+---@property dragMultiplier number 1 How fast the ScrollBar moves when dragging
+ScrollBar.defineProperty(ScrollBar, "dragMultiplier", {default = 1, type = "number"})
+---@property symbol string " " Symbol used for the ScrollBar handle
+ScrollBar.defineProperty(ScrollBar, "symbol", {default = " ", type = "string", canTriggerRender = true})
+---@property backgroundSymbol string "\127" Symbol used for the ScrollBar background
+ScrollBar.defineProperty(ScrollBar, "symbolColor", {default = colors.gray, type = "color", canTriggerRender = true})
+---@property symbolBackgroundColor color black Background color of the ScrollBar handle
+ScrollBar.defineProperty(ScrollBar, "symbolBackgroundColor", {default = colors.black, type = "color", canTriggerRender = true})
+---@property backgroundSymbol string "\127" Symbol used for the ScrollBar background
+ScrollBar.defineProperty(ScrollBar, "backgroundSymbol", {default = "\127", type = "string", canTriggerRender = true})
+---@property attachedElement table? nil The element this ScrollBar is attached to
+ScrollBar.defineProperty(ScrollBar, "attachedElement", {default = nil, type = "table"})
 ---@property attachedProperty string? nil The property being controlled
-Scrollbar.defineProperty(Scrollbar, "attachedProperty", {default = nil, type = "string"})
+ScrollBar.defineProperty(ScrollBar, "attachedProperty", {default = nil, type = "string"})
 ---@property minValue number|function 0 Minimum value or function that returns it
-Scrollbar.defineProperty(Scrollbar, "minValue", {default = 0, type = "number"})
+ScrollBar.defineProperty(ScrollBar, "minValue", {default = 0, type = "number"})
 ---@property maxValue number|function 100 Maximum value or function that returns it
-Scrollbar.defineProperty(Scrollbar, "maxValue", {default = 100, type = "number"})
----@property orientation string vertical Orientation of the scrollbar ("vertical" or "horizontal")
-Scrollbar.defineProperty(Scrollbar, "orientation", {default = "vertical", type = "string", canTriggerRender = true})
+ScrollBar.defineProperty(ScrollBar, "maxValue", {default = 100, type = "number"})
+---@property orientation string vertical Orientation of the ScrollBar ("vertical" or "horizontal")
+ScrollBar.defineProperty(ScrollBar, "orientation", {default = "vertical", type = "string", canTriggerRender = true})
 
----@property handleSize number 2 Size of the scrollbar handle in characters
-Scrollbar.defineProperty(Scrollbar, "handleSize", {default = 2, type = "number", canTriggerRender = true})
+---@property handleSize number 2 Size of the ScrollBar handle in characters
+ScrollBar.defineProperty(ScrollBar, "handleSize", {default = 2, type = "number", canTriggerRender = true})
 
-Scrollbar.defineEvent(Scrollbar, "mouse_click")
-Scrollbar.defineEvent(Scrollbar, "mouse_release")
-Scrollbar.defineEvent(Scrollbar, "mouse_drag")
-Scrollbar.defineEvent(Scrollbar, "mouse_scroll")
+ScrollBar.defineEvent(ScrollBar, "mouse_click")
+ScrollBar.defineEvent(ScrollBar, "mouse_release")
+ScrollBar.defineEvent(ScrollBar, "mouse_drag")
+ScrollBar.defineEvent(ScrollBar, "mouse_scroll")
 
---- Creates a new Scrollbar instance
---- @shortDescription Creates a new Scrollbar instance
---- @return Scrollbar self The newly created Scrollbar instance
+--- Creates a new ScrollBar instance
+--- @shortDescription Creates a new ScrollBar instance
+--- @return ScrollBar self The newly created ScrollBar instance
 --- @private
-function Scrollbar.new()
-    local self = setmetatable({}, Scrollbar):__init()
-    self.class = Scrollbar
+function ScrollBar.new()
+    local self = setmetatable({}, ScrollBar):__init()
+    self.class = ScrollBar
     self.set("width", 1)
     self.set("height", 10)
     return self
 end
 
---- @shortDescription Initializes the Scrollbar instance
+--- @shortDescription Initializes the ScrollBar instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
---- @return Scrollbar self The initialized instance
+--- @return ScrollBar self The initialized instance
 --- @protected
-function Scrollbar:init(props, basalt)
+function ScrollBar:init(props, basalt)
     VisualElement.init(self, props, basalt)
-    self.set("type", "Scrollbar")
+    self.set("type", "ScrollBar")
     return self
 end
 
---- Attaches the scrollbar to an element's property
---- @shortDescription Attaches the scrollbar to an element's property
+--- Attaches the ScrollBar to an element's property
+--- @shortDescription Attaches the ScrollBar to an element's property
 --- @param element BaseElement The element to attach to
 --- @param config table Configuration {property = "propertyName", min = number|function, max = number|function}
---- @return Scrollbar self The scrollbar instance
-function Scrollbar:attach(element, config)
+--- @return ScrollBar self The ScrollBar instance
+function ScrollBar:attach(element, config)
     self.set("attachedElement", element)
     self.set("attachedProperty", config.property)
     self.set("minValue", config.min or 0)
@@ -79,10 +79,10 @@ function Scrollbar:attach(element, config)
     return self
 end
 
---- Updates the attached element's property based on the scrollbar value
---- @shortDescription Updates the attached element's property based on the scrollbar value
---- @return Scrollbar self The scrollbar instance
-function Scrollbar:updateAttachedElement()
+--- Updates the attached element's property based on the ScrollBar value
+--- @shortDescription Updates the attached element's property based on the ScrollBar value
+--- @return ScrollBar self The ScrollBar instance
+function ScrollBar:updateAttachedElement()
     local element = self.get("attachedElement")
     if not element then return end
 
@@ -113,7 +113,7 @@ end
 --- @param y number The y position of the click
 --- @return boolean Whether the event was handled
 --- @protected
-function Scrollbar:mouse_click(button, x, y)
+function ScrollBar:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local size = getScrollbarSize(self)
         local value = self.get("value")
@@ -139,7 +139,7 @@ end
 --- @param y number The y position of the drag
 --- @return boolean Whether the event was handled
 --- @protected
-function Scrollbar:mouse_drag(button, x, y)
+function ScrollBar:mouse_drag(button, x, y)
     if(VisualElement.mouse_drag(self, button, x, y))then
         local size = getScrollbarSize(self)
         local handleSize = self.get("handleSize")
@@ -163,7 +163,7 @@ end
 --- @param y number The y position of the scroll
 --- @return boolean Whether the event was handled
 --- @protected
-function Scrollbar:mouse_scroll(direction, x, y)
+function ScrollBar:mouse_scroll(direction, x, y)
     if not self:isInBounds(x, y) then return false end
     direction = direction > 0 and -1 or 1
     local step = self.get("step")
@@ -175,9 +175,9 @@ function Scrollbar:mouse_scroll(direction, x, y)
     return true
 end
 
---- @shortDescription Renders the scrollbar
+--- @shortDescription Renders the ScrollBar
 --- @protected
-function Scrollbar:render()
+function ScrollBar:render()
     VisualElement.render(self)
 
     local size = getScrollbarSize(self)
@@ -208,4 +208,4 @@ function Scrollbar:render()
     end
 end
 
-return Scrollbar
+return ScrollBar
