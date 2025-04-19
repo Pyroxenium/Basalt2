@@ -1538,8 +1538,9 @@ if bc and(ac+1)<=#ca then db=1
 local cc=
 (ac+1)==da and self.get("selectedColor")or self.get("background")
 for dc,_d in ipairs(ba)do local ad=tostring(bc[dc]or"")local bd=ad..
-string.rep(" ",_d.width-#ad)
-self:blit(db,y,string.sub(bd,1,cb-db+1),string.sub(string.rep(_a[self.get("foreground")],_d.width),1,
+string.rep(" ",_d.width-#ad)if dc<#ba then bd=
+string.sub(bd,1,_d.width-1).." "end
+self:blit(db,y,string.sub(bd,1,_d.width),string.sub(string.rep(_a[self.get("foreground")],_d.width),1,
 cb-db+1),string.sub(string.rep(_a[cc],_d.width),1,
 cb-db+1))db=db+_d.width end else
 self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end
