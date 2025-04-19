@@ -520,7 +520,8 @@ local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end;function db.new()l
 bc.class=db;return bc end
 function db:init(bc,cc)
 ab.init(self,bc,cc)self.set("type","Container")end
-function db:isChildVisible(bc)if(bc.get("visible")==false)then return false end
+function db:isChildVisible(bc)if(bc.get("visible")==false)then return false end;if
+(bc._destroyed)then return false end
 local cc,dc=self.get("width"),self.get("height")local _d,ad=self.get("offsetX"),self.get("offsetY")
 local bd,cd=bc.get("x"),bc.get("y")local dd,__a=bc.get("width"),bc.get("height")local a_a;local b_a;if
 (bc.get("ignoreOffset"))then a_a=bd;b_a=cd else a_a=bd-_d;b_a=cd-ad end;return
@@ -565,7 +566,7 @@ function db:unregisterChildEvent(bc,cc)
 if self._values.childrenEvents[cc]then
 for dc,_d in
 ipairs(self._values.childrenEvents[cc])do
-if _d==bc then
+if _d.get("id")==bc.get("id")then
 table.remove(self._values.childrenEvents[cc],dc)self._values.eventListenerCount[cc]=
 self._values.eventListenerCount[cc]-1
 if
@@ -574,8 +575,11 @@ self._values.childrenEvents[cc]=nil;self._values.eventListenerCount[cc]=nil;if s
 self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)
 self:updateRender()break end end end;return self end
 function db:removeChild(bc)
-for cc,dc in ipairs(self._values.children)do if dc==bc then
-table.remove(self._values.children,cc)bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
+for cc,dc in ipairs(self._values.children)do
+if
+dc.get("id")==bc.get("id")then
+self.basalt.LOGGER.debug("Removing child: "..bc:getType())table.remove(self._values.children,cc)
+bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
 self.set("childrenSorted",false)return self end
 function db:getChild(bc)
 if type(bc)=="string"then local cc=cb(bc,"/")
@@ -673,7 +677,9 @@ self:sortChildrenEvents(bc)end end;for bc,cc in ipairs(self.get("visibleChildren
 _b.error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()
 cc:postRender()end end
 function db:destroy()
-for bc,cc in ipairs(self._values.children)do cc:destroy()end;ab.destroy(self)return self end;return db end
+if not self:isType("BaseFrame")then
+self.set("childrenSorted",false)ab.destroy(self)return self else _b.header="Basalt Error"
+_b.error("Cannot destroy a BaseFrame.")end end;return db end
 project["elements/Image.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
@@ -1260,65 +1266,67 @@ ca.dispatchEvent(self,cb,...)end;function ab:render()
 if(self._renderUpdate)then if self._render~=nil then ca.render(self)
 self._render:render()self._renderUpdate=false end end end
 return ab end
-project["elements/BaseElement.lua"] = function(...) local d=require("propertySystem")
-local _a=require("libraries/utils").uuid;local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"type",{default={"BaseElement"},type="string",setter=function(ba,ca)if
-type(ca)=="string"then table.insert(ba._values.type,1,ca)return
-ba._values.type end;return ca end,getter=function(ba,ca,da)if
-da~=nil and da<1 then return ba._values.type end;return ba._values.type[
-da or 1]end})
-aa.defineProperty(aa,"id",{default="",type="string",readonly=true})
-aa.defineProperty(aa,"name",{default="",type="string"})
-aa.defineProperty(aa,"eventCallbacks",{default={},type="table"})
-function aa.defineEvent(ba,ca,da)
-if not rawget(ba,'_eventConfigs')then ba._eventConfigs={}end;ba._eventConfigs[ca]={requires=da and da or ca}end
-function aa.registerEventCallback(ba,ca,...)
-local da=ca:match("^on")and ca or"on"..ca;local _b={...}local ab=_b[1]
-ba[da]=function(bb,...)
-for cb,db in ipairs(_b)do if not bb._registeredEvents[db]then
-bb:listenEvent(db,true)end end;bb:registerCallback(ab,...)return bb end end;function aa.new()local ba=setmetatable({},aa):__init()
-ba.class=aa;return ba end
-function aa:init(ba,ca)
-if self._initialized then return self end;self._initialized=true;self._props=ba;self._values.id=_a()
-self.basalt=ca;self._registeredEvents={}local da=getmetatable(self).__index
-local _b={}da=self.class
-while da do
-if type(da)=="table"and da._eventConfigs then for ab,bb in
-pairs(da._eventConfigs)do if not _b[ab]then _b[ab]=bb end end end
-da=getmetatable(da)and getmetatable(da).__index end
-for ab,bb in pairs(_b)do self._registeredEvents[bb.requires]=true end;if self._callbacks then
-for ab,bb in pairs(self._callbacks)do self[bb]=function(cb,...)
-cb:registerCallback(ab,...)return cb end end end
+project["elements/BaseElement.lua"] = function(...) local _a=require("propertySystem")
+local aa=require("libraries/utils").uuid;local ba=require("errorManager")local ca=setmetatable({},_a)
+ca.__index=ca
+ca.defineProperty(ca,"type",{default={"BaseElement"},type="string",setter=function(da,_b)if type(_b)=="string"then
+table.insert(da._values.type,1,_b)return da._values.type end;return _b end,getter=function(da,_b,ab)if
+ab~=nil and ab<1 then return da._values.type end;return da._values.type[
+ab or 1]end})
+ca.defineProperty(ca,"id",{default="",type="string",readonly=true})
+ca.defineProperty(ca,"name",{default="",type="string"})
+ca.defineProperty(ca,"eventCallbacks",{default={},type="table"})
+function ca.defineEvent(da,_b,ab)
+if not rawget(da,'_eventConfigs')then da._eventConfigs={}end;da._eventConfigs[_b]={requires=ab and ab or _b}end
+function ca.registerEventCallback(da,_b,...)
+local ab=_b:match("^on")and _b or"on".._b;local bb={...}local cb=bb[1]
+da[ab]=function(db,...)
+for _c,ac in ipairs(bb)do if not db._registeredEvents[ac]then
+db:listenEvent(ac,true)end end;db:registerCallback(cb,...)return db end end;function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;return da end
+function ca:init(da,_b)
+if self._initialized then return self end;self._initialized=true;self._props=da;self._values.id=aa()
+self.basalt=_b;self._registeredEvents={}local ab=getmetatable(self).__index
+local bb={}ab=self.class
+while ab do
+if type(ab)=="table"and ab._eventConfigs then for cb,db in
+pairs(ab._eventConfigs)do if not bb[cb]then bb[cb]=db end end end
+ab=getmetatable(ab)and getmetatable(ab).__index end
+for cb,db in pairs(bb)do self._registeredEvents[db.requires]=true end;if self._callbacks then
+for cb,db in pairs(self._callbacks)do self[db]=function(_c,...)
+_c:registerCallback(cb,...)return _c end end end
 return self end
-function aa:postInit()if self._postInitialized then return self end
+function ca:postInit()if self._postInitialized then return self end
 self._postInitialized=true;if(self._props)then
-for ba,ca in pairs(self._props)do self.set(ba,ca)end end;self._props=nil;return self end;function aa:isType(ba)
-for ca,da in ipairs(self._values.type)do if da==ba then return true end end;return false end
-function aa:listenEvent(ba,ca)ca=
-ca~=false
+for da,_b in pairs(self._props)do self.set(da,_b)end end;self._props=nil;return self end;function ca:isType(da)
+for _b,ab in ipairs(self._values.type)do if ab==da then return true end end;return false end
+function ca:listenEvent(da,_b)_b=
+_b~=false
 if
-ca~= (self._registeredEvents[ba]or false)then
-if ca then self._registeredEvents[ba]=true;if self.parent then
-self.parent:registerChildEvent(self,ba)end else self._registeredEvents[ba]=nil
+_b~= (self._registeredEvents[da]or false)then
+if _b then self._registeredEvents[da]=true;if self.parent then
+self.parent:registerChildEvent(self,da)end else self._registeredEvents[da]=nil
 if
-self.parent then self.parent:unregisterChildEvent(self,ba)end end end;return self end
-function aa:registerCallback(ba,ca)if not self._registeredEvents[ba]then
-self:listenEvent(ba,true)end
+self.parent then self.parent:unregisterChildEvent(self,da)end end end;return self end
+function ca:registerCallback(da,_b)if not self._registeredEvents[da]then
+self:listenEvent(da,true)end
 if
-not self._values.eventCallbacks[ba]then self._values.eventCallbacks[ba]={}end
-table.insert(self._values.eventCallbacks[ba],ca)return self end
-function aa:fireEvent(ba,...)
-if self.get("eventCallbacks")[ba]then for ca,da in
-ipairs(self.get("eventCallbacks")[ba])do local _b=da(self,...)return _b end end;return self end;function aa:dispatchEvent(ba,...)if self[ba]then return self[ba](self,...)end;return
-self:handleEvent(ba,...)end;function aa:handleEvent(ba,...)return
+not self._values.eventCallbacks[da]then self._values.eventCallbacks[da]={}end
+table.insert(self._values.eventCallbacks[da],_b)return self end
+function ca:fireEvent(da,...)
+if self.get("eventCallbacks")[da]then for _b,ab in
+ipairs(self.get("eventCallbacks")[da])do local bb=ab(self,...)return bb end end;return self end;function ca:dispatchEvent(da,...)if self[da]then return self[da](self,...)end;return
+self:handleEvent(da,...)end;function ca:handleEvent(da,...)return
 false end
-function aa:onChange(ba,ca)self:observe(ba,ca)return self end;function aa:getBaseFrame()
-if self.parent then return self.parent:getBaseFrame()end;return self end;function aa:destroy()for ba in
-pairs(self._registeredEvents)do self:listenEvent(ba,false)end
+function ca:onChange(da,_b)self:observe(da,_b)return self end;function ca:getBaseFrame()
+if self.parent then return self.parent:getBaseFrame()end;return self end
+function ca:destroy()
+self._destroyed=true;self:removeAllObservers()self:setFocused(false)for da in
+pairs(self._registeredEvents)do self:listenEvent(da,false)end
 if
-(self.parent)then self.parent:removeChild(self)end end;function aa:updateRender()
-if
-(self.parent)then self.parent:updateRender()else self._renderUpdate=true end;return self end;return aa end
+(self.parent)then self.parent:removeChild(self)end end
+function ca:updateRender()if(self.parent)then self.parent:updateRender()else
+self._renderUpdate=true end;return self end;return ca end
 project["elements/Graph.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
