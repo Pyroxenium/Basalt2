@@ -76,11 +76,19 @@ local function sortElements(self, direction, spacing, wrap)
     local visibleElements = {}
     local childCount = 0
     
-    -- First calculate the number of visible elements, pre-allocate space
+    -- First gather all visible elements
     for _, elem in pairs(elements) do
-        if elem ~= lineBreakElement and elem:getVisible() then
-            childCount = childCount + 1
+        if elem:getVisible() then
+            table.insert(visibleElements, elem)
+            if elem ~= lineBreakElement then
+                childCount = childCount + 1
+            end
         end
+    end
+    
+    -- No visible elements, nothing to layout
+    if childCount == 0 then
+        return sortedElements
     end
     
     -- Use known size to pre-allocate array
@@ -88,7 +96,7 @@ local function sortElements(self, direction, spacing, wrap)
         -- No-wrap mode, all elements in one row/column
         sortedElements[1] = {offset=1}
         
-        for _, elem in pairs(elements) do
+        for _, elem in ipairs(visibleElements) do
             if elem == lineBreakElement then
                 -- Create new line
                 local nextIndex = #sortedElements + 1
@@ -100,42 +108,125 @@ local function sortElements(self, direction, spacing, wrap)
             end
         end
     else
-        -- Wrap mode, need to calculate rows/columns
-        local index = 1
+        -- Wrap mode, need to calculate rows/columns more optimally
         local containerSize = direction == "row" and self.get("width") or self.get("height")
-        local remainingSpace = containerSize
-        sortedElements[index] = {offset=1}
         
-        for _, elem in pairs(elements) do
+        -- First split elements by line breaks
+        local segments = {{}}
+        local currentSegment = 1
+        
+        for _, elem in ipairs(visibleElements) do
             if elem == lineBreakElement then
-                -- Create new line
-                index = index + 1
-                sortedElements[index] = {offset=1}
-                remainingSpace = containerSize
+                -- Start a new segment
+                currentSegment = currentSegment + 1
+                segments[currentSegment] = {}
             else
-                local elemSize = direction == "row" and elem.get("width") or elem.get("height")
-                if elemSize + spacing <= remainingSpace then
-                    -- Element fits in current line
-                    table.insert(sortedElements[index], elem)
-                    remainingSpace = remainingSpace - elemSize - spacing
-                else
-                    -- Need new line
-                    index = index + 1
-                    sortedElements[index] = {offset=1, elem}
-                    remainingSpace = containerSize - elemSize - spacing
+                -- Add to current segment
+                table.insert(segments[currentSegment], elem)
+            end
+        end
+        
+        -- Now process each segment optimally
+        for segmentIndex, segment in ipairs(segments) do
+            if #segment == 0 then
+                -- Empty segment (consecutive line breaks)
+                sortedElements[#sortedElements + 1] = {offset=1}
+            else
+                -- Try to pack elements optimally within this segment
+                local rows = {}
+                local currentRow = {}
+                local currentWidth = 0
+                
+                for _, elem in ipairs(segment) do
+                    -- Get intrinsic size if available, otherwise use current size
+                    local intrinsicSize = 0
+                    local currentSize = direction == "row" and elem.get("width") or elem.get("height")
+                    
+                    -- Try to get intrinsic size, safely
+                    local hasIntrinsic = false
+                    if direction == "row" then
+                        local ok, intrinsicWidth = pcall(function() return elem.get("intrinsicWidth") end)
+                        if ok and intrinsicWidth then
+                            intrinsicSize = intrinsicWidth
+                            hasIntrinsic = true
+                        end
+                    else
+                        local ok, intrinsicHeight = pcall(function() return elem.get("intrinsicHeight") end)
+                        if ok and intrinsicHeight then
+                            intrinsicSize = intrinsicHeight
+                            hasIntrinsic = true
+                        end
+                    end
+                    
+                    -- Fall back to current size if no intrinsic size
+                    local elemSize = hasIntrinsic and intrinsicSize or currentSize
+                    
+                    local spaceNeeded = elemSize
+                    
+                    -- Add spacing if not first element in row
+                    if #currentRow > 0 then
+                        spaceNeeded = spaceNeeded + spacing
+                    end
+                    
+                    -- Check if element fits in current row
+                    if currentWidth + spaceNeeded <= containerSize or #currentRow == 0 then
+                        -- Element fits or it's first element (must place even if too large)
+                        table.insert(currentRow, elem)
+                        currentWidth = currentWidth + spaceNeeded
+                    else
+                        -- Element doesn't fit, start new row
+                        table.insert(rows, currentRow)
+                        currentRow = {elem}
+                        currentWidth = elemSize
+                    end
+                end
+                
+                -- Don't forget the last row
+                if #currentRow > 0 then
+                    table.insert(rows, currentRow)
+                end
+                
+                -- Add rows to sorted elements
+                for _, row in ipairs(rows) do
+                    sortedElements[#sortedElements + 1] = {offset=1}
+                    for _, elem in ipairs(row) do
+                        table.insert(sortedElements[#sortedElements], elem)
+                    end
                 end
             end
         end
     end
     
-    return sortedElements
+    -- Filter out empty rows/columns
+    local filteredElements = {}
+    for i, rowOrColumn in ipairs(sortedElements) do
+        if #rowOrColumn > 0 then
+            table.insert(filteredElements, rowOrColumn)
+        end
+    end
+    
+    return filteredElements
 end
 
 local function calculateRow(self, children, spacing, justifyContent)
+    -- Make a copy of children that filters out lineBreak elements
+    local filteredChildren = {}
+    for _, child in ipairs(children) do
+        if child ~= lineBreakElement then
+            table.insert(filteredChildren, child)
+        end
+    end
+    
+    -- Skip processing if no children
+    if #filteredChildren == 0 then
+        return
+    end
+    
     local containerWidth = self.get("width")
     local containerHeight = self.get("height")
     local alignItems = self.get("flexAlignItems")
     local crossPadding = self.get("flexCrossPadding")
+    local wrap = self.get("flexWrap")
     
     -- Safety check
     if containerWidth <= 0 then return end
@@ -153,162 +244,131 @@ local function calculateRow(self, children, spacing, justifyContent)
     local floor = math.floor
     local ceil = math.ceil
     
-    -- Fixed elements
-    local fixedElements = {}
-    -- Flexible elements
-    local flexElements = {}
-    -- Total flex coefficient
+    -- Categorize elements and calculate their minimal widths and flexibilities
+    local totalFixedWidth = 0
     local totalFlexGrow = 0
-    -- Pre-allocate capacity
-    local fixedCount = 0
-    local flexCount = 0
+    local minWidths = {}
+    local flexGrows = {}
+    local flexShrinks = {}
     
-    -- First calculate element counts to pre-allocate space
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            local grow = child.get("flexGrow") or 0
-            if grow > 0 then
-                flexCount = flexCount + 1
-            else
-                fixedCount = fixedCount + 1
-            end
-        end
-    end
-    
-    -- Pre-allocate table space
-    for i = 1, fixedCount do fixedElements[i] = nil end
-    
-    -- Step 1: Categorize elements and collect information
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            local grow = child.get("flexGrow") or 0
-            if grow > 0 then
-                totalFlexGrow = totalFlexGrow + grow
-                table.insert(flexElements, {element = child, grow = grow})
-            else
-                table.insert(fixedElements, child)
-            end
-        end
-    end
-    
-    -- Step 2: Pre-processing before layout
-    -- First calculate the total width needed for all fixed elements
-    local fixedWidthSum = 0
-    for _, element in ipairs(fixedElements) do
-        fixedWidthSum = fixedWidthSum + element.get("width")
-    end
-    
-    -- Calculate total width of gaps
-    local totalElements = #fixedElements + #flexElements
-    local totalGaps = totalElements > 1 and (totalElements - 1) or 0
-    local gapsWidth = spacing * totalGaps
-    
-    -- Calculate total available space for flexible elements
-    local flexAvailableSpace = max(0, containerWidth - fixedWidthSum - gapsWidth)
-    
-    -- Safety check: If not enough space, force compress fixed elements
-    if flexAvailableSpace < 0 then
-        -- Set gaps to zero
-        gapsWidth = 0
-        flexAvailableSpace = containerWidth - fixedWidthSum
+    -- First pass: collect fixed widths and flex properties
+    for _, child in ipairs(filteredChildren) do
+        local grow = child.get("flexGrow") or 0
+        local shrink = child.get("flexShrink") or 0
+        local width = child.get("width")
         
-        -- If still not enough, need to shrink fixed elements
-        if flexAvailableSpace < 0 and #fixedElements > 0 then
-            local reductionPerElement = ceil(-flexAvailableSpace / #fixedElements)
-            for _, element in ipairs(fixedElements) do
-                local currentWidth = element.get("width")
-                local newWidth = max(1, currentWidth - reductionPerElement)
-                element.set("width", newWidth)
-                flexAvailableSpace = flexAvailableSpace + (currentWidth - newWidth)
-                if flexAvailableSpace >= 0 then
-                    break
+        -- Track element properties
+        flexGrows[child] = grow
+        flexShrinks[child] = shrink
+        minWidths[child] = width
+        
+        -- Calculate total flex grow factor
+        if grow > 0 then
+            totalFlexGrow = totalFlexGrow + grow
+        else
+            -- If not flex grow, it's a fixed element
+            totalFixedWidth = totalFixedWidth + width
+        end
+    end
+    
+    -- Calculate total spacing
+    local elementsCount = #filteredChildren
+    local totalSpacing = (elementsCount > 1) and ((elementsCount - 1) * spacing) or 0
+    
+    -- Calculate available space for flex items
+    local availableSpace = containerWidth - totalFixedWidth - totalSpacing
+    
+    -- Second pass: distribute available space to flex-grow items
+    if availableSpace > 0 and totalFlexGrow > 0 then
+        -- Container has extra space - distribute according to flex-grow
+        for _, child in ipairs(filteredChildren) do
+            local grow = flexGrows[child]
+            if grow > 0 then
+                -- Calculate flex basis (never less than minWidth)
+                local minWidth = minWidths[child]
+                local flexWidth = floor((grow / totalFlexGrow) * availableSpace)
+                
+                -- Set calculated width, ensure it's at least 1
+                child.set("width", max(flexWidth, 1))
+            end
+        end
+    elseif availableSpace < 0 then
+        -- Container doesn't have enough space - check for shrinkable items
+        local totalFlexShrink = 0
+        local shrinkableItems = {}
+        
+        -- Find shrinkable items
+        for _, child in ipairs(filteredChildren) do
+            local shrink = flexShrinks[child]
+            if shrink > 0 then
+                totalFlexShrink = totalFlexShrink + shrink
+                table.insert(shrinkableItems, child)
+            end
+        end
+        
+        -- If we have shrinkable items, shrink them proportionally
+        if totalFlexShrink > 0 and #shrinkableItems > 0 then
+            local excessWidth = -availableSpace
+            
+            for _, child in ipairs(shrinkableItems) do
+                local width = child.get("width")
+                local shrink = flexShrinks[child]
+                local proportion = shrink / totalFlexShrink
+                local reduction = ceil(excessWidth * proportion)
+                
+                -- Ensure width doesn't go below 1
+                child.set("width", max(1, width - reduction))
+            end
+        end
+        
+        -- Recalculate fixed widths after shrinking
+        totalFixedWidth = 0
+        for _, child in ipairs(filteredChildren) do
+            totalFixedWidth = totalFixedWidth + child.get("width")
+        end
+        
+        -- If we still have flex-grow items, ensure they have proportional space
+        if totalFlexGrow > 0 then
+            local growableItems = {}
+            local totalGrowableInitialWidth = 0
+            
+            -- Find growable items
+            for _, child in ipairs(filteredChildren) do
+                if flexGrows[child] > 0 then
+                    table.insert(growableItems, child)
+                    totalGrowableInitialWidth = totalGrowableInitialWidth + child.get("width")
+                end
+            end
+            
+            -- Ensure flexGrow items get at least some width, even if space is tight
+            if #growableItems > 0 and totalGrowableInitialWidth > 0 then
+                -- Minimum guaranteed width for flex items (at least 20% of container)
+                local minFlexSpace = max(floor(containerWidth * 0.2), #growableItems)
+                
+                -- Reserve space for flex items
+                local reservedFlexSpace = min(minFlexSpace, containerWidth - totalSpacing)
+                
+                -- Distribute among flex items
+                for _, child in ipairs(growableItems) do
+                    local grow = flexGrows[child]
+                    local proportion = grow / totalFlexGrow
+                    local flexWidth = max(1, floor(reservedFlexSpace * proportion))
+                    child.set("width", flexWidth)
                 end
             end
         end
-        
-        -- If still not enough, may need to set minimum width
-        flexAvailableSpace = max(0, flexAvailableSpace)
     end
     
-    -- Step 3: Allocate space for flexible elements
-    -- Pre-allocate table to avoid dynamic expansion
-    local allocatedWidths = {}
-    for i = 1, flexCount do
-        allocatedWidths[flexElements[i].element] = nil
-    end
-    
-    -- If there are flexible elements and available space
-    if #flexElements > 0 and flexAvailableSpace > 0 and totalFlexGrow > 0 then
-        -- Reserve some safety margin (e.g., 5% of space) to ensure no overflow due to rounding
-        local safeFlexSpace = floor(flexAvailableSpace * 0.95)
-        
-        -- Allocate base width for each element (conservative strategy)
-        for _, item in ipairs(flexElements) do
-            -- Determine this element's share
-            local proportion = item.grow / totalFlexGrow
-            -- Determine width to allocate (floor to ensure safety)
-            local extraWidth = floor(safeFlexSpace * proportion)
-            -- Set final width
-            allocatedWidths[item.element] = item.element.get("width") + extraWidth
-        end
-    end
-    
-    -- Step 4: Strictly validate final widths
-    -- Calculate total width after allocation (including gaps)
-    local finalTotalWidth = gapsWidth
-    for _, element in ipairs(fixedElements) do
-        finalTotalWidth = finalTotalWidth + element.get("width")
-    end
-    for _, item in ipairs(flexElements) do
-        local width = allocatedWidths[item.element] or item.element.get("width")
-        finalTotalWidth = finalTotalWidth + width
-    end
-    
-    -- If total width exceeds container, proportionally reduce all elements
-    if finalTotalWidth > containerWidth then
-        local excessWidth = finalTotalWidth - containerWidth
-        local reductionFactor = excessWidth / (finalTotalWidth - gapsWidth)
-        
-        -- First reduce flexible elements
-        if #flexElements > 0 then
-            for _, item in ipairs(flexElements) do
-                local width = allocatedWidths[item.element] or item.element.get("width")
-                local reduction = ceil(width * reductionFactor)
-                allocatedWidths[item.element] = max(1, width - reduction)
-            end
-        end
-        
-        -- If still not enough, reduce fixed elements
-        finalTotalWidth = gapsWidth
-        for _, element in ipairs(fixedElements) do
-            finalTotalWidth = finalTotalWidth + element.get("width")
-        end
-        for _, item in ipairs(flexElements) do
-            finalTotalWidth = finalTotalWidth + (allocatedWidths[item.element] or item.element.get("width"))
-        end
-        
-        if finalTotalWidth > containerWidth and #fixedElements > 0 then
-            excessWidth = finalTotalWidth - containerWidth
-            reductionFactor = excessWidth / (finalTotalWidth - gapsWidth)
-            
-            for _, element in ipairs(fixedElements) do
-                local width = element.get("width")
-                local reduction = ceil(width * reductionFactor)
-                element.set("width", max(1, width - reduction))
-            end
-        end
-    end
-    
-    -- Step 5: Apply layout
+    -- Step 3: Position elements (never allow overlapping)
     local currentX = 1
     
-    -- Place all elements
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            -- Apply X coordinate
-            child.set("x", currentX)
-            
-            -- Apply Y coordinate (based on vertical alignment)
+    -- Place all elements sequentially
+    for _, child in ipairs(filteredChildren) do
+        -- Apply X coordinate
+        child.set("x", currentX)
+        
+        -- Apply Y coordinate (based on vertical alignment) ONLY if not in wrapped mode
+        if not wrap then
             if alignItems == "stretch" then
                 -- Vertical stretch to fill container, considering padding
                 child.set("height", availableCrossAxisSpace)
@@ -328,61 +388,60 @@ local function calculateRow(self, children, spacing, justifyContent)
                 -- Ensure Y value is not less than 1
                 child.set("y", max(1, y))
             end
-            
-            -- If flexible element, apply calculated width
-            if allocatedWidths[child] then
-                child.set("width", allocatedWidths[child])
-            end
-            
-            -- Final safety check (using cached math functions)
-            local rightEdge = currentX + child.get("width") - 1
-            if rightEdge > containerWidth then
-                child.set("width", max(1, containerWidth - currentX + 1))
-            end
-            
-            -- Final safety check height doesn't exceed container
-            local bottomEdge = child.get("y") + child.get("height") - 1
-            if bottomEdge > containerHeight then
-                child.set("height", max(1, containerHeight - child.get("y") + 1))
-            end
-            
-            -- Update position for next element
-            currentX = currentX + child.get("width") + spacing
-            
-            -- Ensure won't exceed container right edge
-            if currentX > containerWidth + 1 then
-                currentX = containerWidth + 1
-            end
         end
+        
+        -- Final safety check height doesn't exceed container - only for elements with flexShrink
+        local bottomEdge = child.get("y") + child.get("height") - 1
+        if bottomEdge > containerHeight and (child.get("flexShrink") or 0) > 0 then
+            child.set("height", max(1, containerHeight - child.get("y") + 1))
+        end
+        
+        -- Update position for next element - advance by element width + spacing
+        currentX = currentX + child.get("width") + spacing
     end
     
-    -- Apply alignment (only when remaining space is positive)
-    local usedWidth = min(containerWidth, currentX - spacing - 1)
+    -- Apply justifyContent only if there's remaining space
+    local lastChild = filteredChildren[#filteredChildren]
+    local usedWidth = 0
+    if lastChild then
+        usedWidth = lastChild.get("x") + lastChild.get("width") - 1
+    end
+    
     local remainingSpace = containerWidth - usedWidth
     
     if remainingSpace > 0 then
         if justifyContent == "flex-end" then
-            for _, child in ipairs(children) do
-                if child ~= lineBreakElement then
-                    child.set("x", child.get("x") + remainingSpace)
-                end
+            for _, child in ipairs(filteredChildren) do
+                child.set("x", child.get("x") + remainingSpace)
             end
         elseif justifyContent == "flex-center" or justifyContent == "center" then
             local offset = floor(remainingSpace / 2)
-            for _, child in ipairs(children) do
-                if child ~= lineBreakElement then
-                    child.set("x", child.get("x") + offset)
-                end
+            for _, child in ipairs(filteredChildren) do
+                child.set("x", child.get("x") + offset)
             end
         end
     end
 end
 
 local function calculateColumn(self, children, spacing, justifyContent)
+    -- Make a copy of children that filters out lineBreak elements
+    local filteredChildren = {}
+    for _, child in ipairs(children) do
+        if child ~= lineBreakElement then
+            table.insert(filteredChildren, child)
+        end
+    end
+    
+    -- Skip processing if no children
+    if #filteredChildren == 0 then
+        return
+    end
+    
     local containerWidth = self.get("width")
     local containerHeight = self.get("height")
     local alignItems = self.get("flexAlignItems")
     local crossPadding = self.get("flexCrossPadding")
+    local wrap = self.get("flexWrap")
     
     -- Safety check
     if containerHeight <= 0 then return end
@@ -400,163 +459,131 @@ local function calculateColumn(self, children, spacing, justifyContent)
     local floor = math.floor
     local ceil = math.ceil
     
-    -- Fixed elements
-    local fixedElements = {}
-    -- Flexible elements
-    local flexElements = {}
-    -- Total flex coefficient
+    -- Categorize elements and calculate their minimal heights and flexibilities
+    local totalFixedHeight = 0
     local totalFlexGrow = 0
-    -- Pre-allocate capacity
-    local fixedCount = 0
-    local flexCount = 0
+    local minHeights = {}
+    local flexGrows = {}
+    local flexShrinks = {}
     
-    -- First calculate element counts to pre-allocate space
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            local grow = child.get("flexGrow") or 0
-            if grow > 0 then
-                flexCount = flexCount + 1
-            else
-                fixedCount = fixedCount + 1
-            end
-        end
-    end
-    
-    -- Pre-allocate table space
-    for i = 1, fixedCount do fixedElements[i] = nil end
-    
-    -- Step 1: Categorize elements and collect information
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            local grow = child.get("flexGrow") or 0
-            if grow > 0 then
-                totalFlexGrow = totalFlexGrow + grow
-                table.insert(flexElements, {element = child, grow = grow})
-            else
-                table.insert(fixedElements, child)
-            end
-        end
-    end
-    
-    -- Step 2: Pre-processing before layout
-    
-    -- First calculate the total height needed for all fixed elements
-    local fixedHeightSum = 0
-    for _, element in ipairs(fixedElements) do
-        fixedHeightSum = fixedHeightSum + element.get("height")
-    end
-    
-    -- Calculate total height of gaps
-    local totalElements = #fixedElements + #flexElements
-    local totalGaps = totalElements > 1 and (totalElements - 1) or 0
-    local gapsHeight = spacing * totalGaps
-    
-    -- Calculate total available space for flexible elements
-    local flexAvailableSpace = max(0, containerHeight - fixedHeightSum - gapsHeight)
-    
-    -- Safety check: If not enough space, force compress fixed elements
-    if flexAvailableSpace < 0 then
-        -- Set gaps to zero
-        gapsHeight = 0
-        flexAvailableSpace = containerHeight - fixedHeightSum
+    -- First pass: collect fixed heights and flex properties
+    for _, child in ipairs(filteredChildren) do
+        local grow = child.get("flexGrow") or 0
+        local shrink = child.get("flexShrink") or 0
+        local height = child.get("height")
         
-        -- If still not enough, need to shrink fixed elements
-        if flexAvailableSpace < 0 and #fixedElements > 0 then
-            local reductionPerElement = ceil(-flexAvailableSpace / #fixedElements)
-            for _, element in ipairs(fixedElements) do
-                local currentHeight = element.get("height")
-                local newHeight = max(1, currentHeight - reductionPerElement)
-                element.set("height", newHeight)
-                flexAvailableSpace = flexAvailableSpace + (currentHeight - newHeight)
-                if flexAvailableSpace >= 0 then
-                    break
+        -- Track element properties
+        flexGrows[child] = grow
+        flexShrinks[child] = shrink
+        minHeights[child] = height
+        
+        -- Calculate total flex grow factor
+        if grow > 0 then
+            totalFlexGrow = totalFlexGrow + grow
+        else
+            -- If not flex grow, it's a fixed element
+            totalFixedHeight = totalFixedHeight + height
+        end
+    end
+    
+    -- Calculate total spacing
+    local elementsCount = #filteredChildren
+    local totalSpacing = (elementsCount > 1) and ((elementsCount - 1) * spacing) or 0
+    
+    -- Calculate available space for flex items
+    local availableSpace = containerHeight - totalFixedHeight - totalSpacing
+    
+    -- Second pass: distribute available space to flex-grow items
+    if availableSpace > 0 and totalFlexGrow > 0 then
+        -- Container has extra space - distribute according to flex-grow
+        for _, child in ipairs(filteredChildren) do
+            local grow = flexGrows[child]
+            if grow > 0 then
+                -- Calculate flex basis (never less than minHeight)
+                local minHeight = minHeights[child]
+                local flexHeight = floor((grow / totalFlexGrow) * availableSpace)
+                
+                -- Set calculated height, ensure it's at least 1
+                child.set("height", max(flexHeight, 1))
+            end
+        end
+    elseif availableSpace < 0 then
+        -- Container doesn't have enough space - check for shrinkable items
+        local totalFlexShrink = 0
+        local shrinkableItems = {}
+        
+        -- Find shrinkable items
+        for _, child in ipairs(filteredChildren) do
+            local shrink = flexShrinks[child]
+            if shrink > 0 then
+                totalFlexShrink = totalFlexShrink + shrink
+                table.insert(shrinkableItems, child)
+            end
+        end
+        
+        -- If we have shrinkable items, shrink them proportionally
+        if totalFlexShrink > 0 and #shrinkableItems > 0 then
+            local excessHeight = -availableSpace
+            
+            for _, child in ipairs(shrinkableItems) do
+                local height = child.get("height")
+                local shrink = flexShrinks[child]
+                local proportion = shrink / totalFlexShrink
+                local reduction = ceil(excessHeight * proportion)
+                
+                -- Ensure height doesn't go below 1
+                child.set("height", max(1, height - reduction))
+            end
+        end
+        
+        -- Recalculate fixed heights after shrinking
+        totalFixedHeight = 0
+        for _, child in ipairs(filteredChildren) do
+            totalFixedHeight = totalFixedHeight + child.get("height")
+        end
+        
+        -- If we still have flex-grow items, ensure they have proportional space
+        if totalFlexGrow > 0 then
+            local growableItems = {}
+            local totalGrowableInitialHeight = 0
+            
+            -- Find growable items
+            for _, child in ipairs(filteredChildren) do
+                if flexGrows[child] > 0 then
+                    table.insert(growableItems, child)
+                    totalGrowableInitialHeight = totalGrowableInitialHeight + child.get("height")
+                end
+            end
+            
+            -- Ensure flexGrow items get at least some height, even if space is tight
+            if #growableItems > 0 and totalGrowableInitialHeight > 0 then
+                -- Minimum guaranteed height for flex items (at least 20% of container)
+                local minFlexSpace = max(floor(containerHeight * 0.2), #growableItems)
+                
+                -- Reserve space for flex items
+                local reservedFlexSpace = min(minFlexSpace, containerHeight - totalSpacing)
+                
+                -- Distribute among flex items
+                for _, child in ipairs(growableItems) do
+                    local grow = flexGrows[child]
+                    local proportion = grow / totalFlexGrow
+                    local flexHeight = max(1, floor(reservedFlexSpace * proportion))
+                    child.set("height", flexHeight)
                 end
             end
         end
-        
-        -- If still not enough, may need to set minimum height
-        flexAvailableSpace = max(0, flexAvailableSpace)
     end
     
-    -- Step 3: Allocate space for flexible elements
-    -- Pre-allocate table to avoid dynamic expansion
-    local allocatedHeights = {}
-    for i = 1, flexCount do
-        allocatedHeights[flexElements[i].element] = nil
-    end
-    
-    -- If there are flexible elements and available space
-    if #flexElements > 0 and flexAvailableSpace > 0 and totalFlexGrow > 0 then
-        -- Reserve some safety margin (e.g., 5% of space) to ensure no overflow due to rounding
-        local safeFlexSpace = floor(flexAvailableSpace * 0.95)
-        
-        -- Allocate base height for each element (conservative strategy)
-        for _, item in ipairs(flexElements) do
-            -- Determine this element's share
-            local proportion = item.grow / totalFlexGrow
-            -- Determine height to allocate (floor to ensure safety)
-            local extraHeight = floor(safeFlexSpace * proportion)
-            -- Set final height
-            allocatedHeights[item.element] = item.element.get("height") + extraHeight
-        end
-    end
-    
-    -- Step 4: Strictly validate final heights
-    -- Calculate total height after allocation (including gaps)
-    local finalTotalHeight = gapsHeight
-    for _, element in ipairs(fixedElements) do
-        finalTotalHeight = finalTotalHeight + element.get("height")
-    end
-    for _, item in ipairs(flexElements) do
-        local height = allocatedHeights[item.element] or item.element.get("height")
-        finalTotalHeight = finalTotalHeight + height
-    end
-    
-    -- If total height exceeds container, proportionally reduce all elements
-    if finalTotalHeight > containerHeight then
-        local excessHeight = finalTotalHeight - containerHeight
-        local reductionFactor = excessHeight / (finalTotalHeight - gapsHeight)
-        
-        -- First reduce flexible elements
-        if #flexElements > 0 then
-            for _, item in ipairs(flexElements) do
-                local height = allocatedHeights[item.element] or item.element.get("height")
-                local reduction = ceil(height * reductionFactor)
-                allocatedHeights[item.element] = max(1, height - reduction)
-            end
-        end
-        
-        -- If still not enough, reduce fixed elements
-        finalTotalHeight = gapsHeight
-        for _, element in ipairs(fixedElements) do
-            finalTotalHeight = finalTotalHeight + element.get("height")
-        end
-        for _, item in ipairs(flexElements) do
-            finalTotalHeight = finalTotalHeight + (allocatedHeights[item.element] or item.element.get("height"))
-        end
-        
-        if finalTotalHeight > containerHeight and #fixedElements > 0 then
-            excessHeight = finalTotalHeight - containerHeight
-            reductionFactor = excessHeight / (finalTotalHeight - gapsHeight)
-            
-            for _, element in ipairs(fixedElements) do
-                local height = element.get("height")
-                local reduction = ceil(height * reductionFactor)
-                element.set("height", max(1, height - reduction))
-            end
-        end
-    end
-    
-    -- Step 5: Apply layout
+    -- Step 3: Position elements (never allow overlapping)
     local currentY = 1
     
-    -- Place all elements
-    for _, child in ipairs(children) do
-        if child ~= lineBreakElement then
-            -- Apply Y coordinate
-            child.set("y", currentY)
-            
-            -- Apply X coordinate (based on horizontal alignment)
+    -- Place all elements sequentially
+    for _, child in ipairs(filteredChildren) do
+        -- Apply Y coordinate
+        child.set("y", currentY)
+        
+        -- Apply X coordinate (based on horizontal alignment)
+        if not wrap then 
             if alignItems == "stretch" then
                 -- Horizontal stretch to fill container, considering padding
                 child.set("width", availableCrossAxisSpace)
@@ -576,51 +603,36 @@ local function calculateColumn(self, children, spacing, justifyContent)
                 -- Ensure X value is not less than 1
                 child.set("x", max(1, x))
             end
-            
-            -- If flexible element, apply calculated height
-            if allocatedHeights[child] then
-                child.set("height", allocatedHeights[child])
-            end
-            
-            -- Final safety check (using cached math functions)
-            local bottomEdge = currentY + child.get("height") - 1
-            if bottomEdge > containerHeight then
-                child.set("height", max(1, containerHeight - currentY + 1))
-            end
-            
-            -- Final safety check width doesn't exceed container
-            local rightEdge = child.get("x") + child.get("width") - 1
-            if rightEdge > containerWidth then
-                child.set("width", max(1, containerWidth - child.get("x") + 1))
-            end
-            
-            -- Update position for next element
-            currentY = currentY + child.get("height") + spacing
-            
-            -- Ensure won't exceed container bottom edge
-            if currentY > containerHeight + 1 then
-                currentY = containerHeight + 1
-            end
         end
+        
+        -- Final safety check width doesn't exceed container - only for elements with flexShrink
+        local rightEdge = child.get("x") + child.get("width") - 1
+        if rightEdge > containerWidth and (child.get("flexShrink") or 0) > 0 then
+            child.set("width", max(1, containerWidth - child.get("x") + 1))
+        end
+        
+        -- Update position for next element - advance by element height + spacing
+        currentY = currentY + child.get("height") + spacing
     end
     
-    -- Apply alignment (only when remaining space is positive)
-    local usedHeight = min(containerHeight, currentY - spacing - 1)
+    -- Apply justifyContent only if there's remaining space
+    local lastChild = filteredChildren[#filteredChildren]
+    local usedHeight = 0
+    if lastChild then
+        usedHeight = lastChild.get("y") + lastChild.get("height") - 1
+    end
+    
     local remainingSpace = containerHeight - usedHeight
     
     if remainingSpace > 0 then
         if justifyContent == "flex-end" then
-            for _, child in ipairs(children) do
-                if child ~= lineBreakElement then
-                    child.set("y", child.get("y") + remainingSpace)
-                end
+            for _, child in ipairs(filteredChildren) do
+                child.set("y", child.get("y") + remainingSpace)
             end
         elseif justifyContent == "flex-center" or justifyContent == "center" then
             local offset = floor(remainingSpace / 2)
-            for _, child in ipairs(children) do
-                if child ~= lineBreakElement then
-                    child.set("y", child.get("y") + offset)
-                end
+            for _, child in ipairs(filteredChildren) do
+                child.set("y", child.get("y") + offset)
             end
         end
     end
@@ -628,15 +640,138 @@ end
 
 -- Optimize updateLayout function
 local function updateLayout(self, direction, spacing, justifyContent, wrap)
+    -- Check essential properties for layout
+    if self.get("width") <= 0 or self.get("height") <= 0 then
+        return
+    end
+    
+    -- Force direction to be valid
+    direction = (direction == "row" or direction == "column") and direction or "row"
+    
+    -- Check if container size has changed since last layout
+    local currentWidth, currentHeight = self.get("width"), self.get("height")
+    local lastWidth = self.get("_lastLayoutWidth") or 0
+    local lastHeight = self.get("_lastLayoutHeight") or 0
+    local sizeChanged = currentWidth ~= lastWidth or currentHeight ~= lastHeight
+    
+    -- Store current size for next comparison
+    self.set("_lastLayoutWidth", currentWidth)
+    self.set("_lastLayoutHeight", currentHeight)
+    
+    -- If container size increased, we might need to reset flexGrow items to recalculate
+    if wrap and sizeChanged and (currentWidth > lastWidth or currentHeight > lastHeight) then
+        -- Get reference to all children
+        local allChildren = self.get("children")
+        
+        -- Reset flex items to intrinsic size temporarily to allow reflow
+        for _, child in pairs(allChildren) do
+            if child ~= lineBreakElement and child:getVisible() and child.get("flexGrow") and child.get("flexGrow") > 0 then
+                if direction == "row" then
+                    -- Store the actual width temporarily
+                    local actualWidth = child.get("width")
+                    -- Reset to intrinsic width for layout calculation
+                    local ok, value = pcall(function() return child.get("intrinsicWidth") end)
+                    if ok and value then
+                        child.set("width", value)
+                    end
+                else
+                    -- Store the actual height temporarily
+                    local actualHeight = child.get("height")
+                    -- Reset to intrinsic height for layout calculation
+                    local ok, value = pcall(function() return child.get("intrinsicHeight") end)
+                    if ok and value then
+                        child.set("height", value)
+                    end
+                end
+            end
+        end
+    end
+    
     -- Get all elements that need layout
     local elements = sortElements(self, direction, spacing, wrap)
+    
+    -- Debug: Check what elements were found
+    if #elements == 0 then
+        return -- No elements to layout
+    end
     
     -- Based on direction, select layout function, avoid checking every iteration
     local layoutFunction = direction == "row" and calculateRow or calculateColumn
     
-    -- Apply layout calculation
-    for _, rowOrColumn in pairs(elements) do
-        layoutFunction(self, rowOrColumn, spacing, justifyContent)
+    -- Apply layout calculation with vertical offset
+    if direction == "row" and wrap then
+        -- In row direction with wrap, we need to offset each row vertically
+        local currentY = 1
+        for i, rowOrColumn in ipairs(elements) do
+            -- Skip empty rows
+            if #rowOrColumn == 0 then goto continue end
+            
+            -- First, set the vertical offset for this row
+            for _, element in ipairs(rowOrColumn) do
+                if element ~= lineBreakElement then
+                    element.set("y", currentY)
+                end
+            end
+            
+            -- Apply the row layout
+            layoutFunction(self, rowOrColumn, spacing, justifyContent)
+            
+            -- Calculate height for this row (maximum element height)
+            local rowHeight = 0
+            for _, element in ipairs(rowOrColumn) do
+                if element ~= lineBreakElement then
+                    rowHeight = math.max(rowHeight, element.get("height"))
+                end
+            end
+            
+            -- Move to next row (add spacing only if not the last row)
+            if i < #elements then
+                currentY = currentY + rowHeight + spacing
+            else
+                currentY = currentY + rowHeight
+            end
+            
+            ::continue::
+        end
+    elseif direction == "column" and wrap then
+        -- In column direction with wrap, we need to offset each column horizontally
+        local currentX = 1
+        for i, rowOrColumn in ipairs(elements) do
+            -- Skip empty columns
+            if #rowOrColumn == 0 then goto continue end
+            
+            -- First, set the horizontal offset for this column
+            for _, element in ipairs(rowOrColumn) do
+                if element ~= lineBreakElement then
+                    element.set("x", currentX)
+                end
+            end
+            
+            -- Apply the column layout
+            layoutFunction(self, rowOrColumn, spacing, justifyContent)
+            
+            -- Calculate width for this column (maximum element width)
+            local columnWidth = 0
+            for _, element in ipairs(rowOrColumn) do
+                if element ~= lineBreakElement then
+                    columnWidth = math.max(columnWidth, element.get("width"))
+                end
+            end
+            
+            -- Move to next column (add spacing only if not the last column)
+            if i < #elements then
+                currentX = currentX + columnWidth + spacing
+            else
+                currentX = currentX + columnWidth
+            end
+            
+            ::continue::
+        end
+    else
+        -- Simple case: no wrapping
+        for i, rowOrColumn in ipairs(elements) do
+            layoutFunction(self, rowOrColumn, spacing, justifyContent)
+        end
     end
     
     -- Reset layout update flag
@@ -653,8 +788,21 @@ function Flexbox.new()
     self.set("height", 6)
     self.set("background", colors.blue)
     self.set("z", 10)
+    
+    -- Add instance properties for layout tracking
+    self:instanceProperty("_lastLayoutWidth", {default = 0, type = "number"})
+    self:instanceProperty("_lastLayoutHeight", {default = 0, type = "number"})
+    
+    -- Add observers for properties that affect layout
     self:observe("width", function() self.set("flexUpdateLayout", true) end)
     self:observe("height", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexDirection", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexSpacing", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexWrap", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexJustifyContent", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexAlignItems", function() self.set("flexUpdateLayout", true) end)
+    self:observe("flexCrossPadding", function() self.set("flexUpdateLayout", true) end)
+
     return self
 end
 
@@ -680,6 +828,26 @@ function Flexbox:addChild(element)
         element:instanceProperty("flexGrow", {default = 0, type = "number"})
         element:instanceProperty("flexShrink", {default = 0, type = "number"})
         element:instanceProperty("flexBasis", {default = 0, type = "number"})
+        element:instanceProperty("intrinsicWidth", {default = element.get("width"), type = "number"})
+        element:instanceProperty("intrinsicHeight", {default = element.get("height"), type = "number"})
+        
+        -- Add observer to child element's flexGrow and flexShrink properties
+        element:observe("flexGrow", function() self.set("flexUpdateLayout", true) end)
+        element:observe("flexShrink", function() self.set("flexUpdateLayout", true) end)
+        
+        -- Add observer for size changes to track intrinsic size
+        element:observe("width", function(_, oldW, newW) 
+            if element.get("flexGrow") == 0 then 
+                element.set("intrinsicWidth", newW) 
+            end
+            self.set("flexUpdateLayout", true)
+        end)
+        element:observe("height", function(_, oldH, newH) 
+            if element.get("flexGrow") == 0 then 
+                element.set("intrinsicHeight", newH) 
+            end
+            self.set("flexUpdateLayout", true)
+        end)
     end
 
     self.set("flexUpdateLayout", true)
