@@ -167,10 +167,10 @@ function BaseFrame:monitor_touch(name, x, y)
     if _term == nil then return end
         if(isPeripheral(_term))then
         if self._peripheralName == name then
-            self:mouse_click(0, x, y)
+            self:mouse_click(1, x, y)
             self.basalt.schedule(function()
                 sleep(0.1)
-                self:mouse_up(0, x, y)
+                self:mouse_up(1, x, y)
             end)
         end
     end

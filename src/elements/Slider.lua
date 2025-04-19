@@ -63,7 +63,8 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Slider:mouse_click(button, x, y)
-    if button == 1 and self:isInBounds(x, y) then
+    self.basalt.LOGGER.debug("Slider:mouse_click", button, x, y)
+    if self:isInBounds(x, y) then
         local relX, relY = self:getRelativePosition(x, y)
         local pos = self.get("horizontal") and relX or relY
         local maxSteps = self.get("horizontal") and self.get("width") or self.get("height")
@@ -72,6 +73,7 @@ function Slider:mouse_click(button, x, y)
         self:updateRender()
         return true
     end
+    return false
 end
 Slider.mouse_drag = Slider.mouse_click
 
