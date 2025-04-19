@@ -405,7 +405,7 @@ end
 
 --- Removes all observers from a property
 --- @shortDescription Removes all observers from a property
---- @param name string The name of the property
+--- @param name? string The name of the property
 --- @return table self The PropertySystem
 function PropertySystem:removeAllObservers(name)
     if name then

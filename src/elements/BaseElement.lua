@@ -1,5 +1,6 @@
 local PropertySystem = require("propertySystem")
 local uuid = require("libraries/utils").uuid
+local errorManager = require("errorManager")
 ---@configDescription The base class for all UI elements in Basalt.
 
 --- The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality.
@@ -252,6 +253,9 @@ end
 --- Destroys the element and cleans up all references
 --- @shortDescription Destroys the element and cleans up all references
 function BaseElement:destroy()
+    self._destroyed = true
+    self:removeAllObservers()
+    self:setFocused(false)
     for event in pairs(self._registeredEvents) do
         self:listenEvent(event, false)
     end

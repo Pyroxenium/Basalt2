@@ -110,6 +110,7 @@ end
 --- @return boolean boolean the child is visible
 function Container:isChildVisible(child)
     if(child.get("visible") == false)then return false end
+    if(child._destroyed)then return false end
     local containerW, containerH = self.get("width"), self.get("height")
     local offsetX, offsetY = self.get("offsetX"), self.get("offsetY")
 
@@ -273,7 +274,7 @@ end
 function Container:unregisterChildEvent(child, eventName)
     if self._values.childrenEvents[eventName] then
         for i, listener in ipairs(self._values.childrenEvents[eventName]) do
-            if listener == child then
+            if listener.get("id") == child.get("id") then
                 table.remove(self._values.childrenEvents[eventName], i)
                 self._values.eventListenerCount[eventName] = self._values.eventListenerCount[eventName] - 1
 
@@ -300,7 +301,8 @@ end
 --- @return Container self The container instance
 function Container:removeChild(child)
     for i,v in ipairs(self._values.children) do
-        if v == child then
+        if v.get("id") == child.get("id") then
+            self.basalt.LOGGER.debug("Removing child: "..child:getType())
             table.remove(self._values.children, i)
             child.parent = nil
             break
@@ -676,11 +678,14 @@ end
 
 --- @private
 function Container:destroy()
-    for _, child in ipairs(self._values.children) do
-        child:destroy()
+    if not self:isType("BaseFrame") then
+        self.set("childrenSorted", false)
+        VisualElement.destroy(self)
+        return self
+    else
+        errorManager.header = "Basalt Error"
+        errorManager.error("Cannot destroy a BaseFrame.")
     end
-    VisualElement.destroy(self)
-    return self
 end
 
 return Container
