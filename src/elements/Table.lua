@@ -66,6 +66,29 @@ function Table:init(props, basalt)
     return self
 end
 
+--- Adds a new column to the table
+--- @shortDescription Adds a new column to the table
+--- @param name string The name of the column
+--- @param width number The width of the column
+--- @return Table self The Table instance
+function Table:addColumn(name, width)
+    local columns = self.get("columns")
+    table.insert(columns, {name = name, width = width})
+    self.set("columns", columns)
+    return self
+end
+
+--- Adds a new row of data to the table
+--- @shortDescription Adds a new row of data to the table
+--- @param ... any The data for the new row
+--- @return Table self The Table instance
+function Table:addData(...)
+    local data = self.get("data")
+    table.insert(data, {...})
+    self.set("data", data)
+    return self
+end
+
 --- Sorts the table data by column
 --- @shortDescription Sorts the table data by the specified column
 --- @param columnIndex number The index of the column to sort by
@@ -87,7 +110,6 @@ function Table:sortData(columnIndex, fn)
             return fn(a[columnIndex], b[columnIndex])
         end)
     end
-    self.set("data", data)
     return self
 end
 
@@ -186,9 +208,12 @@ function Table:render()
                 if i < #columns then
                     paddedText = string.sub(paddedText, 1, col.width - 1) .. " "
                 end
-                self:blit(currentX, y, string.sub(paddedText, 1, col.width),
-                    string.sub(string.rep(tHex[self.get("foreground")], col.width), 1, width-currentX+1),
-                    string.sub(string.rep(tHex[bg], col.width), 1, width-currentX+1))
+                local finalText = string.sub(paddedText, 1, col.width)
+                local finalForeground = string.sub(string.rep(tHex[self.get("foreground")], col.width), 1, width-currentX+1)
+                local finalBackground = string.sub(string.rep(tHex[bg], col.width), 1, width-currentX+1)
+                self:blit(currentX, y, finalText,
+                finalForeground,
+                finalBackground)
                 currentX = currentX + col.width
             end
         else

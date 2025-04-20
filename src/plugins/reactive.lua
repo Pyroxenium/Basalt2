@@ -147,7 +147,7 @@ local function setupObservers(element, expr, propertyName)
                 local observer = {
                     target = target,
                     property = prop,
-                    callback = function() 
+                    callback = function()
                         element:updateRender()
                     end
                 }
@@ -198,7 +198,7 @@ end)
 --- @usage local button = main:addButton({text="Exit"})
 --- @usage button:setX("{parent.x - 12}")
 --- @usage button:setBackground("{self.clicked and colors.red or colors.green}")
---- @usage button:setWidth("{self.text:len() + 2}")
+--- @usage button:setWidth("{#self.text + 2}")
 ---@class Reactive
 local BaseElement = {}
 

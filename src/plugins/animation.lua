@@ -329,6 +329,44 @@ Animation.registerAnimation("moveOffset", {
     end
 })
 
+Animation.registerAnimation("number", {
+    start = function(anim)
+        anim.startValue = anim.element.get(anim.args[1])
+        anim.targetValue = anim.args[2]
+    end,
+
+    update = function(anim, progress)
+        local value = anim.startValue + (anim.targetValue - anim.startValue) * progress
+        anim.element.set(anim.args[1], math.floor(value))
+        return progress >= 1
+    end,
+
+    complete = function(anim)
+        anim.element.set(anim.args[1], anim.targetValue)
+    end
+})
+
+Animation.registerAnimation("entries", {
+    start = function(anim)
+        anim.startColor = anim.element.get(anim.args[1])
+        anim.colorList = anim.args[2]
+    end,
+
+    update = function(anim, progress)
+        local list = anim.colorList
+        local index = math.floor(#list * progress) + 1
+        if index > #list then
+            index = #list
+        end
+        anim.element.set(anim.args[1], list[index])
+
+    end,
+
+    complete = function(anim)
+        anim.element.set(anim.args[1], anim.colorList[#anim.colorList])
+    end
+})
+
 Animation.registerAnimation("morphText", {
     start = function(anim)
         local startText = anim.element.get(anim.args[1])

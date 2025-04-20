@@ -177,8 +177,6 @@ function BaseElement:applyTheme(applyToChildren)
                     end
                 end
                 self.set(prop, value)
-            else
-                errorManager.error("Invalid property '" .. prop .. "' in theme for " .. self._values.type)
             end
         end
     end
