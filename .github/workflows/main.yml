@@ -66,11 +66,11 @@ jobs:
           keep_files: true
 
       # Step 6: Generate Changelog
-      - name: Generate Changelog
-        id: changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Generate Changelog
+      #  id: changelog
+      #  uses: heinrichreimer/github-changelog-generator-action@v2.3
+      #  with:
+      #    token: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 7: Commit all changes
       - name: Commit Changes
