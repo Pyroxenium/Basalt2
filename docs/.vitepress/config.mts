@@ -140,6 +140,7 @@ export default defineConfig({
             {text: 'Debug', link: 'references/plugins/debug'},
             {text: 'Reactive', link: 'references/plugins/reactive'},
             {text: 'State', link: 'references/plugins/state'},
+            {text: 'Text Wrapping', link: 'references/plugins/textWrapping'},
             {text: 'Theme', link: 'references/plugins/theme'},
             {text: 'Xml', link: 'references/plugins/xml'},
           ]
