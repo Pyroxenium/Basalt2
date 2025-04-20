@@ -7,6 +7,7 @@ local baseRequire = require
 require = function(path) if(project[path..".lua"])then if(loadedProject[path]==nil)then loadedProject[path] = project[path..".lua"]() end return loadedProject[path] end return baseRequire(path) end
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["TextBox"] = {}
+minified_elementDirectory["Timer"] = {}
 minified_elementDirectory["LineChart"] = {}
 minified_elementDirectory["Container"] = {}
 minified_elementDirectory["Image"] = {}
@@ -465,6 +466,25 @@ if self.get("focused")then local bd=self.get("cursorX")-ac;local cd=
 self.get("cursorY")-bc;if
 bd>=1 and bd<=cc and cd>=1 and cd<=dc then
 self:setCursor(bd,cd,true,self.get("cursorColor")or self.get("foreground"))end end end;return _b end
+project["elements/Timer.lua"] = function(...) local d=require("elementManager")
+local _a=d.getElement("BaseElement")local aa=setmetatable({},_a)aa.__index=aa
+aa.defineProperty(aa,"interval",{default=1,type="number"})
+aa.defineProperty(aa,"action",{default=function()end,type="function"})
+aa.defineProperty(aa,"running",{default=false,type="boolean"})
+aa.defineProperty(aa,"amount",{default=-1,type="number"})aa.defineEvent(aa,"timer")function aa.new()
+local ba=setmetatable({},aa):__init()ba.class=aa;return ba end;function aa:init(ba,ca)
+_a.init(self,ba,ca)self.set("type","Timer")end
+function aa:start()if
+not self.running then self.running=true;local ba=self.get("interval")
+self.timerId=os.startTimer(ba)end;return self end
+function aa:stop()if self.running then self.running=false
+os.cancelTimer(self.timerId)end;return self end
+function aa:dispatchEvent(ba,...)_a.dispatchEvent(self,ba,...)
+if ba=="timer"then
+local ca=select(1,...)
+if ca==self.timerId then self.action()local da=self.get("amount")if da>0 then self.set("amount",
+da-1)end;if da~=0 then
+self.timerId=os.startTimer(self.get("interval"))end end end end;return aa end
 project["elements/LineChart.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=ba.getElement("Graph")
 local _b=require("libraries/colorHex")local ab=setmetatable({},da)ab.__index=ab;function ab.new()
@@ -520,8 +540,9 @@ local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end;function db.new()l
 bc.class=db;return bc end
 function db:init(bc,cc)
 ab.init(self,bc,cc)self.set("type","Container")end
-function db:isChildVisible(bc)if(bc.get("visible")==false)then return false end;if
-(bc._destroyed)then return false end
+function db:isChildVisible(bc)
+if not bc:isType("VisualElement")then return false end;if(bc.get("visible")==false)then return false end;if(bc._destroyed)then return
+false end
 local cc,dc=self.get("width"),self.get("height")local _d,ad=self.get("offsetX"),self.get("offsetY")
 local bd,cd=bc.get("x"),bc.get("y")local dd,__a=bc.get("width"),bc.get("height")local a_a;local b_a;if
 (bc.get("ignoreOffset"))then a_a=bd;b_a=cd else a_a=bd-_d;b_a=cd-ad end;return
@@ -792,76 +813,191 @@ ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
 ab.defineProperty(ab,"flexSpacing",{default=1,type="number"})
 ab.defineProperty(ab,"flexJustifyContent",{default="flex-start",type="string",setter=function(bc,cc)if not cc:match("^flex%-")then
 cc="flex-"..cc end;return cc end})
+ab.defineProperty(ab,"flexAlignItems",{default="flex-start",type="string",setter=function(bc,cc)if
+not cc:match("^flex%-")and cc~="stretch"then cc="flex-"..cc end;return cc end})
+ab.defineProperty(ab,"flexCrossPadding",{default=0,type="number"})
 ab.defineProperty(ab,"flexWrap",{default=false,type="boolean"})
 ab.defineProperty(ab,"flexUpdateLayout",{default=false,type="boolean"})
 local bb={getHeight=function(bc)return 0 end,getWidth=function(bc)return 0 end,getZ=function(bc)return 1 end,getPosition=function(bc)return 0,0 end,getSize=function(bc)return 0,0 end,isType=function(bc)return
 false end,getType=function(bc)return"lineBreak"end,getName=function(bc)return"lineBreak"end,setPosition=function(bc)
 end,setParent=function(bc)end,setSize=function(bc)end,getFlexGrow=function(bc)return 0 end,getFlexShrink=function(bc)return 0 end,getFlexBasis=function(bc)return 0 end,init=function(bc)end,getVisible=function(bc)return
 true end}
-local function cb(bc,cc,dc,_d)local ad=bc.get("children")local bd={}
-if not(_d)then local cd=1;local dd=1;local __a=1
-for a_a,b_a in pairs(ad)do if
-(bd[cd]==nil)then bd[cd]={offset=1}end;local c_a=
-cc=="row"and b_a.get("height")or b_a.get("width")if
-c_a>dd then dd=c_a end
-if(b_a==bb)then __a=__a+dd+dc;dd=1;cd=cd+1
-bd[cd]={offset=__a}else table.insert(bd[cd],b_a)end end elseif(_d)then local cd=1;local dd=1
-local __a=cc=="row"and bc.get("width")or bc.get("height")local a_a=0;local b_a=1
-for c_a,d_a in pairs(ad)do
-if(bd[b_a]==nil)then bd[b_a]={offset=1}end
-if d_a:getType()=="lineBreak"then dd=dd+cd+dc;a_a=0;cd=1;b_a=b_a+1
-bd[b_a]={offset=dd}else
-local _aa=cc=="row"and d_a.get("width")or d_a.get("height")
-if(_aa+a_a<=__a)then table.insert(bd[b_a],d_a)
-a_a=a_a+_aa+dc else dd=dd+cd+dc
-cd=cc=="row"and d_a.get("height")or d_a.get("width")b_a=b_a+1;a_a=_aa+dc;bd[b_a]={offset=dd,d_a}end
-local aaa=cc=="row"and d_a.get("height")or d_a.get("width")if aaa>cd then cd=aaa end end end end;return bd end
-local function db(bc,cc,dc,_d)local ad=bc.get("width")local bd=dc* (#cc-1)local cd=0;for c_a,d_a in ipairs(cc)do
-if d_a~=bb then bd=bd+
-d_a.get("width")cd=cd+d_a.get("flexGrow")end end;local dd=ad-bd;local __a=
-cd>0 and(dd/cd)or 0;local a_a=0;local b_a=1
-for c_a,d_a in ipairs(cc)do
-if d_a~=bb then
-local _aa=d_a.get("width")
-if d_a.get("flexGrow")>0 then if c_a==#cc then local aaa=dd-a_a;_aa=_aa+aaa else local aaa=math.floor(__a*
-d_a.get("flexGrow"))_aa=_aa+aaa
-a_a=a_a+aaa end end;d_a.set("x",b_a)d_a.set("y",cc.offset or 1)
-d_a.set("width",_aa)b_a=b_a+_aa+dc end end
-if _d=="flex-end"then local c_a=ad- (b_a-dc-1)for d_a,_aa in ipairs(cc)do
-_aa.set("x",_aa.get("x")+c_a)end elseif _d=="flex-center"or _d=="center"then local c_a=math.floor((
-ad- (b_a-dc-1))/2)for d_a,_aa in ipairs(cc)do _aa.set("x",
-_aa.get("x")+c_a)end end end
-local function _c(bc,cc,dc,_d)local ad=bc.get("height")local bd=dc* (#cc-1)local cd=0;for c_a,d_a in ipairs(cc)do
-if d_a~=bb then bd=bd+
-d_a.get("height")cd=cd+d_a.get("flexGrow")end end;local dd=ad-bd;local __a=
-cd>0 and(dd/cd)or 0;local a_a=0;local b_a=1
-for c_a,d_a in ipairs(cc)do
-if d_a~=bb then
-local _aa=d_a.get("height")
-if d_a.get("flexGrow")>0 then if c_a==#cc then local aaa=dd-a_a;_aa=_aa+aaa else local aaa=math.floor(__a*
-d_a.get("flexGrow"))_aa=_aa+aaa
-a_a=a_a+aaa end end;d_a.set("x",cc.offset or 1)d_a.set("y",b_a)
-d_a.set("height",_aa)b_a=b_a+_aa+dc end end
-if _d=="flex-end"then local c_a=ad- (b_a-dc-1)for d_a,_aa in ipairs(cc)do
-_aa.set("y",_aa.get("y")+c_a)end elseif _d=="flex-center"or _d=="center"then local c_a=math.floor((
-ad- (b_a-dc-1))/2)for d_a,_aa in ipairs(cc)do _aa.set("y",
-_aa.get("y")+c_a)end end end
-local function ac(bc,cc,dc,_d,ad)local bd=cb(bc,cc,dc,ad)
+local function cb(bc,cc,dc,_d)local ad={}local bd={}local cd=0
+for __a,a_a in pairs(bc.get("children"))do if a_a.get("visible")then
+table.insert(bd,a_a)if a_a~=bb then cd=cd+1 end end end;if cd==0 then return ad end
+if not _d then ad[1]={offset=1}
+for __a,a_a in ipairs(bd)do if a_a==bb then local b_a=#ad+1;if
+ad[b_a]==nil then ad[b_a]={offset=1}end else
+table.insert(ad[#ad],a_a)end end else
+local __a=cc=="row"and bc.get("width")or bc.get("height")local a_a={{}}local b_a=1
+for c_a,d_a in ipairs(bd)do if d_a==bb then b_a=b_a+1;a_a[b_a]={}else
+table.insert(a_a[b_a],d_a)end end
+for c_a,d_a in ipairs(a_a)do
+if#d_a==0 then ad[#ad+1]={offset=1}else local _aa={}local aaa={}local baa=0
+for caa,daa in ipairs(d_a)do
+local _ba=0
+local aba=cc=="row"and daa.get("width")or daa.get("height")local bba=false
 if cc=="row"then
-for cd,dd in pairs(bd)do db(bc,dd,dc,_d)end else for cd,dd in pairs(bd)do _c(bc,dd,dc,_d)end end;bc.set("flexUpdateLayout",false)end
+local _ca,aca=pcall(function()return daa.get("intrinsicWidth")end)if _ca and aca then _ba=aca;bba=true end else
+local _ca,aca=pcall(function()
+return daa.get("intrinsicHeight")end)if _ca and aca then _ba=aca;bba=true end end;local cba=bba and _ba or aba;local dba=cba;if#aaa>0 then dba=dba+dc end
+if
+baa+dba<=__a or#aaa==0 then table.insert(aaa,daa)
+baa=baa+dba else table.insert(_aa,aaa)aaa={daa}baa=cba end end;if#aaa>0 then table.insert(_aa,aaa)end;for caa,daa in ipairs(_aa)do
+ad[#ad+1]={offset=1}
+for _ba,aba in ipairs(daa)do table.insert(ad[#ad],aba)end end end end end;local dd={}
+for __a,a_a in ipairs(ad)do if#a_a>0 then table.insert(dd,a_a)end end;return dd end
+local function db(bc,cc,dc,_d)local ad={}
+for dca,_da in ipairs(cc)do if _da~=bb then table.insert(ad,_da)end end;if#ad==0 then return end;local bd=bc.get("width")
+local cd=bc.get("height")local dd=bc.get("flexAlignItems")
+local __a=bc.get("flexCrossPadding")local a_a=bc.get("flexWrap")if bd<=0 then return end;local b_a=cd- (__a*2)if b_a<
+1 then b_a=cd;__a=0 end;local c_a=math.max;local d_a=math.min
+local _aa=math.floor;local aaa=math.ceil;local baa=0;local caa=0;local daa={}local _ba={}local aba={}
+for dca,_da in ipairs(ad)do local ada=
+_da.get("flexGrow")or 0
+local bda=_da.get("flexShrink")or 0;local cda=_da.get("width")_ba[_da]=ada;aba[_da]=bda;daa[_da]=cda;if
+ada>0 then caa=caa+ada else baa=baa+cda end end;local bba=#ad;local cba=(bba>1)and( (bba-1)*dc)or 0;local dba=
+bd-baa-cba
+if dba>0 and caa>0 then
+for dca,_da in ipairs(ad)do local ada=_ba[_da]if ada>0 then
+local bda=daa[_da]local cda=_aa((ada/caa)*dba)
+_da.set("width",c_a(cda,1))end end elseif dba<0 then local dca=0;local _da={}for ada,bda in ipairs(ad)do local cda=aba[bda]if cda>0 then dca=dca+cda
+table.insert(_da,bda)end end
+if
+dca>0 and#_da>0 then local ada=-dba;for bda,cda in ipairs(_da)do local dda=cda.get("width")
+local __b=aba[cda]local a_b=__b/dca;local b_b=aaa(ada*a_b)
+cda.set("width",c_a(1,dda-b_b))end end;baa=0
+for ada,bda in ipairs(ad)do baa=baa+bda.get("width")end
+if caa>0 then local ada={}local bda=0
+for cda,dda in ipairs(ad)do if _ba[dda]>0 then table.insert(ada,dda)bda=bda+
+dda.get("width")end end
+if#ada>0 and bda>0 then local cda=c_a(_aa(bd*0.2),#ada)
+local dda=d_a(cda,bd-cba)
+for __b,a_b in ipairs(ada)do local b_b=_ba[a_b]local c_b=b_b/caa
+local d_b=c_a(1,_aa(dda*c_b))a_b.set("width",d_b)end end end end;local _ca=1
+for dca,_da in ipairs(ad)do _da.set("x",_ca)
+if not a_a then
+if dd=="stretch"then
+_da.set("height",b_a)_da.set("y",1 +__a)else local bda=_da.get("height")local cda=1;if
+dd=="flex-end"then cda=cd-bda+1 elseif dd=="flex-center"or dd=="center"then cda=
+_aa((cd-bda)/2)+1 end
+_da.set("y",c_a(1,cda))end end
+local ada=_da.get("y")+_da.get("height")-1;if
+ada>cd and(_da.get("flexShrink")or 0)>0 then
+_da.set("height",c_a(1,cd-_da.get("y")+1))end;_ca=
+_ca+_da.get("width")+dc end;local aca=ad[#ad]local bca=0;if aca then
+bca=aca.get("x")+aca.get("width")-1 end;local cca=bd-bca
+if cca>0 then
+if _d=="flex-end"then for dca,_da in ipairs(ad)do _da.set("x",
+_da.get("x")+cca)end elseif _d==
+"flex-center"or _d=="center"then local dca=_aa(cca/2)for _da,ada in ipairs(ad)do ada.set("x",
+ada.get("x")+dca)end end end end
+local function _c(bc,cc,dc,_d)local ad={}
+for dca,_da in ipairs(cc)do if _da~=bb then table.insert(ad,_da)end end;if#ad==0 then return end;local bd=bc.get("width")
+local cd=bc.get("height")local dd=bc.get("flexAlignItems")
+local __a=bc.get("flexCrossPadding")local a_a=bc.get("flexWrap")if cd<=0 then return end;local b_a=bd- (__a*2)if b_a<
+1 then b_a=bd;__a=0 end;local c_a=math.max;local d_a=math.min
+local _aa=math.floor;local aaa=math.ceil;local baa=0;local caa=0;local daa={}local _ba={}local aba={}
+for dca,_da in ipairs(ad)do local ada=
+_da.get("flexGrow")or 0
+local bda=_da.get("flexShrink")or 0;local cda=_da.get("height")_ba[_da]=ada;aba[_da]=bda;daa[_da]=cda;if
+ada>0 then caa=caa+ada else baa=baa+cda end end;local bba=#ad;local cba=(bba>1)and( (bba-1)*dc)or 0;local dba=
+cd-baa-cba
+if dba>0 and caa>0 then
+for dca,_da in ipairs(ad)do local ada=_ba[_da]if ada>0 then
+local bda=daa[_da]local cda=_aa((ada/caa)*dba)
+_da.set("height",c_a(cda,1))end end elseif dba<0 then local dca=0;local _da={}for ada,bda in ipairs(ad)do local cda=aba[bda]if cda>0 then dca=dca+cda
+table.insert(_da,bda)end end
+if
+dca>0 and#_da>0 then local ada=-dba
+for bda,cda in ipairs(_da)do local dda=cda.get("height")
+local __b=aba[cda]local a_b=__b/dca;local b_b=aaa(ada*a_b)
+cda.set("height",c_a(1,dda-b_b))end end;baa=0
+for ada,bda in ipairs(ad)do baa=baa+bda.get("height")end
+if caa>0 then local ada={}local bda=0
+for cda,dda in ipairs(ad)do if _ba[dda]>0 then table.insert(ada,dda)bda=bda+
+dda.get("height")end end
+if#ada>0 and bda>0 then local cda=c_a(_aa(cd*0.2),#ada)
+local dda=d_a(cda,cd-cba)
+for __b,a_b in ipairs(ada)do local b_b=_ba[a_b]local c_b=b_b/caa
+local d_b=c_a(1,_aa(dda*c_b))a_b.set("height",d_b)end end end end;local _ca=1
+for dca,_da in ipairs(ad)do _da.set("y",_ca)
+if not a_a then
+if dd=="stretch"then
+_da.set("width",b_a)_da.set("x",1 +__a)else local bda=_da.get("width")local cda=1;if
+dd=="flex-end"then cda=bd-bda+1 elseif dd=="flex-center"or dd=="center"then cda=
+_aa((bd-bda)/2)+1 end
+_da.set("x",c_a(1,cda))end end
+local ada=_da.get("x")+_da.get("width")-1;if
+ada>bd and(_da.get("flexShrink")or 0)>0 then
+_da.set("width",c_a(1,bd-_da.get("x")+1))end;_ca=
+_ca+_da.get("height")+dc end;local aca=ad[#ad]local bca=0;if aca then
+bca=aca.get("y")+aca.get("height")-1 end;local cca=cd-bca
+if cca>0 then
+if _d=="flex-end"then for dca,_da in ipairs(ad)do _da.set("y",
+_da.get("y")+cca)end elseif _d==
+"flex-center"or _d=="center"then local dca=_aa(cca/2)for _da,ada in ipairs(ad)do ada.set("y",
+ada.get("y")+dca)end end end end
+local function ac(bc,cc,dc,_d,ad)
+if bc.get("width")<=0 or bc.get("height")<=0 then return end
+cc=(cc=="row"or cc=="column")and cc or"row"local bd,cd=bc.get("width"),bc.get("height")
+local dd=
+bd~=bc._lastLayoutWidth or cd~=bc._lastLayoutHeight;bc._lastLayoutWidth=bd;bc._lastLayoutHeight=cd
+if
+ad and dd and(bd>bc._lastLayoutWidth or
+cd>bc._lastLayoutHeight)then
+for b_a,c_a in pairs(bc.get("children"))do
+if
+c_a~=bb and c_a:getVisible()and
+c_a.get("flexGrow")and c_a.get("flexGrow")>0 then
+if cc=="row"then
+local d_a,_aa=pcall(function()return c_a.get("intrinsicWidth")end)if d_a and _aa then c_a.set("width",_aa)end else
+local d_a,_aa=pcall(function()return
+c_a.get("intrinsicHeight")end)if d_a and _aa then c_a.set("height",_aa)end end end end end;local __a=cb(bc,cc,dc,ad)if#__a==0 then return end
+local a_a=cc=="row"and db or _c
+if cc=="row"and ad then local b_a=1
+for c_a,d_a in ipairs(__a)do
+if#d_a>0 then for aaa,baa in ipairs(d_a)do if baa~=bb then
+baa.set("y",b_a)end end;a_a(bc,d_a,dc,_d)
+local _aa=0;for aaa,baa in ipairs(d_a)do if baa~=bb then
+_aa=math.max(_aa,baa.get("height"))end end;if c_a<
+#__a then b_a=b_a+_aa+dc else b_a=b_a+_aa end end end elseif cc=="column"and ad then local b_a=1
+for c_a,d_a in ipairs(__a)do
+if#d_a>0 then for aaa,baa in ipairs(d_a)do if baa~=bb then
+baa.set("x",b_a)end end;a_a(bc,d_a,dc,_d)
+local _aa=0;for aaa,baa in ipairs(d_a)do
+if baa~=bb then _aa=math.max(_aa,baa.get("width"))end end;if c_a<#__a then b_a=b_a+_aa+dc else b_a=
+b_a+_aa end end end else for b_a,c_a in ipairs(__a)do a_a(bc,c_a,dc,_d)end end;bc:sortChildren()
+bc.set("childrenEventsSorted",false)bc.set("flexUpdateLayout",false)end
 function ab.new()local bc=setmetatable({},ab):__init()
 bc.class=ab;bc.set("width",12)bc.set("height",6)
-bc.set("background",colors.blue)bc.set("z",10)
+bc.set("background",colors.blue)bc.set("z",10)bc._lastLayoutWidth=0;bc._lastLayoutHeight=0
 bc:observe("width",function()
 bc.set("flexUpdateLayout",true)end)
-bc:observe("height",function()bc.set("flexUpdateLayout",true)end)return bc end;function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","Flexbox")
+bc:observe("height",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexDirection",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexSpacing",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexWrap",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexJustifyContent",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexAlignItems",function()bc.set("flexUpdateLayout",true)end)
+bc:observe("flexCrossPadding",function()bc.set("flexUpdateLayout",true)end)return bc end;function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","Flexbox")
 return self end
 function ab:addChild(bc)
 _b.addChild(self,bc)
 if(bc~=bb)then
 bc:instanceProperty("flexGrow",{default=0,type="number"})
 bc:instanceProperty("flexShrink",{default=0,type="number"})
-bc:instanceProperty("flexBasis",{default=0,type="number"})end;self.set("flexUpdateLayout",true)return self end
+bc:instanceProperty("flexBasis",{default=0,type="number"})
+bc:instanceProperty("intrinsicWidth",{default=bc.get("width"),type="number"})
+bc:instanceProperty("intrinsicHeight",{default=bc.get("height"),type="number"})
+bc:observe("flexGrow",function()self.set("flexUpdateLayout",true)end)
+bc:observe("flexShrink",function()self.set("flexUpdateLayout",true)end)
+bc:observe("width",function(cc,dc,_d)if bc.get("flexGrow")==0 then
+bc.set("intrinsicWidth",dc)end
+self.set("flexUpdateLayout",true)end)
+bc:observe("height",function(cc,dc,_d)if bc.get("flexGrow")==0 then
+bc.set("intrinsicHeight",dc)end
+self.set("flexUpdateLayout",true)end)end;self.set("flexUpdateLayout",true)return self end
 function ab:removeChild(bc)_b.removeChild(self,bc)
 if(bc~=bb)then bc.setFlexGrow=nil;bc.setFlexShrink=
 nil;bc.setFlexBasis=nil;bc.getFlexGrow=nil;bc.getFlexShrink=nil;bc.getFlexBasis=
@@ -1501,12 +1637,15 @@ ba.class=aa;ba.set("width",30)ba.set("height",10)ba.set("z",5)
 return ba end
 function aa:init(ba,ca)
 d.init(self,ba,ca)self.set("type","Table")return self end
-function aa:sortData(ba,ca)local da=self.get("data")
-local _b=self.get("sortDirection")
+function aa:addColumn(ba,ca)local da=self.get("columns")
+table.insert(da,{name=ba,width=ca})self.set("columns",da)return self end;function aa:addData(...)local ba=self.get("data")table.insert(ba,{...})
+self.set("data",ba)return self end
+function aa:sortData(ba,ca)
+local da=self.get("data")local _b=self.get("sortDirection")
 if not ca then
-table.sort(da,function(ab,bb)
-if _b=="asc"then return ab[ba]<bb[ba]else return ab[ba]>bb[ba]end end)else
-table.sort(da,function(ab,bb)return ca(ab[ba],bb[ba])end)end;self.set("data",da)return self end
+table.sort(da,function(ab,bb)if _b=="asc"then return
+ab[ba]<bb[ba]else return ab[ba]>bb[ba]end end)else
+table.sort(da,function(ab,bb)return ca(ab[ba],bb[ba])end)end;return self end
 function aa:mouse_click(ba,ca,da)
 if not d.mouse_click(self,ba,ca,da)then return false end;local _b,ab=self:getRelativePosition(ca,da)
 if ab==1 then local bb=1
@@ -1540,9 +1679,10 @@ local cc=
 for dc,_d in ipairs(ba)do local ad=tostring(bc[dc]or"")local bd=ad..
 string.rep(" ",_d.width-#ad)if dc<#ba then bd=
 string.sub(bd,1,_d.width-1).." "end
-self:blit(db,y,string.sub(bd,1,_d.width),string.sub(string.rep(_a[self.get("foreground")],_d.width),1,
-cb-db+1),string.sub(string.rep(_a[cc],_d.width),1,
-cb-db+1))db=db+_d.width end else
+local cd=string.sub(bd,1,_d.width)
+local dd=string.sub(string.rep(_a[self.get("foreground")],_d.width),1,
+cb-db+1)
+local __a=string.sub(string.rep(_a[cc],_d.width),1,cb-db+1)self:blit(db,y,cd,dd,__a)db=db+_d.width end else
 self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end
 if#ca>bb-2 then local ac=bb-2
 local bc=math.max(1,math.floor(ac* (bb-2)/#ca))local cc=#ca- (bb-2)+1;local dc=ab/cc
@@ -2185,6 +2325,18 @@ ab.startY)*bb
 ab.element.set("offsetX",math.floor(cb))ab.element.set("offsetY",math.floor(db))return
 bb>=1 end,complete=function(ab)
 ab.element.set("offsetX",ab.args[1])ab.element.set("offsetY",ab.args[2])end})
+da.registerAnimation("number",{start=function(ab)
+ab.startValue=ab.element.get(ab.args[1])ab.targetValue=ab.args[2]end,update=function(ab,bb)
+local cb=
+ab.startValue+ (ab.targetValue-ab.startValue)*bb
+ab.element.set(ab.args[1],math.floor(cb))return bb>=1 end,complete=function(ab)
+ab.element.set(ab.args[1],ab.targetValue)end})
+da.registerAnimation("entries",{start=function(ab)
+ab.startColor=ab.element.get(ab.args[1])ab.colorList=ab.args[2]end,update=function(ab,bb)
+local cb=ab.colorList;local db=math.floor(#cb*bb)+1;if db>#cb then db=#cb end
+ab.element.set(ab.args[1],cb[db])end,complete=function(ab)
+ab.element.set(ab.args[1],ab.colorList[
+#ab.colorList])end})
 da.registerAnimation("morphText",{start=function(ab)local bb=ab.element.get(ab.args[1])
 local cb=ab.args[2]local db=math.max(#bb,#cb)
 local _c=string.rep(" ",math.floor(db-#bb)/2)ab.startText=_c..bb.._c
@@ -2466,9 +2618,7 @@ for cd,dd in pairs(bd)do
 local __a=self._properties[cd]
 if(__a)then
 if( (__a.type)=="color")then if(type(dd)=="string")then
-if(colors[dd])then dd=colors[dd]end end end;self.set(cd,dd)else
-ab.error("Invalid property '"..cd..
-"' in theme for "..self._values.type)end end end
+if(colors[dd])then dd=colors[dd]end end end;self.set(cd,dd)end end end
 if(ad~=false)then if(self:isType("Container"))then local cd=self.get("children")
 for dd,__a in
 ipairs(cd)do if(__a and __a.applyTheme)then __a:applyTheme()end end end end;return self end
