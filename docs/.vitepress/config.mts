@@ -113,6 +113,7 @@ export default defineConfig({
                 {text: 'Table', link: 'references/elements/Table'},
                 {text: 'TextBox', link: 'references/elements/TextBox'},
                 {text: 'Tree', link: 'references/elements/Tree'},
+                {text: 'Timer', link: 'references/elements/Timer'},
                 {text: 'ScrollBar', link: 'references/elements/ScrollBar'},
                 {text: 'Slider', link: 'references/elements/Slider'},
                 {text: 'ProgressBar', link: 'references/elements/ProgressBar'},

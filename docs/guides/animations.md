@@ -17,6 +17,8 @@ element:animate()
     :move(x, y, duration)                       -- Animate move
     :moveOffset(x, y, duration)                 -- Animate offset
     :resize(w, h, duration)                     -- Animate size
+    :number(property, targetNumber, duration)   -- Animate number
+    :entries(property, entryList, duration) -- Cycles through a list of values (e.g. colors, text) for any property over the specified duration
     :morphText(property, targetText, duration)  -- Animate text
     :typewrite(property, targetText, duration)  -- Animate text
     :fadeText(property, targetText, duration)   -- Animate text
@@ -53,7 +55,7 @@ element:animate()
     :sequence()
     :resize(5, 5, 1)                 -- Starts after position completes
     :sequence()
-    :morphText("text", "newText" 1)  -- simultaneously
+    :morphText("text", "newText" 1)  -- starts after resizing completes
     :start()
 ```
 
