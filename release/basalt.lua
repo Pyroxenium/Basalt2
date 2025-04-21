@@ -1918,11 +1918,11 @@ table.insert(_b,cb)ab=ab+#db end end;self.set("width",ab)return aa.setItems(self
 function ca:render()_a.render(self)local da=1
 for _b,ab in ipairs(self.get("items"))do if type(ab)==
 "string"then ab={text=" "..ab.." "}
-self.get("items")[i]=ab end;local bb=ab.selected
-local cb=ab.selectable==false and
-self.get("separatorColor")or(bb and
-(ab.selectedForeground or self.get("selectedForeground"))or
-(ab.foreground or self.get("foreground")))
+self.get("items")[_b]=ab end;local bb=ab.selected
+local cb=
+ab.selectable==false and self.get("separatorColor")or(bb and(ab.selectedForeground or
+self.get("selectedForeground"))or(ab.foreground or
+self.get("foreground")))
 local db=
 bb and(ab.selectedBackground or self.get("selectedBackground"))or(ab.background or self.get("background"))
 self:blit(da,1,ab.text,string.rep(ba[cb],#ab.text),string.rep(ba[db],#ab.text))da=da+#ab.text end end
