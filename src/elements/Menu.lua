@@ -65,7 +65,7 @@ function Menu:render()
     VisualElement.render(self)
     local currentX = 1
 
-    for _, item in ipairs(self.get("items")) do
+    for i, item in ipairs(self.get("items")) do
         if type(item) == "string" then
             item = {text = " "..item.." "}
             self.get("items")[i] = item
