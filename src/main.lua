@@ -226,7 +226,9 @@ local function updateEvent(event, ...)
     if lazyElementsEventHandler(event, ...) then return end
 
     if(mouseEvents[event])then
-        activeFrames[main]:dispatchEvent(event, ...)
+        if activeFrames[main] then
+            activeFrames[main]:dispatchEvent(event, ...)
+        end
     elseif(keyEvents[event])then
         if(focusedFrame~=nil)then
             focusedFrame:dispatchEvent(event, ...)
