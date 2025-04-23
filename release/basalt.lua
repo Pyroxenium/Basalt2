@@ -1981,9 +1981,9 @@ table.remove(__a._schedule,bca)return true end end;return false end
 local bba={mouse_click=true,mouse_up=true,mouse_scroll=true,mouse_drag=true}local cba={key=true,key_up=true,char=true}
 local function dba(aca,...)if(aca=="terminate")then __a.stop()
 return end;if aba(aca,...)then return end
-if(bba[aca])then
-c_a[a_a]:dispatchEvent(aca,...)elseif(cba[aca])then
-if(b_a~=nil)then b_a:dispatchEvent(aca,...)end else
+if(bba[aca])then if c_a[a_a]then
+c_a[a_a]:dispatchEvent(aca,...)end elseif(cba[aca])then if(b_a~=nil)then
+b_a:dispatchEvent(aca,...)end else
 for bca,cca in pairs(c_a)do cca:dispatchEvent(aca,...)end end
 for bca,cca in ipairs(__a._schedule)do
 if
