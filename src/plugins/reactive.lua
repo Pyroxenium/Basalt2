@@ -14,7 +14,10 @@ local mathEnv = {
     end,
     round = function(val)
         return math.floor(val + 0.5)
-    end
+    end,
+    floor = math.floor,
+    ceil = math.ceil,
+    abs = math.abs
 }
 
 local function parseExpression(expr, element, propName)

@@ -31,30 +31,43 @@ function BasaltProgram.new(program)
     return self
 end
 
+local function createShellEnv(dir)
+    local env = { shell = shell, multishell = multishell }
+    env.require, env.package = newPackage(env, dir)
+    return env
+end
+
 ---@private
 function BasaltProgram:run(path, width, height)
-    self.window = window.create(term.current(), 1, 1, width, height, false)
+    self.window = window.create(self.program:getBaseFrame():getTerm(), 1, 1, width, height, false)
     local pPath = shell.resolveProgram(path)
     if(pPath~=nil)then
         if(fs.exists(pPath)) then
             local file = fs.open(pPath, "r")
             local content = file.readAll()
             file.close()
-            local env = setmetatable(self.env, {__index=_ENV})
+            --[[local env = setmetatable(self.env, {__index=_ENV})
             env.shell = shell
             env.term = self.window
             env.require, env.package = newPackage(env, fs.getDir(pPath))
             env.term.current = term.current
             env.term.redirect = term.redirect
-            env.term.native = term.native
+            env.term.native = term.native]]
 
+            local env = setmetatable(createShellEnv(fs.getDir(path)), { __index = _ENV })
+            env.term = self.window
+            env.term.current = term.current
+            env.term.native = function ()
+                return self.window
+            end
+            for k,v in pairs(self.env) do
+                env[k] = v
+            end
+            
             self.coroutine = coroutine.create(function()
-                local program = load(content, path, "bt", env)
+                local program = load(content, "@/" .. path, nil, env)
                 if program then
-                    local current = term.current()
-                    term.redirect(self.window)
                     local result = program(path, table.unpack(self.args))
-                    term.redirect(current)
                     return result
                 end
             end)
@@ -90,7 +103,7 @@ end
 
 ---@private
 function BasaltProgram:resume(event, ...)
-    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then return end
+    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then self.program.set("running", false) return end
     if(self.filter~=nil)then
         if(event~=self.filter)then return end
         self.filter=nil
@@ -118,7 +131,7 @@ end
 
 ---@private
 function BasaltProgram:stop()
-    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then return end
+    if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then self.program.set("running", false) return end
     coroutine.close(self.coroutine)
     self.coroutine = nil
 end

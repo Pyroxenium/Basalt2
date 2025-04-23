@@ -16,6 +16,8 @@ local function errorHandler(err)
 end
 
 local ok, result = pcall(require, "main")
+package.loaded.main = nil
+package.loaded.log = nil
 
 package.path = defaultPath
 if not ok then

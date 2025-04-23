@@ -39,7 +39,6 @@ local lazyElementCount = 10
 local lazyElementsTimer = 0
 local isLazyElementsTimerActive = false
 
-
 local function queueLazyElements()
     if(isLazyElementsTimerActive)then return end
     lazyElementsTimer = os.startTimer(0.2)
@@ -237,6 +236,7 @@ local function updateEvent(event, ...)
         for _, frame in pairs(activeFrames) do
             frame:dispatchEvent(event, ...)
         end
+        --activeFrames[main]:dispatchEvent(event, ...) -- continue here
     end
 
     for _, func in ipairs(basalt._schedule) do
