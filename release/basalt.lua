@@ -971,7 +971,8 @@ ab.defineProperty(ab,"program",{default=nil,type="table"})
 ab.defineProperty(ab,"path",{default="",type="string"})
 ab.defineProperty(ab,"running",{default=false,type="boolean"})ab.defineEvent(ab,"*")local bb={}bb.__index=bb
 local cb=dofile("rom/modules/main/cc/require.lua").make
-function bb.new(_c)local ac=setmetatable({},bb)ac.env={}ac.args={}ac.program=_c;return ac end;local function db(_c)local ac={shell=shell,multishell=multishell}
+function bb.new(_c,ac,bc)local cc=setmetatable({},bb)cc.env=ac or{}cc.args={}cc.addEnvironment=
+bc==nil and true or bc;cc.program=_c;return cc end;local function db(_c)local ac={shell=shell,multishell=multishell}
 ac.require,ac.package=cb(ac,_c)return ac end
 function bb:run(_c,ac,bc)
 self.window=window.create(self.program:getBaseFrame():getTerm(),1,1,ac,bc,false)local cc=shell.resolveProgram(_c)
@@ -980,7 +981,8 @@ if(fs.exists(cc))then
 local dc=fs.open(cc,"r")local _d=dc.readAll()dc.close()
 local ad=setmetatable(db(fs.getDir(_c)),{__index=_ENV})ad.term=self.window;ad.term.current=term.current;ad.term.native=function()
 return self.window end
-for __a,a_a in pairs(self.env)do ad[__a]=a_a end
+if(self.addEnvironment)then for __a,a_a in pairs(self.env)do
+ad[__a]=a_a end else ad=self.env end
 self.coroutine=coroutine.create(function()local __a=load(_d,"@/".._c,nil,ad)if __a then
 local a_a=__a(_c,table.unpack(self.args))return a_a end end)local bd=term.current()term.redirect(self.window)
 local cd,dd=coroutine.resume(self.coroutine)term.redirect(bd)
@@ -1007,9 +1009,9 @@ _c.class=ab;_c.set("z",5)_c.set("width",30)_c.set("height",12)
 return _c end
 function ab:init(_c,ac)
 da.init(self,_c,ac)self.set("type","Program")return self end
-function ab:execute(_c)self.set("path",_c)self.set("running",true)
-local ac=bb.new(self)self.set("program",ac)
-ac:run(_c,self.get("width"),self.get("height"))self:updateRender()return self end
+function ab:execute(_c,ac,bc)self.set("path",_c)self.set("running",true)
+local cc=bb.new(self,ac,bc)self.set("program",cc)
+cc:run(_c,self.get("width"),self.get("height"))self:updateRender()return self end
 function ab:sendEvent(_c,...)self:dispatchEvent(_c,...)return self end;function ab:onError(_c)local ac=self.get("program")if ac then ac.onError=_c end
 return self end
 function ab:dispatchEvent(_c,...)
