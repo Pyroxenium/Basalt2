@@ -23,10 +23,11 @@ BasaltProgram.__index = BasaltProgram
 local newPackage = dofile("rom/modules/main/cc/require.lua").make
 
 ---@private
-function BasaltProgram.new(program)
+function BasaltProgram.new(program, env, addEnvironment)
     local self = setmetatable({}, BasaltProgram)
-    self.env = {}
+    self.env = env or {}
     self.args = {}
+    self.addEnvironment = addEnvironment == nil and true or addEnvironment
     self.program = program
     return self
 end
@@ -60,9 +61,14 @@ function BasaltProgram:run(path, width, height)
             env.term.native = function ()
                 return self.window
             end
-            for k,v in pairs(self.env) do
-                env[k] = v
+            if(self.addEnvironment)then
+                for k,v in pairs(self.env) do
+                    env[k] = v
+                end
+            else
+                env = self.env
             end
+
             
             self.coroutine = coroutine.create(function()
                 local program = load(content, "@/" .. path, nil, env)
@@ -162,11 +168,13 @@ end
 --- Executes a program
 --- @shortDescription Executes a program
 --- @param path string The path to the program
+--- @param env? table The environment to run the program in
+--- @param addEnvironment? boolean Whether to add the environment to the program's environment (false = overwrite instead of adding)
 --- @return Program self The Program instance
-function Program:execute(path)
+function Program:execute(path, env, addEnvironment)
     self.set("path", path)
     self.set("running", true)
-    local program = BasaltProgram.new(self)
+    local program = BasaltProgram.new(self, env, addEnvironment)
     self.set("program", program)
     program:run(path, self.get("width"), self.get("height"))
     self:updateRender()
