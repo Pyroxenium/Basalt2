@@ -15,6 +15,8 @@ Program.defineProperty(Program, "program", {default = nil, type = "table"})
 Program.defineProperty(Program, "path", {default = "", type = "string"})
 --- @property running boolean false Whether the program is running
 Program.defineProperty(Program, "running", {default = false, type = "boolean"})
+--- @property errorCallback function nil The error callback function
+Program.defineProperty(Program, "errorCallback", {default = nil, type = "function"})
 
 Program.defineEvent(Program, "*")
 
@@ -47,13 +49,6 @@ function BasaltProgram:run(path, width, height)
             local file = fs.open(pPath, "r")
             local content = file.readAll()
             file.close()
-            --[[local env = setmetatable(self.env, {__index=_ENV})
-            env.shell = shell
-            env.term = self.window
-            env.require, env.package = newPackage(env, fs.getDir(pPath))
-            env.term.current = term.current
-            env.term.redirect = term.redirect
-            env.term.native = term.native]]
 
             local env = setmetatable(createShellEnv(fs.getDir(path)), { __index = _ENV })
             env.term = self.window
@@ -69,7 +64,7 @@ function BasaltProgram:run(path, width, height)
                 env = self.env
             end
 
-            
+
             self.coroutine = coroutine.create(function()
                 local program = load(content, "@/" .. path, nil, env)
                 if program then
@@ -82,11 +77,13 @@ function BasaltProgram:run(path, width, height)
             local ok, result = coroutine.resume(self.coroutine)
             term.redirect(current)
             if not ok then
-                if self.onError then
-                    local result = self.onError(self.program, result)
-                    if(result==false)then
+                local errorCallback = self.program.get("errorCallback")
+                if errorCallback then
+                    local trace = debug.traceback(self.coroutine, result)
+                    local _result = errorCallback(self.program, result, trace:gsub(result, ""))
+                    if(_result==false)then
                         self.filter = nil
-                        return
+                        return ok, result
                     end
                 end
                 errorManager.header = "Basalt Program Error ".. path
@@ -122,9 +119,11 @@ function BasaltProgram:resume(event, ...)
     if ok then
         self.filter = result
     else
-        if self.onError then
-            local result = self.onError(self.program, result)
-            if(result==false)then
+        local errorCallback = self.program.get("errorCallback")
+        if errorCallback then
+            local trace = debug.traceback(self.coroutine, result)
+            local _result = errorCallback(self.program, result, trace:gsub(result, ""))
+            if(_result==false)then
                 self.filter = nil
                 return ok, result
             end
@@ -196,10 +195,7 @@ end
 --- @param fn function The callback function to register
 --- @return Program self The Program instance
 function Program:onError(fn)
-    local program = self.get("program")
-    if program then
-        program.onError = fn
-    end
+    self.set("errorCallback", fn)
     return self
 end
 
