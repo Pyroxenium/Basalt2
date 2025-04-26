@@ -1,422 +1,422 @@
 return {
   ["metadata"] = {
-    ["generated"] = "Thu Apr 24 08:20:55 2025",
+    ["generated"] = "Sat Apr 26 11:32:26 2025",
     ["version"] = "2.0",
   },
   ["categories"] = {
-    ["plugins"] = {
-      ["description"] = "Plugins",
-      ["files"] = {
-        ["reactive"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 7253,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/reactive.lua",
-        },
-        ["debug"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 6250,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/debug.lua",
-        },
-        ["benchmark"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 12581,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "plugins/benchmark.lua",
-        },
-        ["state"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 6896,
-          ["requires"] = {
-            [1] = "Container",
-          },
-          ["path"] = "plugins/state.lua",
-        },
-        ["xml"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 9901,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/xml.lua",
-        },
-        ["animation"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 15774,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/animation.lua",
-        },
-        ["theme"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 7042,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/theme.lua",
-        },
-        ["canvas"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 7873,
-          ["requires"] = {
-          },
-          ["path"] = "plugins/canvas.lua",
-        },
-      },
-    },
     ["libraries"] = {
-      ["description"] = "Libraries",
       ["files"] = {
-        ["colorHex"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 132,
-          ["requires"] = {
-          },
-          ["path"] = "libraries/colorHex.lua",
-        },
-        ["expect"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 846,
-          ["requires"] = {
-          },
-          ["path"] = "libraries/expect.lua",
-        },
         ["utils"] = {
-          ["description"] = "",
+          ["path"] = "libraries/utils.lua",
           ["default"] = true,
+          ["description"] = "",
           ["size"] = 2661,
           ["requires"] = {
           },
-          ["path"] = "libraries/utils.lua",
+        },
+        ["expect"] = {
+          ["path"] = "libraries/expect.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 846,
+          ["requires"] = {
+          },
+        },
+        ["colorHex"] = {
+          ["path"] = "libraries/colorHex.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 132,
+          ["requires"] = {
+          },
         },
       },
+      ["description"] = "Libraries",
     },
     ["elements"] = {
-      ["description"] = "UI Elements",
       ["files"] = {
-        ["Graph"] = {
-          ["description"] = "A point based graph element",
-          ["default"] = false,
-          ["size"] = 6989,
-          ["requires"] = {
-          },
-          ["path"] = "elements/Graph.lua",
-        },
-        ["Flexbox"] = {
-          ["description"] = "A flexbox container that arranges its children in a flexible layout.",
-          ["default"] = true,
-          ["size"] = 32431,
-          ["requires"] = {
-            [1] = "Container",
-          },
-          ["path"] = "elements/Flexbox.lua",
-        },
-        ["Display"] = {
-          ["description"] = "The Display is a special element which uses the cc window API which you can use.",
-          ["default"] = false,
-          ["size"] = 4243,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Display.lua",
-        },
         ["BaseFrame"] = {
-          ["description"] = "This is the base frame class. It is the root element of all elements and the only element without a parent.",
+          ["path"] = "elements/BaseFrame.lua",
           ["default"] = true,
+          ["description"] = "This is the base frame class. It is the root element of all elements and the only element without a parent.",
           ["size"] = 8466,
           ["requires"] = {
             [1] = "Container",
           },
-          ["path"] = "elements/BaseFrame.lua",
-        },
-        ["Slider"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 4766,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Slider.lua",
-        },
-        ["Button"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 1656,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Button.lua",
-        },
-        ["BigFont"] = {
-          ["description"] = "",
-          ["default"] = false,
-          ["size"] = 20951,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/BigFont.lua",
-        },
-        ["Tree"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 7941,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Tree.lua",
         },
         ["Container"] = {
-          ["description"] = "The container class. It is a visual element that can contain other elements. It is the base class for all containers",
+          ["path"] = "elements/Container.lua",
           ["default"] = true,
+          ["description"] = "The container class. It is a visual element that can contain other elements. It is the base class for all containers",
           ["size"] = 25093,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Container.lua",
-        },
-        ["LineChart"] = {
-          ["description"] = "",
-          ["default"] = false,
-          ["size"] = 3227,
-          ["requires"] = {
-          },
-          ["path"] = "elements/LineChart.lua",
-        },
-        ["List"] = {
-          ["description"] = "A scrollable list of selectable items",
-          ["default"] = true,
-          ["size"] = 8702,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/List.lua",
-        },
-        ["Timer"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 2914,
-          ["requires"] = {
-            [1] = "BaseElement",
-          },
-          ["path"] = "elements/Timer.lua",
-        },
-        ["ProgressBar"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 3397,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/ProgressBar.lua",
-        },
-        ["Program"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 8679,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Program.lua",
-        },
-        ["TextBox"] = {
-          ["description"] = "A multi-line text editor component with cursor support and text manipulation features",
-          ["default"] = false,
-          ["size"] = 10928,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/TextBox.lua",
-        },
-        ["Scrollbar"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 9191,
-          ["requires"] = {
-            [1] = "VisualElement",
-          },
-          ["path"] = "elements/Scrollbar.lua",
-        },
-        ["Frame"] = {
-          ["description"] = "A frame element that serves as a grouping container for other elements.",
-          ["default"] = true,
-          ["size"] = 4458,
-          ["requires"] = {
-            [1] = "Container",
-          },
-          ["path"] = "elements/Frame.lua",
-        },
-        ["Dropdown"] = {
-          ["description"] = "A dropdown menu that shows a list of selectable items",
-          ["default"] = false,
-          ["size"] = 6359,
-          ["requires"] = {
-            [1] = "List",
-          },
-          ["path"] = "elements/Dropdown.lua",
         },
         ["Checkbox"] = {
-          ["description"] = "",
+          ["path"] = "elements/Checkbox.lua",
           ["default"] = true,
+          ["description"] = "",
           ["size"] = 2928,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Checkbox.lua",
         },
-        ["Label"] = {
-          ["description"] = "A simple text display element that automatically resizes its width based on the text content.",
+        ["Program"] = {
+          ["path"] = "elements/Program.lua",
           ["default"] = true,
-          ["size"] = 3092,
+          ["description"] = "",
+          ["size"] = 8762,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Label.lua",
         },
         ["Input"] = {
-          ["description"] = "A text input field with various features",
+          ["path"] = "elements/Input.lua",
           ["default"] = true,
+          ["description"] = "A text input field with various features",
           ["size"] = 8876,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Input.lua",
         },
-        ["Menu"] = {
-          ["description"] = "A horizontal menu bar with selectable items.",
+        ["Label"] = {
+          ["path"] = "elements/Label.lua",
           ["default"] = true,
-          ["size"] = 4679,
+          ["description"] = "A simple text display element that automatically resizes its width based on the text content.",
+          ["size"] = 3092,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["Graph"] = {
+          ["path"] = "elements/Graph.lua",
+          ["default"] = false,
+          ["description"] = "A point based graph element",
+          ["size"] = 6989,
+          ["requires"] = {
+          },
+        },
+        ["Dropdown"] = {
+          ["path"] = "elements/Dropdown.lua",
+          ["default"] = false,
+          ["description"] = "A dropdown menu that shows a list of selectable items",
+          ["size"] = 6359,
           ["requires"] = {
             [1] = "List",
           },
-          ["path"] = "elements/Menu.lua",
+        },
+        ["Timer"] = {
+          ["path"] = "elements/Timer.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 2914,
+          ["requires"] = {
+            [1] = "BaseElement",
+          },
+        },
+        ["Display"] = {
+          ["path"] = "elements/Display.lua",
+          ["default"] = false,
+          ["description"] = "The Display is a special element which uses the cc window API which you can use.",
+          ["size"] = 4243,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["Frame"] = {
+          ["path"] = "elements/Frame.lua",
+          ["default"] = true,
+          ["description"] = "A frame element that serves as a grouping container for other elements.",
+          ["size"] = 4458,
+          ["requires"] = {
+            [1] = "Container",
+          },
+        },
+        ["BarChart"] = {
+          ["path"] = "elements/BarChart.lua",
+          ["default"] = false,
+          ["description"] = "",
+          ["size"] = 3190,
+          ["requires"] = {
+          },
+        },
+        ["ProgressBar"] = {
+          ["path"] = "elements/ProgressBar.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 3397,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["Scrollbar"] = {
+          ["path"] = "elements/Scrollbar.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 9191,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["List"] = {
+          ["path"] = "elements/List.lua",
+          ["default"] = true,
+          ["description"] = "A scrollable list of selectable items",
+          ["size"] = 8702,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
         },
         ["VisualElement"] = {
-          ["description"] = "The Visual Element class which is the base class for all visual UI elements",
+          ["path"] = "elements/VisualElement.lua",
           ["default"] = true,
+          ["description"] = "The Visual Element class which is the base class for all visual UI elements",
           ["size"] = 17775,
           ["requires"] = {
             [1] = "BaseElement",
           },
-          ["path"] = "elements/VisualElement.lua",
         },
-        ["Switch"] = {
-          ["description"] = "",
+        ["Menu"] = {
+          ["path"] = "elements/Menu.lua",
           ["default"] = true,
-          ["size"] = 1378,
+          ["description"] = "A horizontal menu bar with selectable items.",
+          ["size"] = 4679,
+          ["requires"] = {
+            [1] = "List",
+          },
+        },
+        ["LineChart"] = {
+          ["path"] = "elements/LineChart.lua",
+          ["default"] = false,
+          ["description"] = "",
+          ["size"] = 3227,
+          ["requires"] = {
+          },
+        },
+        ["TextBox"] = {
+          ["path"] = "elements/TextBox.lua",
+          ["default"] = false,
+          ["description"] = "A multi-line text editor component with cursor support and text manipulation features",
+          ["size"] = 10928,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Switch.lua",
+        },
+        ["Flexbox"] = {
+          ["path"] = "elements/Flexbox.lua",
+          ["default"] = true,
+          ["description"] = "A flexbox container that arranges its children in a flexible layout.",
+          ["size"] = 32431,
+          ["requires"] = {
+            [1] = "Container",
+          },
+        },
+        ["BaseElement"] = {
+          ["path"] = "elements/BaseElement.lua",
+          ["default"] = true,
+          ["description"] = "The base class for all UI elements in Basalt.",
+          ["size"] = 9544,
+          ["requires"] = {
+          },
+        },
+        ["Button"] = {
+          ["path"] = "elements/Button.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 1656,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
         },
         ["Image"] = {
-          ["description"] = "An element that displays an image in bimg format",
+          ["path"] = "elements/Image.lua",
           ["default"] = false,
+          ["description"] = "An element that displays an image in bimg format",
           ["size"] = 15125,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Image.lua",
-        },
-        ["BarChart"] = {
-          ["description"] = "",
-          ["default"] = false,
-          ["size"] = 3190,
-          ["requires"] = {
-          },
-          ["path"] = "elements/BarChart.lua",
-        },
-        ["BaseElement"] = {
-          ["description"] = "The base class for all UI elements in Basalt.",
-          ["default"] = true,
-          ["size"] = 9544,
-          ["requires"] = {
-          },
-          ["path"] = "elements/BaseElement.lua",
         },
         ["Table"] = {
-          ["description"] = "",
+          ["path"] = "elements/Table.lua",
           ["default"] = true,
+          ["description"] = "",
           ["size"] = 9668,
           ["requires"] = {
             [1] = "VisualElement",
           },
-          ["path"] = "elements/Table.lua",
+        },
+        ["Slider"] = {
+          ["path"] = "elements/Slider.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 4766,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["BigFont"] = {
+          ["path"] = "elements/BigFont.lua",
+          ["default"] = false,
+          ["description"] = "",
+          ["size"] = 20951,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["Tree"] = {
+          ["path"] = "elements/Tree.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 7941,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["Switch"] = {
+          ["path"] = "elements/Switch.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 1378,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
         },
       },
+      ["description"] = "UI Elements",
+    },
+    ["plugins"] = {
+      ["files"] = {
+        ["animation"] = {
+          ["path"] = "plugins/animation.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 15774,
+          ["requires"] = {
+          },
+        },
+        ["debug"] = {
+          ["path"] = "plugins/debug.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 6250,
+          ["requires"] = {
+          },
+        },
+        ["reactive"] = {
+          ["path"] = "plugins/reactive.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 7253,
+          ["requires"] = {
+          },
+        },
+        ["theme"] = {
+          ["path"] = "plugins/theme.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 7042,
+          ["requires"] = {
+          },
+        },
+        ["benchmark"] = {
+          ["path"] = "plugins/benchmark.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 12581,
+          ["requires"] = {
+            [1] = "VisualElement",
+          },
+        },
+        ["xml"] = {
+          ["path"] = "plugins/xml.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 9901,
+          ["requires"] = {
+          },
+        },
+        ["state"] = {
+          ["path"] = "plugins/state.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 6896,
+          ["requires"] = {
+            [1] = "Container",
+          },
+        },
+        ["canvas"] = {
+          ["path"] = "plugins/canvas.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 7873,
+          ["requires"] = {
+          },
+        },
+      },
+      ["description"] = "Plugins",
     },
     ["core"] = {
-      ["description"] = "Core Files",
       ["files"] = {
-        ["errorManager"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 3789,
-          ["requires"] = {
-          },
-          ["path"] = "errorManager.lua",
-        },
-        ["main"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 10578,
-          ["requires"] = {
-          },
-          ["path"] = "main.lua",
-        },
-        ["render"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 12422,
-          ["requires"] = {
-          },
-          ["path"] = "render.lua",
-        },
-        ["init"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 634,
-          ["requires"] = {
-          },
-          ["path"] = "init.lua",
-        },
-        ["propertySystem"] = {
-          ["description"] = "",
-          ["default"] = true,
-          ["size"] = 15524,
-          ["requires"] = {
-          },
-          ["path"] = "propertySystem.lua",
-        },
         ["elementManager"] = {
-          ["description"] = "",
+          ["path"] = "elementManager.lua",
           ["default"] = true,
+          ["description"] = "",
           ["size"] = 6297,
           ["requires"] = {
           },
-          ["path"] = "elementManager.lua",
+        },
+        ["propertySystem"] = {
+          ["path"] = "propertySystem.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 15524,
+          ["requires"] = {
+          },
+        },
+        ["init"] = {
+          ["path"] = "init.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 634,
+          ["requires"] = {
+          },
         },
         ["log"] = {
-          ["description"] = "",
+          ["path"] = "log.lua",
           ["default"] = true,
+          ["description"] = "",
           ["size"] = 3142,
           ["requires"] = {
           },
-          ["path"] = "log.lua",
+        },
+        ["main"] = {
+          ["path"] = "main.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 10578,
+          ["requires"] = {
+          },
+        },
+        ["render"] = {
+          ["path"] = "render.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 12422,
+          ["requires"] = {
+          },
+        },
+        ["errorManager"] = {
+          ["path"] = "errorManager.lua",
+          ["default"] = true,
+          ["description"] = "",
+          ["size"] = 3789,
+          ["requires"] = {
+          },
         },
       },
+      ["description"] = "Core Files",
     },
   },
 }

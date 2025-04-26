@@ -969,7 +969,8 @@ local da=ca.getElement("VisualElement")local _b=require("errorManager")local ab=
 ab.__index=ab
 ab.defineProperty(ab,"program",{default=nil,type="table"})
 ab.defineProperty(ab,"path",{default="",type="string"})
-ab.defineProperty(ab,"running",{default=false,type="boolean"})ab.defineEvent(ab,"*")local bb={}bb.__index=bb
+ab.defineProperty(ab,"running",{default=false,type="boolean"})
+ab.defineProperty(ab,"errorCallback",{default=nil,type="function"})ab.defineEvent(ab,"*")local bb={}bb.__index=bb
 local cb=dofile("rom/modules/main/cc/require.lua").make
 function bb.new(_c,ac,bc)local cc=setmetatable({},bb)cc.env=ac or{}cc.args={}cc.addEnvironment=
 bc==nil and true or bc;cc.program=_c;return cc end;local function db(_c)local ac={shell=shell,multishell=multishell}
@@ -987,8 +988,9 @@ self.coroutine=coroutine.create(function()local __a=load(_d,"@/".._c,nil,ad)if _
 local a_a=__a(_c,table.unpack(self.args))return a_a end end)local bd=term.current()term.redirect(self.window)
 local cd,dd=coroutine.resume(self.coroutine)term.redirect(bd)
 if not cd then
-if self.onError then
-local __a=self.onError(self.program,dd)if(__a==false)then self.filter=nil;return end end;_b.header="Basalt Program Error ".._c;_b.error(dd)end else _b.header="Basalt Program Error ".._c
+local __a=self.program.get("errorCallback")
+if __a then local a_a=debug.traceback(self.coroutine,dd)
+local b_a=__a(self.program,dd,a_a:gsub(dd,""))if(b_a==false)then self.filter=nil;return cd,dd end end;_b.header="Basalt Program Error ".._c;_b.error(dd)end else _b.header="Basalt Program Error ".._c
 _b.error("File not found")end else _b.header="Basalt Program Error"
 _b.error("Program ".._c.." not found")end end
 function bb:resize(_c,ac)self.window.reposition(1,1,_c,ac)end
@@ -999,8 +1001,9 @@ if
 (self.filter~=nil)then if(_c~=self.filter)then return end;self.filter=nil end;local ac=term.current()term.redirect(self.window)
 local bc,cc=coroutine.resume(self.coroutine,_c,...)term.redirect(ac)
 if bc then self.filter=cc else
-if self.onError then
-local dc=self.onError(self.program,cc)if(dc==false)then self.filter=nil;return bc,dc end end;_b.header="Basalt Program Error"_b.error(cc)end;return bc,cc end
+local dc=self.program.get("errorCallback")
+if dc then local _d=debug.traceback(self.coroutine,cc)
+local ad=dc(self.program,cc,_d:gsub(cc,""))if(ad==false)then self.filter=nil;return bc,cc end end;_b.header="Basalt Program Error"_b.error(cc)end;return bc,cc end
 function bb:stop()if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)return end
@@ -1012,14 +1015,13 @@ da.init(self,_c,ac)self.set("type","Program")return self end
 function ab:execute(_c,ac,bc)self.set("path",_c)self.set("running",true)
 local cc=bb.new(self,ac,bc)self.set("program",cc)
 cc:run(_c,self.get("width"),self.get("height"))self:updateRender()return self end
-function ab:sendEvent(_c,...)self:dispatchEvent(_c,...)return self end;function ab:onError(_c)local ac=self.get("program")if ac then ac.onError=_c end
-return self end
-function ab:dispatchEvent(_c,...)
-local ac=self.get("program")local bc=da.dispatchEvent(self,_c,...)
+function ab:sendEvent(_c,...)self:dispatchEvent(_c,...)return self end
+function ab:onError(_c)self.set("errorCallback",_c)return self end
+function ab:dispatchEvent(_c,...)local ac=self.get("program")
+local bc=da.dispatchEvent(self,_c,...)
 if ac then ac:resume(_c,...)
-if
-(self.get("focused"))then local cc=ac.window.getCursorBlink()
-local dc,_d=ac.window.getCursorPos()
+if(self.get("focused"))then
+local cc=ac.window.getCursorBlink()local dc,_d=ac.window.getCursorPos()
 self:setCursor(dc,_d,cc,ac.window.getTextColor())end;self:updateRender()end;return bc end
 function ab:focus()
 if(da.focus(self))then local _c=self.get("program")if _c then
