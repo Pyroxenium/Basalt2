@@ -12,6 +12,7 @@ local expect = require("libraries/expect")
 --- @field traceback boolean Whether to show a traceback on errors
 --- @field _events table A table of events and their callbacks
 --- @field _schedule function[] A table of scheduled functions
+--- @field _eventQueue table A table of unfinished events
 --- @field _plugins table A table of plugins
 --- @field isRunning boolean Whether the Basalt runtime is active
 --- @field LOGGER Log The logger instance
@@ -20,6 +21,7 @@ local basalt = {}
 basalt.traceback = true
 basalt._events = {}
 basalt._schedule = {}
+basalt._eventQueue = {}
 basalt._plugins = {}
 basalt.isRunning = false
 basalt.LOGGER = require("log")
@@ -223,25 +225,59 @@ local keyEvents = {
 local function updateEvent(event, ...)
     if(event=="terminate")then basalt.stop() return end
     if lazyElementsEventHandler(event, ...) then return end
+    local args = {...}
 
-    if(mouseEvents[event])then
-        if activeFrames[main] then
-            activeFrames[main]:dispatchEvent(event, ...)
+    local function basaltEvent()
+        if(mouseEvents[event])then
+            if activeFrames[main] then
+                activeFrames[main]:dispatchEvent(event, table.unpack(args))
+            end
+        elseif(keyEvents[event])then
+            if(focusedFrame~=nil)then
+                focusedFrame:dispatchEvent(event, table.unpack(args))
+            end
+        else
+            for _, frame in pairs(activeFrames) do
+                frame:dispatchEvent(event, table.unpack(args))
+            end
+            --activeFrames[main]:dispatchEvent(event, table.unpack(args)) -- continue here
         end
-    elseif(keyEvents[event])then
-        if(focusedFrame~=nil)then
-            focusedFrame:dispatchEvent(event, ...)
-        end
-    else
-        for _, frame in pairs(activeFrames) do
-            frame:dispatchEvent(event, ...)
-        end
-        --activeFrames[main]:dispatchEvent(event, ...) -- continue here
     end
 
+    -- Main event coroutine system
+    for k,v in pairs(basalt._eventQueue) do
+        if coroutine.status(v.coroutine) == "suspended" then
+            if v.filter == event or v.filter == nil then
+                v.filter = nil
+                local ok, result = coroutine.resume(v.coroutine, event, ...)
+                if not ok then
+                    errorManager.header = "Basalt Event Error"
+                    errorManager.error(result)
+                end
+                v.filter = result
+            end
+        end
+        if coroutine.status(v.coroutine) == "dead" then
+            table.remove(basalt._eventQueue, k)
+        end
+    end
+
+    local newEvent = {coroutine=coroutine.create(basaltEvent), filter=event}
+    local ok, result = coroutine.resume(newEvent.coroutine, event, ...)
+    if(not ok)then
+        errorManager.header = "Basalt Event Error"
+        errorManager.error(result)
+    end
+    if(result~=nil)then
+        newEvent.filter = result
+    end
+    table.insert(basalt._eventQueue, newEvent)
+
+    -- Schedule event coroutine system
     for _, func in ipairs(basalt._schedule) do
-        if(coroutine.status(func.coroutine)=="suspended")then
-            if(event==func.filter)or(func.filter==nil)then
+        if coroutine.status(func.coroutine)=="suspended" then
+            if event==func.filter or func.filter==nil then
+                func.filter = nil
                 local ok, result = coroutine.resume(func.coroutine, event, ...)
                 if(not ok)then
                     errorManager.header = "Basalt Schedule Error"
