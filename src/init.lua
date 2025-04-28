@@ -5,7 +5,7 @@ local defaultPath = package.path
 local format = "path;/path/?.lua;/path/?/init.lua;"
 
 local main = format:gsub("path", basaltPath)
-package.path = main.."rom/?"
+package.path = main.."rom/?;"..defaultPath
 
 local function errorHandler(err)
     package.path = main.."rom/?"
