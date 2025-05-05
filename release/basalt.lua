@@ -42,10 +42,10 @@ minified_pluginDirectory["debug"] = {}
 minified_pluginDirectory["benchmark"] = {}
 minified_pluginDirectory["xml"] = {}
 project["init.lua"] = function(...) local da={...}local _b=fs.getDir(da[2])local ab=package.path
-local bb="path;/path/?.lua;/path/?/init.lua;"local cb=bb:gsub("path",_b)package.path=cb.."rom/?"
-local function db(bc)package.path=cb..
-"rom/?"local cc=require("errorManager")package.path=ab
-cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.loaded.main=nil;package.loaded.log=
+local bb="path;/path/?.lua;/path/?/init.lua;"local cb=bb:gsub("path",_b)package.path=cb.."rom/?;"..ab
+local function db(bc)package.path=
+cb.."rom/?"local cc=require("errorManager")
+package.path=ab;cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.loaded.main=nil;package.loaded.log=
 nil;package.path=ab;if not _c then db(ac)else return ac end end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
