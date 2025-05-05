@@ -994,16 +994,17 @@ local b_a=__a(self.program,dd,a_a:gsub(dd,""))if(b_a==false)then self.filter=nil
 _b.error("File not found")end else _b.header="Basalt Program Error"
 _b.error("Program ".._c.." not found")end end
 function bb:resize(_c,ac)self.window.reposition(1,1,_c,ac)end
-function bb:resume(_c,...)if self.coroutine==nil or
+function bb:resume(_c,...)local ac={...}if(_c:find("mouse_"))then
+ac[2],ac[3]=self.program:getRelativePosition(ac[2],ac[3])end;if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)return end
 if
-(self.filter~=nil)then if(_c~=self.filter)then return end;self.filter=nil end;local ac=term.current()term.redirect(self.window)
-local bc,cc=coroutine.resume(self.coroutine,_c,...)term.redirect(ac)
-if bc then self.filter=cc else
-local dc=self.program.get("errorCallback")
-if dc then local _d=debug.traceback(self.coroutine,cc)
-local ad=dc(self.program,cc,_d:gsub(cc,""))if(ad==false)then self.filter=nil;return bc,cc end end;_b.header="Basalt Program Error"_b.error(cc)end;return bc,cc end
+(self.filter~=nil)then if(_c~=self.filter)then return end;self.filter=nil end;local bc=term.current()term.redirect(self.window)
+local cc,dc=coroutine.resume(self.coroutine,_c,table.unpack(ac))term.redirect(bc)
+if cc then self.filter=dc else
+local _d=self.program.get("errorCallback")
+if _d then local ad=debug.traceback(self.coroutine,dc)
+local bd=_d(self.program,dc,ad:gsub(dc,""))if(bd==false)then self.filter=nil;return cc,dc end end;_b.header="Basalt Program Error"_b.error(dc)end;return cc,dc end
 function bb:stop()if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)return end
