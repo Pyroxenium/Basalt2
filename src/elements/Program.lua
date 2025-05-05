@@ -106,6 +106,10 @@ end
 
 ---@private
 function BasaltProgram:resume(event, ...)
+    local args = {...}
+    if(event:find("mouse_"))then
+        args[2], args[3] = self.program:getRelativePosition(args[2], args[3])
+    end
     if self.coroutine==nil or coroutine.status(self.coroutine)=="dead" then self.program.set("running", false) return end
     if(self.filter~=nil)then
         if(event~=self.filter)then return end
@@ -113,7 +117,7 @@ function BasaltProgram:resume(event, ...)
     end
     local current = term.current()
     term.redirect(self.window)
-    local ok, result = coroutine.resume(self.coroutine, event, ...)
+    local ok, result = coroutine.resume(self.coroutine, event, table.unpack(args))
     term.redirect(current)
 
     if ok then
