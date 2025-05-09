@@ -63,7 +63,6 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Slider:mouse_click(button, x, y)
-    self.basalt.LOGGER.debug("Slider:mouse_click", button, x, y)
     if self:isInBounds(x, y) then
         local relX, relY = self:getRelativePosition(x, y)
         local pos = self.get("horizontal") and relX or relY

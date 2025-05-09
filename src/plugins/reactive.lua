@@ -37,6 +37,9 @@ local function parseExpression(expr, element, propName)
         if protectedNames[obj] then 
             return obj.."."..prop
         end
+        if tonumber(obj) then
+            return obj.."."..prop
+        end
         return string.format('__getProperty("%s", "%s")', obj, prop)
     end)
 
@@ -52,6 +55,9 @@ local function parseExpression(expr, element, propName)
             return element.parent:getState(prop)
         end,
         __getElementState = function(objName, prop)
+            if tonumber(objName) then
+                return nil
+            end
             local target = element:getBaseFrame():getChild(objName)
             if not target then
                 errorManager.header = "Reactive evaluation error"
@@ -61,6 +67,9 @@ local function parseExpression(expr, element, propName)
             return target:getState(prop).value
         end,
         __getProperty = function(objName, propName)
+            if tonumber(objName) then
+                return nil
+            end
             if objName == "self" then
                 return element.get(propName)
             elseif objName == "parent" then
@@ -105,11 +114,13 @@ local function validateReferences(expr, element)
                     return false
                 end
             else
-                local target = element.parent:getChild(ref)
-                if not target then
-                    errorManager.header = "Reactive evaluation error"
-                    errorManager.error("Referenced element not found: " .. ref)
-                    return false
+                if(tonumber(ref) == nil)then
+                    local target = element.parent:getChild(ref)
+                    if not target then
+                        errorManager.header = "Reactive evaluation error"
+                        errorManager.error("Referenced element not found: " .. ref)
+                        return false
+                    end
                 end
             end
         end
