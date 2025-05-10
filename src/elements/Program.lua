@@ -184,6 +184,19 @@ function Program:execute(path, env, addEnvironment)
     return self
 end
 
+--- Stops the program
+--- @shortDescription Stops the program
+--- @return Program self The Program instance
+function Program:stop()
+    local program = self.get("program")
+    if program then
+        program:stop()
+        self.set("running", false)
+        self.set("program", nil)
+    end
+    return self
+end
+
 --- Sends an event to the program
 --- @shortDescription Sends an event to the program
 --- @param event string The event to send

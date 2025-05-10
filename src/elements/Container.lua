@@ -301,6 +301,7 @@ end
 --- @param child table The child to remove
 --- @return Container self The container instance
 function Container:removeChild(child)
+    if child == nil then return self end
     for i,v in ipairs(self._values.children) do
         if v.get("id") == child.get("id") then
             table.remove(self._values.children, i)
