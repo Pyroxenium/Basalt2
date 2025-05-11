@@ -1205,10 +1205,9 @@ self.set("cursorX",math.min(
 cc+_d,#cd[bd]+1))end;self:updateRender()return
 true end;return false end
 function _b:paste(_c)if
-not self.get("editable")or not self.get("focused")then return false end
-local ac=self.get("lines")local bc=self.get("cursorX")local cc=self.get("cursorY")
-for dc in
-_c:gmatch(".")do if dc=="\n"then bb(self)else ab(self,dc)end end;return true end
+not self.get("editable")or not self.get("focused")then return false end;for ac in _c:gmatch(".")do if ac=="\n"then
+bb(self)else ab(self,ac)end end;return
+true end
 function _b:setText(_c)local ac={}
 if _c==""then ac={""}else for bc in(_c.."\n"):gmatch("([^\n]*)\n")do
 table.insert(ac,bc)end end;self.set("lines",ac)return self end
