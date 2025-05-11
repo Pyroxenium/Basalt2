@@ -609,14 +609,17 @@ function ab:init(_c,ac)
 da.init(self,_c,ac)self.set("type","Program")return self end
 function ab:execute(_c,ac,bc)self.set("path",_c)self.set("running",true)
 local cc=bb.new(self,ac,bc)self.set("program",cc)
-cc:run(_c,self.get("width"),self.get("height"))self:updateRender()return self end
-function ab:sendEvent(_c,...)self:dispatchEvent(_c,...)return self end
-function ab:onError(_c)self.set("errorCallback",_c)return self end
-function ab:dispatchEvent(_c,...)local ac=self.get("program")
-local bc=da.dispatchEvent(self,_c,...)
+cc:run(_c,self.get("width"),self.get("height"))self:updateRender()return self end;function ab:stop()local _c=self.get("program")if _c then _c:stop()
+self.set("running",false)self.set("program",nil)end
+return self end;function ab:sendEvent(_c,...)
+self:dispatchEvent(_c,...)return self end;function ab:onError(_c)
+self.set("errorCallback",_c)return self end
+function ab:dispatchEvent(_c,...)
+local ac=self.get("program")local bc=da.dispatchEvent(self,_c,...)
 if ac then ac:resume(_c,...)
-if(self.get("focused"))then
-local cc=ac.window.getCursorBlink()local dc,_d=ac.window.getCursorPos()
+if
+(self.get("focused"))then local cc=ac.window.getCursorBlink()
+local dc,_d=ac.window.getCursorPos()
 self:setCursor(dc,_d,cc,ac.window.getTextColor())end;self:updateRender()end;return bc end
 function ab:focus()
 if(da.focus(self))then local _c=self.get("program")if _c then
@@ -1345,10 +1348,10 @@ self._values.eventListenerCount[cc]<=0 then
 self._values.childrenEvents[cc]=nil;self._values.eventListenerCount[cc]=nil;if self.parent then
 self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)
 self:updateRender()break end end end;return self end
-function db:removeChild(bc)
+function db:removeChild(bc)if bc==nil then return self end
 for cc,dc in ipairs(self._values.children)do if
-dc.get("id")==bc.get("id")then table.remove(self._values.children,cc)
-bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
+dc.get("id")==bc.get("id")then
+table.remove(self._values.children,cc)bc.parent=nil;break end end;self:removeChildrenEvents(bc)self:updateRender()
 self.set("childrenSorted",false)return self end
 function db:getChild(bc)
 if type(bc)=="string"then local cc=cb(bc,"/")
