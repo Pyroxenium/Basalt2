@@ -193,6 +193,8 @@ function Input:blur()
     self:updateRender()
 end
 
+--- @shortDescription Handles paste events
+--- @protected
 function Input:paste(content)
     if not self.get("focused") then return false end
     local text = self.get("text")

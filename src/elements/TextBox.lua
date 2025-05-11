@@ -236,11 +236,10 @@ function TextBox:mouse_click(button, x, y)
     return false
 end
 
+--- @shortDescription Handles paste events
+--- @protected
 function TextBox:paste(text)
     if not self.get("editable") or not self.get("focused") then return false end
-    local lines = self.get("lines")
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
 
     for char in text:gmatch(".") do
         if char == "\n" then
