@@ -1151,9 +1151,9 @@ _b.defineProperty(_b,"editable",{default=true,type="boolean"})
 _b.defineProperty(_b,"syntaxPatterns",{default={},type="table"})
 _b.defineProperty(_b,"cursorColor",{default=nil,type="color"})_b.defineEvent(_b,"mouse_click")
 _b.defineEvent(_b,"key")_b.defineEvent(_b,"char")
-_b.defineEvent(_b,"mouse_scroll")
-function _b.new()local _c=setmetatable({},_b):__init()
-_c.class=_b;_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
+_b.defineEvent(_b,"mouse_scroll")_b.defineEvent(_b,"paste")
+function _b.new()
+local _c=setmetatable({},_b):__init()_c.class=_b;_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
 return self end;function _b:addSyntaxPattern(_c,ac)
 table.insert(self.get("syntaxPatterns"),{pattern=_c,color=ac})return self end
 local function ab(_c,ac)
@@ -1204,6 +1204,11 @@ local bd=dc+ad;local cd=self.get("lines")if bd<=#cd then self.set("cursorY",bd)
 self.set("cursorX",math.min(
 cc+_d,#cd[bd]+1))end;self:updateRender()return
 true end;return false end
+function _b:paste(_c)if
+not self.get("editable")or not self.get("focused")then return false end
+local ac=self.get("lines")local bc=self.get("cursorX")local cc=self.get("cursorY")
+for dc in
+_c:gmatch(".")do if dc=="\n"then bb(self)else ab(self,dc)end end;return true end
 function _b:setText(_c)local ac={}
 if _c==""then ac={""}else for bc in(_c.."\n"):gmatch("([^\n]*)\n")do
 table.insert(ac,bc)end end;self.set("lines",ac)return self end
@@ -1653,8 +1658,9 @@ aa.defineProperty(aa,"pattern",{default=nil,type="string"})
 aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})
 aa.defineProperty(aa,"replaceChar",{default=nil,type="string",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
-function aa.new()
-local ba=setmetatable({},aa):__init()ba.class=aa;ba.set("width",8)ba.set("z",3)return ba end
+aa.defineEvent(aa,"paste")
+function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;ba.set("width",8)ba.set("z",3)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
 function aa:setCursor(ba,ca,da,_b)
 ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
@@ -1697,6 +1703,12 @@ self.get("viewOffset"),1,true,self.get("cursorColor")or self.get("foreground"))s
 function aa:blur()d.blur(self)
 self:setCursor(1,1,false,self.get("cursorColor")or
 self.get("foreground"))self:updateRender()end
+function aa:paste(ba)if not self.get("focused")then return false end
+local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
+local ab=self.get("pattern")local bb=ca:sub(1,da-1)..ba..ca:sub(da)if
+_b and#bb>_b then bb=bb:sub(1,_b)end;if ab and not bb:match(ab)then
+return false end;self.set("text",bb)
+self.set("cursorPos",da+#ba)self:updateViewport()end
 function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
 local da=self.get("width")local _b=self.get("placeholder")
 local ab=self.get("focusedBackground")local bb=self.get("focusedForeground")
