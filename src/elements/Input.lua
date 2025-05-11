@@ -34,6 +34,7 @@ Input.defineProperty(Input, "replaceChar", {default = nil, type = "string", canT
 Input.defineEvent(Input, "mouse_click")
 Input.defineEvent(Input, "key")
 Input.defineEvent(Input, "char")
+Input.defineEvent(Input, "paste")
 
 --- @shortDescription Creates a new Input instance
 --- @return Input object The newly created Input instance
@@ -190,6 +191,24 @@ function Input:blur()
     VisualElement.blur(self)
     self:setCursor(1, 1, false, self.get("cursorColor") or self.get("foreground"))
     self:updateRender()
+end
+
+function Input:paste(content)
+    if not self.get("focused") then return false end
+    local text = self.get("text")
+    local pos = self.get("cursorPos")
+    local maxLength = self.get("maxLength")
+    local pattern = self.get("pattern")
+    local newText = text:sub(1, pos - 1) .. content .. text:sub(pos)
+    if maxLength and #newText > maxLength then
+        newText = newText:sub(1, maxLength)
+    end
+    if pattern and not newText:match(pattern) then
+        return false
+    end
+    self.set("text", newText)
+    self.set("cursorPos", pos + #content)
+    self:updateViewport()
 end
 
 --- @shortDescription Renders the input element

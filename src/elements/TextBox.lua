@@ -29,6 +29,7 @@ TextBox.defineEvent(TextBox, "mouse_click")
 TextBox.defineEvent(TextBox, "key")
 TextBox.defineEvent(TextBox, "char")
 TextBox.defineEvent(TextBox, "mouse_scroll")
+TextBox.defineEvent(TextBox, "paste")
 
 --- Creates a new TextBox instance
 --- @shortDescription Creates a new TextBox instance
@@ -233,6 +234,23 @@ function TextBox:mouse_click(button, x, y)
         return true
     end
     return false
+end
+
+function TextBox:paste(text)
+    if not self.get("editable") or not self.get("focused") then return false end
+    local lines = self.get("lines")
+    local cursorX = self.get("cursorX")
+    local cursorY = self.get("cursorY")
+
+    for char in text:gmatch(".") do
+        if char == "\n" then
+            newLine(self)
+        else
+            insertChar(self, char)
+        end
+    end
+
+    return true
 end
 
 --- Sets the text of the TextBox
