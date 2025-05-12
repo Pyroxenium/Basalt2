@@ -1912,8 +1912,8 @@ project["init.lua"] = function(...) local da={...}local _b=fs.getDir(da[2])local
 local bb="path;/path/?.lua;/path/?/init.lua;"local cb=bb:gsub("path",_b)package.path=cb.."rom/?;"..ab
 local function db(bc)package.path=
 cb.."rom/?"local cc=require("errorManager")
-package.path=ab;cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.loaded.main=nil;package.loaded.log=
-nil;package.path=ab;if not _c then db(ac)else return ac end end
+package.path=ab;cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcall(require,"main")package.loaded.log=nil
+package.path=ab;if not _c then db(ac)else return ac end end
 project["plugins/reactive.lua"] = function(...) local ab=require("errorManager")
 local bb=require("propertySystem")local cb={colors=true,math=true,clamp=true,round=true}
 local db={clamp=function(ad,bd,cd)return
@@ -2237,7 +2237,7 @@ not self.sequenceCallbacks[self.currentSequence]then self.sequenceCallbacks[self
 self.sequenceCallbacks[self.currentSequence].complete=ab;return self end
 function da:addAnimation(ab,bb,cb,db)local _c=ca.new(self.element,ab,bb,cb,db)
 table.insert(self.sequences[self.currentSequence],_c)return self end
-function da:start()self.currentSequence=1
+function da:start()self.currentSequence=1;self.timer=nil
 if
 (self.sequenceCallbacks[self.currentSequence])then if(self.sequenceCallbacks[self.currentSequence].start)then
 self.sequenceCallbacks[self.currentSequence].start(self.element)end end
