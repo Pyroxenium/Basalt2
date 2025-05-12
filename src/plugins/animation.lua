@@ -199,6 +199,7 @@ end
 --- @return Animation self The animation instance
 function Animation:start()
     self.currentSequence = 1
+    self.timer = nil
     if(self.sequenceCallbacks[self.currentSequence])then
         if(self.sequenceCallbacks[self.currentSequence].start) then
             self.sequenceCallbacks[self.currentSequence].start(self.element)
