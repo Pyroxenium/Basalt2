@@ -1,4 +1,5 @@
 local VisualElement = require("elements/VisualElement")
+local tHex = require("libraries/colorHex")
 
 --- This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
 --- with customizable colors and value ranges.
@@ -11,7 +12,13 @@ Slider.defineProperty(Slider, "step", {default = 1, type = "number", canTriggerR
 ---@property max number 100 Maximum value for value conversion (maps slider position to this range)
 Slider.defineProperty(Slider, "max", {default = 100, type = "number"})
 ---@property horizontal boolean true Whether the slider is horizontal (false for vertical)
-Slider.defineProperty(Slider, "horizontal", {default = true, type = "boolean", canTriggerRender = true})
+Slider.defineProperty(Slider, "horizontal", {default = true, type = "boolean", canTriggerRender = true, setter=function(self, value)
+    if value then
+        self.set("backgroundEnabled", false)
+    else
+        self.set("backgroundEnabled", true)
+    end
+end})
 ---@property barColor color gray Color of the slider track
 Slider.defineProperty(Slider, "barColor", {default = colors.gray, type = "color", canTriggerRender = true})
 ---@property sliderColor color blue Color of the slider handle
@@ -21,6 +28,7 @@ Slider.defineProperty(Slider, "sliderColor", {default = colors.blue, type = "col
 Slider.defineEvent(Slider, "mouse_click")
 Slider.defineEvent(Slider, "mouse_drag")
 Slider.defineEvent(Slider, "mouse_up")
+Slider.defineEvent(Slider, "mouse_scroll")
 
 --- Creates a new Slider instance
 --- @shortDescription Creates a new Slider instance
@@ -90,6 +98,7 @@ function Slider:mouse_scroll(direction, x, y)
         self:updateRender()
         return true
     end
+    return false
 end
 
 --- @shortDescription Renders the slider with track and handle
@@ -101,17 +110,18 @@ function Slider:render()
     local horizontal = self.get("horizontal")
     local step = self.get("step")
 
-    local barChar = horizontal and "\140" or "│"
+    local barChar = horizontal and "\140" or " "
     local text = string.rep(barChar, horizontal and width or height)
 
     if horizontal then
         self:textFg(1, 1, text, self.get("barColor"))
         self:textBg(step, 1, " ", self.get("sliderColor"))
     else
+        local bg = self.get("background")
         for y = 1, height do
-            self:textFg(1, y, barChar, self.get("barColor"))
+            self:textBg(1, y, " ", bg)
         end
-        self:textFg(1, step, "\140", self.get("sliderColor"))
+        self:textBg(1, step, " ", self.get("sliderColor"))
     end
 end
 

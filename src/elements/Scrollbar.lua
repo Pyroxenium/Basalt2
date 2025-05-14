@@ -76,6 +76,17 @@ function ScrollBar:attach(element, config)
     self.set("attachedProperty", config.property)
     self.set("minValue", config.min or 0)
     self.set("maxValue", config.max or 100)
+    element:observe(config.property, function(_, value)
+        if value then
+            local min = self.get("minValue")
+            local max = self.get("maxValue")
+            if min == max then return end
+            
+            self.set("value", math.floor(
+                (value - min) / (max - min) * 100 + 0.5
+            ))
+        end
+    end)
     return self
 end
 

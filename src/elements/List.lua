@@ -167,6 +167,7 @@ function List:mouse_scroll(direction, x, y)
 
         offset = math.min(maxOffset, math.max(0, offset + direction))
         self.set("offset", offset)
+        self:fireEvent("mouse_scroll", direction, x, y)
         return true
     end
     return false

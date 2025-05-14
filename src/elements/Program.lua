@@ -43,7 +43,7 @@ end
 ---@private
 function BasaltProgram:run(path, width, height)
     self.window = window.create(self.program:getBaseFrame():getTerm(), 1, 1, width, height, false)
-    local pPath = shell.resolveProgram(path)
+    local pPath = shell.resolveProgram(path) or fs.exists(path) and path or nil
     if(pPath~=nil)then
         if(fs.exists(pPath)) then
             local file = fs.open(pPath, "r")
@@ -68,7 +68,7 @@ function BasaltProgram:run(path, width, height)
             self.coroutine = coroutine.create(function()
                 local program = load(content, "@/" .. path, nil, env)
                 if program then
-                    local result = program(path, table.unpack(self.args))
+                    local result = program(table.unpack(self.args))
                     return result
                 end
             end)
