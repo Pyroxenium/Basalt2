@@ -34,6 +34,10 @@ function BasaltProgram.new(program, env, addEnvironment)
     return self
 end
 
+function BasaltProgram:setArgs(...)
+    self.args = {...}
+end
+
 local function createShellEnv(dir)
     local env = { shell = shell, multishell = multishell }
     env.require, env.package = newPackage(env, dir)
@@ -53,6 +57,7 @@ function BasaltProgram:run(path, width, height)
             local env = setmetatable(createShellEnv(fs.getDir(path)), { __index = _ENV })
             env.term = self.window
             env.term.current = term.current
+            env.term.redirect = term.redirect
             env.term.native = function ()
                 return self.window
             end
@@ -102,6 +107,7 @@ end
 ---@private
 function BasaltProgram:resize(width, height)
     self.window.reposition(1, 1, width, height)
+    self:resume("term_resize", width, height)
 end
 
 ---@private
@@ -165,6 +171,18 @@ end
 function Program:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Program")
+        self:observe("width", function(self, width)
+        local program = self.get("program")
+        if program then
+            program:resize(width, self.get("height"))
+        end
+    end)
+    self:observe("height", function(self, height)
+        local program = self.get("program")
+        if program then
+            program:resize(self.get("width"), height)
+        end
+    end)
     return self
 end
 
@@ -174,12 +192,13 @@ end
 --- @param env? table The environment to run the program in
 --- @param addEnvironment? boolean Whether to add the environment to the program's environment (false = overwrite instead of adding)
 --- @return Program self The Program instance
-function Program:execute(path, env, addEnvironment)
+function Program:execute(path, env, addEnvironment, ...)
     self.set("path", path)
     self.set("running", true)
     local program = BasaltProgram.new(self, env, addEnvironment)
     self.set("program", program)
-    program:run(path, self.get("width"), self.get("height"))
+    program:setArgs(...)
+    program:run(path, self.get("width"), self.get("height"), ...)
     self:updateRender()
     return self
 end

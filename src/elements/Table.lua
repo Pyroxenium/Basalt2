@@ -193,7 +193,6 @@ function Table:render()
         currentX = currentX + col.width
     end
 
-    local visibleRows = height - 2
     for y = 2, height do
         local rowIndex = y - 2 + scrollOffset
         local rowData = data[rowIndex + 1]
@@ -209,11 +208,10 @@ function Table:render()
                     paddedText = string.sub(paddedText, 1, col.width - 1) .. " "
                 end
                 local finalText = string.sub(paddedText, 1, col.width)
-                local finalForeground = string.sub(string.rep(tHex[self.get("foreground")], col.width), 1, width-currentX+1)
-                local finalBackground = string.sub(string.rep(tHex[bg], col.width), 1, width-currentX+1)
-                self:blit(currentX, y, finalText,
-                finalForeground,
-                finalBackground)
+                local finalForeground = string.rep(tHex[self.get("foreground")], #finalText)
+                local finalBackground = string.rep(tHex[bg], #finalText)
+                
+                self:blit(currentX, y, finalText, finalForeground, finalBackground)
                 currentX = currentX + col.width
             end
         else
