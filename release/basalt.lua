@@ -318,13 +318,13 @@ local function ac(ad)local bd={}local cd=1
 while true do local dd,__a,a_a=ad:find("%${([^}]+)}",cd)
 if not dd then break end
 table.insert(bd,{start=dd,ending=__a,expression=a_a,raw=ad:sub(dd,__a)})cd=__a+1 end;return bd end
-local function bc(ad,bd)if ad:sub(1,1)=="\""and ad:sub(-1)=="\""then
-ad=ad:sub(2,-2)end;local cd=ac(ad)
-for dd,__a in ipairs(cd)do local a_a=__a.expression;local b_a=
-__a.start-1;local c_a=__a.ending+1;if bd[a_a]then ad=ad:sub(1,b_a)..
-tostring(bd[a_a])..ad:sub(c_a)else
-ab.error(
-"XMLParser: variable '"..a_a.."' not found in scope")end end
+local function bc(ad,bd)if type(ad)~="string"then return ad end
+if ad:sub(1,1)=="\""and
+ad:sub(-1)=="\""then ad=ad:sub(2,-2)end;local cd=ac(ad)
+for dd,__a in ipairs(cd)do local a_a=__a.expression;local b_a=__a.start-1
+local c_a=__a.ending+1;if bd[a_a]then
+ad=ad:sub(1,b_a)..tostring(bd[a_a])..ad:sub(c_a)else
+ab.error("XMLParser: variable '"..a_a.."' not found in scope")end end
 if ad:match("^%s*<!%[CDATA%[.*%]%]>%s*$")then
 local dd=ad:match("<!%[CDATA%[(.*)%]%]>")local __a=_ENV;for a_a,b_a in pairs(bd)do __a[a_a]=b_a end;return
 load("return "..dd,nil,"bt",__a)()end
