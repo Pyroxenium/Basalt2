@@ -102,6 +102,14 @@ end
 function Container:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Container")
+    self:observe("width", function()
+        self.set("childrenSorted", false)
+        self.set("childrenEventsSorted", false)
+    end)
+    self:observe("height", function()
+        self.set("childrenSorted", false)
+        self.set("childrenEventsSorted", false)
+    end)
 end
 
 --- Returns whether a child is visible
@@ -339,11 +347,13 @@ end
 
 local function convertMousePosition(self, event, ...)
     local args = {...}
-    if event:find("mouse_") then
-        local button, absX, absY = ...
-        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
-        local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
-        args = {button, relX, relY}
+    if event then
+        if event:find("mouse_") then
+            local button, absX, absY = ...
+            local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+            local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
+            args = {button, relX, relY}
+        end
     end
     return args
 end
@@ -680,6 +690,9 @@ end
 --- @private
 function Container:destroy()
     if not self:isType("BaseFrame") then
+        for _, child in ipairs(self.get("children")) do
+            child:destroy()
+        end
         self.set("childrenSorted", false)
         VisualElement.destroy(self)
         return self

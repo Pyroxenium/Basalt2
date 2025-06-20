@@ -787,6 +787,7 @@ function Flexbox:addChild(element)
     return self
 end
 
+--- Removes a child element from the flexbox
 --- @shortDescription Removes a child element from the flexbox
 --- @param element Element The child element to remove
 --- @return Flexbox self The flexbox instance
