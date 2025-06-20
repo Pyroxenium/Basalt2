@@ -144,11 +144,17 @@ function Table:mouse_click(button, x, y)
     if relY > 1 then
         local rowIndex = relY - 2 + self.get("scrollOffset")
         if rowIndex >= 0 and rowIndex < #self.get("data") then
-            self.set("selectedRow", rowIndex + 1)
+            local newIndex = rowIndex + 1
+            self.set("selectedRow", newIndex)
+            self:fireEvent("select", newIndex, self.get("data")[newIndex])
         end
     end
-
     return true
+end
+
+function Table:onSelect(callback)
+    self:registerCallback("select", callback)
+    return self
 end
 
 --- @shortDescription Handles scrolling through the table data

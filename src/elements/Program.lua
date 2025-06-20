@@ -159,6 +159,7 @@ function BasaltProgram:resume(event, ...)
         if errorCallback then
             local trace = debug.traceback(self.coroutine, result)
             trace = trace == nil and "" or trace
+            result = result or "Unknown error"
             local _result = errorCallback(self.program, result, trace:gsub(result, ""))
             if(_result==false)then
                 self.filter = nil
