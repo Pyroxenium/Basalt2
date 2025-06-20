@@ -1987,8 +1987,8 @@ local _d=self.program.get("doneCallback")if _d then _d(self.program,cc,dc)end en
 _d(self.program,cc,dc)end
 local ad=self.program.get("errorCallback")
 if ad then local bd=debug.traceback(self.coroutine,dc)
-bd=bd==nil and""or bd;local cd=ad(self.program,dc,bd:gsub(dc,""))if(cd==false)then self.filter=
-nil;return cc,dc end end;_b.header="Basalt Program Error"_b.error(dc)end;return cc,dc end
+bd=bd==nil and""or bd;dc=dc or"Unknown error"
+local cd=ad(self.program,dc,bd:gsub(dc,""))if(cd==false)then self.filter=nil;return cc,dc end end;_b.header="Basalt Program Error"_b.error(dc)end;return cc,dc end
 function bb:stop()if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)return end
@@ -2512,8 +2512,10 @@ self.set("sortDirection",
 self.get("sortDirection")=="asc"and"desc"or"asc")else self.set("sortColumn",cb)
 self.set("sortDirection","asc")end;self:sortData(cb)break end;bb=bb+db.width end end
 if ab>1 then local bb=ab-2 +self.get("scrollOffset")if bb>=0 and bb<#
-self.get("data")then
-self.set("selectedRow",bb+1)end end;return true end
+self.get("data")then local cb=bb+1
+self.set("selectedRow",cb)
+self:fireEvent("select",cb,self.get("data")[cb])end end;return true end
+function aa:onSelect(ba)self:registerCallback("select",ba)return self end
 function aa:mouse_scroll(ba,ca,da)
 if(d.mouse_scroll(self,ba,ca,da))then local _b=self.get("data")
 local ab=self.get("height")local bb=ab-2;local cb=math.max(0,#_b-bb+1)
