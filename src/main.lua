@@ -305,6 +305,12 @@ local function renderFrames()
     end
 end
 
+--- Renders all frames in the Basalt runtime
+--- @shortDescription Renders all frames
+function basalt.render()
+    renderFrames()
+end
+
 --- Runs basalt once, can be used to update the UI manually, but you have to feed it the events
 --- @shortDescription Runs basalt once
 --- @vararg any The event to run with
