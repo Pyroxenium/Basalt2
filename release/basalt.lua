@@ -700,9 +700,9 @@ local dda,__b=coroutine.resume(cda.coroutine,aca,...)
 if(not dda)then bd.header="Basalt Schedule Error"bd.error(__b)end;cda.filter=__b end end;if(coroutine.status(cda.coroutine)=="dead")then
 __a.removeSchedule(cda.coroutine)end end;if __a._events[aca]then
 for bda,cda in ipairs(__a._events[aca])do cda(...)end end end;local function _ca()
-for aca,bca in pairs(c_a)do bca:render()bca:postRender()end end
-function __a.update(...)local aca=function(...)__a.isRunning=true
-dba(...)_ca()end
+for aca,bca in pairs(c_a)do bca:render()bca:postRender()end end;function __a.render()_ca()end
+function __a.update(...)local aca=function(...)
+__a.isRunning=true;dba(...)_ca()end
 local bca,cca=pcall(aca,...)
 if not(bca)then bd.header="Basalt Runtime Error"bd.error(cca)end;__a.isRunning=false end;function __a.stop()__a.isRunning=false;term.clear()
 term.setCursorPos(1,1)end
