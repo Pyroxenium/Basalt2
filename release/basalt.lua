@@ -1393,7 +1393,7 @@ _b.registerEventCallback(_b,"ClickUp","mouse_up","mouse_click")
 _b.registerEventCallback(_b,"Drag","mouse_drag","mouse_click","mouse_up")
 _b.registerEventCallback(_b,"Scroll","mouse_scroll")
 _b.registerEventCallback(_b,"Enter","mouse_enter","mouse_move")
-_b.registerEventCallback(_b,"LeEave","mouse_leave","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
+_b.registerEventCallback(_b,"Leave","mouse_leave","mouse_move")_b.registerEventCallback(_b,"Focus","focus","blur")
 _b.registerEventCallback(_b,"Blur","blur","focus")_b.registerEventCallback(_b,"Key","key","key_up")
 _b.registerEventCallback(_b,"Char","char")_b.registerEventCallback(_b,"KeyUp","key_up","key")
 local ab,bb=math.max,math.min;function _b.new()local cb=setmetatable({},_b):__init()
@@ -2331,6 +2331,7 @@ ab or 1]end})
 ca.defineProperty(ca,"id",{default="",type="string",readonly=true})
 ca.defineProperty(ca,"name",{default="",type="string"})
 ca.defineProperty(ca,"eventCallbacks",{default={},type="table"})
+ca.defineProperty(ca,"enabled",{default=true,type="boolean"})
 function ca.defineEvent(da,_b,ab)
 if not rawget(da,'_eventConfigs')then da._eventConfigs={}end;da._eventConfigs[_b]={requires=ab and ab or _b}end
 function ca.registerEventCallback(da,_b,...)
@@ -2370,16 +2371,17 @@ not self._values.eventCallbacks[da]then self._values.eventCallbacks[da]={}end
 table.insert(self._values.eventCallbacks[da],_b)return self end
 function ca:fireEvent(da,...)
 if self.get("eventCallbacks")[da]then for _b,ab in
-ipairs(self.get("eventCallbacks")[da])do local bb=ab(self,...)return bb end end;return self end;function ca:dispatchEvent(da,...)if self[da]then return self[da](self,...)end;return
-self:handleEvent(da,...)end;function ca:handleEvent(da,...)return
-false end
-function ca:onChange(da,_b)self:observe(da,_b)return self end;function ca:getBaseFrame()
-if self.parent then return self.parent:getBaseFrame()end;return self end
-function ca:destroy()
-self._destroyed=true;self:removeAllObservers()self:setFocused(false)for da in
-pairs(self._registeredEvents)do self:listenEvent(da,false)end
-if
-(self.parent)then self.parent:removeChild(self)end end
+ipairs(self.get("eventCallbacks")[da])do local bb=ab(self,...)return bb end end;return self end
+function ca:dispatchEvent(da,...)
+if self.get("enabled")==false then return false end;if self[da]then return self[da](self,...)end;return
+self:handleEvent(da,...)end;function ca:handleEvent(da,...)return false end;function ca:onChange(da,_b)
+self:observe(da,_b)return self end
+function ca:getBaseFrame()if self.parent then return
+self.parent:getBaseFrame()end;return self end
+function ca:destroy()self._destroyed=true;self:removeAllObservers()
+self:setFocused(false)
+for da in pairs(self._registeredEvents)do self:listenEvent(da,false)end
+if(self.parent)then self.parent:removeChild(self)end end
 function ca:updateRender()if(self.parent)then self.parent:updateRender()else
 self._renderUpdate=true end;return self end;return ca end
 project["elements/TextBox.lua"] = function(...) local ca=require("elements/VisualElement")
@@ -2539,12 +2541,7 @@ string.sub(ad,1,dc.width-1).." "end
 local bd=string.sub(ad,1,dc.width)
 local cd=string.rep(_a[self.get("foreground")],#bd)local dd=string.rep(_a[bc],#bd)
 self:blit(db,y,bd,cd,dd)db=db+dc.width end else
-self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end
-if#ca>bb-2 then local _c=bb-2
-local ac=math.max(1,math.floor(_c* (bb-2)/#ca))local bc=#ca- (bb-2)+1;local cc=ab/bc
-local dc=2 +math.floor(cc* (_c-ac))if ab>=bc then dc=bb-ac end;for y=2,bb do
-self:blit(self.get("width"),y,"\127",_a[colors.gray],_a[colors.gray])end;for y=dc,math.min(bb,dc+ac-1)do
-self:blit(self.get("width"),y,"\127",_a[colors.white],_a[colors.white])end end end;return aa end
+self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end end;return aa end
 project["log.lua"] = function(...) local aa={}aa._logs={}aa._enabled=false;aa._logToFile=false
 aa._logFile="basalt.log"fs.delete(aa._logFile)
 aa.LEVEL={DEBUG=1,INFO=2,WARN=3,ERROR=4}
