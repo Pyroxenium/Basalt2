@@ -99,7 +99,7 @@ VisualElement.registerEventCallback(VisualElement, "ClickUp", "mouse_up", "mouse
 VisualElement.registerEventCallback(VisualElement, "Drag", "mouse_drag", "mouse_click", "mouse_up")
 VisualElement.registerEventCallback(VisualElement, "Scroll", "mouse_scroll")
 VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mouse_move")
-VisualElement.registerEventCallback(VisualElement, "LeEave", "mouse_leave", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "Leave", "mouse_leave", "mouse_move")
 VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
 VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
 VisualElement.registerEventCallback(VisualElement, "Key", "key", "key_up")

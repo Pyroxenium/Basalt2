@@ -26,6 +26,7 @@ function Button.new()
     return self
 end
 
+--- Initializes the Button instance
 --- @shortDescription Initializes the Button instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance

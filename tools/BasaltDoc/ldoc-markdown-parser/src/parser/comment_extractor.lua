@@ -1,101 +1,81 @@
 local CommentExtractor = {}
 
---- Extracts comments with their associated code context
--- @param lines table The lines of the Lua file as a table of strings.
--- @return table A table containing comment blocks with context.
-function CommentExtractor.extractComments(lines)
+--- Extracts comment blocks that belong together
+function CommentExtractor.extractBlocks(lines)
     local blocks = {}
-    local currentCommentBlock = {}
-    local i = 1
+    local currentBlock = {
+        comments = {},
+        codeContext = nil
+    }
     
+    local i = 1
     while i <= #lines do
-        local line = lines[i]:match("^%s*(.*)") -- Trim leading whitespace
+        local line = lines[i]
+        local trimmed = line:match("^%s*(.-)%s*$")
         
         -- Check if this is a comment line
-        if line:find("^%-%-%-") or line:find("^%-%-") then
-            table.insert(currentCommentBlock, line)
-        elseif #currentCommentBlock > 0 then
-            -- We have accumulated comments, check if next non-empty line is code
-            local codeContext = nil
-            local j = i
-            
-            -- Skip empty lines to find the actual code
-            while j <= #lines and lines[j]:match("^%s*$") do
-                j = j + 1
+        if trimmed:match("^%-%-%-") or trimmed:match("^%-%-") then
+            table.insert(currentBlock.comments, trimmed)
+        elseif #currentBlock.comments > 0 then
+            -- We have comments, now look for the code that follows
+            local codeLineIndex = CommentExtractor.findNextCodeLine(lines, i)
+            if codeLineIndex then
+                local codeLine = lines[codeLineIndex]:match("^%s*(.-)%s*$")
+                currentBlock.codeContext = CommentExtractor.analyzeCode(codeLine, codeLineIndex)
             end
             
-            if j <= #lines then
-                local codeLine = lines[j]:match("^%s*(.*)")
-                -- Check if it's a function, class, property, etc.
-                if codeLine:find("^function") or 
-                   codeLine:find("^local function") or
-                   codeLine:find("^local%s+%w+%s*=") or
-                   codeLine:find("^%w+%.%w+") then
-                    codeContext = {
-                        type = CommentExtractor.getCodeType(codeLine),
-                        name = CommentExtractor.extractName(codeLine),
-                        line = codeLine,
-                        lineNumber = j
-                    }
-                end
-            end
-            
-            -- Add the comment block with its context
-            table.insert(blocks, {
-                comments = currentCommentBlock,
-                context = codeContext
-            })
-            
-            currentCommentBlock = {}
+            -- Save this block and start a new one
+            table.insert(blocks, currentBlock)
+            currentBlock = {comments = {}, codeContext = nil}
         end
         
         i = i + 1
     end
     
-    -- Handle any remaining comments
-    if #currentCommentBlock > 0 then
-        table.insert(blocks, {
-            comments = currentCommentBlock,
-            context = nil
-        })
+    -- Handle remaining comments
+    if #currentBlock.comments > 0 then
+        table.insert(blocks, currentBlock)
     end
     
     return blocks
 end
 
---- Determines the type of code (function, class, property, etc.)
-function CommentExtractor.getCodeType(codeLine)
-    if codeLine:find("^function") or codeLine:find("^local function") then
-        return "function"
-    elseif codeLine:find("^local%s+%w+%s*=%s*setmetatable") then
-        return "class"
-    elseif codeLine:find("^local%s+%w+%s*=") then
-        return "variable"
-    elseif codeLine:find("^%w+%.defineProperty") then
-        return "property_definition"
-    else
-        return "unknown"
+--- Find the next non-empty code line
+function CommentExtractor.findNextCodeLine(lines, startIndex)
+    for i = startIndex, #lines do
+        local trimmed = lines[i]:match("^%s*(.-)%s*$")
+        if trimmed ~= "" and not trimmed:match("^%-%-") then
+            return i
+        end
     end
+    return nil
 end
 
---- Extracts the name from a code line
-function CommentExtractor.extractName(codeLine)
+--- Analyze what kind of code this is
+function CommentExtractor.analyzeCode(codeLine, lineNumber)
     -- Function patterns
-    local funcName = codeLine:match("^function%s+([%w%.%:]+)")
-    if funcName then return funcName end
+    if codeLine:match("^function%s+([%w%.%:]+)") then
+        local name = codeLine:match("^function%s+([%w%.%:]+)")
+        return {type = "function", name = name, line = codeLine, lineNumber = lineNumber}
+    end
     
-    local localFuncName = codeLine:match("^local%s+function%s+([%w%.%:]+)")
-    if localFuncName then return localFuncName end
+    if codeLine:match("^local%s+function%s+([%w%.%:]+)") then
+        local name = codeLine:match("^local%s+function%s+([%w%.%:]+)")
+        return {type = "function", name = name, line = codeLine, lineNumber = lineNumber}
+    end
     
-    -- Variable/class patterns
-    local varName = codeLine:match("^local%s+([%w_]+)%s*=")
-    if varName then return varName end
+    -- Class/variable patterns
+    if codeLine:match("^local%s+([%w_]+)%s*=%s*setmetatable") then
+        local name = codeLine:match("^local%s+([%w_]+)%s*=")
+        return {type = "class", name = name, line = codeLine, lineNumber = lineNumber}
+    end
     
-    -- Method patterns
-    local methodName = codeLine:match("^([%w%.%:]+)%s*=")
-    if methodName then return methodName end
+    if codeLine:match("^local%s+([%w_]+)%s*=") then
+        local name = codeLine:match("^local%s+([%w_]+)%s*=")
+        return {type = "variable", name = name, line = codeLine, lineNumber = lineNumber}
+    end
     
-    return "unknown"
+    return {type = "unknown", name = "unknown", line = codeLine, lineNumber = lineNumber}
 end
 
 return CommentExtractor

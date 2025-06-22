@@ -216,7 +216,7 @@ function Table:render()
                 local finalText = string.sub(paddedText, 1, col.width)
                 local finalForeground = string.rep(tHex[self.get("foreground")], #finalText)
                 local finalBackground = string.rep(tHex[bg], #finalText)
-                
+
                 self:blit(currentX, y, finalText, finalForeground, finalBackground)
                 currentX = currentX + col.width
             end
@@ -224,27 +224,6 @@ function Table:render()
             self:blit(1, y, string.rep(" ", self.get("width")),
                 string.rep(tHex[self.get("foreground")], self.get("width")),
                 string.rep(tHex[self.get("background")], self.get("width")))
-        end
-    end
-
-    if #data > height - 2 then
-        local scrollbarHeight = height - 2
-        local thumbSize = math.max(1, math.floor(scrollbarHeight * (height - 2) / #data))
-
-        local maxScroll = #data - (height - 2) + 1
-        local scrollPercent = scrollOffset / maxScroll
-        local thumbPos = 2 + math.floor(scrollPercent * (scrollbarHeight - thumbSize))
-
-        if scrollOffset >= maxScroll then
-            thumbPos = height - thumbSize
-        end
-
-        for y = 2, height do
-            self:blit(self.get("width"), y, "\127", tHex[colors.gray], tHex[colors.gray])
-        end
-
-        for y = thumbPos, math.min(height, thumbPos + thumbSize - 1) do
-            self:blit(self.get("width"), y, "\127", tHex[colors.white], tHex[colors.white])
         end
     end
 end
