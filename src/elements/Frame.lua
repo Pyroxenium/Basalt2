@@ -19,6 +19,13 @@ Frame.defineProperty(Frame, "draggable", {default = false, type = "boolean", set
 end})
 ---@property draggingMap table {} The map of dragging positions
 Frame.defineProperty(Frame, "draggingMap", {default = {{x=1, y=1, width="width", height=1}}, type = "table"})
+---@property scrollable boolean false Whether the frame is scrollable
+Frame.defineProperty(Frame, "scrollable", {default = false, type = "boolean", setter=function(self, value)
+    if value then
+        self:listenEvent("mouse_scroll", true)
+    end
+    return value
+end})
 
 --- Creates a new Frame instance
 --- @shortDescription Creates a new Frame instance
@@ -94,9 +101,12 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_up(button, x, y)
-    self.dragging = false
-    self.dragStartX = nil
-    self.dragStartY = nil
+    if self.dragging then
+        self.dragging = false
+        self.dragStartX = nil
+        self.dragStartY = nil
+        return true
+    end
     return Container.mouse_up(self, button, x, y)
 end
 
@@ -118,6 +128,60 @@ function Frame:mouse_drag(button, x, y)
     if not self.dragging then
         return Container.mouse_drag(self, button, x, y)
     end
+    return false
+end
+
+--- @shortDescription Calculates the total height of all children elements
+--- @return number height The total height needed for all children
+--- @protected
+function Frame:getChildrenHeight()
+    local maxHeight = 0
+    local children = self.get("children")
+
+    for _, child in ipairs(children) do
+        if child.get("visible") then
+            local childY = child.get("y")
+            local childHeight = child.get("height")
+            local totalHeight = childY + childHeight - 1
+
+            if totalHeight > maxHeight then
+                maxHeight = totalHeight
+            end
+        end
+    end
+
+    return maxHeight
+end
+
+--- @shortDescription Handles mouse scroll events
+--- @param direction number The scroll direction
+--- @param x number The x position of the scroll
+--- @param y number The y position of the scroll
+--- @return boolean handled Whether the event was handled
+--- @protected
+function Frame:mouse_scroll(direction, x, y)
+    if Container.mouse_scroll(self, direction, x, y) then
+        return true
+    end
+
+    if self.get("scrollable") then
+        local relX, relY = self:getRelativePosition(x, y)
+        local width = self.get("width")
+        local height = self.get("height")
+
+        if relX >= 1 and relX <= width and relY >= 1 and relY <= height then
+            local childrenHeight = self:getChildrenHeight()
+            local currentOffset = self.get("offsetY")
+            local maxScroll = math.max(0, childrenHeight - height)
+
+            local newOffset = currentOffset + direction
+            newOffset = math.max(0, math.min(maxScroll, newOffset))
+
+            self.set("offsetY", newOffset)
+            return true
+        end
+    end
+    
     return false
 end
 

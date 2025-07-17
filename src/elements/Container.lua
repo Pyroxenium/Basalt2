@@ -164,7 +164,7 @@ local function sortAndFilterChildren(self, children)
     local visibleChildren = {}
 
     for _, child in ipairs(children) do
-        if self:isChildVisible(child) and child.get("visible") then
+        if self:isChildVisible(child) and child.get("visible") and not child._destroyed then
             table.insert(visibleChildren, child)
         end
     end
@@ -250,7 +250,7 @@ function Container:registerChildEvent(child, eventName)
     end
 
     for _, registeredChild in ipairs(self._values.childrenEvents[eventName]) do
-        if registeredChild == child then
+        if registeredChild.get("id") == child.get("id") then
             return self
         end
     end
@@ -347,13 +347,11 @@ end
 
 local function convertMousePosition(self, event, ...)
     local args = {...}
-    if event then
-        if event:find("mouse_") then
-            local button, absX, absY = ...
-            local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
-            local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
-            args = {button, relX, relY}
-        end
+    if event:find("mouse_") then
+        local button, absX, absY = ...
+        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
+        args = {button, relX, relY}
     end
     return args
 end
@@ -488,13 +486,10 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Container:mouse_scroll(direction, x, y)
-    local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
-    local success, child = self:callChildrenEvent(true, "mouse_scroll", table.unpack(args))
-    if(success)then
-        return true
-    end
     if(VisualElement.mouse_scroll(self, direction, x, y))then
-        return true
+        local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
+        local success, child = self:callChildrenEvent(true, "mouse_scroll", table.unpack(args))
+        return success
     end
     return false
 end
@@ -690,10 +685,6 @@ end
 --- @private
 function Container:destroy()
     if not self:isType("BaseFrame") then
-        for _, child in ipairs(self.get("children")) do
-            child:destroy()
-        end
-        self.set("childrenSorted", false)
         VisualElement.destroy(self)
         return self
     else

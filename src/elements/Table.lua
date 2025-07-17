@@ -23,7 +23,13 @@ Table.defineProperty(Table, "columns", {default = {}, type = "table", canTrigger
     return t
 end})
 ---@property data table {} The table data as array of row arrays
-Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRender = true})
+Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRender = true, setter=function(self, value)
+    self.set("scrollOffset", 0)
+    self.set("selectedRow", nil)
+    self.set("sortColumn", nil)
+    self.set("sortDirection", "asc")
+    return value
+end})
 ---@property selectedRow number? nil Currently selected row index
 Table.defineProperty(Table, "selectedRow", {default = nil, type = "number", canTriggerRender = true})
 ---@property headerColor color blue Color of the column headers
@@ -33,9 +39,9 @@ Table.defineProperty(Table, "selectedColor", {default = colors.lightBlue, type =
 ---@property gridColor color gray Color of grid lines
 Table.defineProperty(Table, "gridColor", {default = colors.gray, type = "color"})
 ---@property sortColumn number? nil Currently sorted column index
-Table.defineProperty(Table, "sortColumn", {default = nil, type = "number"})
+Table.defineProperty(Table, "sortColumn", {default = nil, type = "number", canTriggerRender = true})
 ---@property sortDirection string "asc" Sort direction ("asc" or "desc")
-Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string"})
+Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string", canTriggerRender = true})
 ---@property scrollOffset number 0 Current scroll position
 Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
 
@@ -144,17 +150,11 @@ function Table:mouse_click(button, x, y)
     if relY > 1 then
         local rowIndex = relY - 2 + self.get("scrollOffset")
         if rowIndex >= 0 and rowIndex < #self.get("data") then
-            local newIndex = rowIndex + 1
-            self.set("selectedRow", newIndex)
-            self:fireEvent("select", newIndex, self.get("data")[newIndex])
+            self.set("selectedRow", rowIndex + 1)
         end
     end
-    return true
-end
 
-function Table:onSelect(callback)
-    self:registerCallback("select", callback)
-    return self
+    return true
 end
 
 --- @shortDescription Handles scrolling through the table data
@@ -168,7 +168,7 @@ function Table:mouse_scroll(direction, x, y)
         local data = self.get("data")
         local height = self.get("height")
         local visibleRows = height - 2
-        local maxScroll = math.max(0, #data - visibleRows + 1)
+        local maxScroll = math.max(0, #data - visibleRows - 1)
         local newOffset = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
 
         self.set("scrollOffset", newOffset)
@@ -189,14 +189,31 @@ function Table:render()
     local height = self.get("height")
     local width = self.get("width")
 
+    local totalWidth = 0
+    local lastVisibleColumn = #columns
+    for i, col in ipairs(columns) do
+        if totalWidth + col.width > width then
+            if i == 1 then
+                col.visibleWidth = width
+            else
+                col.visibleWidth = width - totalWidth
+                lastVisibleColumn = i
+            end
+            break
+        end
+        col.visibleWidth = col.width
+        totalWidth = totalWidth + col.width
+    end
+
     local currentX = 1
     for i, col in ipairs(columns) do
+        if i > lastVisibleColumn then break end
         local text = col.name
         if i == sortCol then
             text = text .. (self.get("sortDirection") == "asc" and "\30" or "\31")
         end
-        self:textFg(currentX, 1, text:sub(1, col.width), self.get("headerColor"))
-        currentX = currentX + col.width
+        self:textFg(currentX, 1, text:sub(1, col.visibleWidth), self.get("headerColor"))
+        currentX = currentX + col.visibleWidth
     end
 
     for y = 2, height do
@@ -208,17 +225,18 @@ function Table:render()
             local bg = (rowIndex + 1) == selected and self.get("selectedColor") or self.get("background")
 
             for i, col in ipairs(columns) do
+                if i > lastVisibleColumn then break end
                 local cellText = tostring(rowData[i] or "")
-                local paddedText = cellText .. string.rep(" ", col.width - #cellText)
-                if i < #columns then
-                    paddedText = string.sub(paddedText, 1, col.width - 1) .. " "
+                local paddedText = cellText .. string.rep(" ", col.visibleWidth - #cellText)
+                if i < lastVisibleColumn then
+                    paddedText = string.sub(paddedText, 1, col.visibleWidth - 1) .. " "
                 end
-                local finalText = string.sub(paddedText, 1, col.width)
-                local finalForeground = string.rep(tHex[self.get("foreground")], #finalText)
-                local finalBackground = string.rep(tHex[bg], #finalText)
+                local finalText = string.sub(paddedText, 1, col.visibleWidth)
+                local finalForeground = string.rep(tHex[self.get("foreground")], col.visibleWidth)
+                local finalBackground = string.rep(tHex[bg], col.visibleWidth)
 
                 self:blit(currentX, y, finalText, finalForeground, finalBackground)
-                currentX = currentX + col.width
+                currentX = currentX + col.visibleWidth
             end
         else
             self:blit(1, y, string.rep(" ", self.get("width")),

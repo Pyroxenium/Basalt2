@@ -95,9 +95,6 @@ local function findExpressions(text)
 end
 
 local function convertValue(value, scope)
-    if type(value) ~= "string" then
-        return value
-    end
     if value:sub(1,1) == "\"" and value:sub(-1) == "\"" then
         value = value:sub(2, -2)
     end

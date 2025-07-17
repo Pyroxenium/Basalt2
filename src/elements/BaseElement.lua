@@ -259,15 +259,12 @@ end
 --- Destroys the element and cleans up all references
 --- @shortDescription Destroys the element and cleans up all references
 function BaseElement:destroy()
-    self._destroyed = true
-    self:removeAllObservers()
-    self:setFocused(false)
-    for event in pairs(self._registeredEvents) do
-        self:listenEvent(event, false)
-    end
     if(self.parent) then
         self.parent:removeChild(self)
     end
+    self._destroyed = true
+    self:removeAllObservers()
+    self:setFocused(false)
 end
 
 --- Requests a render update for this element

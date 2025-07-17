@@ -99,7 +99,7 @@ VisualElement.registerEventCallback(VisualElement, "ClickUp", "mouse_up", "mouse
 VisualElement.registerEventCallback(VisualElement, "Drag", "mouse_drag", "mouse_click", "mouse_up")
 VisualElement.registerEventCallback(VisualElement, "Scroll", "mouse_scroll")
 VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mouse_move")
-VisualElement.registerEventCallback(VisualElement, "Leave", "mouse_leave", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "LeEave", "mouse_leave", "mouse_move")
 VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
 VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
 VisualElement.registerEventCallback(VisualElement, "Key", "key", "key_up")
@@ -210,6 +210,9 @@ end
 --- @param y number The y position to check
 --- @return boolean isInBounds Whether the coordinates are within the bounds of the element
 function VisualElement:isInBounds(x, y)
+    if x == nil or y == nil then
+        return false
+    end
     local xPos, yPos = self.get("x"), self.get("y")
     local width, height = self.get("width"), self.get("height")
     if(self.get("ignoreOffset"))then
@@ -465,6 +468,11 @@ end
 --- @shortDescription Post-rendering function for the element
 --- @protected
 function VisualElement:postRender()
+end
+
+function VisualElement:destroy()
+    self.set("visible", false)
+    BaseElement.destroy(self)
 end
 
 return VisualElement

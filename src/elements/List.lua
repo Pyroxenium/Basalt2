@@ -173,38 +173,6 @@ function List:mouse_scroll(direction, x, y)
     return false
 end
 
---- Selects an item by index
---- @shortDescription Selects an item by index
---- @param index number The index of the item to select
---- @return List self The List instance
-function List:selectItem(index)
-    local items = self.get("items")
-
-    if not self.get("multiSelection") then
-        for _, item in ipairs(items) do
-            if type(item) == "table" then
-                item.selected = false
-            end
-        end
-    end
-
-    local item = items[index]
-    if type(item) == "string" then
-        item = {text = item}
-        items[index] = item
-    end
-
-    item.selected = true
-
-    if item.callback then
-        item.callback(self)
-    end
-
-    self:fireEvent("select", index, item)
-    self:updateRender()
-    return self
-end
-
 --- Registers a callback for the select event
 --- @shortDescription Registers a callback for the select event
 --- @param callback function The callback function to register
