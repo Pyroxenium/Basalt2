@@ -125,6 +125,31 @@ end
 function VisualElement:init(props, basalt)
     BaseElement.init(self, props, basalt)
     self.set("type", "VisualElement")
+    self:observe("x", function()
+        if self.parent then
+            self.parent.set("childrenSorted", false)
+        end
+    end)
+    self:observe("y", function()
+        if self.parent then
+            self.parent.set("childrenSorted", false)
+        end
+    end)
+    self:observe("width", function()
+        if self.parent then
+            self.parent.set("childrenSorted", false)
+        end
+    end)
+    self:observe("height", function()
+        if self.parent then
+            self.parent.set("childrenSorted", false)
+        end
+    end)
+    self:observe("visible", function()
+        if self.parent then
+            self.parent.set("childrenSorted", false)
+        end
+    end)
 end
 
 --- @shortDescription Multi-character drawing with colors
@@ -210,9 +235,6 @@ end
 --- @param y number The y position to check
 --- @return boolean isInBounds Whether the coordinates are within the bounds of the element
 function VisualElement:isInBounds(x, y)
-    if x == nil or y == nil then
-        return false
-    end
     local xPos, yPos = self.get("x"), self.get("y")
     local width, height = self.get("width"), self.get("height")
     if(self.get("ignoreOffset"))then

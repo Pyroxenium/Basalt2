@@ -17,7 +17,12 @@ Table.defineProperty(Table, "columns", {default = {}, type = "table", canTrigger
         if type(col) == "string" then
             t[i] = {name = col, width = #col+1}
         elseif type(col) == "table" then
-            t[i] = {name = col.name or "", width = col.width or #col.name+1}
+            t[i] = {
+                name = col.name or "",
+                width = col.width,  -- Can be number, "auto", or percentage like "30%"
+                minWidth = col.minWidth or 3,
+                maxWidth = col.maxWidth or nil
+            }
         end
     end
     return t
@@ -44,6 +49,8 @@ Table.defineProperty(Table, "sortColumn", {default = nil, type = "number", canTr
 Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string", canTriggerRender = true})
 ---@property scrollOffset number 0 Current scroll position
 Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
+---@property customSortFunction table {} Custom sort functions for columns
+Table.defineProperty(Table, "customSortFunction", {default = {}, type = "table"})
 
 Table.defineEvent(Table, "mouse_click")
 Table.defineEvent(Table, "mouse_scroll")
@@ -95,6 +102,140 @@ function Table:addData(...)
     return self
 end
 
+--- Sets a custom sort function for a specific column
+--- @shortDescription Sets a custom sort function for a column
+--- @param columnIndex number The index of the column
+--- @param sortFn function Function that takes (rowA, rowB) and returns comparison result
+--- @return Table self The Table instance
+function Table:setColumnSortFunction(columnIndex, sortFn)
+    local customSorts = self.get("customSortFunction")
+    customSorts[columnIndex] = sortFn
+    self.set("customSortFunction", customSorts)
+    return self
+end
+
+--- Adds data with both display and sort values
+--- @shortDescription Adds formatted data with raw sort values
+--- @param displayData table The formatted data for display
+--- @param sortData table The raw data for sorting (optional)
+--- @return Table self The Table instance
+function Table:setFormattedData(displayData, sortData)
+    local enrichedData = {}
+
+    for i, row in ipairs(displayData) do
+        local enrichedRow = {}
+        for j, cell in ipairs(row) do
+            enrichedRow[j] = cell
+        end
+
+        if sortData and sortData[i] then
+            enrichedRow._sortValues = sortData[i]
+        end
+
+        table.insert(enrichedData, enrichedRow)
+    end
+
+    self.set("data", enrichedData)
+    return self
+end
+
+--- Set data with automatic formatting
+--- @shortDescription Sets table data with optional column formatters
+--- @param rawData table The raw data array
+--- @param formatters table Optional formatter functions for columns {[2] = function(value) return value end}
+--- @return Table self The Table instance
+function Table:setData(rawData, formatters)
+    if not formatters then
+        self.set("data", rawData)
+        return self
+    end
+
+    local formattedData = {}
+    for i, row in ipairs(rawData) do
+        local formattedRow = {}
+        for j, cell in ipairs(row) do
+            if formatters[j] then
+                formattedRow[j] = formatters[j](cell)
+            else
+                formattedRow[j] = cell
+            end
+        end
+        table.insert(formattedData, formattedRow)
+    end
+
+    return self:setFormattedData(formattedData, rawData)
+end
+
+--- @shortDescription Calculates column widths for rendering
+--- @param columns table The column definitions
+--- @param totalWidth number The total available width
+--- @return table The columns with calculated visibleWidth
+--- @private
+function Table:calculateColumnWidths(columns, totalWidth)
+    local calculatedColumns = {}
+    local remainingWidth = totalWidth
+    local autoColumns = {}
+    local fixedWidth = 0
+
+    for i, col in ipairs(columns) do
+        calculatedColumns[i] = {
+            name = col.name,
+            width = col.width,
+            minWidth = col.minWidth or 3,
+            maxWidth = col.maxWidth
+        }
+        if type(col.width) == "number" then
+            calculatedColumns[i].visibleWidth = math.max(col.width, calculatedColumns[i].minWidth)
+            if calculatedColumns[i].maxWidth then
+                calculatedColumns[i].visibleWidth = math.min(calculatedColumns[i].visibleWidth, calculatedColumns[i].maxWidth)
+            end
+            remainingWidth = remainingWidth - calculatedColumns[i].visibleWidth
+            fixedWidth = fixedWidth + calculatedColumns[i].visibleWidth
+        elseif type(col.width) == "string" and col.width:match("%%$") then
+            local percent = tonumber(col.width:match("(%d+)%%"))
+            if percent then
+                calculatedColumns[i].visibleWidth = math.floor(totalWidth * percent / 100)
+                calculatedColumns[i].visibleWidth = math.max(calculatedColumns[i].visibleWidth, calculatedColumns[i].minWidth)
+                if calculatedColumns[i].maxWidth then
+                    calculatedColumns[i].visibleWidth = math.min(calculatedColumns[i].visibleWidth, calculatedColumns[i].maxWidth)
+                end
+                remainingWidth = remainingWidth - calculatedColumns[i].visibleWidth
+                fixedWidth = fixedWidth + calculatedColumns[i].visibleWidth
+            else
+                table.insert(autoColumns, i)
+            end
+        else
+            table.insert(autoColumns, i)
+        end
+    end
+
+    if #autoColumns > 0 and remainingWidth > 0 then
+        local autoWidth = math.floor(remainingWidth / #autoColumns)
+        for _, colIndex in ipairs(autoColumns) do
+            calculatedColumns[colIndex].visibleWidth = math.max(autoWidth, calculatedColumns[colIndex].minWidth)
+            if calculatedColumns[colIndex].maxWidth then
+                calculatedColumns[colIndex].visibleWidth = math.min(calculatedColumns[colIndex].visibleWidth, calculatedColumns[colIndex].maxWidth)
+            end
+        end
+    end
+
+    local totalCalculated = 0
+    for i, col in ipairs(calculatedColumns) do
+        totalCalculated = totalCalculated + (col.visibleWidth or 0)
+    end
+
+    if totalCalculated > totalWidth then
+        local scale = totalWidth / totalCalculated
+        for i, col in ipairs(calculatedColumns) do
+            if col.visibleWidth then
+                col.visibleWidth = math.max(1, math.floor(col.visibleWidth * scale))
+            end
+        end
+    end
+
+    return calculatedColumns
+end
+
 --- Sorts the table data by column
 --- @shortDescription Sorts the table data by the specified column
 --- @param columnIndex number The index of the column to sort by
@@ -103,17 +244,47 @@ end
 function Table:sortData(columnIndex, fn)
     local data = self.get("data")
     local direction = self.get("sortDirection")
-    if not fn then
+    local customSorts = self.get("customSortFunction")
+
+    local sortFn = fn or customSorts[columnIndex]
+
+    if sortFn then
         table.sort(data, function(a, b)
-            if direction == "asc" then
-                return a[columnIndex] < b[columnIndex]
-            else
-                return a[columnIndex] > b[columnIndex]
-            end
+            return sortFn(a, b, direction)
         end)
     else
         table.sort(data, function(a, b)
-            return fn(a[columnIndex], b[columnIndex])
+            if not a or not b then return false end
+
+            local valueA, valueB
+
+            if a._sortValues and a._sortValues[columnIndex] then
+                valueA = a._sortValues[columnIndex]
+            else
+                valueA = a[columnIndex]
+            end
+
+            if b._sortValues and b._sortValues[columnIndex] then
+                valueB = b._sortValues[columnIndex]
+            else
+                valueB = b[columnIndex]
+            end
+
+            if type(valueA) == "number" and type(valueB) == "number" then
+                if direction == "asc" then
+                    return valueA < valueB
+                else
+                    return valueA > valueB
+                end
+            else
+                local strA = tostring(valueA or "")
+                local strB = tostring(valueB or "")
+                if direction == "asc" then
+                    return strA < strB
+                else
+                    return strA > strB
+                end
+            end
         end)
     end
     return self
@@ -131,9 +302,14 @@ function Table:mouse_click(button, x, y)
     local relX, relY = self:getRelativePosition(x, y)
 
     if relY == 1 then
+        local columns = self.get("columns")
+        local width = self.get("width")
+        local calculatedColumns = self:calculateColumnWidths(columns, width)
+
         local currentX = 1
-        for i, col in ipairs(self.get("columns")) do
-            if relX >= currentX and relX < currentX + col.width then
+        for i, col in ipairs(calculatedColumns) do
+            local colWidth = col.visibleWidth or col.width or 10
+            if relX >= currentX and relX < currentX + colWidth then
                 if self.get("sortColumn") == i then
                     self.set("sortDirection", self.get("sortDirection") == "asc" and "desc" or "asc")
                 else
@@ -143,7 +319,7 @@ function Table:mouse_click(button, x, y)
                 self:sortData(i)
                 break
             end
-            currentX = currentX + col.width
+            currentX = currentX + colWidth
         end
     end
 
@@ -189,24 +365,20 @@ function Table:render()
     local height = self.get("height")
     local width = self.get("width")
 
+    local calculatedColumns = self:calculateColumnWidths(columns, width)
+
     local totalWidth = 0
-    local lastVisibleColumn = #columns
-    for i, col in ipairs(columns) do
-        if totalWidth + col.width > width then
-            if i == 1 then
-                col.visibleWidth = width
-            else
-                col.visibleWidth = width - totalWidth
-                lastVisibleColumn = i
-            end
+    local lastVisibleColumn = #calculatedColumns
+    for i, col in ipairs(calculatedColumns) do
+        if totalWidth + col.visibleWidth > width then
+            lastVisibleColumn = i - 1
             break
         end
-        col.visibleWidth = col.width
-        totalWidth = totalWidth + col.width
+        totalWidth = totalWidth + col.visibleWidth
     end
 
     local currentX = 1
-    for i, col in ipairs(columns) do
+    for i, col in ipairs(calculatedColumns) do
         if i > lastVisibleColumn then break end
         local text = col.name
         if i == sortCol then
@@ -224,7 +396,7 @@ function Table:render()
             currentX = 1
             local bg = (rowIndex + 1) == selected and self.get("selectedColor") or self.get("background")
 
-            for i, col in ipairs(columns) do
+            for i, col in ipairs(calculatedColumns) do
                 if i > lastVisibleColumn then break end
                 local cellText = tostring(rowData[i] or "")
                 local paddedText = cellText .. string.rep(" ", col.visibleWidth - #cellText)
