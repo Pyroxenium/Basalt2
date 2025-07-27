@@ -640,9 +640,10 @@ project["elements/Table.lua"] = function(...) local d=require("elements/VisualEl
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"columns",{default={},type="table",canTriggerRender=true,setter=function(ba,ca)local da={}
 for _b,ab in
-ipairs(ca)do if type(ab)=="string"then da[_b]={name=ab,width=#ab+1}elseif type(ab)=="table"then
+ipairs(ca)do
+if type(ab)=="string"then da[_b]={name=ab,width=#ab+1}elseif type(ab)=="table"then
 da[_b]={name=
-ab.name or"",width=ab.width or#ab.name+1}end end;return da end})
+ab.name or"",width=ab.width,minWidth=ab.minWidth or 3,maxWidth=ab.maxWidth or nil}end end;return da end})
 aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true,setter=function(ba,ca)ba.set("scrollOffset",0)
 ba.set("selectedRow",nil)ba.set("sortColumn",nil)
 ba.set("sortDirection","asc")return ca end})
@@ -652,7 +653,8 @@ aa.defineProperty(aa,"selectedColor",{default=colors.lightBlue,type="color"})
 aa.defineProperty(aa,"gridColor",{default=colors.gray,type="color"})
 aa.defineProperty(aa,"sortColumn",{default=nil,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"sortDirection",{default="asc",type="string",canTriggerRender=true})
-aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
+aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})
+aa.defineProperty(aa,"customSortFunction",{default={},type="table"})aa.defineEvent(aa,"mouse_click")
 aa.defineEvent(aa,"mouse_scroll")function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;ba.set("width",30)ba.set("height",10)ba.set("z",5)
 return ba end
@@ -661,22 +663,62 @@ d.init(self,ba,ca)self.set("type","Table")return self end
 function aa:addColumn(ba,ca)local da=self.get("columns")
 table.insert(da,{name=ba,width=ca})self.set("columns",da)return self end;function aa:addData(...)local ba=self.get("data")table.insert(ba,{...})
 self.set("data",ba)return self end
-function aa:sortData(ba,ca)
-local da=self.get("data")local _b=self.get("sortDirection")
-if not ca then
-table.sort(da,function(ab,bb)if _b=="asc"then return
-ab[ba]<bb[ba]else return ab[ba]>bb[ba]end end)else
-table.sort(da,function(ab,bb)return ca(ab[ba],bb[ba])end)end;return self end
+function aa:setColumnSortFunction(ba,ca)
+local da=self.get("customSortFunction")da[ba]=ca;self.set("customSortFunction",da)return self end
+function aa:setFormattedData(ba,ca)local da={}for _b,ab in ipairs(ba)do local bb={}for cb,db in ipairs(ab)do bb[cb]=db end;if ca and
+ca[_b]then bb._sortValues=ca[_b]end
+table.insert(da,bb)end
+self.set("data",da)return self end
+function aa:setData(ba,ca)if not ca then self.set("data",ba)return self end
+local da={}
+for _b,ab in ipairs(ba)do local bb={}for cb,db in ipairs(ab)do
+if ca[cb]then bb[cb]=ca[cb](db)else bb[cb]=db end end;table.insert(da,bb)end;return self:setFormattedData(da,ba)end
+function aa:calculateColumnWidths(ba,ca)local da={}local _b=ca;local ab={}local bb=0
+for db,_c in ipairs(ba)do
+da[db]={name=_c.name,width=_c.width,minWidth=_c.minWidth or 3,maxWidth=_c.maxWidth}
+if type(_c.width)=="number"then
+da[db].visibleWidth=math.max(_c.width,da[db].minWidth)if da[db].maxWidth then
+da[db].visibleWidth=math.min(da[db].visibleWidth,da[db].maxWidth)end
+_b=_b-da[db].visibleWidth;bb=bb+da[db].visibleWidth elseif type(_c.width)=="string"and
+_c.width:match("%%$")then
+local ac=tonumber(_c.width:match("(%d+)%%"))
+if ac then da[db].visibleWidth=math.floor(ca*ac/100)
+da[db].visibleWidth=math.max(da[db].visibleWidth,da[db].minWidth)if da[db].maxWidth then
+da[db].visibleWidth=math.min(da[db].visibleWidth,da[db].maxWidth)end
+_b=_b-da[db].visibleWidth;bb=bb+da[db].visibleWidth else table.insert(ab,db)end else table.insert(ab,db)end end
+if#ab>0 and _b>0 then local db=math.floor(_b/#ab)
+for _c,ac in ipairs(ab)do
+da[ac].visibleWidth=math.max(db,da[ac].minWidth)if da[ac].maxWidth then
+da[ac].visibleWidth=math.min(da[ac].visibleWidth,da[ac].maxWidth)end end end;local cb=0
+for db,_c in ipairs(da)do cb=cb+ (_c.visibleWidth or 0)end;if cb>ca then local db=ca/cb
+for _c,ac in ipairs(da)do if ac.visibleWidth then
+ac.visibleWidth=math.max(1,math.floor(ac.visibleWidth*db))end end end
+return da end
+function aa:sortData(ba,ca)local da=self.get("data")
+local _b=self.get("sortDirection")local ab=self.get("customSortFunction")local bb=ca or ab[ba]
+if bb then
+table.sort(da,function(cb,db)return
+bb(cb,db,_b)end)else
+table.sort(da,function(cb,db)if not cb or not db then return false end;local _c,ac
+if cb._sortValues and
+cb._sortValues[ba]then _c=cb._sortValues[ba]else _c=cb[ba]end;if db._sortValues and db._sortValues[ba]then ac=db._sortValues[ba]else
+ac=db[ba]end
+if type(_c)=="number"and
+type(ac)=="number"then if _b=="asc"then return _c<ac else return _c>ac end else local bc=tostring(
+_c or"")local cc=tostring(ac or"")if _b=="asc"then
+return bc<cc else return bc>cc end end end)end;return self end
 function aa:mouse_click(ba,ca,da)
 if not d.mouse_click(self,ba,ca,da)then return false end;local _b,ab=self:getRelativePosition(ca,da)
-if ab==1 then local bb=1
-for cb,db in
-ipairs(self.get("columns"))do
-if _b>=bb and _b<bb+db.width then
-if self.get("sortColumn")==cb then
+if ab==1 then
+local bb=self.get("columns")local cb=self.get("width")
+local db=self:calculateColumnWidths(bb,cb)local _c=1
+for ac,bc in ipairs(db)do
+local cc=bc.visibleWidth or bc.width or 10
+if _b>=_c and _b<_c+cc then
+if self.get("sortColumn")==ac then
 self.set("sortDirection",
-self.get("sortDirection")=="asc"and"desc"or"asc")else self.set("sortColumn",cb)
-self.set("sortDirection","asc")end;self:sortData(cb)break end;bb=bb+db.width end end
+self.get("sortDirection")=="asc"and"desc"or"asc")else self.set("sortColumn",ac)
+self.set("sortDirection","asc")end;self:sortData(ac)break end;_c=_c+cc end end
 if ab>1 then local bb=ab-2 +self.get("scrollOffset")if bb>=0 and bb<#
 self.get("data")then
 self.set("selectedRow",bb+1)end end;return true end
@@ -688,25 +730,25 @@ self.get("scrollOffset")+ba))self.set("scrollOffset",db)return true end;return f
 function aa:render()d.render(self)local ba=self.get("columns")
 local ca=self.get("data")local da=self.get("selectedRow")
 local _b=self.get("sortColumn")local ab=self.get("scrollOffset")local bb=self.get("height")
-local cb=self.get("width")local db=0;local _c=#ba
-for bc,cc in ipairs(ba)do
-if db+cc.width>cb then if bc==1 then cc.visibleWidth=cb else cc.visibleWidth=cb-
-db;_c=bc end;break end;cc.visibleWidth=cc.width;db=db+cc.width end;local ac=1
-for bc,cc in ipairs(ba)do if bc>_c then break end;local dc=cc.name;if bc==_b then
-dc=dc.. (
+local cb=self.get("width")local db=self:calculateColumnWidths(ba,cb)local _c=0;local ac=#db;for cc,dc in
+ipairs(db)do if _c+dc.visibleWidth>cb then ac=cc-1;break end
+_c=_c+dc.visibleWidth end;local bc=1
+for cc,dc in ipairs(db)do
+if cc>ac then break end;local _d=dc.name;if cc==_b then
+_d=_d.. (
 self.get("sortDirection")=="asc"and"\30"or"\31")end
-self:textFg(ac,1,dc:sub(1,cc.visibleWidth),self.get("headerColor"))ac=ac+cc.visibleWidth end
-for y=2,bb do local bc=y-2 +ab;local cc=ca[bc+1]
-if cc and(bc+1)<=#ca then ac=1
-local dc=(bc+1)==da and
+self:textFg(bc,1,_d:sub(1,dc.visibleWidth),self.get("headerColor"))bc=bc+dc.visibleWidth end
+for y=2,bb do local cc=y-2 +ab;local dc=ca[cc+1]
+if dc and(cc+1)<=#ca then bc=1
+local _d=(cc+1)==da and
 self.get("selectedColor")or self.get("background")
-for _d,ad in ipairs(ba)do if _d>_c then break end;local bd=tostring(cc[_d]or"")local cd=bd..string.rep(" ",
-ad.visibleWidth-#bd)if
-_d<_c then
-cd=string.sub(cd,1,ad.visibleWidth-1).." "end
-local dd=string.sub(cd,1,ad.visibleWidth)
-local __a=string.rep(_a[self.get("foreground")],ad.visibleWidth)local a_a=string.rep(_a[dc],ad.visibleWidth)
-self:blit(ac,y,dd,__a,a_a)ac=ac+ad.visibleWidth end else
+for ad,bd in ipairs(db)do if ad>ac then break end;local cd=tostring(dc[ad]or"")local dd=cd..string.rep(" ",
+bd.visibleWidth-#cd)if
+ad<ac then
+dd=string.sub(dd,1,bd.visibleWidth-1).." "end
+local __a=string.sub(dd,1,bd.visibleWidth)
+local a_a=string.rep(_a[self.get("foreground")],bd.visibleWidth)local b_a=string.rep(_a[_d],bd.visibleWidth)
+self:blit(bc,y,__a,a_a,b_a)bc=bc+bd.visibleWidth end else
 self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end end;return aa end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
@@ -1471,7 +1513,17 @@ _b.registerEventCallback(_b,"Char","char")_b.registerEventCallback(_b,"KeyUp","k
 local ab,bb=math.max,math.min;function _b.new()local cb=setmetatable({},_b):__init()
 cb.class=_b;return cb end
 function _b:init(cb,db)
-ca.init(self,cb,db)self.set("type","VisualElement")end
+ca.init(self,cb,db)self.set("type","VisualElement")
+self:observe("x",function()if self.parent then
+self.parent.set("childrenSorted",false)end end)
+self:observe("y",function()if self.parent then
+self.parent.set("childrenSorted",false)end end)
+self:observe("width",function()if self.parent then
+self.parent.set("childrenSorted",false)end end)
+self:observe("height",function()if self.parent then
+self.parent.set("childrenSorted",false)end end)
+self:observe("visible",function()if self.parent then
+self.parent.set("childrenSorted",false)end end)end
 function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d,ad=self:calculatePosition()cb=cb+_d-1
 db=db+ad-1;self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end
 function _b:textFg(cb,db,_c,ac)local bc,cc=self:calculatePosition()cb=cb+bc-1
@@ -1486,11 +1538,10 @@ function _b:drawBg(cb,db,_c)local ac,bc=self:calculatePosition()cb=cb+ac-1
 db=db+bc-1;self.parent:drawBg(cb,db,_c)end
 function _b:blit(cb,db,_c,ac,bc)local cc,dc=self:calculatePosition()cb=cb+cc-1
 db=db+dc-1;self.parent:blit(cb,db,_c,ac,bc)end
-function _b:isInBounds(cb,db)if cb==nil or db==nil then return false end
-local _c,ac=self.get("x"),self.get("y")local bc,cc=self.get("width"),self.get("height")if
-(self.get("ignoreOffset"))then
-if(self.parent)then cb=cb-self.parent.get("offsetX")db=
-db-self.parent.get("offsetY")end end;return
+function _b:isInBounds(cb,db)local _c,ac=self.get("x"),self.get("y")
+local bc,cc=self.get("width"),self.get("height")if(self.get("ignoreOffset"))then
+if(self.parent)then
+cb=cb-self.parent.get("offsetX")db=db-self.parent.get("offsetY")end end;return
 cb>=_c and cb<=
 _c+bc-1 and db>=ac and db<=ac+cc-1 end
 function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self.set("clicked",true)
