@@ -470,6 +470,35 @@ Animation.registerAnimation("scrollText", {
     end
 })
 
+Animation.registerAnimation("marquee", {
+    start = function(anim)
+        anim.width = anim.element.get("width")
+        anim.text = tostring(anim.args[2] or "")
+        anim.speed = tonumber(anim.args[3]) or 0.15
+        anim.offset = 0
+        anim.lastShift = -1
+        anim.padded = anim.text .. string.rep(" ", anim.width)
+    end,
+
+    update = function(anim, progress)
+        local elapsed = os.epoch("local") / 1000 - anim.startTime
+        local step = math.max(0.01, anim.speed)
+        local shifts = math.floor(elapsed / step)
+        if shifts ~= anim.lastShift then
+            anim.lastShift = shifts
+            local totalLen = #anim.padded
+            local idx = (shifts % totalLen) + 1
+            local doubled = anim.padded .. anim.padded
+            local visible = doubled:sub(idx, idx + anim.width - 1)
+            anim.element.set(anim.args[1], visible)
+        end
+        return false
+    end,
+
+    complete = function(anim)
+    end
+})
+
 --- Adds additional methods for VisualElement when adding animation plugin
 --- @class VisualElement
 local VisualElement = {hooks={}}
