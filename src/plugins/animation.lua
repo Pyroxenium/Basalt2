@@ -439,15 +439,34 @@ Animation.registerAnimation("fadeText", {
 Animation.registerAnimation("scrollText", {
     start = function(anim)
         anim.width = anim.element.get("width")
-        anim.targetText = anim.args[2]
-        anim.element.set(anim.args[1], "")
+        anim.startText = anim.element.get(anim.args[1]) or ""
+        anim.targetText = anim.args[2] or ""
+        anim.startText = tostring(anim.startText)
+        anim.targetText = tostring(anim.targetText)
     end,
 
     update = function(anim, progress)
-        local offset = math.floor(anim.width * (1-progress))
-        local spaces = string.rep(" ", offset)
-        anim.element.set(anim.args[1], spaces .. anim.targetText)
+        local w = anim.width
+
+        if progress < 0.5 then
+            local p = progress / 0.5
+            local offset = math.floor(w * p)
+            local visible = (anim.startText:sub(offset + 1) .. string.rep(" ", w)):sub(1, w)
+            anim.element.set(anim.args[1], visible)
+        else
+            local p = (progress - 0.5) / 0.5
+            local leftSpaces = math.floor(w * (1 - p))
+            local incoming = string.rep(" ", leftSpaces) .. anim.targetText
+            local visible = incoming:sub(1, w)
+            anim.element.set(anim.args[1], visible)
+        end
+
         return progress >= 1
+    end,
+
+    complete = function(anim)
+        local final = (anim.targetText .. string.rep(" ", anim.width))
+        anim.element.set(anim.args[1], final)
     end
 })
 
