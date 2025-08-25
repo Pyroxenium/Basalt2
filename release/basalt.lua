@@ -2348,11 +2348,18 @@ local cb=""for db,_c in ipairs(ab.chars)do
 if math.random()<bb then _c.visible=true end
 cb=cb.. (_c.visible and _c.char or" ")end
 ab.element.set(ab.args[1],cb)return bb>=1 end})
-da.registerAnimation("scrollText",{start=function(ab)ab.width=ab.element.get("width")
-ab.targetText=ab.args[2]ab.element.set(ab.args[1],"")end,update=function(ab,bb)local cb=math.floor(
-ab.width* (1 -bb))
-local db=string.rep(" ",cb)
-ab.element.set(ab.args[1],db..ab.targetText)return bb>=1 end})local _b={hooks={}}
+da.registerAnimation("scrollText",{start=function(ab)ab.width=ab.element.get("width")ab.startText=
+ab.element.get(ab.args[1])or""
+ab.targetText=ab.args[2]or""ab.startText=tostring(ab.startText)
+ab.targetText=tostring(ab.targetText)end,update=function(ab,bb)
+local cb=ab.width
+if bb<0.5 then local db=bb/0.5;local _c=math.floor(cb*db)
+local ac=(
+ab.startText:sub(_c+1)..string.rep(" ",cb)):sub(1,cb)ab.element.set(ab.args[1],ac)else
+local db=(bb-0.5)/0.5;local _c=math.floor(cb* (1 -db))
+local ac=string.rep(" ",_c)..ab.targetText;local bc=ac:sub(1,cb)ab.element.set(ab.args[1],bc)end;return bb>=1 end,complete=function(ab)local bb=(
+ab.targetText..string.rep(" ",ab.width))
+ab.element.set(ab.args[1],bb)end})local _b={hooks={}}
 function _b.hooks.handleEvent(ab,bb,...)if bb=="timer"then local cb=ab.get("animation")if cb then
 cb:event(bb,...)end end end
 function _b.setup(ab)
