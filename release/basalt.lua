@@ -2359,7 +2359,17 @@ ab.startText:sub(_c+1)..string.rep(" ",cb)):sub(1,cb)ab.element.set(ab.args[1],a
 local db=(bb-0.5)/0.5;local _c=math.floor(cb* (1 -db))
 local ac=string.rep(" ",_c)..ab.targetText;local bc=ac:sub(1,cb)ab.element.set(ab.args[1],bc)end;return bb>=1 end,complete=function(ab)local bb=(
 ab.targetText..string.rep(" ",ab.width))
-ab.element.set(ab.args[1],bb)end})local _b={hooks={}}
+ab.element.set(ab.args[1],bb)end})
+da.registerAnimation("marquee",{start=function(ab)ab.width=ab.element.get("width")ab.text=tostring(
+ab.args[2]or"")
+ab.speed=tonumber(ab.args[3])or 0.15;ab.offset=0;ab.lastShift=-1
+ab.padded=ab.text..string.rep(" ",ab.width)end,update=function(ab,bb)local cb=
+os.epoch("local")/1000 -ab.startTime
+local db=math.max(0.01,ab.speed)local _c=math.floor(cb/db)
+if _c~=ab.lastShift then ab.lastShift=_c
+local ac=#ab.padded;local bc=(_c%ac)+1;local cc=ab.padded..ab.padded
+local dc=cc:sub(bc,bc+ab.width-1)ab.element.set(ab.args[1],dc)end;return false end,complete=function(ab)
+end})local _b={hooks={}}
 function _b.hooks.handleEvent(ab,bb,...)if bb=="timer"then local cb=ab.get("animation")if cb then
 cb:event(bb,...)end end end
 function _b.setup(ab)
