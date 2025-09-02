@@ -374,4 +374,62 @@ function basalt.getAPI(name)
     return elementManager.getAPI(name)
 end
 
+--- Registers a callback function for a specific event
+--- @shortDescription Registers an event callback
+--- @param eventName string The name of the event to listen for (e.g. "mouse_click", "key", "timer")
+--- @param callback function The callback function to execute when the event occurs
+--- @usage basalt.onEvent("mouse_click", function(button, x, y) basalt.debug("Clicked at", x, y) end)
+function basalt.onEvent(eventName, callback)
+    expect(1, eventName, "string")
+    expect(2, callback, "function")
+
+    if not basalt._events[eventName] then
+        basalt._events[eventName] = {}
+    end
+
+    table.insert(basalt._events[eventName], callback)
+end
+
+--- Removes a callback function for a specific event
+--- @shortDescription Removes an event callback
+--- @param eventName string The name of the event
+--- @param callback function The callback function to remove
+--- @return boolean success Whether the callback was found and removed
+function basalt.removeEvent(eventName, callback)
+    expect(1, eventName, "string")
+    expect(2, callback, "function")
+
+    if not basalt._events[eventName] then
+        return false
+    end
+
+    for i, registeredCallback in ipairs(basalt._events[eventName]) do
+        if registeredCallback == callback then
+            table.remove(basalt._events[eventName], i)
+            return true
+        end
+    end
+
+    return false
+end
+
+--- Triggers a custom event and calls all registered callbacks
+--- @shortDescription Triggers a custom event
+--- @param eventName string The name of the event to trigger
+--- @vararg any Arguments to pass to the event callbacks
+--- @usage basalt.triggerEvent("custom_event", "data1", "data2")
+function basalt.triggerEvent(eventName, ...)
+    expect(1, eventName, "string")
+    
+    if basalt._events[eventName] then
+        for _, callback in ipairs(basalt._events[eventName]) do
+            local ok, err = pcall(callback, ...)
+            if not ok then
+                errorManager.header = "Basalt Event Callback Error"
+                errorManager.error("Error in event callback for '" .. eventName .. "': " .. tostring(err))
+            end
+        end
+    end
+end
+
 return basalt

@@ -347,7 +347,7 @@ end
 
 local function convertMousePosition(self, event, ...)
     local args = {...}
-    if event:find("mouse_") then
+    if event and event:find("mouse_") then
         local button, absX, absY = ...
         local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
         local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)

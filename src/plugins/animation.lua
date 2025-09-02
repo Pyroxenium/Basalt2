@@ -270,6 +270,27 @@ function Animation:event(event, timerId)
     end
 end
 
+--- Stops the animation immediately: cancels timers, completes running anim instances and clears the element property
+--- @shortDescription Stops the animation
+function Animation:stop()
+    if self.timer then
+        pcall(os.cancelTimer, self.timer)
+        self.timer = nil
+    end
+
+    for _, seq in ipairs(self.sequences) do
+        for _, anim in ipairs(seq) do
+            pcall(function()
+                if anim and anim.complete then anim:complete() end
+            end)
+        end
+    end
+
+    if self.element and type(self.element.set) == "function" then
+        pcall(function() self.element.set("animation", nil) end)
+    end
+end
+
 Animation.registerAnimation("move", {
     start = function(anim)
         anim.startX = anim.element.get("x")
@@ -517,6 +538,18 @@ end
 function VisualElement.setup(element)
     element.defineProperty(element, "animation", {default = nil, type = "table"})
     element.defineEvent(element, "timer")
+end
+
+-- Convenience to stop animations from the element
+function VisualElement.stopAnimation(self)
+    local anim = self.get("animation")
+    if anim and type(anim.stop) == "function" then
+        anim:stop()
+    else
+        -- fallback: clear property
+        self.set("animation", nil)
+    end
+    return self
 end
 
 --- Creates a new Animation Object
