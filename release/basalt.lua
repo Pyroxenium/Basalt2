@@ -9,6 +9,7 @@ minified_elementDirectory["TextBox"] = {}
 minified_elementDirectory["Frame"] = {}
 minified_elementDirectory["Slider"] = {}
 minified_elementDirectory["Menu"] = {}
+minified_elementDirectory["TabControl"] = {}
 minified_elementDirectory["ProgressBar"] = {}
 minified_elementDirectory["Table"] = {}
 minified_elementDirectory["Display"] = {}
@@ -21,6 +22,7 @@ minified_elementDirectory["VisualElement"] = {}
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["Label"] = {}
 minified_elementDirectory["Tree"] = {}
+minified_elementDirectory["ComboBox"] = {}
 minified_elementDirectory["Switch"] = {}
 minified_elementDirectory["BaseFrame"] = {}
 minified_elementDirectory["Flexbox"] = {}
@@ -372,6 +374,12 @@ function _b.new()
 local _c=setmetatable({},_b):__init()_c.class=_b;_c.set("width",20)_c.set("height",10)return _c end;function _b:init(_c,ac)ca.init(self,_c,ac)self.set("type","TextBox")
 return self end;function _b:addSyntaxPattern(_c,ac)
 table.insert(self.get("syntaxPatterns"),{pattern=_c,color=ac})return self end
+function _b:removeSyntaxPattern(_c)local ac=
+self.get("syntaxPatterns")or{}
+if type(_c)~="number"then return self end
+if _c>=1 and _c<=#ac then table.remove(ac,_c)
+self.set("syntaxPatterns",ac)self:updateRender()end;return self end;function _b:clearSyntaxPatterns()self.set("syntaxPatterns",{})
+self:updateRender()return self end
 local function ab(_c,ac)
 local bc=_c.get("lines")local cc=_c.get("cursorX")local dc=_c.get("cursorY")local _d=bc[dc]bc[dc]=_d:sub(1,
 cc-1)..ac.._d:sub(cc)
@@ -415,11 +423,13 @@ cc+_c))
 self.set("scrollY",bd)self:updateRender()return true end;return false end
 function _b:mouse_click(_c,ac,bc)
 if ca.mouse_click(self,_c,ac,bc)then
-local cc,dc=self:getRelativePosition(ac,bc)local _d=self.get("scrollX")local ad=self.get("scrollY")
-local bd=dc+ad;local cd=self.get("lines")if bd<=#cd then self.set("cursorY",bd)
-self.set("cursorX",math.min(
-cc+_d,#cd[bd]+1))end;self:updateRender()return
-true end;return false end
+local cc,dc=self:getRelativePosition(ac,bc)local _d=self.get("scrollX")local ad=self.get("scrollY")local bd=(dc or 0)+ (ad or
+0)local cd=self.get("lines")or{}if
+bd<1 then bd=1 end;if bd<=#cd and cd[bd]~=nil then
+self.set("cursorY",bd)local dd=#tostring(cd[bd])
+self.set("cursorX",math.min((cc or 1)+ (_d or 0),
+dd+1))end
+self:updateRender()return true end;return false end
 function _b:paste(_c)if
 not self.get("editable")or not self.get("focused")then return false end;for ac in _c:gmatch(".")do if ac=="\n"then
 bb(self)else ab(self,ac)end end;return
@@ -432,16 +442,20 @@ local function db(_c,ac)local bc=ac
 local cc=string.rep(da[_c.get("foreground")],#bc)local dc=_c.get("syntaxPatterns")
 for _d,ad in ipairs(dc)do local bd=1
 while true do
-local cd,dd=bc:find(ad.pattern,bd)if not cd then break end
+local cd,dd=bc:find(ad.pattern,bd)if not cd then break end;local __a=dd-cd+1
+if __a<=0 then
 cc=cc:sub(1,cd-1)..
-string.rep(da[ad.color],dd-cd+1)..cc:sub(dd+1)bd=dd+1 end end;return bc,cc end
+string.rep(da[ad.color],1)..cc:sub(cd+1)bd=cd+1 else cc=cc:sub(1,cd-1)..
+string.rep(da[ad.color],__a)..cc:sub(dd+1)bd=dd+1 end end end;return bc,cc end
 function _b:render()ca.render(self)local _c=self.get("lines")
 local ac=self.get("scrollX")local bc=self.get("scrollY")local cc=self.get("width")
 local dc=self.get("height")local _d=da[self.get("foreground")]
 local ad=da[self.get("background")]
-for y=1,dc do local bd=y+bc;local cd=_c[bd]or""local dd=cd:sub(ac+1,ac+cc)if#dd<cc then dd=dd..string.rep(" ",
-cc-#dd)end
-local __a,a_a=db(self,dd)self:blit(1,y,__a,a_a,string.rep(ad,#dd))end
+for y=1,dc do local bd=y+bc;local cd=_c[bd]or""local dd,__a=db(self,cd)
+local a_a=dd:sub(ac+1,ac+cc)local b_a=__a:sub(ac+1,ac+cc)local c_a=cc-#a_a
+if c_a>0 then a_a=a_a..
+string.rep(" ",c_a)b_a=b_a..
+string.rep(da[self.get("foreground")],c_a)end;self:blit(1,y,a_a,b_a,string.rep(ad,#a_a))end
 if self.get("focused")then local bd=self.get("cursorX")-ac;local cd=
 self.get("cursorY")-bc;if
 bd>=1 and bd<=cc and cd>=1 and cd<=dc then
@@ -568,6 +582,132 @@ if
 not self.get("multiSelection")then for ac,bc in ipairs(self.get("items"))do
 if type(bc)=="table"then bc.selected=false end end end;_c.selected=not _c.selected
 if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
+project["elements/TabControl.lua"] = function(...) local ba=require("elementManager")
+local ca=require("elements/VisualElement")local da=ba.getElement("Container")
+local _b=require("libraries/colorHex")local ab=require("log")local bb=setmetatable({},da)bb.__index=bb
+bb.defineProperty(bb,"activeTab",{default=
+nil,type="number",allowNil=true,canTriggerRender=true,setter=function(cb,db)return db end})
+bb.defineProperty(bb,"tabHeight",{default=1,type="number",canTriggerRender=true})
+bb.defineProperty(bb,"tabs",{default={},type="table"})
+bb.defineProperty(bb,"headerBackground",{default=colors.gray,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})bb.defineEvent(bb,"tabChanged")function bb.new()
+local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",20)cb.set("height",10)
+cb.set("z",10)return cb end
+function bb:init(cb,db)
+da.init(self,cb,db)self.set("type","TabControl")end
+function bb:newTab(cb)local db=self.get("tabs")or{}local _c=#db+1
+table.insert(db,{id=_c,title=tostring(
+cb or("Tab ".._c))})self.set("tabs",db)if not self.get("activeTab")then
+self.set("activeTab",_c)end;self:updateTabVisibility()
+local ac=self;local bc={}
+setmetatable(bc,{__index=function(cc,dc)
+if
+type(dc)=="string"and dc:sub(1,3)=="add"and type(ac[dc])=="function"then
+return
+function(ad,...)
+local bd=ac[dc](ac,...)
+if bd then bd._tabId=_c;ac.set("childrenSorted",false)
+ac.set("childrenEventsSorted",false)ac:updateRender()end;return bd end end;local _d=ac[dc]if type(_d)=="function"then
+return function(ad,...)return _d(ac,...)end end;return _d end})return bc end
+function bb:setTab(cb,db)cb._tabId=db;self:updateTabVisibility()return self end
+function bb:addElement(cb,db)local _c=da.addElement(self,cb)
+local ac=db or self.get("activeTab")
+if ac then _c._tabId=ac;self:updateTabVisibility()end;return _c end
+function bb:addChild(cb)da.addChild(self,cb)if not cb._tabId then
+local db=self.get("tabs")or{}
+if#db>0 then cb._tabId=1;self:updateTabVisibility()end end;return self end;function bb:updateTabVisibility()self.set("childrenSorted",false)
+self.set("childrenEventsSorted",false)end
+function bb:setActiveTab(cb)
+local db=self.get("activeTab")if db==cb then return self end;self.set("activeTab",cb)
+self:updateTabVisibility()self:dispatchEvent("tabChanged",cb,db)return self end
+function bb:isChildVisible(cb)
+if not da.isChildVisible(self,cb)then return false end
+if cb._tabId then return cb._tabId==self.get("activeTab")end;return true end
+function bb:getContentYOffset()local cb=self:_getHeaderMetrics()return cb.headerHeight end
+function bb:_getHeaderMetrics()local cb=self.get("tabs")or{}
+local db=self.get("width")or 1;local _c=self.get("tabHeight")or 1;local ac={}local bc=1;local cc=1
+for ad,bd in
+ipairs(cb)do local cd=#bd.title+2;if cd>db then cd=db end
+if cc+cd-1 >db then bc=bc+1;cc=1 end
+table.insert(ac,{id=bd.id,title=bd.title,line=bc,x1=cc,x2=cc+cd-1,width=cd})cc=cc+cd end;local dc=bc;local _d=math.max(_c,dc)
+return{headerHeight=_d,lines=dc,positions=ac}end
+function bb:mouse_click(cb,db,_c)
+if not ca.mouse_click(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
+local cc=self:_getHeaderMetrics()
+if bc<=cc.headerHeight then if#cc.positions==0 then return true end
+for dc,_d in
+ipairs(cc.positions)do
+if _d.line==bc and ac>=_d.x1 and ac<=_d.x2 then
+self:setActiveTab(_d.id)self.set("focusedChild",nil)return true end end;return true end;return da.mouse_click(self,cb,db,_c)end
+function bb:getRelativePosition(cb,db)
+local _c=self:_getHeaderMetrics().headerHeight
+if cb==nil or db==nil then return ca.getRelativePosition(self)else
+local ac,bc=ca.getRelativePosition(self,cb,db)return ac,bc-_c end end
+function bb:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d=self:_getHeaderMetrics().headerHeight;return da.multiBlit(self,cb,(
+db or 1)+_d,_c,ac,bc,cc,dc)end
+function bb:textFg(cb,db,_c,ac)local bc=self:_getHeaderMetrics().headerHeight;return da.textFg(self,cb,(
+db or 1)+bc,_c,ac)end
+function bb:textBg(cb,db,_c,ac)local bc=self:_getHeaderMetrics().headerHeight;return da.textBg(self,cb,(
+db or 1)+bc,_c,ac)end
+function bb:drawText(cb,db,_c)local ac=self:_getHeaderMetrics().headerHeight;return da.drawText(self,cb,(
+db or 1)+ac,_c)end
+function bb:drawFg(cb,db,_c)local ac=self:_getHeaderMetrics().headerHeight;return da.drawFg(self,cb,(
+db or 1)+ac,_c)end
+function bb:drawBg(cb,db,_c)local ac=self:_getHeaderMetrics().headerHeight;return da.drawBg(self,cb,(
+db or 1)+ac,_c)end
+function bb:blit(cb,db,_c,ac,bc)local cc=self:_getHeaderMetrics().headerHeight;return da.blit(self,cb,(
+db or 1)+cc,_c,ac,bc)end
+function bb:mouse_up(cb,db,_c)
+if not ca.mouse_up(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
+local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then return true end;return da.mouse_up(self,cb,db,_c)end
+function bb:mouse_release(cb,db,_c)ca.mouse_release(self,cb,db,_c)
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight
+if bc<=cc then return end;return da.mouse_release(self,cb,db,_c)end
+function bb:mouse_move(cb,db,_c)
+if ca.mouse_move(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then
+return true end
+local dc={self:getRelativePosition(db,_c)}
+local _d,ad=self:callChildrenEvent(true,"mouse_move",table.unpack(dc))if _d then return true end end;return false end
+function bb:mouse_drag(cb,db,_c)
+if ca.mouse_drag(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then
+return true end;return da.mouse_drag(self,cb,db,_c)end;return false end
+function bb:mouse_scroll(cb,db,_c)
+if ca.mouse_scroll(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then
+return true end;return da.mouse_scroll(self,cb,db,_c)end;return false end
+function bb:setCursor(cb,db,_c,ac)local bc=self:_getHeaderMetrics().headerHeight
+if
+self.parent then local cc,dc=self:calculatePosition()local _d=cb+cc-1
+local ad=db+dc-1 +bc
+if
+
+(_d<1)or(_d>self.parent.get("width"))or(ad<1)or(ad>self.parent.get("height"))then return self.parent:setCursor(_d,ad,false)end;return self.parent:setCursor(_d,ad,_c,ac)end;return self end
+function bb:render()ca.render(self)local cb=self.get("width")
+local db=self:_getHeaderMetrics()local _c=db.headerHeight or 1
+ca.multiBlit(self,1,1,cb,_c," ",_b[self.get("foreground")],_b[self.get("headerBackground")])local ac=self.get("activeTab")
+for bc,cc in ipairs(db.positions)do
+local dc=(cc.id==ac)and
+self.get("activeTabBackground")or self.get("headerBackground")local _d=(cc.id==ac)and self.get("activeTabTextColor")or
+self.get("foreground")
+ca.multiBlit(self,cc.x1,cc.line,cc.width,1," ",_b[self.get("foreground")],_b[dc])ca.textFg(self,cc.x1 +1,cc.line,cc.title,_d)end
+if not self.get("childrenSorted")then self:sortChildren()end
+if not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents or
+{})do
+self:sortChildrenEvents(bc)end end
+for bc,cc in ipairs(self.get("visibleChildren")or{})do if cc==self then
+error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()cc:postRender()end end
+function bb:sortChildrenEvents(cb)
+local db=self._values.childrenEvents and self._values.childrenEvents[cb]
+if db then local _c={}for ac,bc in ipairs(db)do
+if self:isChildVisible(bc)then table.insert(_c,bc)end end
+for i=2,#_c do local ac=_c[i]
+local bc=ac.get("z")local cc=i-1
+while cc>0 do local dc=_c[cc].get("z")if dc>bc then _c[cc+1]=_c[cc]
+cc=cc-1 else break end end;_c[cc+1]=ac end
+self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[cb]=_c end;self.set("childrenEventsSorted",true)return self end;return bb end
 project["elements/ProgressBar.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"progress",{default=0,type="number",canTriggerRender=true})
@@ -1237,14 +1377,140 @@ local ad=cc..dc.." ".. (ac.text or"Node")local bd=aa(ad,db+1,db+self.get("width"
 self:textFg(1,y,
 bd..string.rep(" ",self.get("width")-#bd),self.get("foreground"))else
 self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
-project["elements/Switch.lua"] = function(...) local d=require("elementManager")
-local _a=d.getElement("VisualElement")local aa=setmetatable({},_a)aa.__index=aa
-aa.defineProperty(aa,"checked",{default=false,type="boolean",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
-aa.defineEvent(aa,"mouse_up")function aa.new()local ba=setmetatable({},aa):__init()
-ba.class=aa;ba.set("width",2)ba.set("height",1)ba.set("z",5)
-return ba end;function aa:init(ba,ca)
-_a.init(self,ba,ca)self.set("type","Switch")end;function aa:render()
-_a.render(self)end;return aa end
+project["elements/ComboBox.lua"] = function(...) local _a=require("elements/VisualElement")
+local aa=require("elements/Dropdown")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"cursorPos",{default=1,type="number"})
+ca.defineProperty(ca,"viewOffset",{default=0,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"placeholder",{default="...",type="string"})
+ca.defineProperty(ca,"placeholderColor",{default=colors.gray,type="color"})
+ca.defineProperty(ca,"focusedBackground",{default=colors.blue,type="color"})
+ca.defineProperty(ca,"focusedForeground",{default=colors.white,type="color"})
+ca.defineProperty(ca,"autoComplete",{default=false,type="boolean"})
+ca.defineProperty(ca,"manuallyOpened",{default=false,type="boolean"})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
+return da end
+function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","ComboBox")
+self.set("cursorPos",1)self.set("viewOffset",0)return self end
+function ca:setText(da)if da==nil then da=""end
+self.set("text",tostring(da))
+self.set("cursorPos",#self.get("text")+1)self:updateViewport()return self end;function ca:getText()return self.get("text")end;function ca:setEditable(da)
+self.set("editable",da)return self end
+function ca:getFilteredItems()
+local da=self.get("items")or{}local _b=self.get("text"):lower()if not
+self.get("autoComplete")or#_b==0 then return da end
+local ab={}
+for bb,cb in ipairs(da)do local db=""
+if type(cb)=="string"then db=cb:lower()elseif type(cb)=="table"and
+cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
+function ca:updateFilteredDropdown()
+if not self.get("autoComplete")then return end;local da=self:getFilteredItems()local _b=#da>0 and
+#self.get("text")>0
+if _b then self.set("isOpen",true)
+self.set("manuallyOpened",false)local ab=self.get("dropdownHeight")or 5
+local bb=math.min(ab,#da)self.set("height",1 +bb)else self.set("isOpen",false)
+self.set("manuallyOpened",false)self.set("height",1)end;self:updateRender()end
+function ca:updateViewport()local da=self.get("text")
+local _b=self.get("cursorPos")local ab=self.get("width")local bb=self.get("dropSymbol")
+local cb=ab-#bb;if cb<1 then cb=1 end;local db=self.get("viewOffset")if _b-db>cb then db=_b-cb elseif
+_b-1 <db then db=math.max(0,_b-1)end
+self.set("viewOffset",db)end
+function ca:char(da)if not self.get("editable")then return end;if not
+self.get("focused")then return end;local _b=self.get("text")
+local ab=self.get("cursorPos")local bb=_b:sub(1,ab-1)..da.._b:sub(ab)
+self.set("text",bb)self.set("cursorPos",ab+1)self:updateViewport()
+if
+self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end
+function ca:key(da,_b)if not self.get("editable")then return end;if not
+self.get("focused")then return end;local ab=self.get("text")
+local bb=self.get("cursorPos")
+if da==keys.left then
+self.set("cursorPos",math.max(1,bb-1))self:updateViewport()elseif da==keys.right then
+self.set("cursorPos",math.min(#ab+1,bb+1))self:updateViewport()elseif da==keys.backspace then
+if bb>1 then local cb=ab:sub(1,bb-2)..
+ab:sub(bb)self.set("text",cb)
+self.set("cursorPos",bb-1)self:updateViewport()if self.get("autoComplete")then
+self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.delete then
+if bb<=#ab then
+local cb=ab:sub(1,bb-1)..ab:sub(bb+1)self.set("text",cb)self:updateViewport()
+if
+self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.home then self.set("cursorPos",1)
+self:updateViewport()elseif da==keys["end"]then self.set("cursorPos",#ab+1)
+self:updateViewport()elseif da==keys.enter then
+self.set("isOpen",not self.get("isOpen"))self:updateRender()end end
+function ca:mouse_click(da,_b,ab)
+if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("width")local _c=self.get("dropSymbol")
+if cb==1 then
+if
+bb>=db-#_c+1 and bb<=db then local ac=self.get("isOpen")self.set("isOpen",not ac)
+if
+self.get("isOpen")then local bc=self.get("items")or{}
+local cc=self.get("dropdownHeight")or 5;local dc=math.min(cc,#bc)self.set("height",1 +dc)
+self.set("manuallyOpened",true)else self.set("height",1)
+self.set("manuallyOpened",false)end;self:updateRender()return true end
+if bb<=db-#_c and self.get("editable")then
+local ac=self.get("text")local bc=self.get("viewOffset")local cc=#ac+1
+local dc=math.min(cc,bc+bb)self.set("cursorPos",dc)self:updateRender()return true end;return true elseif
+self.get("isOpen")and cb>1 and self.get("selectable")then local ac=(cb-1)+self.get("offset")
+local bc=self.get("items")
+if ac<=#bc then local cc=bc[ac]
+if type(cc)=="string"then cc={text=cc}bc[ac]=cc end
+if not self.get("multiSelection")then for dc,_d in ipairs(bc)do if type(_d)=="table"then
+_d.selected=false end end end;cc.selected=true;if cc.text then self:setText(cc.text)end
+self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
+function ca:render()_a.render(self)local da=self.get("text")
+local _b=self.get("width")local ab=self.get("dropSymbol")local bb=self.get("focused")
+local cb=self.get("isOpen")local db=self.get("viewOffset")
+local _c=self.get("placeholder")
+local ac=bb and self.get("focusedBackground")or self.get("background")
+local bc=bb and self.get("focusedForeground")or self.get("foreground")local cc=da;local dc=_b-#ab;if#da==0 and not bb and#_c>0 then cc=_c
+bc=self.get("placeholderColor")end
+if#cc>0 then cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=cc..
+(cb and"\31"or"\17")
+self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))
+if bb and self.get("editable")then local ad=self.get("cursorPos")
+local bd=ad-db;if bd>=1 and bd<=dc then
+self:setCursor(bd,1,true,self.get("foreground"))end end
+if cb then local ad
+if
+self.get("autoComplete")and not self.get("manuallyOpened")then ad=self:getFilteredItems()else ad=self.get("items")end
+local bd=math.min(self.get("dropdownHeight"),#ad)
+if bd>0 then local cd=self.get("offset")
+for i=1,bd do local dd=i+cd
+if ad[dd]then local __a=ad[dd]
+local a_a=__a.text or""local b_a=__a.selected or false
+local c_a=
+b_a and self.get("selectedBackground")or self.get("background")
+local d_a=b_a and self.get("selectedForeground")or self.get("foreground")if#a_a>_b then a_a=a_a:sub(1,_b)end;a_a=a_a..
+string.rep(" ",_b-#a_a)
+self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;function ca:focus()aa.focus(self)end
+function ca:blur()aa.blur(self)
+self.set("isOpen",false)self.set("height",1)self:updateRender()end;return ca end
+project["elements/Switch.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"checked",{default=false,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"autoSize",{default=false,type="boolean"})
+ca.defineProperty(ca,"onBackground",{default=colors.green,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"offBackground",{default=colors.red,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_up")
+function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",2)da.set("height",1)da.set("z",5)
+da.set("backgroundEnabled",true)return da end
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Switch")end
+function ca:mouse_click(da,_b,ab)if aa.mouse_click(self,da,_b,ab)then
+self.set("checked",not self.get("checked"))return true end;return false end
+function ca:render()local da=self.get("checked")local _b=self.get("text")
+local ab=self.get("width")local bb=self.get("height")local cb=da and self.get("onBackground")or
+self.get("offBackground")
+self:multiBlit(1,1,ab,bb," ",ba[self.get("foreground")],ba[cb])local db=math.floor(ab/2)local _c=da and(ab-db+1)or 1
+self:multiBlit(_c,1,db,bb," ",ba[self.get("foreground")],ba[self.get("background")])if _b~=""then
+self:textFg(ab+2,1,_b,self.get("foreground"))end end;return ca end
 project["elements/BaseFrame.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("Container")local da=require("errorManager")local _b=require("render")
 local ab=setmetatable({},ca)ab.__index=ab
