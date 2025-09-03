@@ -57,10 +57,32 @@ end
 --- Adds a new syntax highlighting pattern
 --- @shortDescription Adds a new syntax highlighting pattern
 --- @param pattern string The regex pattern to match
---- @param color colors The color to apply
+--- @param color number The color to apply
 --- @return TextBox self The TextBox instance
 function TextBox:addSyntaxPattern(pattern, color)
     table.insert(self.get("syntaxPatterns"), {pattern = pattern, color = color})
+    return self
+end
+
+--- Removes a syntax pattern by index (1-based)
+--- @param index number The index of the pattern to remove
+--- @return TextBox self
+function TextBox:removeSyntaxPattern(index)
+    local patterns = self.get("syntaxPatterns") or {}
+    if type(index) ~= "number" then return self end
+    if index >= 1 and index <= #patterns then
+        table.remove(patterns, index)
+        self.set("syntaxPatterns", patterns)
+        self:updateRender()
+    end
+    return self
+end
+
+--- Clears all syntax highlighting patterns
+--- @return TextBox self
+function TextBox:clearSyntaxPatterns()
+    self.set("syntaxPatterns", {})
+    self:updateRender()
     return self
 end
 
@@ -223,12 +245,15 @@ function TextBox:mouse_click(button, x, y)
         local scrollX = self.get("scrollX")
         local scrollY = self.get("scrollY")
 
-        local targetY = relY + scrollY
-        local lines = self.get("lines")
+        local targetY = (relY or 0) + (scrollY or 0)
+        local lines = self.get("lines") or {}
 
-        if targetY <= #lines then
+        -- clamp and validate before indexing to avoid nil errors
+        if targetY < 1 then targetY = 1 end
+        if targetY <= #lines and lines[targetY] ~= nil then
             self.set("cursorY", targetY)
-            self.set("cursorX", math.min(relX + scrollX, #lines[targetY] + 1))
+            local lineLen = #tostring(lines[targetY])
+            self.set("cursorX", math.min((relX or 1) + (scrollX or 0), lineLen + 1))
         end
         self:updateRender()
         return true
@@ -286,8 +311,15 @@ local function applySyntaxHighlighting(self, line)
         while true do
             local s, e = text:find(syntax.pattern, start)
             if not s then break end
-            colors = colors:sub(1, s-1) .. string.rep(tHex[syntax.color], e-s+1) .. colors:sub(e+1)
-            start = e + 1
+            local matchLen = e - s + 1
+            if matchLen <= 0 then
+                -- avoid infinite loops for zero-length matches: color one char and advance
+                colors = colors:sub(1, s-1) .. string.rep(tHex[syntax.color], 1) .. colors:sub(s+1)
+                start = s + 1
+            else
+                colors = colors:sub(1, s-1) .. string.rep(tHex[syntax.color], matchLen) .. colors:sub(e+1)
+                start = e + 1
+            end
         end
     end
 
@@ -310,13 +342,18 @@ function TextBox:render()
     for y = 1, height do
         local lineNum = y + scrollY
         local line = lines[lineNum] or ""
-        local visibleText = line:sub(scrollX + 1, scrollX + width)
-        if #visibleText < width then
-            visibleText = visibleText .. string.rep(" ", width - #visibleText)
+
+        local fullText, fullColors = applySyntaxHighlighting(self, line)
+        local text = fullText:sub(scrollX + 1, scrollX + width)
+        local colors = fullColors:sub(scrollX + 1, scrollX + width)
+
+        local padLen = width - #text
+        if padLen > 0 then
+            text = text .. string.rep(" ", padLen)
+            colors = colors .. string.rep(tHex[self.get("foreground")], padLen)
         end
 
-        local text, colors = applySyntaxHighlighting(self, visibleText)
-        self:blit(1, y, text, colors, string.rep(bg, #visibleText))
+        self:blit(1, y, text, colors, string.rep(bg, #text))
     end
 
     if self.get("focused") then
