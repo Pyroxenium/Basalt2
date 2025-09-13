@@ -1,9 +1,17 @@
+-- generate-docs.lua
+
+-- Argumente
 local arg = arg or {...}
+local SRC_DIR = arg[1] or "src"
+local OUT_DIR = arg[2] or "build_docs/docs/references"
 
-local SRC_DIR = arg[1] or 'src'
-local OUT_DIR = arg[2] or 'build_docs/docs/references'
+package.path = package.path .. ";./tools/?.lua"
 
-local BasaltDoc = require('tools/BasaltDoc')
+local BasaltDoc = require("tools/BasaltDoc")
+
+--------------------------------------------------------
+-- Filesystem Abstraction
+--------------------------------------------------------
 
 local fileSystem
 
@@ -23,32 +31,30 @@ if fs then
 else
     local function executeCommand(cmd)
         local handle = io.popen(cmd)
+        if not handle then return "", false, 1 end
         local result = handle:read("*a")
-        local success, _, code = handle:close()
-        return result, success, code
+        local ok, _, code = handle:close()
+        return result, ok, code
     end
 
     local function pathExists(path)
-        local result, success = executeCommand("test -e '" .. path .. "' && echo 'exists' || echo 'not_exists'")
-        return success and result:match("exists")
+        local _, _, code = executeCommand("[ -e '" .. path .. "' ]")
+        return code == 0
     end
 
     local function isDirectory(path)
-        local result, success = executeCommand("test -d '" .. path .. "' && echo 'dir' || echo 'not_dir'")
-        return success and result:match("dir")
+        local _, _, code = executeCommand("[ -d '" .. path .. "' ]")
+        return code == 0
     end
 
     local function makeDirectory(path)
-        local _, success = executeCommand("mkdir -p '" .. path .. "'")
-        return success
+        local _, ok = executeCommand("mkdir -p '" .. path .. "'")
+        return ok
     end
 
     local function listDirectory(dir)
-        local result, success = executeCommand("ls -1 '" .. dir .. "' 2>/dev/null || true")
-        if not success then
-            return {}
-        end
-        
+        local result, ok = executeCommand("ls -1 '" .. dir .. "' 2>/dev/null")
+        if not ok then return {} end
         local items = {}
         for item in result:gmatch("[^\r\n]+") do
             if item ~= "" then
@@ -84,6 +90,14 @@ else
     }
 end
 
+--------------------------------------------------------
+-- Main
+--------------------------------------------------------
+
+print("Starting documentation generation...")
+print("Source directory: " .. SRC_DIR)
+print("Output directory: " .. OUT_DIR)
+
 if not fileSystem.exists(OUT_DIR) then
     print("Output directory does not exist, creating it...")
     fileSystem.makeDir(OUT_DIR)
@@ -92,17 +106,29 @@ else
 end
 
 local function getLuaFiles(dir)
+    print("Scanning directory: " .. dir)
+    if not fileSystem.exists(dir) then
+        print("Directory does not exist: " .. dir)
+        return {}
+    end
+
     local files = {}
     local list = fileSystem.list(dir)
+    print("Found " .. #list .. " items in " .. dir)
+
     for _, item in ipairs(list) do
         local path = fileSystem.combine(dir, item)
         if fileSystem.isDir(path) then
+            print("  -> Directory, scanning recursively: " .. path)
             local subFiles = getLuaFiles(path)
             for _, subFile in ipairs(subFiles) do
                 table.insert(files, subFile)
             end
         elseif item:match("%.lua$") then
+            print("  -> Lua file found: " .. path)
             table.insert(files, path)
+        else
+            print("  -> Skipping: " .. item)
         end
     end
     return files
