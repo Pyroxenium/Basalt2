@@ -1,26 +1,29 @@
 # BaseElement
-This is the theme plugin. It provides a theming system that allows for consistent styling across elements
-with support for inheritance, named styles, and dynamic theme switching.
+_This is the theme plugin. It provides a theming system that allows for consistent styling across elements
+with support for inheritance, named styles, and dynamic theme switching._
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement:applyTheme](#baseelement-applytheme)|BaseElement|Applies theme styles to the element
-|[BaseElement:getTheme](#baseelement-gettheme)|table|Gets theme properties for the element
+|[BaseElement.____getElementPath](#baseelement-----getelementpath)|-||
+|[BaseElement:applyTheme](#baseelement-applytheme-self-applytochildren)|BaseElement|Applies theme styles to the element|
+|[BaseElement:getTheme](#baseelement-gettheme-self)|table|Gets theme properties for the element|
 
-
+## BaseElement.____getElementPath()
 ## BaseElement:applyTheme(self, applyToChildren)
+
 Applies the current theme to this element
 
 ### Parameters
 * `self` `BaseElement` The element to apply theme to
-* `applyToChildren` `boolean?` Whether to apply theme to child elements (default: true)
+* `applyToChildren` `boolean` ? Whether to apply theme to child elements (default: true)
 
 ### Returns
 * `BaseElement` `self` The element instance
 
 ## BaseElement:getTheme(self)
+
 Gets the theme properties for this element
 
 ### Parameters
@@ -29,38 +32,34 @@ Gets the theme properties for this element
 ### Returns
 * `table` `styles` The theme properties
 
-
----
-<br>
-
 # ThemeAPI
-The Theme API provides methods for managing themes globally
+_The Theme API provides methods for managing themes globally_
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[ThemeAPI.getTheme](#themeapi-gettheme)|table|Gets the current theme
-|[ThemeAPI.loadTheme](#themeapi-loadtheme)|-|Loads theme from JSON file
-|[ThemeAPI.setTheme](#themeapi-settheme)|-|Sets a new theme
+|[ThemeAPI.setTheme](#themeapi-settheme-newtheme)|-|Sets a new theme|
+|[ThemeAPI.getTheme](#themeapi-gettheme)|table|Gets the current theme|
+|[ThemeAPI.loadTheme](#themeapi-loadtheme-path)|-|Loads theme from JSON file|
 
+## ThemeAPI.setTheme(newTheme)
+
+Sets the current theme
+
+### Parameters
+* `newTheme` `table` The theme configuration to set
 
 ## ThemeAPI.getTheme()
+
 Gets the current theme configuration
 
 ### Returns
 * `table` `theme` The current theme configuration
 
 ## ThemeAPI.loadTheme(path)
+
 Loads a theme from a JSON file
 
 ### Parameters
 * `path` `string` Path to the theme JSON file
-
-## ThemeAPI.setTheme(newTheme)
-Sets the current theme
-
-### Parameters
-* `newTheme` `table` The theme configuration to set
-
-

@@ -1,55 +1,44 @@
 # Render
-This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional 
-functionality. It also has a buffer system to reduce the number of calls
-
-## Fields
-
-|Field|Type|Description|
-|---|---|---|
-|terminal|`table`|The terminal object to render to|
-|width|`number`|The width of the render|
-|height|`number`|The height of the render|
-|buffer|`table`|The buffer to render|
-|xCursor|`number`|The x position of the cursor|
-|yCursor|`number`|The y position of the cursor|
-|blink|`boolean`|Whether the cursor should blink|
+_This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional 
+functionality. It also has a buffer system to reduce the number of calls_
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Render.new](#render-new)|Render|
-|[Render:addDirtyRect](#render-adddirtyrect)|Render|
-|[Render:bg](#render-bg)|Render|
-|[Render:bg](#render-bg)|Render|
-|[Render:blit](#render-blit)|Render|
-|[Render:clear](#render-clear)|Render|
-|[Render:clearArea](#render-cleararea)|Render|
-|[Render:fg](#render-fg)|Render|
-|[Render:fg](#render-fg)|Render|
-|[Render:getSize](#render-getsize)|number,|
-|[Render:mergeRects](#render-mergerects)|Render|
-|[Render:multiBlit](#render-multiblit)|Render|
-|[Render:rectOverlaps](#render-rectoverlaps)|boolean|
-|[Render:render](#render-render)|Render|
-|[Render:setCursor](#render-setcursor)|Render|
-|[Render:setSize](#render-setsize)|Render|
-|[Render:text](#render-text)|Render|
-|[Render:text](#render-text)|Render|
-|[Render:textBg](#render-textbg)|Render|
-|[Render:textFg](#render-textfg)|Render|
-
+|[Render.new](#render-new-terminal)|Render|Creates a new Render object|
+|[Render:addDirtyRect](#render-adddirtyrect-x-y-width-height)|Render|Adds a dirty rectangle to the buffer|
+|[Render:blit](#render-blit-x-y-text-fg-bg)|Render|Blits text to the screen|
+|[Render:multiBlit](#render-multiblit-x-y-width-height-text-fg-bg)|Render|Blits text to the screen with multiple lines|
+|[Render:textFg](#render-textfg-x-y-text-fg)|Render|Blits text to the screen with a foreground color|
+|[Render:textBg](#render-textbg-x-y-text-bg)|Render|Blits text to the screen with a background color|
+|[Render:text](#render-text-x-y-text)|Render|Renders the text to the screen|
+|[Render:fg](#render-fg-x-y-fg)|Render|Blits a foreground color to the screen|
+|[Render:bg](#render-bg-x-y-bg)|Render|Blits a background color to the screen|
+|[Render:text](#render-text-x-y-text)|Render|Blits text to the screen|
+|[Render:fg](#render-fg-x-y-fg)|Render|Blits a foreground color to the screen|
+|[Render:bg](#render-bg-x-y-bg)|Render|Blits a background color to the screen|
+|[Render:clear](#render-clear-bg)|Render|Clears the screen|
+|[Render:render](#render-render)|Render|Renders the buffer to the screen|
+|[Render:rectOverlaps](#render-rectoverlaps-r1-r2)|boolean|Checks if two rectangles overlap|
+|[Render:mergeRects](#render-mergerects-target-source)|Render|Merges two rectangles|
+|[Render:setCursor](#render-setcursor-x-y-blink)|Render|Sets the cursor position|
+|[Render:clearArea](#render-cleararea-x-y-width-height-bg)|Render|Clears an area of the screen|
+|[Render:getSize](#render-getsize)|number|Gets the size of the render|
+|[Render:setSize](#render-setsize-width-height)|Render|Sets the size of the render|
 
 ## Render.new(terminal)
+
 Creates a new Render object
 
 ### Parameters
 * `terminal` `table` The terminal object to render to
 
 ### Returns
-* `nil` `nil` nil
+* `Render`
 
 ## Render:addDirtyRect(x, y, width, height)
+
 Adds a dirty rectangle to the buffer
 
 ### Parameters
@@ -59,31 +48,10 @@ Adds a dirty rectangle to the buffer
 * `height` `number` The height of the rectangle
 
 ### Returns
-* `nil` `nil` nil
-
-## Render:bg(x, y, bg)
-Blits a background color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `bg` `string` The background color to blit
-
-### Returns
-* `nil` `nil` nil
-
-## Render:bg(x, y, bg)
-Blits a background color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `bg` `string` The background color to blit
-
-### Returns
-* `nil` `nil` nil
+* `Render`
 
 ## Render:blit(x, y, text, fg, bg)
+
 Blits text to the screen
 
 ### Parameters
@@ -94,69 +62,10 @@ Blits text to the screen
 * `bg` `string` The background color of the text
 
 ### Returns
-* `nil` `nil` nil
-
-## Render:clear(bg)
-Clears the screen
-
-### Parameters
-* `bg` `colors` The background color to clear the screen with
-
-### Returns
-* `nil` `nil` nil
-
-## Render:clearArea(x, y, width, height, bg)
-Clears an area of the screen
-
-### Parameters
-* `x` `number` The x position of the area
-* `y` `number` The y position of the area
-* `width` `number` The width of the area
-* `height` `number` The height of the area
-* `bg` `colors` The background color to clear the area with
-
-### Returns
-* `nil` `nil` nil
-
-## Render:fg(x, y, fg)
-Blits a foreground color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `fg` `string` The foreground color to blit
-
-### Returns
-* `nil` `nil` nil
-
-## Render:fg(x, y, fg)
-Blits a foreground color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `fg` `string` The foreground color to blit
-
-### Returns
-* `nil` `nil` nil
-
-## Render:getSize()
-Gets the size of the render
-
-### Returns
-* `nil` `nil` nil
-
-## Render:mergeRects(target, source)
-Merges two rectangles
-
-### Parameters
-* `target` `table` The target rectangle
-* `source` `table` The source rectangle
-
-### Returns
-* `nil` `nil` nil
+* `Render`
 
 ## Render:multiBlit(x, y, width, height, text, fg, bg)
+
 Blits text to the screen with multiple lines
 
 ### Parameters
@@ -169,80 +78,10 @@ Blits text to the screen with multiple lines
 * `bg` `colors` The background color of the text
 
 ### Returns
-* `nil` `nil` nil
-
-## Render:rectOverlaps(r1, r2)
-Checks if two rectangles overlap
-
-### Parameters
-* `r1` `table` The first rectangle
-* `r2` `table` The second rectangle
-
-### Returns
-* `nil` `nil` nil
-
-## Render:render()
-Renders the buffer to the screen
-
-### Returns
-* `nil` `nil` nil
-
-## Render:setCursor(x, y, blink)
-Sets the cursor position
-
-### Parameters
-* `x` `number` The x position of the cursor
-* `y` `number` The y position of the cursor
-* `blink` `boolean` Whether the cursor should blink
-
-### Returns
-* `nil` `nil` nil
-
-## Render:setSize(width, height)
-Sets the size of the render
-
-### Parameters
-* `width` `number` The width of the render
-* `height` `number` The height of the render
-
-### Returns
-* `nil` `nil` nil
-
-## Render:text(x, y, text)
-Blits text to the screen
-
-### Parameters
-* `x` `number` The x position to blit to
-* `y` `number` The y position to blit to
-* `text` `string` The text to blit
-
-### Returns
-* `nil` `nil` nil
-
-## Render:text(x, y, text)
-Renders the text to the screen
-
-### Parameters
-* `x` `number` The x position to blit to
-* `y` `number` The y position to blit to
-* `text` `string` The text to blit
-
-### Returns
-* `nil` `nil` nil
-
-## Render:textBg(x, y, text, bg)
-Blits text to the screen with a background color
-
-### Parameters
-* `x` `number` The x position to blit to
-* `y` `number` The y position to blit to
-* `text` `string` The text to blit
-* `bg` `colors` The background color of the text
-
-### Returns
-* `nil` `nil` nil
+* `Render`
 
 ## Render:textFg(x, y, text, fg)
+
 Blits text to the screen with a foreground color
 
 ### Parameters
@@ -252,6 +91,172 @@ Blits text to the screen with a foreground color
 * `fg` `colors` The foreground color of the text
 
 ### Returns
-* `nil` `nil` nil
+* `Render`
 
+## Render:textBg(x, y, text, bg)
 
+Blits text to the screen with a background color
+
+### Parameters
+* `x` `number` The x position to blit to
+* `y` `number` The y position to blit to
+* `text` `string` The text to blit
+* `bg` `colors` The background color of the text
+
+### Returns
+* `Render`
+
+## Render:text(x, y, text)
+
+Renders the text to the screen
+
+### Parameters
+* `x` `number` The x position to blit to
+* `y` `number` The y position to blit to
+* `text` `string` The text to blit
+
+### Returns
+* `Render`
+
+## Render:fg(x, y, fg)
+
+Blits a foreground color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `fg` `string` The foreground color to blit
+
+### Returns
+* `Render`
+
+## Render:bg(x, y, bg)
+
+Blits a background color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `bg` `string` The background color to blit
+
+### Returns
+* `Render`
+
+## Render:text(x, y, text)
+
+Blits text to the screen
+
+### Parameters
+* `x` `number` The x position to blit to
+* `y` `number` The y position to blit to
+* `text` `string` The text to blit
+
+### Returns
+* `Render`
+
+## Render:fg(x, y, fg)
+
+Blits a foreground color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `fg` `string` The foreground color to blit
+
+### Returns
+* `Render`
+
+## Render:bg(x, y, bg)
+
+Blits a background color to the screen
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `bg` `string` The background color to blit
+
+### Returns
+* `Render`
+
+## Render:clear(bg)
+
+Clears the screen
+
+### Parameters
+* `bg` `colors` The background color to clear the screen with
+
+### Returns
+* `Render`
+
+## Render:render()
+
+Renders the buffer to the screen
+
+### Returns
+* `Render`
+
+## Render:rectOverlaps(r1, r2)
+
+Checks if two rectangles overlap
+
+### Parameters
+* `r1` `table` The first rectangle
+* `r2` `table` The second rectangle
+
+### Returns
+* `boolean`
+
+## Render:mergeRects(target, source)
+
+Merges two rectangles
+
+### Parameters
+* `target` `table` The target rectangle
+* `source` `table` The source rectangle
+
+### Returns
+* `Render`
+
+## Render:setCursor(x, y, blink)
+
+Sets the cursor position
+
+### Parameters
+* `x` `number` The x position of the cursor
+* `y` `number` The y position of the cursor
+* `blink` `boolean` Whether the cursor should blink
+
+### Returns
+* `Render`
+
+## Render:clearArea(x, y, width, height, bg)
+
+Clears an area of the screen
+
+### Parameters
+* `x` `number` The x position of the area
+* `y` `number` The y position of the area
+* `width` `number` The width of the area
+* `height` `number` The height of the area
+* `bg` `colors` The background color to clear the area with
+
+### Returns
+* `Render`
+
+## Render:getSize()
+
+Gets the size of the render
+
+### Returns
+* `number`
+
+## Render:setSize(width, height)
+
+Sets the size of the render
+
+### Parameters
+* `width` `number` The width of the render
+* `height` `number` The height of the render
+
+### Returns
+* `Render`

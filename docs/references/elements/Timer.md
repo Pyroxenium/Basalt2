@@ -17,21 +17,21 @@ Extends: `BaseElement`
 |Method|Returns|Description|
 |---|---|---|
 |[Timer.new](#timer-new)|table|Creates a new Timer instance|
-|[Timer:Timer](#timer-timer-props-basalt)|-|Initializes the Timer instance|
-|[Timer:Timer](#timer-timer-self)|Timer|Starts the timer|
-|[Timer:Timer](#timer-timer-self)|Timer|Stops the timer|
-|[Timer:Timer](#timer-timer)|-|Dispatches events to the Timer instance|
+|[Timer:init](#timer-init-props-basalt)|-|Initializes the Timer instance|
+|[Timer:start](#timer-start-self)|Timer|Starts the timer|
+|[Timer:stop](#timer-stop-self)|Timer|Stops the timer|
+|[Timer:dispatchEvent](#timer-dispatchevent)|-|Dispatches events to the Timer instance|
 
 ## Timer.new()
 ### Returns
 * `table` `self` The created instance
 
-## Timer:Timer(props, basalt)
+## Timer:init(props, basalt)
 ### Parameters
 * `props` `table` The properties to initialize the element with
 * `basalt` `table` The basalt instance
 
-## Timer:Timer(self)
+## Timer:start(self)
 
 Starts the timer with the specified interval.
 
@@ -41,7 +41,7 @@ Starts the timer with the specified interval.
 ### Returns
 * `Timer` `self` The Timer instance
 
-## Timer:Timer(self)
+## Timer:stop(self)
 
 Stops the timer if it is currently running.
 
@@ -51,4 +51,4 @@ Stops the timer if it is currently running.
 ### Returns
 * `Timer` `self` The Timer instance
 
-## Timer:Timer()
+## Timer:dispatchEvent()
