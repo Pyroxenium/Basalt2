@@ -2,14 +2,14 @@ local helper = require("utils.helper")
 local functionParser = {}
 
 function functionParser.parse(annotations, line)
-    local name = line:match("^function%s+([%w_%.]+[:.]?[%w_]+)") or line:match("^function%s+([%w_]+)")
-    if not name then
+    local funcName = line:match("function ([%w_%.]+:?[%w_]*)")
+    if not funcName then
         print("Warning: Could not extract function name from line: " .. line)
         return nil
     end
     local f = {
         type = "function",
-        name = name,
+        name = funcName,
         description = nil,
         shortDescription = nil,
         params = {},
@@ -21,17 +21,14 @@ function functionParser.parse(annotations, line)
         helper.applyAnnotations(annotations, f, functionParser.handlers)
     end
 
-    local funcName = line:match("function ([%w_%.]+)")
-    if funcName then
-        if funcName:find(":") then
-            f.name = funcName:match(":([%w_]+)")
-        elseif funcName:find("%.") then
-            f.name = funcName:match("%.([%w_]+)")
-        else
-            f.name = funcName
-        end
+    if funcName:find(":") then
+        f.name = funcName:match(":([%w_]+)")
+    elseif funcName:find("%.") then
+        f.name = funcName:match("%.([%w_]+)")
+    else
+        f.name = funcName
     end
-
+    
     if line:match("function [%w_%.]+:") then
         f.static = false
     else

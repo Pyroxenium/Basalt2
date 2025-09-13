@@ -4,22 +4,26 @@ local defaultPath = package.path
 if fs then
     local args = {...}
     local docsPath = fs.getDir(args[2])
-    local format = "path;/path/?.lua;/path/?/init.lua;"
+    local format = "path/?.lua;path/?/init.lua;"
     local main = format:gsub("path", docsPath)
     package.path = main.."rom/?;"..defaultPath
+else
+    local format = "path/?.lua;path/?/init.lua;"
+    local main = format:gsub("path", "tools/BasaltDoc")
+    package.path = main .. ";" .. defaultPath
 end
 
-local ok1, classParser = pcall(require, "parsers.classParser")
+local classParser = require("parsers.classParser")
 
-local ok2, functionParser = pcall(require, "parsers.functionParser")
+local functionParser = require("parsers.functionParser")
 
-local ok3, propertyParser = pcall(require, "parsers.propertyParser")
+local propertyParser = require("parsers.propertyParser")
 
-local ok4, eventParser = pcall(require, "parsers.eventParser")
+local eventParser = require("parsers.eventParser")
 
-local ok6, globalParser = pcall(require, "parsers.globalParser")
+local globalParser = require("parsers.globalParser")
 
-local ok5, markdownGenerator = pcall(require, "utils.markdownGenerator")
+local markdownGenerator = require("utils.markdownGenerator")
 
 BasaltDoc.annotationHandlers = {}
 
@@ -141,11 +145,11 @@ BasaltDoc.registerAnnotation("@globalDescription", function(target, args)
     end
 end)
 
-if ok1 then classParser.setHandlers(BasaltDoc.annotationHandlers) end
-if ok2 then functionParser.setHandlers(BasaltDoc.annotationHandlers) end
-if ok3 then propertyParser.setHandlers(BasaltDoc.annotationHandlers) end
-if ok4 then eventParser.setHandlers(BasaltDoc.annotationHandlers) end
-if ok6 then globalParser.setHandlers(BasaltDoc.annotationHandlers) end
+if classParser then classParser.setHandlers(BasaltDoc.annotationHandlers) end
+if functionParser then functionParser.setHandlers(BasaltDoc.annotationHandlers) end
+if propertyParser then propertyParser.setHandlers(BasaltDoc.annotationHandlers) end
+if eventParser then eventParser.setHandlers(BasaltDoc.annotationHandlers) end
+if globalParser then globalParser.setHandlers(BasaltDoc.annotationHandlers) end
 
 ----------------------------------------------------------------
 -- Main Parser
@@ -174,7 +178,7 @@ function BasaltDoc.parse(content)
                 if i <= #rawLines and rawLines[i]:match("%]%]") then
                     i = i + 1
                 end
-                if #globalAnnotations > 0 and ok6 then
+                if #globalAnnotations > 0 and globalParser then
                     local global = globalParser.parse(globalAnnotations, table.concat(globalAnnotations, "\n"))
                     ast.global = global
                 end
@@ -211,25 +215,25 @@ function BasaltDoc.parse(content)
         elseif #annotationBuffer > 0 then
             local nextLine = lines[i]
             local skip = false
-            if nextLine and nextLine:match("^function") and currentClass and ok2 then
+            if nextLine and nextLine:match("^function") and currentClass and functionParser then
                 local fn = functionParser.parse(annotationBuffer, nextLine)
                 if fn then
                     table.insert(currentClass.functions, fn)
                 end
                 skip = true
             elseif firstTag then
-                if firstTag == "@class" and ok1 then
+                if firstTag == "@class" and classParser then
                     local class = classParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))
                     if class and not class.skip then
                         table.insert(ast.classes, class)
                         currentClass = class
                     end
-                elseif firstTag == "@property" and currentClass and ok3 then
+                elseif firstTag == "@property" and currentClass and propertyParser then
                     local prop = propertyParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))
                     if prop then
                         table.insert(currentClass.properties, prop)
                     end
-                elseif firstTag == "@event" and currentClass and ok4 then
+                elseif firstTag == "@event" and currentClass and eventParser then
                     local evt = eventParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))
                     if evt then
                         table.insert(currentClass.events, evt)
@@ -246,7 +250,7 @@ function BasaltDoc.parse(content)
     end
 
     if #annotationBuffer > 0 and firstTag then
-        if firstTag == "@class" and ok1 then
+        if firstTag == "@class" and classParser then
             local class = classParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))
             if class and not class.skip then
                 table.insert(ast.classes, class)
@@ -259,7 +263,7 @@ function BasaltDoc.parse(content)
 end
 
 function BasaltDoc.generateMarkdown(ast)
-    if ok5 then
+    if markdownGenerator then
         local result = markdownGenerator.generate(ast)
         return result
     else
