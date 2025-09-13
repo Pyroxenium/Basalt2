@@ -55,8 +55,10 @@ jobs:
         lua tools/generate-docs.lua
 
         cp -r build_docs/docs/references/* gh-pages/docs/references/
-
-    # Step 5: Deploy Documentation
+    # Step 5: Install LuaFileSystem
+    - name: Install LuaFileSystem
+      run: luarocks install luafilesystem
+    # Step 6: Deploy Documentation
     - name: Deploy Documentation
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
@@ -65,7 +67,7 @@ jobs:
         publish_dir: ./gh-pages
         keep_files: true
 
-    # Step 6: Generate Changelog
+    # Step 7: Generate Changelog
     #- name: Generate Changelog
     #  id: changelog
     #  uses: heinrichreimer/github-changelog-generator-action@v2.3
