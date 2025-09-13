@@ -1,36 +1,36 @@
-# Display : VisualElement
-The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs.
+# Display
+_The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs._
 
-### Usage
- ```lua
-local display = main:addDisplay() -- Create a display element
-local displayWindow = display:getWindow() -- Get the window object of the display
-displayWindow.write("Hello World!") -- Write "Hello World!" to the display
-```
-
+Extends: `VisualElement`
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Display:getWindow](#display-getwindow)|table|Returns the current window object
-|[Display:write](#display-write)|Display|Writes text to the display
+|[Display.new](#display-new)|table|Creates a new Display instance|
+|[Display:Display](#display-display-props-basalt)|-|Initializes the Display instance|
+|[Display:Display](#display-display)|table|Returns the current window object|
+|[Display:Display](#display-display-x-y-text-fg-bg)|Display|Writes text to the display|
+|[Display:Display](#display-display)|-|Renders the Display|
 
+## Display.new()
+### Returns
+* `table` `self` The created instance
 
-## Protected Functions
+## Display:Display(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
 
-|Method|Returns|Description|
-|---|---|---|
-|Display:init|-|Initializes the Display instance
-|Display:render|-|Renders the Display
+## Display:Display()
 
-## Display:getWindow()
 Returns the current window object
 
 ### Returns
 * `table` `window` The current window object
 
-## Display:write(x, y, text, fg?, bg?)
+## Display:Display(x, y, text, fg?, bg?)
+
 Writes text to the display at the given position with the given foreground and background colors
 
 ### Parameters
@@ -43,4 +43,4 @@ Writes text to the display at the given position with the given foreground and b
 ### Returns
 * `Display` `self` The display instance
 
-
+## Display:Display()

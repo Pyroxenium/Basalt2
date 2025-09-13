@@ -1,16 +1,18 @@
-# Slider : VisualElement
-This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
-with customizable colors and value ranges.
+# Slider
+_This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
+with customizable colors and value ranges._
+
+Extends: `VisualElement`
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|step|number|1|Current position of the slider handle (1 to width/height)
-|max|number|100|Maximum value for value conversion (maps slider position to this range)
-|horizontal|boolean|true|Whether the slider is horizontal (false for vertical)
-|barColor|color|gray|Color of the slider track
-|sliderColor|color|blue|Color of the slider handle
+|step|number|1|Current position of the slider handle (1 to width/height)|
+|max|number|100|Maximum value for value conversion (maps slider position to this range)|
+|horizontal|boolean|true|Whether the slider is horizontal (false for vertical)|
+|barColor|color|gray|Color of the slider track|
+|sliderColor|color|blue|Color of the slider handle|
 
 ## Events
 
@@ -22,27 +24,56 @@ with customizable colors and value ranges.
 
 |Method|Returns|Description|
 |---|---|---|
-|[Slider:getValue](#slider-getvalue)|number|Gets the current value mapped to the max range
+|[Slider.new](#slider-new)|Slider|Creates a new Slider instance|
+|[Slider:Slider](#slider-slider-props-basalt)|Slider|Initializes the Slider instance|
+|[Slider:Slider](#slider-slider)|number|Gets the current value mapped to the max range|
+|[Slider:Slider](#slider-slider-button-x-y)|boolean|Updates slider position on mouse click|
+|[Slider:Slider](#slider-slider-button-x-y)|boolean|Handles mouse release events|
+|[Slider:Slider](#slider-slider)|-|Renders the slider with track and handle|
 
+## Slider.new()
 
-## Protected Functions
+Creates a new Slider instance
 
-|Method|Returns|Description|
-|---|---|---|
-|Slider:init|Slider|Initializes the Slider instance
-|Slider:mouse_click|boolean|Updates slider position on mouse click
-|Slider:mouse_scroll|boolean|Handles mouse release events
-|Slider:render|-|Renders the slider with track and handle
+### Returns
+* `Slider` `self` The newly created Slider instance
 
-## Slider:getValue()
+## Slider:Slider(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `Slider` `self` The initialized instance
+
+## Slider:Slider()
+
 Gets the current value of the slider
 
 ### Returns
 * `number` `value` The current value (0 to max)
 
 ### Usage
- ```lua
+```lua
 local value = slider:getValue()
 ```
 
+## Slider:Slider(button, x, y)
+### Parameters
+* `button` `number` The mouse button that was clicked
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
 
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## Slider:Slider(button, x, y)
+### Parameters
+* `button` `number` The mouse button that was released
+* `x` `number` The x position of the release
+* `y` `number` The y position of the release
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## Slider:Slider()

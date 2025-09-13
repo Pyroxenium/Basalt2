@@ -1,28 +1,29 @@
-# BarChart : Graph
-The Bar Chart element is designed for visualizing data series as vertical bars. It displays multiple values as side-by-side bars where each bar's height represents its value.
+# BarChart
+_The Bar Chart element is designed for visualizing data series as vertical bars. It displays multiple values as side-by-side bars where each bar's height represents its value._
 
-### Usage
- ```lua
-local chart = main:addBarChart()
-:addSeries("input", " ", colors.green, colors.green, 5)
-:addSeries("output", " ", colors.red, colors.red, 5)
+Extends: `Graph`
 
-basalt.schedule(function()
-while true do
-chart:addPoint("input", math.random(1,100))
-chart:addPoint("output", math.random(1,100))
-sleep(2)
-end
-end)
-```
-
-
-
-## Protected Functions
+## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|BarChart:init|BarChart|Initializes the BarChart instance
-|BarChart:render|-|Renders the BarChart
+|[BarChart.new](#barchart-new)|BarChart|Creates a new BarChart instance|
+|[BarChart:BarChart](#barchart-barchart-props-basalt)|BarChart|Initializes the BarChart instance|
+|[BarChart:BarChart](#barchart-barchart)|-|Renders the BarChart|
 
+## BarChart.new()
 
+Creates a new BarChart instance
+
+### Returns
+* `BarChart` `self` The newly created BarChart instance
+
+## BarChart:BarChart(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `BarChart` `self` The initialized instance
+
+## BarChart:BarChart()

@@ -1,104 +1,80 @@
-# Image : VisualElement
-This is the Image element class which can be used to display bimg formatted images.
+# Image
+_This is the Image element class which can be used to display bimg formatted images.
 Bimg is a universal ComputerCraft image format.
-See: https://github.com/SkyTheCodeMaster/bimg
+See: https://github.com/SkyTheCodeMaster/bimg_
+
+Extends: `VisualElement`
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|bimg|table|{}|The bimg image data
-|currentFrame|number|1|Current animation frame
-|autoResize|boolean|false|Whether to automatically resize the image when content exceeds bounds
-|offsetX|number|0|Horizontal offset for viewing larger images
-|offsetY|number|0|Vertical offset for viewing larger images
-
-## Combined Properties
-
-|Name|Properties|Description|
-|---|---|---|
-|offset|`offsetX offsetY`|Combined property for offsetX and offsetY|
+|bimg|table|{}|The bimg image data|
+|currentFrame|number|1|Current animation frame|
+|autoResize|boolean|false|Whether to automatically resize the image when content exceeds bounds|
+|offsetX|number|0|Horizontal offset for viewing larger images|
+|offsetY|number|0|Vertical offset for viewing larger images|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image:addFrame](#image-addframe)|Image|Adds a new frame to the image
-|[Image:getBg](#image-getbg)|string|Gets the background color at the specified position
-|[Image:getFg](#image-getfg)|string|Gets the foreground color at the specified position
-|[Image:getFrame](#image-getframe)|table|Gets the specified frame
-|[Image:getImageSize](#image-getimagesize)|number|Gets the size of the image
-|[Image:getMetadata](#image-getmetadata)|table|Gets the metadata of the image
-|[Image:getPixelData](#image-getpixeldata)|number?|Gets pixel information at position
-|[Image:getText](#image-gettext)|string|Gets the text at the specified position
-|[Image:nextFrame](#image-nextframe)|Image|Advances to the next frame in the animation
-|[Image:resizeImage](#image-resizeimage)|Image|Resizes the image to the specified width and height
-|[Image:setBg](#image-setbg)|Image|Sets the background color at the specified position
-|[Image:setFg](#image-setfg)|Image|Sets the foreground color at the specified position
-|[Image:setMetadata](#image-setmetadata)|Image|Sets the metadata of the image
-|[Image:setPixel](#image-setpixel)|Image|Sets the pixel at the specified position
-|[Image:setText](#image-settext)|Image|Sets the text at the specified position
-|[Image:updateFrame](#image-updateframe)|Image|Updates the specified frame with the provided data
+|[Image.new](#image-new)|Image|Creates a new Image instance|
+|[Image:Image](#image-image-props-basalt)|Image|Initializes the Image instance|
+|[Image:Image](#image-image-width-height)|Image|Resizes the image to the specified width and height|
+|[Image:Image](#image-image)|number, number|Gets the size of the image|
+|[Image:Image](#image-image-x-y)|fg, bg, char|Gets pixel information at position|
+|[Image:Image](#image-image-x-y-text)|Image|Sets the text at the specified position|
+|[Image:Image](#image-image-x-y-length)|string|Gets the text at the specified position|
+|[Image:Image](#image-image-x-y-pattern)|Image|Sets the foreground color at the specified position|
+|[Image:Image](#image-image-x-y-length)|string|Gets the foreground color at the specified position|
+|[Image:Image](#image-image-x-y-pattern)|Image|Sets the background color at the specified position|
+|[Image:Image](#image-image-x-y-length)|string|Gets the background color at the specified position|
+|[Image:Image](#image-image-x-y-char-fg-bg)|Image|Sets the pixel at the specified position|
+|[Image:Image](#image-image)|Image|Advances to the next frame in the animation|
+|[Image:Image](#image-image)|Image|Adds a new frame to the image|
+|[Image:Image](#image-image-frameindex-frame)|Image|Updates the specified frame with the provided data|
+|[Image:Image](#image-image-frameindex)|table|Gets the specified frame|
+|[Image:Image](#image-image)|table|Gets the metadata of the image|
+|[Image:Image](#image-image-key-value)|Image|Sets the metadata of the image|
+|[Image:Image](#image-image)|-|Renders the Image|
 
+## Image.new()
 
-## Protected Functions
+Creates a new Image instance
 
-|Method|Returns|Description|
-|---|---|---|
-|Image:init|Image|Initializes the Image instance
-|Image:render|-|Renders the Image
+### Returns
+* `Image` `self` The newly created Image instance
 
-## Image:addFrame()
-Adds a new frame to the image
+## Image:Image(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `Image` `self` The initialized instance
+
+## Image:Image(width, height)
+
+Resizes the image to the specified width and height
+
+### Parameters
+* `width` `number` The new width of the image
+* `height` `number` The new height of the image
 
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:getBg(x, y, length)
-Gets the background color at the specified position
+## Image:Image()
 
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `length` `number` The length of the background color pattern to get
-
-### Returns
-* `string` `bg` The background color pattern
-
-## Image:getFg(x, y, length)
-Gets the foreground color at the specified position
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `length` `number` The length of the foreground color pattern to get
-
-### Returns
-* `string` `fg` The foreground color pattern
-
-## Image:getFrame(frameIndex)
-Gets the specified frame
-
-### Parameters
-* `frameIndex` `number` The index of the frame to get
-
-### Returns
-* `table` `frame` The frame data
-
-## Image:getImageSize()
 Gets the size of the image
 
 ### Returns
 * `number` `width` The width of the image
 * `number` `height` The height of the image
 
-## Image:getMetadata()
-Gets the metadata of the image
+## Image:Image(x, y)
 
-### Returns
-* `table` `metadata` The metadata of the image
-
-## Image:getPixelData(x, y)
 Gets pixel information at position
 
 ### Parameters
@@ -106,11 +82,24 @@ Gets pixel information at position
 * `y` `number` Y position
 
 ### Returns
-* `number?` `fg` Foreground color
-* `number?` `bg` Background color
-* `string?` `char` Character at position
+* `fg` `Foreground` color
+* `bg` `Background` color
+* `char` `Character` at position
 
-## Image:getText(x, y, length)
+## Image:Image(x, y, text)
+
+Sets the text at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `text` `string` The text to set
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:Image(x, y, length)
+
 Gets the text at the specified position
 
 ### Parameters
@@ -121,34 +110,8 @@ Gets the text at the specified position
 ### Returns
 * `string` `text` The text at the specified position
 
-## Image:nextFrame()
-Advances to the next frame in the animation
+## Image:Image(x, y, pattern)
 
-### Returns
-* `Image` `self` The Image instance
-
-## Image:resizeImage(width, height)
-Resizes the image to the specified width and height
-
-### Parameters
-* `width` `number` The new width of the image
-* `height` `number` The new height of the image
-
-### Returns
-* `Image` `self` The Image instance
-
-## Image:setBg(x, y, pattern)
-Sets the background color at the specified position
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `pattern` `string` The background color pattern
-
-### Returns
-* `Image` `self` The Image instance
-
-## Image:setFg(x, y, pattern)
 Sets the foreground color at the specified position
 
 ### Parameters
@@ -159,17 +122,44 @@ Sets the foreground color at the specified position
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:setMetadata(key, value)
-Sets the metadata of the image
+## Image:Image(x, y, length)
+
+Gets the foreground color at the specified position
 
 ### Parameters
-* `key` `string` The key of the metadata to set
-* `value` `string` The value of the metadata to set
+* `x` `number` The x position
+* `y` `number` The y position
+* `length` `number` The length of the foreground color pattern to get
+
+### Returns
+* `string` `fg` The foreground color pattern
+
+## Image:Image(x, y, pattern)
+
+Sets the background color at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `pattern` `string` The background color pattern
 
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:setPixel(x, y, char, fg, bg)
+## Image:Image(x, y, length)
+
+Gets the background color at the specified position
+
+### Parameters
+* `x` `number` The x position
+* `y` `number` The y position
+* `length` `number` The length of the background color pattern to get
+
+### Returns
+* `string` `bg` The background color pattern
+
+## Image:Image(x, y, char, fg, bg)
+
 Sets the pixel at the specified position
 
 ### Parameters
@@ -182,18 +172,22 @@ Sets the pixel at the specified position
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:setText(x, y, text)
-Sets the text at the specified position
+## Image:Image()
 
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `text` `string` The text to set
+Advances to the next frame in the animation
 
 ### Returns
 * `Image` `self` The Image instance
 
-## Image:updateFrame(frameIndex, frame)
+## Image:Image()
+
+Adds a new frame to the image
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:Image(frameIndex, frame)
+
 Updates the specified frame with the provided data
 
 ### Parameters
@@ -203,4 +197,32 @@ Updates the specified frame with the provided data
 ### Returns
 * `Image` `self` The Image instance
 
+## Image:Image(frameIndex)
 
+Gets the specified frame
+
+### Parameters
+* `frameIndex` `number` The index of the frame to get
+
+### Returns
+* `table` `frame` The frame data
+
+## Image:Image()
+
+Gets the metadata of the image
+
+### Returns
+* `table` `metadata` The metadata of the image
+
+## Image:Image(key, value)
+
+Sets the metadata of the image
+
+### Parameters
+* `key` `string` The key of the metadata to set
+* `value` `string` The value of the metadata to set
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:Image()
