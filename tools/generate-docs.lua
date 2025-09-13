@@ -3,7 +3,7 @@ local arg = arg or {...}
 local SRC_DIR = arg[1] or 'src'
 local OUT_DIR = arg[2] or 'docs'
 
-local BasaltDoc = require('BasaltDoc')
+local BasaltDoc = require('tools/BasaltDoc')
 
 local fileSystem
 if fs then
