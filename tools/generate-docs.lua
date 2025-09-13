@@ -48,7 +48,7 @@ else
         if not success then
             return {}
         end
-
+        
         local items = {}
         for item in result:gmatch("[^\r\n]+") do
             if item ~= "" then
@@ -85,7 +85,10 @@ else
 end
 
 if not fileSystem.exists(OUT_DIR) then
+    print("Output directory does not exist, creating it...")
     fileSystem.makeDir(OUT_DIR)
+else
+    print("Output directory already exists")
 end
 
 local function getLuaFiles(dir)
@@ -106,6 +109,7 @@ local function getLuaFiles(dir)
 end
 
 local luaFiles = getLuaFiles(SRC_DIR)
+print("Found " .. #luaFiles .. " Lua files to process")
 
 for _, filePath in ipairs(luaFiles) do
     local file = fileSystem.open(filePath, "r")

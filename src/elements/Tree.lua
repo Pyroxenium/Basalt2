@@ -2,6 +2,7 @@ local VisualElement = require("elements/VisualElement")
 local sub = string.sub
 ---@cofnigDescription The tree element provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
 
+
 --- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
 --- with support for selection and scrolling.
 ---@class Tree : VisualElement

@@ -47,10 +47,11 @@ jobs:
         
         # Only clean references directory
         rm -rf gh-pages/docs/references
-        mkdir -p gh-pages/docs/references
+        mkdir -p gh-pages/docs/references 
 
     - name: Generate Documentation
       run: |
+        mkdir -p build_docs/docs/references
         lua tools/generate-docs.lua
 
         cp -r build_docs/docs/references/* gh-pages/docs/references/
