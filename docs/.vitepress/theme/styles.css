@@ -1,0 +1,88 @@
+/* .vitepress/theme/styles.css */
+
+.code-block-with-run {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--vp-code-block-bg);
+  border: 1px solid var(--vp-c-divider);
+  margin: 1rem 0;
+}
+
+.code-block-with-run .code-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.4rem 0.4rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.code-block-with-run .language-badge {
+  display: none;
+}
+
+.code-block-with-run .run-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.75rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.code-block-with-run .run-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.code-block-with-run .code-content {
+  overflow: auto;
+  max-height: 500px;
+}
+
+.code-block-with-run .code-content pre {
+  background: transparent;
+  border: none;
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #d4d4d4;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.code-block-with-run .code-content pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.code-block-with-run .code-data {
+  display: none;
+}
+
+.dark .code-block-with-run .code-content pre {
+  color: var(--vp-code-block-color);
+}
+
+html:not(.dark) .code-block-with-run .code-content pre {
+  color: var(--vp-code-block-color);
+}
+
+html:not(.dark) .code-block-with-run .code-header {
+  background: rgba(0, 0, 0, 0.05);
+  border-bottom-color: var(--vp-c-divider);
+}
+
+html:not(.dark) .code-block-with-run .language-badge {
+  color: #666;
+}

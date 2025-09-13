@@ -72,82 +72,92 @@ export default defineConfig({
         { text: 'FAQ', link: '/guides/faq' },
       ],
 
-      '/references/':[
-        {
-          text: 'Basalt', link: 'references/main',
-          collapsed: true,
-          items: [
-            {text: 'PropertySystem', link: 'references/propertySystem'},
-            {text: 'Render', link: 'references/render'},
-            {text: 'Log', link: 'references/log'},
-            {text: 'ElementManager', link: 'references/elementManager'},
-            {text: 'ErrorManager', link: 'references/errorManager'},
-            ],
-        },
-        {
-          text: 'Element', link: 'references/elements/BaseElement',
-          collapsed: false,
-          items: [
-              {text: 'VisualElement', link: 'references/elements/VisualElement', collapsed: false, items: [
-                {text: 'Container', link: 'references/elements/Container', collapsed: true, items: [
-                  {text: 'BaseFrame', link: 'references/elements/BaseFrame'},
-                  {text: 'Flexbox', link: 'references/elements/Flexbox'},
-                  {text: 'Frame', link: 'references/elements/Frame'},
-                ]},
-                {text: 'BigFont', link: 'references/elements/BigFont'},
-                {text: 'Button', link: 'references/elements/Button'},
-                {text: 'Display', link: 'references/elements/Display'},
-                {text: 'Graph', link: 'references/elements/Graph', collapsed: true, items: [
-                    {text: 'BarChart', link: 'references/elements/BarChart'},
-                    {text: 'LineChart', link: 'references/elements/LineChart'},
-                  ]},
-                {text: 'Label', link: 'references/elements/Label'},  
-                {text: 'Image', link: 'references/elements/Image'},
-                {text: 'Input', link: 'references/elements/Input'},
-                {text: 'Checkbox', link: 'references/elements/Checkbox'},
-                {text: 'List', link: 'references/elements/List', collapsed: true,
-                  items: [
-                    {text: 'Dropdown', link: 'references/elements/Dropdown'},
-                    {text: 'Menu', link: 'references/elements/Menu'},
-                  ]
-                },
-                {text: 'Table', link: 'references/elements/Table'},
-                {text: 'TextBox', link: 'references/elements/TextBox'},
-                {text: 'Tree', link: 'references/elements/Tree'},
-                //{text: 'Timer', link: 'references/elements/Timer'},
-                {text: 'ScrollBar', link: 'references/elements/ScrollBar'},
-                {text: 'Slider', link: 'references/elements/Slider'},
-                {text: 'ProgressBar', link: 'references/elements/ProgressBar'},
-                {text: 'Program', link: 'references/elements/Program'},
-              ]},
-          ]
-        },
-        {
-          text: 'plugins', link: 'references/plugins/animations',
-          collapsed: false,
-          items: [
-            {text: 'Animations', link: 'references/plugins/animation', collapsed: true,
-              items: [
-                {text: 'Animation Instance', link: 'references/plugins/animation_AnimationInstance'},
-                {text: 'VisualElement', link: 'references/plugins/animation_VisualElement'},
-              ]
-            },
-            {text: 'Benchmark', link: 'references/plugins/benchmark', collapsed: true,
-              items: [
-                {text: 'BaseElement', link: 'references/plugins/benchmark_BaseElement'},
-                {text: 'Container', link: 'references/plugins/benchmark_Container'},
-              ]
-            },
-            {text: 'Debug', link: 'references/plugins/debug'},
-            {text: 'Reactive', link: 'references/plugins/reactive'},
-            {text: 'State', link: 'references/plugins/state'},
-            {text: 'Text Wrapping', link: 'references/plugins/textWrapping'},
-            {text: 'Theme', link: 'references/plugins/theme'},
-            {text: 'Xml', link: 'references/plugins/xml'},
-          ]
-        },
-      ]
+'/references/': [
+    {
+      text: 'Basalt',
+      link: 'references/main',
+      collapsed: true,
+      items: [
+        { text: 'ElementManager', link: 'references/elementManager' },
+        { text: 'ErrorManager', link: 'references/errorManager' },
+        { text: 'Log', link: 'references/log' },
+        { text: 'PropertySystem', link: 'references/propertySystem' },
+        { text: 'Render', link: 'references/render' },
+      ],
     },
+    {
+      text: 'Element',
+      link: 'references/elements/BaseElement',
+      collapsed: false,
+      items: [
+        {
+          text: 'VisualElement',
+          link: 'references/elements/VisualElement',
+          collapsed: false,
+          items: [
+            { text: 'BigFont', link: 'references/elements/BigFont' },
+            { text: 'Button', link: 'references/elements/Button' },
+            { text: 'CheckBox', link: 'references/elements/CheckBox' },
+            {
+              text: 'Container',
+              link: 'references/elements/Container',
+              collapsed: true,
+              items: [
+                { text: 'BaseFrame', link: 'references/elements/BaseFrame' },
+                { text: 'Frame', link: 'references/elements/Frame' },
+                { text: 'TabControl', link: 'references/elements/TabControl' },
+              ],
+            },
+            { text: 'Display', link: 'references/elements/Display' },
+            {
+              text: 'Graph',
+              link: 'references/elements/Graph',
+              collapsed: true,
+              items: [
+                { text: 'BarChart', link: 'references/elements/BarChart' },
+                { text: 'LineChart', link: 'references/elements/LineChart' },
+              ],
+            },
+            { text: 'Image', link: 'references/elements/Image' },
+            { text: 'Input', link: 'references/elements/Input' },
+            { text: 'Label', link: 'references/elements/Label' },
+            {
+              text: 'List',
+              link: 'references/elements/List',
+              collapsed: true,
+              items: [
+                { text: 'DropDown', link: 'references/elements/DropDown' },
+                { text: 'Menu', link: 'references/elements/Menu' },
+              ],
+            },
+            { text: 'ProgressBar', link: 'references/elements/ProgressBar' },
+            { text: 'Program', link: 'references/elements/Program' },
+            { text: 'ScrollBar', link: 'references/elements/ScrollBar' },
+            { text: 'Slider', link: 'references/elements/Slider' },
+            { text: 'Table', link: 'references/elements/Table' },
+            { text: 'TextBox', link: 'references/elements/TextBox' },
+            { text: 'Tree', link: 'references/elements/Tree' },
+          ],
+        },
+      ],
+    },
+    {
+      text: 'plugins',
+      link: 'references/plugins',
+      collapsed: false,
+      items: [
+        { text: 'Animations', link: 'references/plugins/animation' },
+        { text: 'Benchmark', link: 'references/plugins/benchmark' },
+        { text: 'Debug', link: 'references/plugins/debug' },
+        { text: 'Reactive', link: 'references/plugins/reactive' },
+        { text: 'State', link: 'references/plugins/state' },
+        { text: 'Text Wrapping', link: 'references/plugins/textWrapping' },
+        { text: 'Theme', link: 'references/plugins/theme' },
+        { text: 'Xml', link: 'references/plugins/xml' },
+      ],
+    },
+  ],
+},
 
 
     socialLinks: [
