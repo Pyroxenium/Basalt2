@@ -14,69 +14,69 @@ jobs:
       contents: write
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      - name: Setup Lua
-        uses: leafo/gh-actions-lua@v8
-        with:
-          luaVersion: "5.4"
+    - name: Setup Lua
+      uses: leafo/gh-actions-lua@v8
+      with:
+        luaVersion: "5.4"
 
-      # Step 1: Config Generation
-      - name: Generate Config
-        run: |
-          lua tools/generate-config.lua
+    # Step 1: Config Generation
+    - name: Generate Config
+      run: |
+        lua tools/generate-config.lua
 
-      # Step 2: Generate LuaLS Definitions
-      - name: Generate LuaLS
-        run: |
-          lua tools/generate-annotations.lua src
+    # Step 2: Generate LuaLS Definitions
+    - name: Generate LuaLS
+      run: |
+        lua tools/generate-annotations.lua src
 
-      # Step 3: Bundle and Minify
-      - name: Bundle and Minify
-        run: |
-          mkdir -p release
-          lua tools/bundler.lua
+    # Step 3: Bundle and Minify
+    - name: Bundle and Minify
+      run: |
+        mkdir -p release
+        lua tools/bundler.lua
 
-      # Step 4: Prepare and Generate Documentation
-      - name: Prepare docs directory
-        run: |
-          # Checkout gh-pages branch in a separate directory
-          git worktree add gh-pages gh-pages
-          
-          # Only clean references directory
-          rm -rf gh-pages/docs/references
-          mkdir -p gh-pages/docs/references
+    # Step 4: Prepare and Generate Documentation
+    - name: Prepare docs directory
+      run: |
+        # Checkout gh-pages branch in a separate directory
+        git worktree add gh-pages gh-pages
+        
+        # Only clean references directory
+        rm -rf gh-pages/docs/references
+        mkdir -p gh-pages/docs/references
 
-      #- name: Generate Documentation
-      #  run: |
-      #    lua tools/generate-docs.lua
+    - name: Generate Documentation
+      run: |
+        lua tools/generate-docs.lua
 
-      #    cp -r build_docs/docs/references/* gh-pages/docs/references/
+        cp -r build_docs/docs/references/* gh-pages/docs/references/
 
-      # Step 5: Deploy Documentation
-      - name: Deploy Documentation
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./gh-pages
-          keep_files: true
+    # Step 5: Deploy Documentation
+    - name: Deploy Documentation
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./gh-pages
+        keep_files: true
 
-      # Step 6: Generate Changelog
-      #- name: Generate Changelog
-      #  id: changelog
-      #  uses: heinrichreimer/github-changelog-generator-action@v2.3
-      #  with:
-      #    token: ${{ secrets.GITHUB_TOKEN }}
+    # Step 6: Generate Changelog
+    #- name: Generate Changelog
+    #  id: changelog
+    #  uses: heinrichreimer/github-changelog-generator-action@v2.3
+    #  with:
+    #    token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 7: Commit all changes
-      - name: Commit Changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add config.lua BasaltLS.lua release/basalt.lua CHANGELOG.md
-          git commit -m "Update config, BasaltLS definitions, bundle and changelog" || exit 0
-          git push
+    # Step 7: Commit all changes
+    - name: Commit Changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git add config.lua BasaltLS.lua release/basalt.lua CHANGELOG.md
+        git commit -m "Update config, BasaltLS definitions, bundle and changelog" || exit 0
+        git push

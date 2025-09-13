@@ -8,7 +8,5 @@ testWorkflows
 .vscode
 todo.txt
 Flexbox2.lua
+markdown.lua
 markdown2.lua
-BasaltDoc
-generate-docs.lua
-io.lua
