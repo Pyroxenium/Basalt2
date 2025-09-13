@@ -1,7 +1,7 @@
 local arg = arg or {...}
 
 local SRC_DIR = arg[1] or 'src'
-local OUT_DIR = arg[2] or 'build_docs/docs'
+local OUT_DIR = arg[2] or 'build_docs/docs/references'
 
 local BasaltDoc = require('tools/BasaltDoc')
 
