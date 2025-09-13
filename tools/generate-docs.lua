@@ -6,6 +6,7 @@ local OUT_DIR = arg[2] or 'docs'
 local BasaltDoc = require('tools/BasaltDoc')
 
 local fileSystem
+
 if fs then
     fileSystem = {
         list = fs.list,
@@ -20,23 +21,63 @@ if fs then
         close = function(file) file.close() end
     }
 else
-    local lfs = require("lfs")
-    fileSystem = {
-        list = function(dir)
-            local items = {}
-            for item in lfs.dir(dir) do
-                if item ~= "." and item ~= ".." then
-                    table.insert(items, item)
-                end
+    local function executeCommand(cmd)
+        local handle = io.popen(cmd)
+        local result = handle:read("*a")
+        local success, _, code = handle:close()
+        return result, success, code
+    end
+
+    local function pathExists(path)
+        local result, success = executeCommand("test -e '" .. path .. "' && echo 'exists' || echo 'not_exists'")
+        return success and result:match("exists")
+    end
+
+    local function isDirectory(path)
+        local result, success = executeCommand("test -d '" .. path .. "' && echo 'dir' || echo 'not_dir'")
+        return success and result:match("dir")
+    end
+
+    local function makeDirectory(path)
+        local _, success = executeCommand("mkdir -p '" .. path .. "'")
+        return success
+    end
+
+    local function listDirectory(dir)
+        local result, success = executeCommand("ls -1 '" .. dir .. "' 2>/dev/null || true")
+        if not success then
+            return {}
+        end
+
+        local items = {}
+        for item in result:gmatch("[^\r\n]+") do
+            if item ~= "" then
+                table.insert(items, item)
             end
-            return items
-        end,
-        combine = function(a, b) return a .. "/" .. b end,
-        isDir = function(path) return lfs.attributes(path).mode == "directory" end,
-        exists = function(path) return lfs.attributes(path) ~= nil end,
-        makeDir = lfs.mkdir,
+        end
+        return items
+    end
+
+    local function combinePath(a, b)
+        if a:sub(-1) == "/" then
+            return a .. b
+        else
+            return a .. "/" .. b
+        end
+    end
+
+    local function getDirectory(path)
+        return path:match("(.+)/[^/]*$") or ""
+    end
+
+    fileSystem = {
+        list = listDirectory,
+        combine = combinePath,
+        isDir = isDirectory,
+        exists = pathExists,
+        makeDir = makeDirectory,
         open = io.open,
-        getDir = function(path) return path:match("(.+)/") end,
+        getDir = getDirectory,
         readAll = function(file) return file:read("*all") end,
         write = function(file, data) file:write(data) end,
         close = function(file) file:close() end
@@ -79,7 +120,7 @@ for _, filePath in ipairs(luaFiles) do
         local outPath = fileSystem.combine(OUT_DIR, relativePath)
 
         local outDir = fileSystem.getDir(outPath)
-        if outDir and not fileSystem.exists(outDir) then
+        if outDir and outDir ~= "" and not fileSystem.exists(outDir) then
             fileSystem.makeDir(outDir)
         end
 

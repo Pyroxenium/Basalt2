@@ -39,10 +39,7 @@ jobs:
       run: |
         mkdir -p release
         lua tools/bundler.lua
-    # Step 4: Install LuaFileSystem
-    - name: Install LuaFileSystem
-      run: luarocks install luafilesystem
-    # Step 5: Prepare and Generate Documentation
+    # Step 4: Prepare and Generate Documentation
     - name: Prepare docs directory
       run: |
         # Checkout gh-pages branch in a separate directory
@@ -57,7 +54,7 @@ jobs:
         lua tools/generate-docs.lua
 
         cp -r build_docs/docs/references/* gh-pages/docs/references/
-    # Step 6: Deploy Documentation
+    # Step 5: Deploy Documentation
     - name: Deploy Documentation
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
