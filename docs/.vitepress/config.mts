@@ -1,38 +1,53 @@
 import { defineConfig } from 'vitepress'
 
-// https://vitepress.dev/reference/site-config
+function codeBlockRunPlugin(md) {
+  const defaultFence = md.renderer.rules.fence
+
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const token = tokens[idx]
+    const info = token.info.trim()
+    const content = token.content
+
+    // Check if the code block has a 'run' attribute
+    if (info.includes('run')) {
+      // Remove 'run' from info for standard rendering
+      const cleanInfo = info.replace(/\s*run\s*/, '').trim()
+      token.info = cleanInfo
+
+      // Render the standard code block
+      const codeHtml = defaultFence(tokens, idx, options, env, self)
+
+      // Wrap with run button - no language badge since we hide it anyway
+      return `
+        <div class="code-block-with-run">
+          <div class="code-header">
+            <button class="run-button" onclick="runCodeBlock(this)">
+              <span class="play-icon">▶</span>
+              <span class="button-text">Run</span>
+            </button>
+          </div>
+          <div class="code-content" data-code="${btoa(content).replace(/"/g, '&quot;')}">
+            ${codeHtml}
+          </div>
+        </div>
+      `
+    }
+
+    return defaultFence(tokens, idx, options, env, self)
+  }
+}
+
 export default defineConfig({
   title: "Basalt",
   description: "A UI Framework made for CC:Tweaked",
   lang: 'en-US',
   lastUpdated: true,
 
-  head: [
-    //[
-    //  'link',
-    //  { rel: 'stylesheet', href: '../css/computer.css', type: 'text/css' }
-    //],
-    //[
-    //  'script',
-    //  { async: '', src: 'https://copy-cat.squiddev.cc/require.js' }
-    //],
-    //[
-    //  'script',
-    //  {},
-    //  `require.config({ paths: { copycat: "https://copy-cat.squiddev.cc/" } });
-    //  require(["copycat/embed"], setup => setup(document.getElementById("embed-computer")));`
-    //],
-    //[
-    //  'script',
-    //  {src: '../js/computer.js' },
-    //],
-
-    //HTML for this:
-    //<button onclick="toggleComputer('computer-1')">Click Me</button>
-    //<div id="computer-1" class="computer">
-    //  <div id="embed-computer"></div>
-    //</div>
-  ],
+  markdown: {
+    config: (md) => {
+      md.use(codeBlockRunPlugin)
+    }
+  },
 
   themeConfig: {
     editLink: {
