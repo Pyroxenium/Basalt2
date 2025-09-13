@@ -1,46 +1,52 @@
-# Flexbox
-_This is the Flexbox class. It is a container that arranges its children in a flexible layout.
-The flexbox element adds the following properties to its children:
-_
+# Flexbox : Container
+This is the Flexbox class. It is a container that arranges its children in a flexible layout.
 
-Extends: `Container`
+### Usage
+ ```lua
+local flex = main:addFlexbox({background=colors.black, width=30, height=10})
+flex:addButton():setFlexGrow(1)
+flex:addButton():setFlexGrow(1)
+flex:addButton():setFlexGrow(1)
+```
+
+The flexbox element adds the following properties to its children:
+
+### Usage
+ ```lua
+flex:addButton():setFlexGrow(1) -- The flex-grow property defines the ability for a flex item to grow if necessary.
+flex:addButton():setFlexShrink(1) -- The flex-shrink property defines the ability for a flex item to shrink if necessary.
+flex:addButton():setFlexBasis(1) -- The flex-basis property defines the default size of an element before the remaining space is distributed.
+```
+
+
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|flexDirection|string|"row"|The direction of the flexbox layout "row" or "column"|
-|flexSpacing|number|1|The spacing between flex items|
-|flexJustifyContent|string|"flex-start"|The alignment of flex items along the main axis|
-|flexAlignItems|string|"flex-start"|The alignment of flex items along the cross axis|
-|flexCrossPadding|number|0|The padding on both sides of the cross axis|
-|flexWrap|boolean|false|Whether to wrap flex items onto multiple lines|
+|flexDirection|string|"row"|The direction of the flexbox layout "row" or "column"
+|flexSpacing|number|1|The spacing between flex items
+|flexJustifyContent|string|"flex-start"|The alignment of flex items along the main axis
+|flexWrap|boolean|false|Whether to wrap flex items onto multiple lines
+|flexUpdateLayout|boolean|false|Whether to update the layout of the flexbox
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox.new](#flexbox-new)|Flexbox|Creates a new Flexbox instance|
-|[Flexbox:Flexbox](#flexbox-flexbox-props-basalt)|Flexbox|Initializes the Flexbox instance|
-|[Flexbox:Flexbox](#flexbox-flexbox-element)|Flexbox|Adds a child element to the flexbox|
-|[Flexbox:Flexbox](#flexbox-flexbox-element)|Flexbox|Removes a child element from the flexbox|
-|[Flexbox:Flexbox](#flexbox-flexbox-self)|Flexbox|Adds a new line break to the flexbox.|
-|[Flexbox:Flexbox](#flexbox-flexbox)|-|Renders the flexbox and its children|
+|[Flexbox:addChild](#flexbox-addchild)|Flexbox|Adds a child element to the flexbox
+|[Flexbox:addLineBreak](#flexbox-addlinebreak)|Flexbox|Adds a new line break to the flexbox.
 
-## Flexbox.new()
-### Returns
-* `Flexbox` `object` The newly created Flexbox instance
 
-## Flexbox:Flexbox(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
+## Protected Functions
 
-### Returns
-* `Flexbox` `self` The initialized instance
+|Method|Returns|Description|
+|---|---|---|
+|Flexbox:init|Flexbox|Initializes the Flexbox instance
+|Flexbox:removeChild|Flexbox|Removes a child element from the flexbox
+|Flexbox:render|-|Renders the flexbox and its children
 
-## Flexbox:Flexbox(element)
-
+## Flexbox:addChild(element)
 Adds a child element to the flexbox
 
 ### Parameters
@@ -49,21 +55,13 @@ Adds a child element to the flexbox
 ### Returns
 * `Flexbox` `self` The flexbox instance
 
-## Flexbox:Flexbox(element)
-### Parameters
-* `element` `Element` The child element to remove
-
-### Returns
-* `Flexbox` `self` The flexbox instance
-
-## Flexbox:Flexbox(self)
-
+## Flexbox:addLineBreak(self)
 Adds a new line break to the flexbox
 
 ### Parameters
 * `self` `Flexbox` The element itself
 
 ### Returns
-* `Flexbox`
+* `nil` `nil` nil
 
-## Flexbox:Flexbox()
+

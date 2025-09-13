@@ -1,65 +1,40 @@
-# Tree
-_This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
-with support for selection and scrolling._
-
-Extends: `VisualElement`
+# Tree : VisualElement
+This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
+with support for selection and scrolling.
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|nodes|table|{}|The tree structure containing node objects with {text, children} properties|
-|expandedNodes|table|{}|Table of nodes that are currently expanded|
-|scrollOffset|number|0|Current vertical scroll position|
-|horizontalOffset|number|0|Current horizontal scroll position|
-|nodeColor|color|white|Color of unselected nodes|
-|selectedColor|color|lightBlue|Background color of selected node|
+|nodes|table|{}|The tree structure containing node objects with {text, children} properties
+|selectedNode|table?|nil|Currently selected node
+|expandedNodes|table|{}|Table of nodes that are currently expanded
+|scrollOffset|number|0|Current vertical scroll position
+|horizontalOffset|number|0|Current horizontal scroll position
+|nodeColor|color|white|Color of unselected nodes
+|selectedColor|color|lightBlue|Background color of selected node
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Tree.new](#tree-new)|Tree|Creates a new Tree instance|
-|[Tree:Tree](#tree-tree-props-basalt)|Tree|Initializes the Tree instance|
-|[Tree:Tree](#tree-tree-node)|Tree|Expands a node to show its children|
-|[Tree:Tree](#tree-tree-node)|Tree|Collapses a node to hide its children|
-|[Tree:Tree](#tree-tree-node)|Tree|Toggles between expanded and collapsed state|
-|[Tree:Tree](#tree-tree-button-x-y)|boolean|Handles mouse click events for node selection and expansion|
-|[Tree:Tree](#tree-tree-callback)|Tree|Registers a callback for when a node is selected|
-|[Tree:Tree](#tree-tree-direction-x-y)|boolean|Handles mouse scroll events for vertical scrolling|
-|[Tree:Tree](#tree-tree)|number, number|Gets the size of the tree|
-|[Tree:Tree](#tree-tree)|-|Renders the tree with nodes, selection and scrolling|
+|[Tree:collapseNode](#tree-collapsenode)|Tree|Collapses a node to hide its children
+|[Tree:expandNode](#tree-expandnode)|Tree|Expands a node to show its children
+|[Tree:getNodeSize](#tree-getnodesize)|number|Gets the size of the tree
+|[Tree:onSelect](#tree-onselect)|Tree|Registers a callback for when a node is selected
+|[Tree:toggleNode](#tree-togglenode)|Tree|Toggles between expanded and collapsed state
 
-## Tree.new()
 
-Creates a new Tree instance
+## Protected Functions
 
-### Returns
-* `Tree` `self` The newly created Tree instance
+|Method|Returns|Description|
+|---|---|---|
+|Tree:init|Tree|Initializes the Tree instance
+|Tree:mouse_click|boolean|Handles mouse click events for node selection and expansion
+|Tree:mouse_scroll|boolean|Handles mouse scroll events for vertical scrolling
+|Tree:render|-|Renders the tree with nodes, selection and scrolling
 
-## Tree:Tree(props, basalt)
-
-Initializes the Tree instance
-
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Tree` `self` The initialized instance
-
-## Tree:Tree(node)
-
-Expands a node
-
-### Parameters
-* `node` `table` The node to expand
-
-### Returns
-* `Tree` `self` The Tree instance
-
-## Tree:Tree(node)
-
+## Tree:collapseNode(node)
 Collapses a node
 
 ### Parameters
@@ -68,30 +43,23 @@ Collapses a node
 ### Returns
 * `Tree` `self` The Tree instance
 
-## Tree:Tree(node)
-
-Toggles a node's expanded state
+## Tree:expandNode(node)
+Expands a node
 
 ### Parameters
-* `node` `table` The node to toggle
+* `node` `table` The node to expand
 
 ### Returns
 * `Tree` `self` The Tree instance
 
-## Tree:Tree(button, x, y)
-
-Handles mouse click events
-
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
+## Tree:getNodeSize()
+Gets the size of the tree
 
 ### Returns
-* `boolean` `handled` Whether the event was handled
+* `number` `width` The width of the tree
+* `number` `height` The height of the tree
 
-## Tree:Tree(callback)
-
+## Tree:onSelect(callback)
 Registers a callback for when a node is selected
 
 ### Parameters
@@ -100,21 +68,13 @@ Registers a callback for when a node is selected
 ### Returns
 * `Tree` `self` The Tree instance
 
-## Tree:Tree(direction, x, y)
+## Tree:toggleNode(node)
+Toggles a node's expanded state
+
 ### Parameters
-* `direction` `number` The scroll direction (1 for up, -1 for down)
-* `x` `number` The x position of the scroll
-* `y` `number` The y position of the scroll
+* `node` `table` The node to toggle
 
 ### Returns
-* `boolean` `handled` Whether the event was handled
+* `Tree` `self` The Tree instance
 
-## Tree:Tree()
 
-Gets the size of the tree
-
-### Returns
-* `number` `width` The width of the tree
-* `number` `height` The height of the tree
-
-## Tree:Tree()

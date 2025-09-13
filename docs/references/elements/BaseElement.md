@@ -1,40 +1,41 @@
-# BaseElement
-_The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality._
-
-Extends: `PropertySystem`
+# BaseElement : PropertySystem
+The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality.
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|type|string|BaseElement|The type identifier of the element|
-|id|string|BaseElement|The unique identifier for the element|
-|name|string|BaseElement|The name of the element|
-|eventCallbacks|table|BaseElement|The event callbacks for the element|
-|enabled|boolean|BaseElement|Whether the element is enabled or not|
+|type|string|BaseElement|The type identifier of the element
+|id|string|BaseElement|The unique identifier for the element
+|name|string|BaseElement|The name of the element
+|eventCallbacks|table|BaseElement|The event callbacks for the element
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.defineEvent](#baseelement-defineevent-class-eventname-requiredevent)|-|Registers a new event listener for the element (on class level)|
-|[BaseElement.registerEventCallback](#baseelement-registereventcallback-class-callbackname-string)|-|Registers a new event callback for the element (on class level)|
-|[BaseElement.new](#baseelement-new)|table|Creates a new BaseElement instance|
-|[BaseElement:BaseElement](#baseelement-baseelement-props-basalt)|table|Initializes the BaseElement instance|
-|[BaseElement:BaseElement](#baseelement-baseelement)|table|Post initialization|
-|[BaseElement:BaseElement](#baseelement-baseelement-type)|boolean|Checks if the element is a specific type|
-|[BaseElement:BaseElement](#baseelement-baseelement-eventname-enable)|table|Enables or disables event listening for a specific event|
-|[BaseElement:BaseElement](#baseelement-baseelement-event-callback)|table|Registers a callback function|
-|[BaseElement:BaseElement](#baseelement-baseelement-event-any)|table|Triggers an event and calls all registered callbacks|
-|[BaseElement:BaseElement](#baseelement-baseelement-event)|handled|Handles all events|
-|[BaseElement:BaseElement](#baseelement-baseelement-event)|handled|The default event handler for all events|
-|[BaseElement:BaseElement](#baseelement-baseelement-property-callback)|table|Observes a property and calls a callback when it changes|
-|[BaseElement:BaseElement](#baseelement-baseelement)|BaseFrame|Returns the base frame of the element|
-|[BaseElement:BaseElement](#baseelement-baseelement)|-|Destroys the element and cleans up all references|
-|[BaseElement:BaseElement](#baseelement-baseelement)|table|Requests a render update for this element|
+|[BaseElement.defineEvent](#baseelement-defineevent)|-|Registers a new event listener for the element (on class level)
+|[BaseElement.registerEventCallback](#baseelement-registereventcallback)|-|Registers a new event callback for the element (on class level)
+|[BaseElement:destroy](#baseelement-destroy)|-|Destroys the element and cleans up all references
+|[BaseElement:fireEvent](#baseelement-fireevent)|table|Triggers an event and calls all registered callbacks
+|[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Returns the base frame of the element
+|[BaseElement:isType](#baseelement-istype)|boolean|Checks if the element is a specific type
+|[BaseElement:listenEvent](#baseelement-listenevent)|table|Enables or disables event listening for a specific event
+|[BaseElement:onChange](#baseelement-onchange)|table|Observes a property and calls a callback when it changes
+|[BaseElement:registerCallback](#baseelement-registercallback)|table|Registers a callback function
+|[BaseElement:updateRender](#baseelement-updaterender)|table|Requests a render update for this element
+
+
+## Protected Functions
+
+|Method|Returns|Description|
+|---|---|---|
+|BaseElement:dispatchEvent|boolean?|Handles all events
+|BaseElement:handleEvent|boolean?|The default event handler for all events
+|BaseElement:init|table|Initializes the BaseElement instance
+|BaseElement:postInit|table|Post initialization
 
 ## BaseElement.defineEvent(class, eventName, requiredEvent?)
-
 Registers a new event listener for the element (on class level)
 
 ### Parameters
@@ -42,33 +43,34 @@ Registers a new event listener for the element (on class level)
 * `eventName` `string` The name of the event to register
 * `requiredEvent` *(optional)* `string` The name of the required event (optional)
 
-## BaseElement.registerEventCallback(class, callbackName, string)
-
+## BaseElement.registerEventCallback(class, callbackName, ...)
 Registers a new event callback for the element (on class level)
 
 ### Parameters
 * `class` `table` The class to register
 * `callbackName` `string` The name of the callback to register
-* `string` `The` names of the events to register the callback for
+* `...` `string` The names of the events to register the callback for
 
-## BaseElement.new()
-### Returns
-* `table` `The` newly created BaseElement instance
+## BaseElement:destroy()
+Destroys the element and cleans up all references
 
-## BaseElement:BaseElement(props, basalt)
+## BaseElement:fireEvent(event, ...)
+Triggers an event and calls all registered callbacks
+
 ### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
+* `event` `string` The event to fire
+* `...` `any` Additional arguments to pass to the callbacks
 
-### Returns
-* `table` `self` The initialized instance
-
-## BaseElement:BaseElement()
 ### Returns
 * `table` `self` The BaseElement instance
 
-## BaseElement:BaseElement(type)
+## BaseElement:getBaseFrame()
+Returns the base frame of the element
 
+### Returns
+* `BaseFrame` `BaseFrame` The base frame of the element
+
+## BaseElement:isType(type)
 Checks if the element is a specific type
 
 ### Parameters
@@ -77,8 +79,7 @@ Checks if the element is a specific type
 ### Returns
 * `boolean` `isType` Whether the element is of the specified type
 
-## BaseElement:BaseElement(eventName, enable?)
-
+## BaseElement:listenEvent(eventName, enable?)
 Enables or disables event listening for a specific event
 
 ### Parameters
@@ -88,44 +89,7 @@ Enables or disables event listening for a specific event
 ### Returns
 * `table` `self` The BaseElement instance
 
-## BaseElement:BaseElement(event, callback)
-
-Registers a callback function for an event
-
-### Parameters
-* `event` `string` The event to register the callback for
-* `callback` `function` The callback function to register
-
-### Returns
-* `table` `self` The BaseElement instance
-
-## BaseElement:BaseElement(event, any)
-
-Triggers an event and calls all registered callbacks
-
-### Parameters
-* `event` `string` The event to fire
-* `any` `Additional` arguments to pass to the callbacks
-
-### Returns
-* `table` `self` The BaseElement instance
-
-## BaseElement:BaseElement(event)
-### Parameters
-* `event` `string` The event to handle
-
-### Returns
-* `handled` `Whether` the event was handled
-
-## BaseElement:BaseElement(event)
-### Parameters
-* `event` `string` The event to handle
-
-### Returns
-* `handled` `Whether` the event was handled
-
-## BaseElement:BaseElement(property, callback)
-
+## BaseElement:onChange(property, callback)
 Observes a property and calls a callback when it changes
 
 ### Parameters
@@ -135,20 +99,20 @@ Observes a property and calls a callback when it changes
 ### Returns
 * `table` `self` The BaseElement instance
 
-## BaseElement:BaseElement()
+## BaseElement:registerCallback(event, callback)
+Registers a callback function for an event
 
-Returns the base frame of the element
+### Parameters
+* `event` `string` The event to register the callback for
+* `callback` `function` The callback function to register
 
 ### Returns
-* `BaseFrame` `BaseFrame` The base frame of the element
+* `table` `self` The BaseElement instance
 
-## BaseElement:BaseElement()
-
-Destroys the element and cleans up all references
-
-## BaseElement:BaseElement()
-
+## BaseElement:updateRender()
 Requests a render update for this element
 
 ### Returns
 * `table` `self` The BaseElement instance
+
+

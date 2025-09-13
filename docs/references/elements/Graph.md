@@ -1,48 +1,62 @@
-# Graph
-_This is the base class for all graph elements. It is a point based graph._
+# Graph : VisualElement
+This is the base class for all graph elements. It is a point based graph.
 
-Extends: `VisualElement`
+### Usage
+ ```lua
+local graph = main:addGraph()
+:addSeries("input", " ", colors.green, colors.green, 10)
+:addSeries("output", " ", colors.red, colors.red, 10)
+
+basalt.schedule(function()
+while true do
+graph:addPoint("input", math.random(1,100))
+graph:addPoint("output", math.random(1,100))
+sleep(2)
+end
+end)
+```
+
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|minValue|number|0|The minimum value of the graph|
-|maxValue|number|100|The maximum value of the graph|
-|series|table|{}|The series of the graph|
+|minValue|number|0|The minimum value of the graph
+|maxValue|number|100|The maximum value of the graph
+|series|table|{}|The series of the graph
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Graph.new](#graph-new)|Graph|Creates a new Graph instance|
-|[Graph:Graph](#graph-graph-props-basalt)|Graph|Initializes the Graph instance|
-|[Graph:Graph](#graph-graph-name-symbol-bgcol-fgcol-pointcount)|Graph|Adds a series to the graph|
-|[Graph:Graph](#graph-graph-name)|Graph|Removes a series from the graph|
-|[Graph:Graph](#graph-graph-name)|series|Gets a series from the graph|
-|[Graph:Graph](#graph-graph-name-visible)|Graph|Changes the visibility of a series|
-|[Graph:Graph](#graph-graph-name-value)|Graph|Adds a point to a series|
-|[Graph:Graph](#graph-graph-name)|Graph|Focuses a series|
-|[Graph:Graph](#graph-graph-name-count)|Graph|Sets the point count of a series|
-|[Graph:Graph](#graph-graph-name)|Graph|Clears all points from a series|
-|[Graph:Graph](#graph-graph)|-|Renders the graph|
+|[Graph:addPoint](#graph-addpoint)|Graph|Adds a point to a series
+|[Graph:addSeries](#graph-addseries)|Graph|Adds a series to the graph
+|[Graph:changeSeriesVisibility](#graph-changeseriesvisibility)|Graph|Changes the visibility of a series
+|[Graph:clear](#graph-clear)|Graph|Clears all points from a series
+|[Graph:focusSeries](#graph-focusseries)|Graph|Focuses a series
+|[Graph:getSeries](#graph-getseries)|table?|Gets a series from the graph
+|[Graph:removeSeries](#graph-removeseries)|Graph|Removes a series from the graph
+|[Graph:setSeriesPointCount](#graph-setseriespointcount)|Graph|Sets the point count of a series
 
-## Graph.new()
 
-Creates a new Graph instance
+## Protected Functions
 
-### Returns
-* `Graph` `self` The newly created Graph instance
+|Method|Returns|Description|
+|---|---|---|
+|Graph:init|Graph|Initializes the Graph instance
+|Graph:render|-|Renders the graph
 
-## Graph:Graph(props, basalt)
+## Graph:addPoint(name, value)
+
 ### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
+* `name` `string` The name of the series
+* `value` `number` The value of the point
 
 ### Returns
-* `Graph` `self` The initialized instance
+* `Graph` `self` The graph instance
 
-## Graph:Graph(name, symbol, bgCol, fgCol, pointCount)
+## Graph:addSeries(name, symbol, bgCol, fgCol, pointCount)
+
 ### Parameters
 * `name` `string` The name of the series
 * `symbol` `string` The symbol of the series
@@ -53,21 +67,8 @@ Creates a new Graph instance
 ### Returns
 * `Graph` `self` The graph instance
 
-## Graph:Graph(name)
-### Parameters
-* `name` `string` The name of the series
+## Graph:changeSeriesVisibility(name, visible)
 
-### Returns
-* `Graph` `self` The graph instance
-
-## Graph:Graph(name)
-### Parameters
-* `name` `string` The name of the series
-
-### Returns
-* `series` `The` series
-
-## Graph:Graph(name, visible)
 ### Parameters
 * `name` `string` The name of the series
 * `visible` `boolean` Whether the series should be visible
@@ -75,31 +76,7 @@ Creates a new Graph instance
 ### Returns
 * `Graph` `self` The graph instance
 
-## Graph:Graph(name, value)
-### Parameters
-* `name` `string` The name of the series
-* `value` `number` The value of the point
-
-### Returns
-* `Graph` `self` The graph instance
-
-## Graph:Graph(name)
-### Parameters
-* `name` `string` The name of the series
-
-### Returns
-* `Graph` `self` The graph instance
-
-## Graph:Graph(name, count)
-### Parameters
-* `name` `string` The name of the series
-* `count` `number` The number of points in the series
-
-### Returns
-* `Graph` `self` The graph instance
-
-## Graph:Graph(name?)
-
+## Graph:clear(name?)
 Clears all points from a series
 
 ### Parameters
@@ -108,4 +85,37 @@ Clears all points from a series
 ### Returns
 * `Graph` `self` The graph instance
 
-## Graph:Graph()
+## Graph:focusSeries(name)
+
+### Parameters
+* `name` `string` The name of the series
+
+### Returns
+* `Graph` `self` The graph instance
+
+## Graph:getSeries(name)
+
+### Parameters
+* `name` `string` The name of the series
+
+### Returns
+* `table?` `series` The series
+
+## Graph:removeSeries(name)
+
+### Parameters
+* `name` `string` The name of the series
+
+### Returns
+* `Graph` `self` The graph instance
+
+## Graph:setSeriesPointCount(name, count)
+
+### Parameters
+* `name` `string` The name of the series
+* `count` `number` The number of points in the series
+
+### Returns
+* `Graph` `self` The graph instance
+
+

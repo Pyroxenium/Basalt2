@@ -1,20 +1,29 @@
 # ErrorHandler
-_This is Basalt's error handler. All the errors are handled by this module._
+This is Basalt's error handler. All the errors are handled by this module.
+
+## Fields
+
+|Field|Type|Description|
+|---|---|---|
+|tracebackEnabled|`boolean`|If the error handler should print a stack trace|
+|header|`string`|The header of the error message|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[ErrorHandler.error](#errorhandler-error-errmsg)|-|Handles an error|
+|[errorHandler.error](#errorhandler-error)|-|
 
-## ErrorHandler.error(errMsg)
 
+## errorHandler.error(errMsg)
 Handles an error
 
 ### Parameters
 * `errMsg` `string` The error message
 
 ### Usage
-```lua
+ ```lua
 errorHandler.error("An error occurred")
 ```
+
+

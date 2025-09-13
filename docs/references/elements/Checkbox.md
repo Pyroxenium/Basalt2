@@ -1,42 +1,23 @@
-# Checkbox
-_The Checkbox is a visual element that can be checked._
-
-Extends: `VisualElement`
+# Checkbox : VisualElement
+The Checkbox is a visual element that can be checked.
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|checked|boolean|Whether|checkbox is checked|
-|text|string|empty|Text to display|
-|checkedText|string|Text|when checked|
-|autoSize|boolean|true|Whether to automatically size the checkbox|
+|checked|boolean|Whether|checkbox is checked
+|text|string|empty|Text to display
+|checkedText|string|Text|when checked
+|autoSize|boolean|true|Whether to automatically size the checkbox
 
-## Functions
+
+## Protected Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Checkbox.new](#checkbox-new)|Checkbox|Creates a new Checkbox instance|
-|[Checkbox:Checkbox](#checkbox-checkbox-props-basalt)|-|Initializes the Checkbox instance|
-|[Checkbox:Checkbox](#checkbox-checkbox-button-x-y)|boolean|Handles mouse click events|
-|[Checkbox:Checkbox](#checkbox-checkbox)|-|Renders the Checkbox|
+|Checkbox.new|Checkbox|Creates a new Checkbox instance
+|Checkbox:init|-|Initializes the Checkbox instance
+|Checkbox:mouse_click|boolean|Handles mouse click events
+|Checkbox:render|-|Renders the Checkbox
 
-## Checkbox.new()
-### Returns
-* `Checkbox` `self` The created instance
 
-## Checkbox:Checkbox(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-## Checkbox:Checkbox(button, x, y)
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `Clicked` Whether the event was handled
-
-## Checkbox:Checkbox()
