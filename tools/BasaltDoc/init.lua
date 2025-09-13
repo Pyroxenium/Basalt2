@@ -1,11 +1,13 @@
 local BasaltDoc = {}
 
-local args = {...}
-local docsPath = fs.getDir(args[2])
 local defaultPath = package.path
-local format = "path;/path/?.lua;/path/?/init.lua;"
-local main = format:gsub("path", docsPath)
-package.path = main.."rom/?;"..defaultPath
+if fs then
+    local args = {...}
+    local docsPath = fs.getDir(args[2])
+    local format = "path;/path/?.lua;/path/?/init.lua;"
+    local main = format:gsub("path", docsPath)
+    package.path = main.."rom/?;"..defaultPath
+end
 
 local ok1, classParser = pcall(require, "parsers.classParser")
 
