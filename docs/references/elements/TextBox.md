@@ -1,57 +1,125 @@
-# TextBox : VisualElement
-A multi-line text editor component with cursor support and text manipulation features
+# TextBox
+_A multi-line text editor component with cursor support and text manipulation features_
+
+Extends: `VisualElement`
 
 ## Properties
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|lines|table|{}|Array of text lines
-|cursorX|number|1|Cursor X position
-|cursorY|number|1|Cursor Y position (line number)
-|scrollX|number|0|Horizontal scroll offset
-|scrollY|number|0|Vertical scroll offset
-|editable|boolean|true|Whether text can be edited
-|syntaxPatterns|table|{}|Syntax highlighting patterns
-|cursorColor|number|nil|Color of the cursor
+|lines|table|{}|Array of text lines|
+|cursorX|number|1|Cursor X position|
+|cursorY|number|1|Cursor Y position (line number)|
+|scrollX|number|0|Horizontal scroll offset|
+|scrollY|number|0|Vertical scroll offset|
+|editable|boolean|true|Whether text can be edited|
+|syntaxPatterns|table|{}|Syntax highlighting patterns|
+|cursorColor|number|nil|Color of the cursor|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[TextBox:addSyntaxPattern](#textbox-addsyntaxpattern)|TextBox|Adds a new syntax highlighting pattern
-|[TextBox:getText](#textbox-gettext)|string|Gets the text of the TextBox
-|[TextBox:setText](#textbox-settext)|TextBox|Sets the text of the TextBox
-|[TextBox:updateViewport](#textbox-updateviewport)|TextBox|Updates the viewport to keep the cursor in view
+|[TextBox.new](#textbox-new)|TextBox|Creates a new TextBox instance|
+|[TextBox:init](#textbox-init-props-basalt)|TextBox|Initializes the TextBox instance|
+|[TextBox:addSyntaxPattern](#textbox-addsyntaxpattern-pattern-color)|TextBox|Adds a new syntax highlighting pattern|
+|[TextBox:removeSyntaxPattern](#textbox-removesyntaxpattern-index)|TextBox|Removes a syntax pattern by index (1-based)|
+|[TextBox:clearSyntaxPatterns](#textbox-clearsyntaxpatterns)|TextBox|Clears all syntax highlighting patterns|
+|[TextBox:updateViewport](#textbox-updateviewport)|TextBox|Updates the viewport to keep the cursor in view|
+|[TextBox:char](#textbox-char-char)|boolean|Handles character input|
+|[TextBox:key](#textbox-key-key)|boolean|Handles key events|
+|[TextBox:mouse_scroll](#textbox-mouse-scroll-direction-x-y)|boolean|Handles mouse scroll events|
+|[TextBox:mouse_click](#textbox-mouse-click-button-x-y)|boolean|Handles mouse click events|
+|[TextBox:paste](#textbox-paste)|-|Handles paste events|
+|[TextBox:setText](#textbox-settext-text)|TextBox|Sets the text of the TextBox|
+|[TextBox:getText](#textbox-gettext)|string|Gets the text of the TextBox|
+|[TextBox:render](#textbox-render)|-|Renders the TextBox with syntax highlighting|
 
+## TextBox.new()
 
-## Protected Functions
+Creates a new TextBox instance
 
-|Method|Returns|Description|
-|---|---|---|
-|TextBox:char|boolean|Handles character input
-|TextBox:init|TextBox|Initializes the TextBox instance
-|TextBox:key|boolean|Handles key events
-|TextBox:mouse_click|boolean|Handles mouse click events
-|TextBox:mouse_scroll|boolean|Handles mouse scroll events
-|TextBox:render|-|Renders the TextBox with syntax highlighting
+### Returns
+* `TextBox` `self` The newly created TextBox instance
+
+## TextBox:init(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `TextBox` `self` The initialized instance
 
 ## TextBox:addSyntaxPattern(pattern, color)
+
 Adds a new syntax highlighting pattern
 
 ### Parameters
 * `pattern` `string` The regex pattern to match
-* `color` `colors` The color to apply
+* `color` `number` The color to apply
 
 ### Returns
 * `TextBox` `self` The TextBox instance
 
-## TextBox:getText()
-Gets the text of the TextBox
+## TextBox:removeSyntaxPattern(index)
+
+Removes a syntax pattern by index (1-based)
+
+### Parameters
+* `index` `number` The index of the pattern to remove
 
 ### Returns
-* `string` `text` The text of the TextBox
+* `TextBox` self
 
+## TextBox:clearSyntaxPatterns()
+
+Clears all syntax highlighting patterns
+
+### Returns
+* `TextBox` self
+
+## TextBox:updateViewport()
+
+Updates the viewport to keep the cursor in view
+
+### Returns
+* `TextBox` `self` The TextBox instance
+
+## TextBox:char(char)
+### Parameters
+* `char` `string` The character that was typed
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## TextBox:key(key)
+### Parameters
+* `key` `number` The key that was pressed
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## TextBox:mouse_scroll(direction, x, y)
+### Parameters
+* `direction` `number` The scroll direction
+* `x` `number` The x position of the scroll
+* `y` `number` The y position of the scroll
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## TextBox:mouse_click(button, x, y)
+### Parameters
+* `button` `number` The button that was clicked
+* `x` `number` The x position of the click
+* `y` `number` The y position of the click
+
+### Returns
+* `boolean` `handled` Whether the event was handled
+
+## TextBox:paste()
 ## TextBox:setText(text)
+
 Sets the text of the TextBox
 
 ### Parameters
@@ -60,10 +128,11 @@ Sets the text of the TextBox
 ### Returns
 * `TextBox` `self` The TextBox instance
 
-## TextBox:updateViewport()
-Updates the viewport to keep the cursor in view
+## TextBox:getText()
+
+Gets the text of the TextBox
 
 ### Returns
-* `TextBox` `self` The TextBox instance
+* `string` `text` The text of the TextBox
 
-
+## TextBox:render()

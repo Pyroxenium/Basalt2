@@ -1,28 +1,29 @@
-# LineChart : Graph
-The Line Chart element visualizes data series as connected line graphs. It plots points on a coordinate system and connects them with lines.
+# LineChart
+_The Line Chart element visualizes data series as connected line graphs. It plots points on a coordinate system and connects them with lines._
 
-### Usage
- ```lua
-local chart = main:addLineChart()
-:addSeries("input", " ", colors.green, colors.green, 10)
-:addSeries("output", " ", colors.red, colors.red, 10)
+Extends: `Graph`
 
-basalt.schedule(function()
-while true do
-chart:addPoint("input", math.random(1,100))
-chart:addPoint("output", math.random(1,100))
-sleep(2)
-end
-end)
-```
-
-
-
-## Protected Functions
+## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|LineChart:init|LineChart|Initializes the LineChart instance
-|LineChart:render|-|Renders the LineChart
+|[LineChart.new](#linechart-new)|LineChart|Creates a new LineChart instance|
+|[LineChart:init](#linechart-init-props-basalt)|LineChart|Initializes the LineChart instance|
+|[LineChart:render](#linechart-render)|-|Renders the LineChart|
 
+## LineChart.new()
 
+Creates a new LineChart instance
+
+### Returns
+* `LineChart` `self` The newly created LineChart instance
+
+## LineChart:init(props, basalt)
+### Parameters
+* `props` `table` The properties to initialize the element with
+* `basalt` `table` The basalt instance
+
+### Returns
+* `LineChart` `self` The initialized instance
+
+## LineChart:render()
