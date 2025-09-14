@@ -1736,7 +1736,7 @@ bc:observe("flexSpacing",function()bc.set("flexUpdateLayout",true)end)
 bc:observe("flexWrap",function()bc.set("flexUpdateLayout",true)end)
 bc:observe("flexJustifyContent",function()bc.set("flexUpdateLayout",true)end)
 bc:observe("flexAlignItems",function()bc.set("flexUpdateLayout",true)end)
-bc:observe("flexCrossPadding",function()bc.set("flexUpdateLayout",true)end)return bc end;function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","Flexbox")
+bc:observe("flexCrossPadding",function()bc.set("flexUpdateLayout",true)end)return bc end;function ab:init(bc,cc)_b.init(self,bc,cc)self.set("type","FlexBox")
 return self end
 function ab:addChild(bc)
 _b.addChild(self,bc)
@@ -2226,7 +2226,7 @@ d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mou
 d.defineEvent(d,"mouse_up")function d.new()local _a=setmetatable({},d):__init()_a.class=d
 _a.set("backgroundEnabled",false)return _a end
 function d:init(_a,aa)
-c.init(self,_a,aa)self.set("type","Checkbox")end
+c.init(self,_a,aa)self.set("type","CheckBox")end
 function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
 self.set("checked",not self.get("checked"))return true end;return false end
 function d:render()c.render(self)local _a=self.get("checked")
@@ -2286,7 +2286,7 @@ ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new(
 da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
 return da end
 function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","Dropdown")return self end
+aa.init(self,da,_b)self.set("type","DropDown")return self end
 function ca:mouse_click(da,_b,ab)
 if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
 if cb==1 then self.set("isOpen",not
