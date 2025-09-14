@@ -1,15 +1,15 @@
 local VisualElement = require("elements/VisualElement")
 ---@cofnigDescription This is a checkbox. It is a visual element that can be checked.
 
---- The Checkbox is a visual element that can be checked.
----@class Checkbox : VisualElement
-local Checkbox = setmetatable({}, VisualElement)
-Checkbox.__index = Checkbox
+--- The CheckBox is a visual element that can be checked.
+---@class CheckBox : VisualElement
+local CheckBox = setmetatable({}, VisualElement)
+CheckBox.__index = CheckBox
 
 ---@property checked boolean Whether checkbox is checked
-Checkbox.defineProperty(Checkbox, "checked", {default = false, type = "boolean", canTriggerRender = true})
+CheckBox.defineProperty(CheckBox, "checked", {default = false, type = "boolean", canTriggerRender = true})
 ---@property text string empty Text to display
-Checkbox.defineProperty(Checkbox, "text", {default = " ", type = "string", canTriggerRender = true, setter=function(self, value)
+CheckBox.defineProperty(CheckBox, "text", {default = " ", type = "string", canTriggerRender = true, setter=function(self, value)
     local checkedText = self.get("checkedText")
     local width = math.max(#value, #checkedText)
     if(self.get("autoSize"))then
@@ -18,7 +18,7 @@ Checkbox.defineProperty(Checkbox, "text", {default = " ", type = "string", canTr
     return value
 end})
 ---@property checkedText string Text when checked
-Checkbox.defineProperty(Checkbox, "checkedText", {default = "x", type = "string", canTriggerRender = true, setter=function(self, value)
+CheckBox.defineProperty(CheckBox, "checkedText", {default = "x", type = "string", canTriggerRender = true, setter=function(self, value)
     local text = self.get("text")
     local width = math.max(#value, #text)
     if(self.get("autoSize"))then
@@ -27,28 +27,28 @@ Checkbox.defineProperty(Checkbox, "checkedText", {default = "x", type = "string"
     return value
 end})
 ---@property autoSize boolean true Whether to automatically size the checkbox
-Checkbox.defineProperty(Checkbox, "autoSize", {default = true, type = "boolean"})
+CheckBox.defineProperty(CheckBox, "autoSize", {default = true, type = "boolean"})
 
-Checkbox.defineEvent(Checkbox, "mouse_click")
-Checkbox.defineEvent(Checkbox, "mouse_up")
+CheckBox.defineEvent(CheckBox, "mouse_click")
+CheckBox.defineEvent(CheckBox, "mouse_up")
 
---- @shortDescription Creates a new Checkbox instance
---- @return Checkbox self The created instance
+--- @shortDescription Creates a new CheckBox instance
+--- @return CheckBox self The created instance
 --- @protected
-function Checkbox.new()
-    local self = setmetatable({}, Checkbox):__init()
-    self.class = Checkbox
+function CheckBox.new()
+    local self = setmetatable({}, CheckBox):__init()
+    self.class = CheckBox
     self.set("backgroundEnabled", false)
     return self
 end
 
---- @shortDescription Initializes the Checkbox instance
+--- @shortDescription Initializes the CheckBox instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
 --- @protected
-function Checkbox:init(props, basalt)
+function CheckBox:init(props, basalt)
     VisualElement.init(self, props, basalt)
-    self.set("type", "Checkbox")
+    self.set("type", "CheckBox")
 end
 
 --- @shortDescription Handles mouse click events
@@ -57,7 +57,7 @@ end
 --- @param y number The y position of the click
 --- @return boolean Clicked Whether the event was handled
 --- @protected
-function Checkbox:mouse_click(button, x, y)
+function CheckBox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         self.set("checked", not self.get("checked"))
         return true
@@ -65,9 +65,9 @@ function Checkbox:mouse_click(button, x, y)
     return false
 end
 
---- @shortDescription Renders the Checkbox
+--- @shortDescription Renders the CheckBox
 --- @protected
-function Checkbox:render()
+function CheckBox:render()
     VisualElement.render(self)
 
     local checked = self.get("checked")
@@ -78,4 +78,4 @@ function Checkbox:render()
     self:textFg(1, 1, text, self.get("foreground"))
 end
 
-return Checkbox
+return CheckBox

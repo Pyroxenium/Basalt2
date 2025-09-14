@@ -1378,7 +1378,7 @@ self:textFg(1,y,
 bd..string.rep(" ",self.get("width")-#bd),self.get("foreground"))else
 self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
 project["elements/ComboBox.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("elements/Dropdown")local ba=require("libraries/colorHex")
+local aa=require("src.elements.DropDown")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
 ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})

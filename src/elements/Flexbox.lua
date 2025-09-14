@@ -2,7 +2,7 @@ local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
 ---@configDescription A flexbox container that arranges its children in a flexible layout.
 
---- This is the Flexbox class. It is a container that arranges its children in a flexible layout.
+--- This is the FlexBox class. It is a container that arranges its children in a flexible layout.
 --- @usage local flex = main:addFlexbox({background=colors.black, width=30, height=10})
 --- @usage flex:addButton():setFlexGrow(1)
 --- @usage flex:addButton():setFlexGrow(1)
@@ -12,16 +12,16 @@ local Container = elementManager.getElement("Container")
 --- @usage flex:addButton():setFlexGrow(1) -- The flex-grow property defines the ability for a flex item to grow if necessary.
 --- @usage flex:addButton():setFlexShrink(1) -- The flex-shrink property defines the ability for a flex item to shrink if necessary.
 --- @usage flex:addButton():setFlexBasis(1) -- The flex-basis property defines the default size of an element before the remaining space is distributed.
----@class Flexbox : Container
-local Flexbox = setmetatable({}, Container)
-Flexbox.__index = Flexbox
+---@class FlexBox : Container
+local FlexBox = setmetatable({}, Container)
+FlexBox.__index = FlexBox
 
 ---@property flexDirection string "row" The direction of the flexbox layout "row" or "column"
-Flexbox.defineProperty(Flexbox, "flexDirection", {default = "row", type = "string"})
+FlexBox.defineProperty(FlexBox, "flexDirection", {default = "row", type = "string"})
 ---@property flexSpacing number 1 The spacing between flex items
-Flexbox.defineProperty(Flexbox, "flexSpacing", {default = 1, type = "number"})
+FlexBox.defineProperty(FlexBox, "flexSpacing", {default = 1, type = "number"})
 ---@property flexJustifyContent string "flex-start" The alignment of flex items along the main axis
-Flexbox.defineProperty(Flexbox, "flexJustifyContent", {
+FlexBox.defineProperty(FlexBox, "flexJustifyContent", {
     default = "flex-start",
     type = "string",
     setter = function(self, value)
@@ -32,7 +32,7 @@ Flexbox.defineProperty(Flexbox, "flexJustifyContent", {
     end
 })
 ---@property flexAlignItems string "flex-start" The alignment of flex items along the cross axis
-Flexbox.defineProperty(Flexbox, "flexAlignItems", {
+FlexBox.defineProperty(FlexBox, "flexAlignItems", {
     default = "flex-start",
     type = "string",
     setter = function(self, value)
@@ -43,11 +43,11 @@ Flexbox.defineProperty(Flexbox, "flexAlignItems", {
     end
 })
 ---@property flexCrossPadding number 0 The padding on both sides of the cross axis
-Flexbox.defineProperty(Flexbox, "flexCrossPadding", {default = 0, type = "number"})
+FlexBox.defineProperty(FlexBox, "flexCrossPadding", {default = 0, type = "number"})
 ---@property flexWrap boolean false Whether to wrap flex items onto multiple lines
 ---@property flexUpdateLayout boolean false Whether to update the layout of the flexbox
-Flexbox.defineProperty(Flexbox, "flexWrap", {default = false, type = "boolean"})
-Flexbox.defineProperty(Flexbox, "flexUpdateLayout", {default = false, type = "boolean"})
+FlexBox.defineProperty(FlexBox, "flexWrap", {default = false, type = "boolean"})
+FlexBox.defineProperty(FlexBox, "flexUpdateLayout", {default = false, type = "boolean"})
 
 local lineBreakElement = {
   getHeight = function(self) return 0 end,
@@ -715,12 +715,12 @@ local function updateLayout(self, direction, spacing, justifyContent, wrap)
     self.set("flexUpdateLayout", false)
 end
 
---- @shortDescription Creates a new Flexbox instance
---- @return Flexbox object The newly created Flexbox instance
+--- @shortDescription Creates a new FlexBox instance
+--- @return FlexBox object The newly created FlexBox instance
 --- @private
-function Flexbox.new()
-    local self = setmetatable({}, Flexbox):__init()
-    self.class = Flexbox
+function FlexBox.new()
+    local self = setmetatable({}, FlexBox):__init()
+    self.class = FlexBox
     self.set("width", 12)
     self.set("height", 6)
     self.set("background", colors.blue)
@@ -741,22 +741,22 @@ function Flexbox.new()
     return self
 end
 
---- @shortDescription Initializes the Flexbox instance
+--- @shortDescription Initializes the FlexBox instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
---- @return Flexbox self The initialized instance
+--- @return FlexBox self The initialized instance
 --- @protected
-function Flexbox:init(props, basalt)
+function FlexBox:init(props, basalt)
     Container.init(self, props, basalt)
-    self.set("type", "Flexbox")
+    self.set("type", "FlexBox")
     return self
 end
 
 --- Adds a child element to the flexbox
 --- @shortDescription Adds a child element to the flexbox
 --- @param element Element The child element to add
---- @return Flexbox self The flexbox instance
-function Flexbox:addChild(element)
+--- @return FlexBox self The flexbox instance
+function FlexBox:addChild(element)
     Container.addChild(self, element)
 
     if(element~=lineBreakElement)then
@@ -789,9 +789,9 @@ end
 
 --- @shortDescription Removes a child element from the flexbox
 --- @param element Element The child element to remove
---- @return Flexbox self The flexbox instance
+--- @return FlexBox self The flexbox instance
 --- @protected
-function Flexbox:removeChild(element)
+function FlexBox:removeChild(element)
   Container.removeChild(self, element)
 
   if(element~=lineBreakElement)then
@@ -812,20 +812,20 @@ end
 
 --- Adds a new line break to the flexbox
 --- @shortDescription Adds a new line break to the flexbox.
----@param self Flexbox The element itself
----@return Flexbox
-function Flexbox:addLineBreak()
+---@param self FlexBox The element itself
+---@return FlexBox
+function FlexBox:addLineBreak()
   self:addChild(lineBreakElement)
   return self
 end
 
 --- @shortDescription Renders the flexbox and its children
 --- @protected
-function Flexbox:render()
+function FlexBox:render()
   if(self.get("flexUpdateLayout"))then
     updateLayout(self, self.get("flexDirection"), self.get("flexSpacing"), self.get("flexJustifyContent"), self.get("flexWrap"))
   end
   Container.render(self)
 end
 
-return Flexbox
+return FlexBox

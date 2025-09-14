@@ -2,50 +2,50 @@ local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local tHex = require("libraries/colorHex")
 
----@configDescription A dropdown menu that shows a list of selectable items
+---@configDescription A DropDown menu that shows a list of selectable items
 ---@configDefault false
 
---- This is the dropdown class. It is a visual element that can show a list of selectable items in a dropdown menu.
---- @usage local dropdown = main:addDropdown()
---- @usage dropdown:setItems({
+--- This is the DropDown class. It is a visual element that can show a list of selectable items in a DropDown menu.
+--- @usage local DropDown = main:addDropdown()
+--- @usage DropDown:setItems({
 --- @usage     {text = "Item 1", callback = function() basalt.LOGGER.debug("Item 1 selected") end},
 --- @usage     {text = "Item 2", callback = function() basalt.LOGGER.debug("Item 2 selected") end},
 --- @usage     {text = "Item 3", callback = function() basalt.LOGGER.debug("Item 3 selected") end},
 --- @usage })
----@class Dropdown : List
-local Dropdown = setmetatable({}, List)
-Dropdown.__index = Dropdown
+---@class DropDown : List
+local DropDown = setmetatable({}, List)
+DropDown.__index = DropDown
 
----@property isOpen boolean false Whether the dropdown menu is currently open
-Dropdown.defineProperty(Dropdown, "isOpen", {default = false, type = "boolean", canTriggerRender = true})
----@property dropdownHeight number 5 Maximum height of the dropdown menu when open
-Dropdown.defineProperty(Dropdown, "dropdownHeight", {default = 5, type = "number"})
+---@property isOpen boolean false Whether the DropDown menu is currently open
+DropDown.defineProperty(DropDown, "isOpen", {default = false, type = "boolean", canTriggerRender = true})
+---@property dropdownHeight number 5 Maximum height of the DropDown menu when open
+DropDown.defineProperty(DropDown, "dropdownHeight", {default = 5, type = "number"})
 ---@property selectedText string "" The text to show when no item is selected
-Dropdown.defineProperty(Dropdown, "selectedText", {default = "", type = "string"})
----@property dropSymbol string "\31" The symbol to show for dropdown indication
-Dropdown.defineProperty(Dropdown, "dropSymbol", {default = "\31", type = "string"})
+DropDown.defineProperty(DropDown, "selectedText", {default = "", type = "string"})
+---@property dropSymbol string "\31" The symbol to show for DropDown indication
+DropDown.defineProperty(DropDown, "dropSymbol", {default = "\31", type = "string"})
 
---- Creates a new Dropdown instance
---- @shortDescription Creates a new Dropdown instance
---- @return Dropdown self The newly created Dropdown instance
+--- Creates a new DropDown instance
+--- @shortDescription Creates a new DropDown instance
+--- @return DropDown self The newly created DropDown instance
 --- @private
-function Dropdown.new()
-    local self = setmetatable({}, Dropdown):__init()
-    self.class = Dropdown
+function DropDown.new()
+    local self = setmetatable({}, DropDown):__init()
+    self.class = DropDown
     self.set("width", 16)
     self.set("height", 1)
     self.set("z", 8)
     return self
 end
 
---- @shortDescription Initializes the Dropdown instance
+--- @shortDescription Initializes the DropDown instance
 --- @param props table The properties to initialize the element with
 --- @param basalt table The basalt instance
---- @return Dropdown self The initialized instance
+--- @return DropDown self The initialized instance
 --- @protected
-function Dropdown:init(props, basalt)
+function DropDown:init(props, basalt)
     List.init(self, props, basalt)
-    self.set("type", "Dropdown")
+    self.set("type", "DropDown")
     return self
 end
 
@@ -55,7 +55,7 @@ end
 --- @param y number The y position of the click
 --- @return boolean handled Whether the event was handled
 --- @protected
-function Dropdown:mouse_click(button, x, y)
+function DropDown:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
     local relX, relY = self:getRelativePosition(x, y)
@@ -103,9 +103,9 @@ function Dropdown:mouse_click(button, x, y)
     return false
 end
 
---- @shortDescription Renders the Dropdown
+--- @shortDescription Renders the DropDown
 --- @protected
-function Dropdown:render()
+function DropDown:render()
     VisualElement.render(self)
 
     local text = self.get("selectedText")
@@ -165,4 +165,4 @@ function Dropdown:render()
     end
 end
 
-return Dropdown
+return DropDown
