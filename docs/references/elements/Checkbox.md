@@ -1,5 +1,5 @@
-# Checkbox
-_The Checkbox is a visual element that can be checked._
+# CheckBox
+_The CheckBox is a visual element that can be checked._
 
 Extends: `VisualElement`
 

@@ -1,5 +1,5 @@
-# Flexbox
-_This is the Flexbox class. It is a container that arranges its children in a flexible layout._
+# FlexBox
+_This is the FlexBox class. It is a container that arranges its children in a flexible layout._
 _The flexbox element adds the following properties to its children:_
 
 Extends: `Container`
@@ -19,10 +19,10 @@ Extends: `Container`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox:addChild](#flexbox-addchild-element)|Flexbox|Adds a child element to the flexbox|
-|[Flexbox:addLineBreak](#flexbox-addlinebreak-self)|Flexbox|Adds a new line break to the flexbox.|
+|[FlexBox:addChild](#flexbox-addchild-element)|FlexBox|Adds a child element to the flexbox|
+|[FlexBox:addLineBreak](#flexbox-addlinebreak-self)|FlexBox|Adds a new line break to the flexbox.|
 
-## Flexbox:addChild(element)
+## FlexBox:addChild(element)
 
 Adds a child element to the flexbox
 
@@ -30,14 +30,14 @@ Adds a child element to the flexbox
 * `element` `Element` The child element to add
 
 ### Returns
-* `Flexbox` `self` The flexbox instance
+* `FlexBox` `self` The flexbox instance
 
-## Flexbox:addLineBreak(self)
+## FlexBox:addLineBreak(self)
 
 Adds a new line break to the flexbox
 
 ### Parameters
-* `self` `Flexbox` The element itself
+* `self` `FlexBox` The element itself
 
 ### Returns
-* `Flexbox`
+* `FlexBox`

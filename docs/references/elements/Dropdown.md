@@ -1,5 +1,5 @@
-# Dropdown
-_This is the dropdown class. It is a visual element that can show a list of selectable items in a dropdown menu._
+# DropDown
+_This is the DropDown class. It is a visual element that can show a list of selectable items in a DropDown menu._
 
 Extends: `List`
 
@@ -7,7 +7,7 @@ Extends: `List`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|isOpen|boolean|false|Whether the dropdown menu is currently open|
-|dropdownHeight|number|5|Maximum height of the dropdown menu when open|
+|isOpen|boolean|false|Whether the DropDown menu is currently open|
+|dropdownHeight|number|5|Maximum height of the DropDown menu when open|
 |selectedText|string|""|The text to show when no item is selected|
-|dropSymbol|string|"\31"|The symbol to show for dropdown indication|
+|dropSymbol|string|"\31"|The symbol to show for DropDown indication|
