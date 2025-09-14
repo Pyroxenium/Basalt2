@@ -146,8 +146,11 @@ local VisualElement = elementManager.getElement("VisualElement")
 ---@configDefault false
 
 --- The BigFont element is a text element that displays larger text. It uses Wojbie's BigFont API to render the text in a larger font size. Credits to Wojbie for the original API.
---- @usage local font = main:addBigFont()
---- @usage font:setText("Hello World!")
+--- @run local basalt = require("basalt")
+--- @run local main = basalt.getMainFrame()
+--- @run local font = main:addBigFont()
+--- @run font:setText("Hello World!")
+--- @run basalt.run()
 ---@class BigFont : VisualElement
 local BigFont = setmetatable({}, VisualElement)
 BigFont.__index = BigFont

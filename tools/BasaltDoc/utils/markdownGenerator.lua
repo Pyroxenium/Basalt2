@@ -5,7 +5,6 @@ local function processDescription(description)
     local lines = {}
     for line in description:gmatch("([^\n]*)\n?") do
         if line ~= "" then
-            -- URLs in Markdown-Links umwandeln
             line = line:gsub("https?://[^%s]+", function(url)
                 return "[" .. url .. "](" .. url .. ")"
             end)
@@ -192,13 +191,21 @@ function markdownGenerator.generate(ast)
             end
 
             if not class.skipFunctionList and #class.functions > 0 then
-                table.insert(md, "## Functions")
-                table.insert(md, "")
-                table.insert(md, "|Method|Returns|Description|")
-                table.insert(md, "|---|---|---|")
-
+                local publicFunctions = {}
                 for _, f in ipairs(class.functions) do
-                    local methodName = (class.name or "") .. (f.static and "." or ":") .. (f.name or "")
+                    if f.visibility ~= "private" and f.visibility ~= "protected" then
+                        table.insert(publicFunctions, f)
+                    end
+                end
+
+                if #publicFunctions > 0 then
+                    table.insert(md, "## Functions")
+                    table.insert(md, "")
+                    table.insert(md, "|Method|Returns|Description|")
+                    table.insert(md, "|---|---|---|")
+
+                    for _, f in ipairs(publicFunctions) do
+                        local methodName = (class.name or "") .. (f.static and "." or ":") .. (f.name or "")
 
                     local anchor = methodName:lower()
                     if #f.params > 0 then
@@ -223,13 +230,14 @@ function markdownGenerator.generate(ast)
                         anchor,
                         returnType,
                         shortDesc))
-                end
-                table.insert(md, "")
+                    end
+                    table.insert(md, "")
 
-                if not class.skipDetailedFunctionList then
-                    local functionMd = generateFunctionMarkdown(class, class.functions)
-                    for _, line in ipairs(functionMd) do
-                        table.insert(md, line)
+                    if not class.skipDetailedFunctionList then
+                        local functionMd = generateFunctionMarkdown(class, publicFunctions)
+                        for _, line in ipairs(functionMd) do
+                            table.insert(md, line)
+                        end
                     end
                 end
             end
