@@ -16,23 +16,23 @@ minified_elementDirectory["Display"] = {}
 minified_elementDirectory["BaseElement"] = {}
 minified_elementDirectory["Input"] = {}
 minified_elementDirectory["Timer"] = {}
-minified_elementDirectory["Scrollbar"] = {}
 minified_elementDirectory["Button"] = {}
 minified_elementDirectory["VisualElement"] = {}
+minified_elementDirectory["FlexBox"] = {}
+minified_elementDirectory["CheckBox"] = {}
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["Label"] = {}
 minified_elementDirectory["Tree"] = {}
+minified_elementDirectory["DropDown"] = {}
 minified_elementDirectory["ComboBox"] = {}
 minified_elementDirectory["Switch"] = {}
+minified_elementDirectory["ScrollBar"] = {}
 minified_elementDirectory["BaseFrame"] = {}
-minified_elementDirectory["Flexbox"] = {}
 minified_elementDirectory["Image"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Program"] = {}
 minified_elementDirectory["Container"] = {}
-minified_elementDirectory["Checkbox"] = {}
 minified_elementDirectory["Graph"] = {}
-minified_elementDirectory["Dropdown"] = {}
 minified_elementDirectory["BarChart"] = {}
 minified_elementDirectory["LineChart"] = {}
 minified_pluginDirectory["debug"] = {}
@@ -1031,75 +1031,6 @@ local ca=select(1,...)
 if ca==self.timerId then self.action()local da=self.get("amount")if da>0 then self.set("amount",
 da-1)end;if da~=0 then
 self.timerId=os.startTimer(self.get("interval"))end end end end;return aa end
-project["elements/Scrollbar.lua"] = function(...) local aa=require("elements/VisualElement")
-local ba=require("libraries/colorHex")local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"value",{default=0,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"min",{default=0,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"max",{default=100,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"step",{default=10,type="number"})
-ca.defineProperty(ca,"dragMultiplier",{default=1,type="number"})
-ca.defineProperty(ca,"symbol",{default=" ",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"symbolColor",{default=colors.gray,type="color",canTriggerRender=true})
-ca.defineProperty(ca,"symbolBackgroundColor",{default=colors.black,type="color",canTriggerRender=true})
-ca.defineProperty(ca,"backgroundSymbol",{default="\127",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"attachedElement",{default=nil,type="table"})
-ca.defineProperty(ca,"attachedProperty",{default=nil,type="string"})
-ca.defineProperty(ca,"minValue",{default=0,type="number"})
-ca.defineProperty(ca,"maxValue",{default=100,type="number"})
-ca.defineProperty(ca,"orientation",{default="vertical",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
-ca.defineEvent(ca,"mouse_release")ca.defineEvent(ca,"mouse_drag")
-ca.defineEvent(ca,"mouse_scroll")
-function ca.new()local ab=setmetatable({},ca):__init()
-ab.class=ca;ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","ScrollBar")return
-self end
-function ca:attach(ab,bb)
-self.set("attachedElement",ab)self.set("attachedProperty",bb.property)self.set("minValue",
-bb.min or 0)
-self.set("maxValue",bb.max or 100)
-ab:observe(bb.property,function(cb,db)
-if db then local _c=self.get("minValue")
-local ac=self.get("maxValue")if _c==ac then return end
-self.set("value",math.floor((db-_c)/ (ac-_c)*100 +0.5))end end)return self end
-function ca:updateAttachedElement()local ab=self.get("attachedElement")
-if not ab then return end;local bb=self.get("value")local cb=self.get("minValue")
-local db=self.get("maxValue")if type(cb)=="function"then cb=cb()end;if type(db)=="function"then
-db=db()end;local _c=cb+ (bb/100)* (db-cb)ab.set(self.get("attachedProperty"),math.floor(
-_c+0.5))
-return self end;local function da(ab)
-return
-ab.get("orientation")=="vertical"and ab.get("height")or ab.get("width")end
-local function _b(ab,bb,cb)
-local db,_c=ab:getRelativePosition(bb,cb)return
-ab.get("orientation")=="vertical"and _c or db end
-function ca:mouse_click(ab,bb,cb)
-if aa.mouse_click(self,ab,bb,cb)then local db=da(self)
-local _c=self.get("value")local ac=self.get("handleSize")local bc=
-math.floor((_c/100)* (db-ac))+1;local cc=_b(self,bb,cb)
-if
-cc>=bc and cc<bc+ac then self.dragOffset=cc-bc else local dc=( (cc-1)/ (db-ac))*100
-self.set("value",math.min(100,math.max(0,dc)))self:updateAttachedElement()end;return true end end
-function ca:mouse_drag(ab,bb,cb)
-if(aa.mouse_drag(self,ab,bb,cb))then local db=da(self)
-local _c=self.get("handleSize")local ac=self.get("dragMultiplier")local bc=_b(self,bb,cb)
-bc=math.max(1,math.min(db,bc))local cc=bc- (self.dragOffset or 0)local dc=
-(cc-1)/ (db-_c)*100 *ac
-self.set("value",math.min(100,math.max(0,dc)))self:updateAttachedElement()return true end end
-function ca:mouse_scroll(ab,bb,cb)
-if not self:isInBounds(bb,cb)then return false end;ab=ab>0 and-1 or 1;local db=self.get("step")
-local _c=self.get("value")local ac=_c-ab*db
-self.set("value",math.min(100,math.max(0,ac)))self:updateAttachedElement()return true end
-function ca:render()aa.render(self)local ab=da(self)local bb=self.get("value")
-local cb=self.get("handleSize")local db=self.get("symbol")local _c=self.get("symbolColor")
-local ac=self.get("symbolBackgroundColor")local bc=self.get("backgroundSymbol")local cc=self.get("orientation")==
-"vertical"local dc=
-math.floor((bb/100)* (ab-cb))+1
-for i=1,ab do
-if cc then
-self:blit(1,i,bc,ba[self.get("foreground")],ba[self.get("background")])else
-self:blit(i,1,bc,ba[self.get("foreground")],ba[self.get("background")])end end
-for i=dc,dc+cb-1 do if cc then self:blit(1,i,db,ba[_c],ba[ac])else
-self:blit(i,1,db,ba[_c],ba[ac])end end end;return ca end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
@@ -1230,340 +1161,7 @@ function _b:render()
 if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
 self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;function _b:postRender()end;function _b:destroy()self.set("visible",false)
 ca.destroy(self)end;return _b end
-project["elements/BigFont.lua"] = function(...) local _b=require("libraries/colorHex")
-local ab={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local bb={}local cb={}
-do local dc=0;local _d=#ab[1]local ad=#ab[1][1]
-for i=1,_d,3 do
-for j=1,ad,3 do
-local bd=string.char(dc)local cd={}cd[1]=ab[1][i]:sub(j,j+2)
-cd[2]=ab[1][i+1]:sub(j,j+2)cd[3]=ab[1][i+2]:sub(j,j+2)local dd={}dd[1]=ab[2][i]:sub(j,
-j+2)dd[2]=ab[2][i+1]:sub(j,j+2)dd[3]=ab[2][
-i+2]:sub(j,j+2)cb[bd]={cd,dd}dc=dc+1 end end;bb[1]=cb end
-local function db(dc,_d)local ad={["0"]="1",["1"]="0"}if dc<=#bb then return true end
-for f=#bb+1,dc do local bd={}local cd=bb[
-f-1]
-for char=0,255 do local dd=string.char(char)local __a={}local a_a={}
-local b_a=cd[dd][1]local c_a=cd[dd][2]
-for i=1,#b_a do local d_a,_aa,aaa,baa,caa,daa={},{},{},{},{},{}
-for j=1,#b_a[1]do
-local _ba=cb[b_a[i]:sub(j,j)][1]table.insert(d_a,_ba[1])
-table.insert(_aa,_ba[2])table.insert(aaa,_ba[3])
-local aba=cb[b_a[i]:sub(j,j)][2]
-if c_a[i]:sub(j,j)=="1"then
-table.insert(baa,(aba[1]:gsub("[01]",ad)))
-table.insert(caa,(aba[2]:gsub("[01]",ad)))
-table.insert(daa,(aba[3]:gsub("[01]",ad)))else table.insert(baa,aba[1])
-table.insert(caa,aba[2])table.insert(daa,aba[3])end end;table.insert(__a,table.concat(d_a))
-table.insert(__a,table.concat(_aa))table.insert(__a,table.concat(aaa))
-table.insert(a_a,table.concat(baa))table.insert(a_a,table.concat(caa))
-table.insert(a_a,table.concat(daa))end;bd[dd]={__a,a_a}if _d then _d="Font"..f.."Yeld"..char
-os.queueEvent(_d)os.pullEvent(_d)end end;bb[f]=bd end;return true end
-local function _c(dc,_d,ad,bd,cd)
-if not type(_d)=="string"then error("Not a String",3)end
-local dd=type(ad)=="string"and ad:sub(1,1)or _b[ad]or
-error("Wrong Front Color",3)
-local __a=type(bd)=="string"and bd:sub(1,1)or _b[bd]or
-error("Wrong Back Color",3)if(bb[dc]==nil)then db(3,false)end;local a_a=bb[dc]or
-error("Wrong font size selected",3)if _d==""then
-return{{""},{""},{""}}end;local b_a={}
-for daa in _d:gmatch('.')do table.insert(b_a,daa)end;local c_a={}local d_a=#a_a[b_a[1]][1]
-for nLine=1,d_a do local daa={}for i=1,#b_a do
-daa[i]=
-a_a[b_a[i]]and a_a[b_a[i]][1][nLine]or""end;c_a[nLine]=table.concat(daa)end;local _aa={}local aaa={}local baa={["0"]=dd,["1"]=__a}local caa={["0"]=__a,["1"]=dd}
-for nLine=1,d_a
-do local daa={}local _ba={}
-for i=1,#b_a do local aba=
-a_a[b_a[i]]and a_a[b_a[i]][2][nLine]or""
-daa[i]=aba:gsub("[01]",cd and
-{["0"]=ad:sub(i,i),["1"]=bd:sub(i,i)}or baa)
-_ba[i]=aba:gsub("[01]",
-cd and{["0"]=bd:sub(i,i),["1"]=ad:sub(i,i)}or caa)end;_aa[nLine]=table.concat(daa)
-aaa[nLine]=table.concat(_ba)end;return{c_a,_aa,aaa}end;local ac=require("elementManager")
-local bc=ac.getElement("VisualElement")local cc=setmetatable({},bc)cc.__index=cc
-cc.defineProperty(cc,"text",{default="BigFont",type="string",canTriggerRender=true,setter=function(dc,_d)
-dc.bigfontText=_c(dc.get("fontSize"),_d,dc.get("foreground"),dc.get("background"))return _d end})
-cc.defineProperty(cc,"fontSize",{default=1,type="number",canTriggerRender=true,setter=function(dc,_d)
-dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})function cc.new()local dc=setmetatable({},cc):__init()
-dc.class=cc;dc.set("width",16)dc.set("height",3)dc.set("z",5)
-return dc end
-function cc:init(dc,_d)
-bc.init(self,dc,_d)self.set("type","BigFont")
-self:observe("background",function(ad,bd)
-ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),ad.get("foreground"),bd)end)
-self:observe("foreground",function(ad,bd)
-ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),bd,ad.get("background"))end)end
-function cc:render()bc.render(self)
-if(self.bigfontText)then
-local dc,_d=self.get("x"),self.get("y")
-for i=1,#self.bigfontText[1]do
-local ad=self.bigfontText[1][i]:sub(1,self.get("width"))
-local bd=self.bigfontText[2][i]:sub(1,self.get("width"))
-local cd=self.bigfontText[3][i]:sub(1,self.get("width"))self:blit(dc,_d+i-1,ad,bd,cd)end end end;return cc end
-project["elements/Label.lua"] = function(...) local _a=require("elementManager")
-local aa=_a.getElement("VisualElement")local ba=require("libraries/utils").wrapText
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"text",{default="Label",type="string",canTriggerRender=true,setter=function(da,_b)
-if(type(_b)=="function")then _b=_b()end
-if(da.get("autoSize"))then da.set("width",#_b)else da.set("height",#
-ba(_b,da.get("width")))end;return _b end})
-ca.defineProperty(ca,"autoSize",{default=true,type="boolean",canTriggerRender=true,setter=function(da,_b)if(_b)then
-da.set("width",#da.get("text"))else
-da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
-function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("z",3)da.set("foreground",colors.black)
-da.set("backgroundEnabled",false)return da end
-function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
-self.set("background",self.parent.get("background"))
-self.set("foreground",self.parent.get("foreground"))end
-self.set("type","Label")return self end;function ca:getWrappedText()local da=self.get("text")
-local _b=ba(da,self.get("width"))return _b end
-function ca:render()
-aa.render(self)local da=self.get("text")
-if(self.get("autoSize"))then
-self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
-self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
-project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
-local ba=setmetatable({},_a)ba.__index=ba
-ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
-da.get("expandedNodes")[_b[1]]=true end;return _b end})
-ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=true})
-ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
-ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
-ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
-ba.defineProperty(ba,"nodeColor",{default=colors.white,type="color"})
-ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="color"})ba.defineEvent(ba,"mouse_click")
-ba.defineEvent(ba,"mouse_scroll")function ba.new()local da=setmetatable({},ba):__init()
-da.class=ba;da.set("width",30)da.set("height",10)da.set("z",5)
-return da end
-function ba:init(da,_b)
-_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
-self:updateRender()return self end
-function ba:collapseNode(da)self.get("expandedNodes")[da]=
-nil;self:updateRender()return self end;function ba:toggleNode(da)if self.get("expandedNodes")[da]then
-self:collapseNode(da)else self:expandNode(da)end
-return self end
-local function ca(da,_b,ab,bb)bb=bb or{}ab=
-ab or 0;for cb,db in ipairs(da)do table.insert(bb,{node=db,level=ab})
-if
-_b[db]and db.children then ca(db.children,_b,ab+1,bb)end end;return bb end
-function ba:mouse_click(da,_b,ab)
-if _a.mouse_click(self,da,_b,ab)then
-local bb,cb=self:getRelativePosition(_b,ab)
-local db=ca(self.get("nodes"),self.get("expandedNodes"))local _c=cb+self.get("scrollOffset")
-if db[_c]then local ac=db[_c]
-local bc=ac.node
-if bb<=ac.level*2 +2 then self:toggleNode(bc)end;self.set("selectedNode",bc)
-self:fireEvent("node_select",bc)end;return true end;return false end
-function ba:onSelect(da)self:registerCallback("node_select",da)return self end
-function ba:mouse_scroll(da,_b,ab)
-if _a.mouse_scroll(self,da,_b,ab)then
-local bb=ca(self.get("nodes"),self.get("expandedNodes"))
-local cb=math.max(0,#bb-self.get("height"))
-local db=math.min(cb,math.max(0,self.get("scrollOffset")+da))self.set("scrollOffset",db)return true end;return false end
-function ba:getNodeSize()local da,_b=0,0
-local ab=ca(self.get("nodes"),self.get("expandedNodes"))for bb,cb in ipairs(ab)do
-da=math.max(da,cb.level+#cb.node.text)end;_b=#ab;return da,_b end
-function ba:render()_a.render(self)
-local da=ca(self.get("nodes"),self.get("expandedNodes"))local _b=self.get("height")local ab=self.get("selectedNode")
-local bb=self.get("expandedNodes")local cb=self.get("scrollOffset")
-local db=self.get("horizontalOffset")
-for y=1,_b do local _c=da[y+cb]
-if _c then local ac=_c.node;local bc=_c.level
-local cc=string.rep("  ",bc)local dc=" "if ac.children and#ac.children>0 then
-dc=bb[ac]and"\31"or"\16"end
-local _d=
-ac==ab and self.get("selectedColor")or self.get("background")
-local ad=cc..dc.." ".. (ac.text or"Node")local bd=aa(ad,db+1,db+self.get("width"))
-self:textFg(1,y,
-bd..string.rep(" ",self.get("width")-#bd),self.get("foreground"))else
-self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
-project["elements/ComboBox.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("src.elements.DropDown")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"cursorPos",{default=1,type="number"})
-ca.defineProperty(ca,"viewOffset",{default=0,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"placeholder",{default="...",type="string"})
-ca.defineProperty(ca,"placeholderColor",{default=colors.gray,type="color"})
-ca.defineProperty(ca,"focusedBackground",{default=colors.blue,type="color"})
-ca.defineProperty(ca,"focusedForeground",{default=colors.white,type="color"})
-ca.defineProperty(ca,"autoComplete",{default=false,type="boolean"})
-ca.defineProperty(ca,"manuallyOpened",{default=false,type="boolean"})function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
-return da end
-function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","ComboBox")
-self.set("cursorPos",1)self.set("viewOffset",0)return self end
-function ca:setText(da)if da==nil then da=""end
-self.set("text",tostring(da))
-self.set("cursorPos",#self.get("text")+1)self:updateViewport()return self end;function ca:getText()return self.get("text")end;function ca:setEditable(da)
-self.set("editable",da)return self end
-function ca:getFilteredItems()
-local da=self.get("items")or{}local _b=self.get("text"):lower()if not
-self.get("autoComplete")or#_b==0 then return da end
-local ab={}
-for bb,cb in ipairs(da)do local db=""
-if type(cb)=="string"then db=cb:lower()elseif type(cb)=="table"and
-cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
-function ca:updateFilteredDropdown()
-if not self.get("autoComplete")then return end;local da=self:getFilteredItems()local _b=#da>0 and
-#self.get("text")>0
-if _b then self.set("isOpen",true)
-self.set("manuallyOpened",false)local ab=self.get("dropdownHeight")or 5
-local bb=math.min(ab,#da)self.set("height",1 +bb)else self.set("isOpen",false)
-self.set("manuallyOpened",false)self.set("height",1)end;self:updateRender()end
-function ca:updateViewport()local da=self.get("text")
-local _b=self.get("cursorPos")local ab=self.get("width")local bb=self.get("dropSymbol")
-local cb=ab-#bb;if cb<1 then cb=1 end;local db=self.get("viewOffset")if _b-db>cb then db=_b-cb elseif
-_b-1 <db then db=math.max(0,_b-1)end
-self.set("viewOffset",db)end
-function ca:char(da)if not self.get("editable")then return end;if not
-self.get("focused")then return end;local _b=self.get("text")
-local ab=self.get("cursorPos")local bb=_b:sub(1,ab-1)..da.._b:sub(ab)
-self.set("text",bb)self.set("cursorPos",ab+1)self:updateViewport()
-if
-self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end
-function ca:key(da,_b)if not self.get("editable")then return end;if not
-self.get("focused")then return end;local ab=self.get("text")
-local bb=self.get("cursorPos")
-if da==keys.left then
-self.set("cursorPos",math.max(1,bb-1))self:updateViewport()elseif da==keys.right then
-self.set("cursorPos",math.min(#ab+1,bb+1))self:updateViewport()elseif da==keys.backspace then
-if bb>1 then local cb=ab:sub(1,bb-2)..
-ab:sub(bb)self.set("text",cb)
-self.set("cursorPos",bb-1)self:updateViewport()if self.get("autoComplete")then
-self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.delete then
-if bb<=#ab then
-local cb=ab:sub(1,bb-1)..ab:sub(bb+1)self.set("text",cb)self:updateViewport()
-if
-self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.home then self.set("cursorPos",1)
-self:updateViewport()elseif da==keys["end"]then self.set("cursorPos",#ab+1)
-self:updateViewport()elseif da==keys.enter then
-self.set("isOpen",not self.get("isOpen"))self:updateRender()end end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
-local db=self.get("width")local _c=self.get("dropSymbol")
-if cb==1 then
-if
-bb>=db-#_c+1 and bb<=db then local ac=self.get("isOpen")self.set("isOpen",not ac)
-if
-self.get("isOpen")then local bc=self.get("items")or{}
-local cc=self.get("dropdownHeight")or 5;local dc=math.min(cc,#bc)self.set("height",1 +dc)
-self.set("manuallyOpened",true)else self.set("height",1)
-self.set("manuallyOpened",false)end;self:updateRender()return true end
-if bb<=db-#_c and self.get("editable")then
-local ac=self.get("text")local bc=self.get("viewOffset")local cc=#ac+1
-local dc=math.min(cc,bc+bb)self.set("cursorPos",dc)self:updateRender()return true end;return true elseif
-self.get("isOpen")and cb>1 and self.get("selectable")then local ac=(cb-1)+self.get("offset")
-local bc=self.get("items")
-if ac<=#bc then local cc=bc[ac]
-if type(cc)=="string"then cc={text=cc}bc[ac]=cc end
-if not self.get("multiSelection")then for dc,_d in ipairs(bc)do if type(_d)=="table"then
-_d.selected=false end end end;cc.selected=true;if cc.text then self:setText(cc.text)end
-self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("text")
-local _b=self.get("width")local ab=self.get("dropSymbol")local bb=self.get("focused")
-local cb=self.get("isOpen")local db=self.get("viewOffset")
-local _c=self.get("placeholder")
-local ac=bb and self.get("focusedBackground")or self.get("background")
-local bc=bb and self.get("focusedForeground")or self.get("foreground")local cc=da;local dc=_b-#ab;if#da==0 and not bb and#_c>0 then cc=_c
-bc=self.get("placeholderColor")end
-if#cc>0 then cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=cc..
-(cb and"\31"or"\17")
-self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))
-if bb and self.get("editable")then local ad=self.get("cursorPos")
-local bd=ad-db;if bd>=1 and bd<=dc then
-self:setCursor(bd,1,true,self.get("foreground"))end end
-if cb then local ad
-if
-self.get("autoComplete")and not self.get("manuallyOpened")then ad=self:getFilteredItems()else ad=self.get("items")end
-local bd=math.min(self.get("dropdownHeight"),#ad)
-if bd>0 then local cd=self.get("offset")
-for i=1,bd do local dd=i+cd
-if ad[dd]then local __a=ad[dd]
-local a_a=__a.text or""local b_a=__a.selected or false
-local c_a=
-b_a and self.get("selectedBackground")or self.get("background")
-local d_a=b_a and self.get("selectedForeground")or self.get("foreground")if#a_a>_b then a_a=a_a:sub(1,_b)end;a_a=a_a..
-string.rep(" ",_b-#a_a)
-self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;function ca:focus()aa.focus(self)end
-function ca:blur()aa.blur(self)
-self.set("isOpen",false)self.set("height",1)self:updateRender()end;return ca end
-project["elements/Switch.lua"] = function(...) local _a=require("elementManager")
-local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"checked",{default=false,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
-ca.defineProperty(ca,"autoSize",{default=false,type="boolean"})
-ca.defineProperty(ca,"onBackground",{default=colors.green,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"offBackground",{default=colors.red,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
-ca.defineEvent(ca,"mouse_up")
-function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",2)da.set("height",1)da.set("z",5)
-da.set("backgroundEnabled",true)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Switch")end
-function ca:mouse_click(da,_b,ab)if aa.mouse_click(self,da,_b,ab)then
-self.set("checked",not self.get("checked"))return true end;return false end
-function ca:render()local da=self.get("checked")local _b=self.get("text")
-local ab=self.get("width")local bb=self.get("height")local cb=da and self.get("onBackground")or
-self.get("offBackground")
-self:multiBlit(1,1,ab,bb," ",ba[self.get("foreground")],ba[cb])local db=math.floor(ab/2)local _c=da and(ab-db+1)or 1
-self:multiBlit(_c,1,db,bb," ",ba[self.get("foreground")],ba[self.get("background")])if _b~=""then
-self:textFg(ab+2,1,_b,self.get("foreground"))end end;return ca end
-project["elements/BaseFrame.lua"] = function(...) local ba=require("elementManager")
-local ca=ba.getElement("Container")local da=require("errorManager")local _b=require("render")
-local ab=setmetatable({},ca)ab.__index=ab
-local function bb(cb)
-local db,_c=pcall(function()return peripheral.getType(cb)end)if db then return true end;return false end
-ab.defineProperty(ab,"term",{default=nil,type="table",setter=function(cb,db)cb._peripheralName=nil;if
-cb.basalt.getActiveFrame(cb._values.term)==cb then
-cb.basalt.setActiveFrame(cb,false)end;if
-db==nil or db.setCursorPos==nil then return db end;if(bb(db))then
-cb._peripheralName=peripheral.getName(db)end;cb._values.term=db
-if
-cb.basalt.getActiveFrame(db)==nil then cb.basalt.setActiveFrame(cb)end;cb._render=_b.new(db)cb._renderUpdate=true;local _c,ac=db.getSize()
-cb.set("width",_c)cb.set("height",ac)return db end})function ab.new()local cb=setmetatable({},ab):__init()
-cb.class=ab;return cb end;function ab:init(cb,db)
-ca.init(self,cb,db)self.set("term",term.current())
-self.set("type","BaseFrame")return self end
-function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if
-(cb<1)then _c=_c+cb-1;cb=1 end;if(db<1)then ac=ac+db-1;db=1 end
-self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
-self._render:textFg(cb,db,_c,ac)end;function ab:textBg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -
-cb)cb=1 end
-self._render:textBg(cb,db,_c,ac)end;function ab:drawText(cb,db,_c)if cb<1 then _c=string.sub(_c,
-1 -cb)cb=1 end
-self._render:text(cb,db,_c)end
-function ab:drawFg(cb,db,_c)if cb<1 then
-_c=string.sub(_c,1 -cb)cb=1 end;self._render:fg(cb,db,_c)end;function ab:drawBg(cb,db,_c)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
-self._render:bg(cb,db,_c)end
-function ab:blit(cb,db,_c,ac,bc)
-if cb<1 then
-_c=string.sub(_c,1 -cb)ac=string.sub(ac,1 -cb)bc=string.sub(bc,1 -cb)cb=1 end;self._render:blit(cb,db,_c,ac,bc)end;function ab:setCursor(cb,db,_c,ac)local bc=self.get("term")
-self._render:setCursor(cb,db,_c,ac)end
-function ab:monitor_touch(cb,db,_c)
-local ac=self.get("term")if ac==nil then return end
-if(bb(ac))then if self._peripheralName==cb then
-self:mouse_click(1,db,_c)
-self.basalt.schedule(function()sleep(0.1)self:mouse_up(1,db,_c)end)end end end;function ab:mouse_click(cb,db,_c)ca.mouse_click(self,cb,db,_c)
-self.basalt.setFocus(self)end
-function ab:mouse_up(cb,db,_c)
-ca.mouse_up(self,cb,db,_c)ca.mouse_release(self,cb,db,_c)end
-function ab:term_resize()local cb,db=self.get("term").getSize()
-if(cb==
-self.get("width")and db==self.get("height"))then return end;self.set("width",cb)self.set("height",db)
-self._render:setSize(cb,db)self._renderUpdate=true end
-function ab:key(cb)self:fireEvent("key",cb)ca.key(self,cb)end
-function ab:key_up(cb)self:fireEvent("key_up",cb)ca.key_up(self,cb)end
-function ab:char(cb)self:fireEvent("char",cb)ca.char(self,cb)end
-function ab:dispatchEvent(cb,...)local db=self.get("term")if db==nil then return end;if(bb(db))then if
-cb=="mouse_click"then return end end
-ca.dispatchEvent(self,cb,...)end;function ab:render()
-if(self._renderUpdate)then if self._render~=nil then ca.render(self)
-self._render:render()self._renderUpdate=false end end end
-return ab end
-project["elements/Flexbox.lua"] = function(...) local da=require("elementManager")
+project["elements/FlexBox.lua"] = function(...) local da=require("elementManager")
 local _b=da.getElement("Container")local ab=setmetatable({},_b)ab.__index=ab
 ab.defineProperty(ab,"flexDirection",{default="row",type="string"})
 ab.defineProperty(ab,"flexSpacing",{default=1,type="number"})
@@ -1763,6 +1361,475 @@ function ab:render()
 if
 (self.get("flexUpdateLayout"))then
 ac(self,self.get("flexDirection"),self.get("flexSpacing"),self.get("flexJustifyContent"),self.get("flexWrap"))end;_b.render(self)end;return ab end
+project["elements/CheckBox.lua"] = function(...) local c=require("elements/VisualElement")
+local d=setmetatable({},c)d.__index=d
+d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
+d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("checkedText")
+local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
+d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
+local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
+d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")
+d.defineEvent(d,"mouse_up")function d.new()local _a=setmetatable({},d):__init()_a.class=d
+_a.set("backgroundEnabled",false)return _a end
+function d:init(_a,aa)
+c.init(self,_a,aa)self.set("type","CheckBox")end
+function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
+self.set("checked",not self.get("checked"))return true end;return false end
+function d:render()c.render(self)local _a=self.get("checked")
+local aa=self.get("text")local ba=self.get("checkedText")
+local ca=string.sub(_a and ba or aa,1,self.get("width"))self:textFg(1,1,ca,self.get("foreground"))end;return d end
+project["elements/BigFont.lua"] = function(...) local _b=require("libraries/colorHex")
+local ab={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local bb={}local cb={}
+do local dc=0;local _d=#ab[1]local ad=#ab[1][1]
+for i=1,_d,3 do
+for j=1,ad,3 do
+local bd=string.char(dc)local cd={}cd[1]=ab[1][i]:sub(j,j+2)
+cd[2]=ab[1][i+1]:sub(j,j+2)cd[3]=ab[1][i+2]:sub(j,j+2)local dd={}dd[1]=ab[2][i]:sub(j,
+j+2)dd[2]=ab[2][i+1]:sub(j,j+2)dd[3]=ab[2][
+i+2]:sub(j,j+2)cb[bd]={cd,dd}dc=dc+1 end end;bb[1]=cb end
+local function db(dc,_d)local ad={["0"]="1",["1"]="0"}if dc<=#bb then return true end
+for f=#bb+1,dc do local bd={}local cd=bb[
+f-1]
+for char=0,255 do local dd=string.char(char)local __a={}local a_a={}
+local b_a=cd[dd][1]local c_a=cd[dd][2]
+for i=1,#b_a do local d_a,_aa,aaa,baa,caa,daa={},{},{},{},{},{}
+for j=1,#b_a[1]do
+local _ba=cb[b_a[i]:sub(j,j)][1]table.insert(d_a,_ba[1])
+table.insert(_aa,_ba[2])table.insert(aaa,_ba[3])
+local aba=cb[b_a[i]:sub(j,j)][2]
+if c_a[i]:sub(j,j)=="1"then
+table.insert(baa,(aba[1]:gsub("[01]",ad)))
+table.insert(caa,(aba[2]:gsub("[01]",ad)))
+table.insert(daa,(aba[3]:gsub("[01]",ad)))else table.insert(baa,aba[1])
+table.insert(caa,aba[2])table.insert(daa,aba[3])end end;table.insert(__a,table.concat(d_a))
+table.insert(__a,table.concat(_aa))table.insert(__a,table.concat(aaa))
+table.insert(a_a,table.concat(baa))table.insert(a_a,table.concat(caa))
+table.insert(a_a,table.concat(daa))end;bd[dd]={__a,a_a}if _d then _d="Font"..f.."Yeld"..char
+os.queueEvent(_d)os.pullEvent(_d)end end;bb[f]=bd end;return true end
+local function _c(dc,_d,ad,bd,cd)
+if not type(_d)=="string"then error("Not a String",3)end
+local dd=type(ad)=="string"and ad:sub(1,1)or _b[ad]or
+error("Wrong Front Color",3)
+local __a=type(bd)=="string"and bd:sub(1,1)or _b[bd]or
+error("Wrong Back Color",3)if(bb[dc]==nil)then db(3,false)end;local a_a=bb[dc]or
+error("Wrong font size selected",3)if _d==""then
+return{{""},{""},{""}}end;local b_a={}
+for daa in _d:gmatch('.')do table.insert(b_a,daa)end;local c_a={}local d_a=#a_a[b_a[1]][1]
+for nLine=1,d_a do local daa={}for i=1,#b_a do
+daa[i]=
+a_a[b_a[i]]and a_a[b_a[i]][1][nLine]or""end;c_a[nLine]=table.concat(daa)end;local _aa={}local aaa={}local baa={["0"]=dd,["1"]=__a}local caa={["0"]=__a,["1"]=dd}
+for nLine=1,d_a
+do local daa={}local _ba={}
+for i=1,#b_a do local aba=
+a_a[b_a[i]]and a_a[b_a[i]][2][nLine]or""
+daa[i]=aba:gsub("[01]",cd and
+{["0"]=ad:sub(i,i),["1"]=bd:sub(i,i)}or baa)
+_ba[i]=aba:gsub("[01]",
+cd and{["0"]=bd:sub(i,i),["1"]=ad:sub(i,i)}or caa)end;_aa[nLine]=table.concat(daa)
+aaa[nLine]=table.concat(_ba)end;return{c_a,_aa,aaa}end;local ac=require("elementManager")
+local bc=ac.getElement("VisualElement")local cc=setmetatable({},bc)cc.__index=cc
+cc.defineProperty(cc,"text",{default="BigFont",type="string",canTriggerRender=true,setter=function(dc,_d)
+dc.bigfontText=_c(dc.get("fontSize"),_d,dc.get("foreground"),dc.get("background"))return _d end})
+cc.defineProperty(cc,"fontSize",{default=1,type="number",canTriggerRender=true,setter=function(dc,_d)
+dc.bigfontText=_c(_d,dc.get("text"),dc.get("foreground"),dc.get("background"))return _d end})function cc.new()local dc=setmetatable({},cc):__init()
+dc.class=cc;dc.set("width",16)dc.set("height",3)dc.set("z",5)
+return dc end
+function cc:init(dc,_d)
+bc.init(self,dc,_d)self.set("type","BigFont")
+self:observe("background",function(ad,bd)
+ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),ad.get("foreground"),bd)end)
+self:observe("foreground",function(ad,bd)
+ad.bigfontText=_c(ad.get("fontSize"),ad.get("text"),bd,ad.get("background"))end)end
+function cc:render()bc.render(self)
+if(self.bigfontText)then
+local dc,_d=self.get("x"),self.get("y")
+for i=1,#self.bigfontText[1]do
+local ad=self.bigfontText[1][i]:sub(1,self.get("width"))
+local bd=self.bigfontText[2][i]:sub(1,self.get("width"))
+local cd=self.bigfontText[3][i]:sub(1,self.get("width"))self:blit(dc,_d+i-1,ad,bd,cd)end end end;return cc end
+project["elements/Label.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/utils").wrapText
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"text",{default="Label",type="string",canTriggerRender=true,setter=function(da,_b)
+if(type(_b)=="function")then _b=_b()end
+if(da.get("autoSize"))then da.set("width",#_b)else da.set("height",#
+ba(_b,da.get("width")))end;return _b end})
+ca.defineProperty(ca,"autoSize",{default=true,type="boolean",canTriggerRender=true,setter=function(da,_b)if(_b)then
+da.set("width",#da.get("text"))else
+da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
+function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("z",3)da.set("foreground",colors.black)
+da.set("backgroundEnabled",false)return da end
+function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
+self.set("background",self.parent.get("background"))
+self.set("foreground",self.parent.get("foreground"))end
+self.set("type","Label")return self end;function ca:getWrappedText()local da=self.get("text")
+local _b=ba(da,self.get("width"))return _b end
+function ca:render()
+aa.render(self)local da=self.get("text")
+if(self.get("autoSize"))then
+self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
+self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
+project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
+local ba=setmetatable({},_a)ba.__index=ba
+ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
+da.get("expandedNodes")[_b[1]]=true end;return _b end})
+ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=true})
+ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
+ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
+ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
+ba.defineProperty(ba,"nodeColor",{default=colors.white,type="color"})
+ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="color"})ba.defineEvent(ba,"mouse_click")
+ba.defineEvent(ba,"mouse_scroll")function ba.new()local da=setmetatable({},ba):__init()
+da.class=ba;da.set("width",30)da.set("height",10)da.set("z",5)
+return da end
+function ba:init(da,_b)
+_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
+self:updateRender()return self end
+function ba:collapseNode(da)self.get("expandedNodes")[da]=
+nil;self:updateRender()return self end;function ba:toggleNode(da)if self.get("expandedNodes")[da]then
+self:collapseNode(da)else self:expandNode(da)end
+return self end
+local function ca(da,_b,ab,bb)bb=bb or{}ab=
+ab or 0;for cb,db in ipairs(da)do table.insert(bb,{node=db,level=ab})
+if
+_b[db]and db.children then ca(db.children,_b,ab+1,bb)end end;return bb end
+function ba:mouse_click(da,_b,ab)
+if _a.mouse_click(self,da,_b,ab)then
+local bb,cb=self:getRelativePosition(_b,ab)
+local db=ca(self.get("nodes"),self.get("expandedNodes"))local _c=cb+self.get("scrollOffset")
+if db[_c]then local ac=db[_c]
+local bc=ac.node
+if bb<=ac.level*2 +2 then self:toggleNode(bc)end;self.set("selectedNode",bc)
+self:fireEvent("node_select",bc)end;return true end;return false end
+function ba:onSelect(da)self:registerCallback("node_select",da)return self end
+function ba:mouse_scroll(da,_b,ab)
+if _a.mouse_scroll(self,da,_b,ab)then
+local bb=ca(self.get("nodes"),self.get("expandedNodes"))
+local cb=math.max(0,#bb-self.get("height"))
+local db=math.min(cb,math.max(0,self.get("scrollOffset")+da))self.set("scrollOffset",db)return true end;return false end
+function ba:getNodeSize()local da,_b=0,0
+local ab=ca(self.get("nodes"),self.get("expandedNodes"))for bb,cb in ipairs(ab)do
+da=math.max(da,cb.level+#cb.node.text)end;_b=#ab;return da,_b end
+function ba:render()_a.render(self)
+local da=ca(self.get("nodes"),self.get("expandedNodes"))local _b=self.get("height")local ab=self.get("selectedNode")
+local bb=self.get("expandedNodes")local cb=self.get("scrollOffset")
+local db=self.get("horizontalOffset")
+for y=1,_b do local _c=da[y+cb]
+if _c then local ac=_c.node;local bc=_c.level
+local cc=string.rep("  ",bc)local dc=" "if ac.children and#ac.children>0 then
+dc=bb[ac]and"\31"or"\16"end
+local _d=
+ac==ab and self.get("selectedColor")or self.get("background")
+local ad=cc..dc.." ".. (ac.text or"Node")local bd=aa(ad,db+1,db+self.get("width"))
+self:textFg(1,y,
+bd..string.rep(" ",self.get("width")-#bd),self.get("foreground"))else
+self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
+project["elements/DropDown.lua"] = function(...) local _a=require("elements/VisualElement")
+local aa=require("elements/List")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"isOpen",{default=false,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
+ca.defineProperty(ca,"selectedText",{default="",type="string"})
+ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
+return da end
+function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","DropDown")return self end
+function ca:mouse_click(da,_b,ab)
+if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+if cb==1 then self.set("isOpen",not
+self.get("isOpen"))if
+not self.get("isOpen")then self.set("height",1)else
+self.set("height",1 +math.min(self.get("dropdownHeight"),#
+self.get("items")))end
+return true elseif
+self.get("isOpen")and cb>1 and self.get("selectable")then local db=(cb-1)+self.get("offset")
+local _c=self.get("items")
+if db<=#_c then local ac=_c[db]
+if type(ac)=="string"then ac={text=ac}_c[db]=ac end
+if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="table"then
+cc.selected=false end end end;ac.selected=not ac.selected
+if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
+self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
+function ca:render()_a.render(self)local da=self.get("selectedText")
+local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""
+da=da:sub(1,self.get("width")-2)end
+self:blit(1,1,da..string.rep(" ",self.get("width")-#
+da-1).. (
+self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
+if self.get("isOpen")then local ab=self.get("items")
+local bb=self.get("height")-1;local cb=self.get("offset")local db=self.get("width")
+for i=1,bb do local _c=i+cb
+local ac=ab[_c]
+if ac then if type(ac)=="string"then ac={text=ac}ab[_c]=ac end
+if
+ac.separator then local bc=(ac.text or"-"):sub(1,1)
+local cc=string.rep(bc,db)local dc=ac.foreground or self.get("foreground")local _d=
+ac.background or self.get("background")self:textBg(1,
+i+1,string.rep(" ",db),_d)
+self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected;bc=bc:sub(1,db)
+local dc=cc and(ac.selectedBackground or
+self.get("selectedBackground"))or(ac.background or
+self.get("background"))
+local _d=
+cc and(ac.selectedForeground or self.get("selectedForeground"))or(ac.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",db),dc)self:textFg(1,
+i+1,bc,_d)end end end end end;return ca end
+project["elements/ComboBox.lua"] = function(...) local _a=require("elements/VisualElement")
+local aa=require("elements/DropDown")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"cursorPos",{default=1,type="number"})
+ca.defineProperty(ca,"viewOffset",{default=0,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"placeholder",{default="...",type="string"})
+ca.defineProperty(ca,"placeholderColor",{default=colors.gray,type="color"})
+ca.defineProperty(ca,"focusedBackground",{default=colors.blue,type="color"})
+ca.defineProperty(ca,"focusedForeground",{default=colors.white,type="color"})
+ca.defineProperty(ca,"autoComplete",{default=false,type="boolean"})
+ca.defineProperty(ca,"manuallyOpened",{default=false,type="boolean"})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
+return da end
+function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","ComboBox")
+self.set("cursorPos",1)self.set("viewOffset",0)return self end
+function ca:setText(da)if da==nil then da=""end
+self.set("text",tostring(da))
+self.set("cursorPos",#self.get("text")+1)self:updateViewport()return self end;function ca:getText()return self.get("text")end;function ca:setEditable(da)
+self.set("editable",da)return self end
+function ca:getFilteredItems()
+local da=self.get("items")or{}local _b=self.get("text"):lower()if not
+self.get("autoComplete")or#_b==0 then return da end
+local ab={}
+for bb,cb in ipairs(da)do local db=""
+if type(cb)=="string"then db=cb:lower()elseif type(cb)=="table"and
+cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
+function ca:updateFilteredDropdown()
+if not self.get("autoComplete")then return end;local da=self:getFilteredItems()local _b=#da>0 and
+#self.get("text")>0
+if _b then self.set("isOpen",true)
+self.set("manuallyOpened",false)local ab=self.get("dropdownHeight")or 5
+local bb=math.min(ab,#da)self.set("height",1 +bb)else self.set("isOpen",false)
+self.set("manuallyOpened",false)self.set("height",1)end;self:updateRender()end
+function ca:updateViewport()local da=self.get("text")
+local _b=self.get("cursorPos")local ab=self.get("width")local bb=self.get("dropSymbol")
+local cb=ab-#bb;if cb<1 then cb=1 end;local db=self.get("viewOffset")if _b-db>cb then db=_b-cb elseif
+_b-1 <db then db=math.max(0,_b-1)end
+self.set("viewOffset",db)end
+function ca:char(da)if not self.get("editable")then return end;if not
+self.get("focused")then return end;local _b=self.get("text")
+local ab=self.get("cursorPos")local bb=_b:sub(1,ab-1)..da.._b:sub(ab)
+self.set("text",bb)self.set("cursorPos",ab+1)self:updateViewport()
+if
+self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end
+function ca:key(da,_b)if not self.get("editable")then return end;if not
+self.get("focused")then return end;local ab=self.get("text")
+local bb=self.get("cursorPos")
+if da==keys.left then
+self.set("cursorPos",math.max(1,bb-1))self:updateViewport()elseif da==keys.right then
+self.set("cursorPos",math.min(#ab+1,bb+1))self:updateViewport()elseif da==keys.backspace then
+if bb>1 then local cb=ab:sub(1,bb-2)..
+ab:sub(bb)self.set("text",cb)
+self.set("cursorPos",bb-1)self:updateViewport()if self.get("autoComplete")then
+self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.delete then
+if bb<=#ab then
+local cb=ab:sub(1,bb-1)..ab:sub(bb+1)self.set("text",cb)self:updateViewport()
+if
+self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.home then self.set("cursorPos",1)
+self:updateViewport()elseif da==keys["end"]then self.set("cursorPos",#ab+1)
+self:updateViewport()elseif da==keys.enter then
+self.set("isOpen",not self.get("isOpen"))self:updateRender()end end
+function ca:mouse_click(da,_b,ab)
+if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("width")local _c=self.get("dropSymbol")
+if cb==1 then
+if
+bb>=db-#_c+1 and bb<=db then local ac=self.get("isOpen")self.set("isOpen",not ac)
+if
+self.get("isOpen")then local bc=self.get("items")or{}
+local cc=self.get("dropdownHeight")or 5;local dc=math.min(cc,#bc)self.set("height",1 +dc)
+self.set("manuallyOpened",true)else self.set("height",1)
+self.set("manuallyOpened",false)end;self:updateRender()return true end
+if bb<=db-#_c and self.get("editable")then
+local ac=self.get("text")local bc=self.get("viewOffset")local cc=#ac+1
+local dc=math.min(cc,bc+bb)self.set("cursorPos",dc)self:updateRender()return true end;return true elseif
+self.get("isOpen")and cb>1 and self.get("selectable")then local ac=(cb-1)+self.get("offset")
+local bc=self.get("items")
+if ac<=#bc then local cc=bc[ac]
+if type(cc)=="string"then cc={text=cc}bc[ac]=cc end
+if not self.get("multiSelection")then for dc,_d in ipairs(bc)do if type(_d)=="table"then
+_d.selected=false end end end;cc.selected=true;if cc.text then self:setText(cc.text)end
+self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
+function ca:render()_a.render(self)local da=self.get("text")
+local _b=self.get("width")local ab=self.get("dropSymbol")local bb=self.get("focused")
+local cb=self.get("isOpen")local db=self.get("viewOffset")
+local _c=self.get("placeholder")
+local ac=bb and self.get("focusedBackground")or self.get("background")
+local bc=bb and self.get("focusedForeground")or self.get("foreground")local cc=da;local dc=_b-#ab;if#da==0 and not bb and#_c>0 then cc=_c
+bc=self.get("placeholderColor")end
+if#cc>0 then cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=cc..
+(cb and"\31"or"\17")
+self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))
+if bb and self.get("editable")then local ad=self.get("cursorPos")
+local bd=ad-db;if bd>=1 and bd<=dc then
+self:setCursor(bd,1,true,self.get("foreground"))end end
+if cb then local ad
+if
+self.get("autoComplete")and not self.get("manuallyOpened")then ad=self:getFilteredItems()else ad=self.get("items")end
+local bd=math.min(self.get("dropdownHeight"),#ad)
+if bd>0 then local cd=self.get("offset")
+for i=1,bd do local dd=i+cd
+if ad[dd]then local __a=ad[dd]
+local a_a=__a.text or""local b_a=__a.selected or false
+local c_a=
+b_a and self.get("selectedBackground")or self.get("background")
+local d_a=b_a and self.get("selectedForeground")or self.get("foreground")if#a_a>_b then a_a=a_a:sub(1,_b)end;a_a=a_a..
+string.rep(" ",_b-#a_a)
+self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;function ca:focus()aa.focus(self)end
+function ca:blur()aa.blur(self)
+self.set("isOpen",false)self.set("height",1)self:updateRender()end;return ca end
+project["elements/Switch.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"checked",{default=false,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"autoSize",{default=false,type="boolean"})
+ca.defineProperty(ca,"onBackground",{default=colors.green,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"offBackground",{default=colors.red,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_up")
+function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",2)da.set("height",1)da.set("z",5)
+da.set("backgroundEnabled",true)return da end
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Switch")end
+function ca:mouse_click(da,_b,ab)if aa.mouse_click(self,da,_b,ab)then
+self.set("checked",not self.get("checked"))return true end;return false end
+function ca:render()local da=self.get("checked")local _b=self.get("text")
+local ab=self.get("width")local bb=self.get("height")local cb=da and self.get("onBackground")or
+self.get("offBackground")
+self:multiBlit(1,1,ab,bb," ",ba[self.get("foreground")],ba[cb])local db=math.floor(ab/2)local _c=da and(ab-db+1)or 1
+self:multiBlit(_c,1,db,bb," ",ba[self.get("foreground")],ba[self.get("background")])if _b~=""then
+self:textFg(ab+2,1,_b,self.get("foreground"))end end;return ca end
+project["elements/ScrollBar.lua"] = function(...) local aa=require("elements/VisualElement")
+local ba=require("libraries/colorHex")local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"value",{default=0,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"min",{default=0,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"max",{default=100,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"step",{default=10,type="number"})
+ca.defineProperty(ca,"dragMultiplier",{default=1,type="number"})
+ca.defineProperty(ca,"symbol",{default=" ",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"symbolColor",{default=colors.gray,type="color",canTriggerRender=true})
+ca.defineProperty(ca,"symbolBackgroundColor",{default=colors.black,type="color",canTriggerRender=true})
+ca.defineProperty(ca,"backgroundSymbol",{default="\127",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"attachedElement",{default=nil,type="table"})
+ca.defineProperty(ca,"attachedProperty",{default=nil,type="string"})
+ca.defineProperty(ca,"minValue",{default=0,type="number"})
+ca.defineProperty(ca,"maxValue",{default=100,type="number"})
+ca.defineProperty(ca,"orientation",{default="vertical",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"handleSize",{default=2,type="number",canTriggerRender=true})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_release")ca.defineEvent(ca,"mouse_drag")
+ca.defineEvent(ca,"mouse_scroll")
+function ca.new()local ab=setmetatable({},ca):__init()
+ab.class=ca;ab.set("width",1)ab.set("height",10)return ab end;function ca:init(ab,bb)aa.init(self,ab,bb)self.set("type","ScrollBar")return
+self end
+function ca:attach(ab,bb)
+self.set("attachedElement",ab)self.set("attachedProperty",bb.property)self.set("minValue",
+bb.min or 0)
+self.set("maxValue",bb.max or 100)
+ab:observe(bb.property,function(cb,db)
+if db then local _c=self.get("minValue")
+local ac=self.get("maxValue")if _c==ac then return end
+self.set("value",math.floor((db-_c)/ (ac-_c)*100 +0.5))end end)return self end
+function ca:updateAttachedElement()local ab=self.get("attachedElement")
+if not ab then return end;local bb=self.get("value")local cb=self.get("minValue")
+local db=self.get("maxValue")if type(cb)=="function"then cb=cb()end;if type(db)=="function"then
+db=db()end;local _c=cb+ (bb/100)* (db-cb)ab.set(self.get("attachedProperty"),math.floor(
+_c+0.5))
+return self end;local function da(ab)
+return
+ab.get("orientation")=="vertical"and ab.get("height")or ab.get("width")end
+local function _b(ab,bb,cb)
+local db,_c=ab:getRelativePosition(bb,cb)return
+ab.get("orientation")=="vertical"and _c or db end
+function ca:mouse_click(ab,bb,cb)
+if aa.mouse_click(self,ab,bb,cb)then local db=da(self)
+local _c=self.get("value")local ac=self.get("handleSize")local bc=
+math.floor((_c/100)* (db-ac))+1;local cc=_b(self,bb,cb)
+if
+cc>=bc and cc<bc+ac then self.dragOffset=cc-bc else local dc=( (cc-1)/ (db-ac))*100
+self.set("value",math.min(100,math.max(0,dc)))self:updateAttachedElement()end;return true end end
+function ca:mouse_drag(ab,bb,cb)
+if(aa.mouse_drag(self,ab,bb,cb))then local db=da(self)
+local _c=self.get("handleSize")local ac=self.get("dragMultiplier")local bc=_b(self,bb,cb)
+bc=math.max(1,math.min(db,bc))local cc=bc- (self.dragOffset or 0)local dc=
+(cc-1)/ (db-_c)*100 *ac
+self.set("value",math.min(100,math.max(0,dc)))self:updateAttachedElement()return true end end
+function ca:mouse_scroll(ab,bb,cb)
+if not self:isInBounds(bb,cb)then return false end;ab=ab>0 and-1 or 1;local db=self.get("step")
+local _c=self.get("value")local ac=_c-ab*db
+self.set("value",math.min(100,math.max(0,ac)))self:updateAttachedElement()return true end
+function ca:render()aa.render(self)local ab=da(self)local bb=self.get("value")
+local cb=self.get("handleSize")local db=self.get("symbol")local _c=self.get("symbolColor")
+local ac=self.get("symbolBackgroundColor")local bc=self.get("backgroundSymbol")local cc=self.get("orientation")==
+"vertical"local dc=
+math.floor((bb/100)* (ab-cb))+1
+for i=1,ab do
+if cc then
+self:blit(1,i,bc,ba[self.get("foreground")],ba[self.get("background")])else
+self:blit(i,1,bc,ba[self.get("foreground")],ba[self.get("background")])end end
+for i=dc,dc+cb-1 do if cc then self:blit(1,i,db,ba[_c],ba[ac])else
+self:blit(i,1,db,ba[_c],ba[ac])end end end;return ca end
+project["elements/BaseFrame.lua"] = function(...) local ba=require("elementManager")
+local ca=ba.getElement("Container")local da=require("errorManager")local _b=require("render")
+local ab=setmetatable({},ca)ab.__index=ab
+local function bb(cb)
+local db,_c=pcall(function()return peripheral.getType(cb)end)if db then return true end;return false end
+ab.defineProperty(ab,"term",{default=nil,type="table",setter=function(cb,db)cb._peripheralName=nil;if
+cb.basalt.getActiveFrame(cb._values.term)==cb then
+cb.basalt.setActiveFrame(cb,false)end;if
+db==nil or db.setCursorPos==nil then return db end;if(bb(db))then
+cb._peripheralName=peripheral.getName(db)end;cb._values.term=db
+if
+cb.basalt.getActiveFrame(db)==nil then cb.basalt.setActiveFrame(cb)end;cb._render=_b.new(db)cb._renderUpdate=true;local _c,ac=db.getSize()
+cb.set("width",_c)cb.set("height",ac)return db end})function ab.new()local cb=setmetatable({},ab):__init()
+cb.class=ab;return cb end;function ab:init(cb,db)
+ca.init(self,cb,db)self.set("term",term.current())
+self.set("type","BaseFrame")return self end
+function ab:multiBlit(cb,db,_c,ac,bc,cc,dc)if
+(cb<1)then _c=_c+cb-1;cb=1 end;if(db<1)then ac=ac+db-1;db=1 end
+self._render:multiBlit(cb,db,_c,ac,bc,cc,dc)end;function ab:textFg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
+self._render:textFg(cb,db,_c,ac)end;function ab:textBg(cb,db,_c,ac)if cb<1 then _c=string.sub(_c,1 -
+cb)cb=1 end
+self._render:textBg(cb,db,_c,ac)end;function ab:drawText(cb,db,_c)if cb<1 then _c=string.sub(_c,
+1 -cb)cb=1 end
+self._render:text(cb,db,_c)end
+function ab:drawFg(cb,db,_c)if cb<1 then
+_c=string.sub(_c,1 -cb)cb=1 end;self._render:fg(cb,db,_c)end;function ab:drawBg(cb,db,_c)if cb<1 then _c=string.sub(_c,1 -cb)cb=1 end
+self._render:bg(cb,db,_c)end
+function ab:blit(cb,db,_c,ac,bc)
+if cb<1 then
+_c=string.sub(_c,1 -cb)ac=string.sub(ac,1 -cb)bc=string.sub(bc,1 -cb)cb=1 end;self._render:blit(cb,db,_c,ac,bc)end;function ab:setCursor(cb,db,_c,ac)local bc=self.get("term")
+self._render:setCursor(cb,db,_c,ac)end
+function ab:monitor_touch(cb,db,_c)
+local ac=self.get("term")if ac==nil then return end
+if(bb(ac))then if self._peripheralName==cb then
+self:mouse_click(1,db,_c)
+self.basalt.schedule(function()sleep(0.1)self:mouse_up(1,db,_c)end)end end end;function ab:mouse_click(cb,db,_c)ca.mouse_click(self,cb,db,_c)
+self.basalt.setFocus(self)end
+function ab:mouse_up(cb,db,_c)
+ca.mouse_up(self,cb,db,_c)ca.mouse_release(self,cb,db,_c)end
+function ab:term_resize()local cb,db=self.get("term").getSize()
+if(cb==
+self.get("width")and db==self.get("height"))then return end;self.set("width",cb)self.set("height",db)
+self._render:setSize(cb,db)self._renderUpdate=true end
+function ab:key(cb)self:fireEvent("key",cb)ca.key(self,cb)end
+function ab:key_up(cb)self:fireEvent("key_up",cb)ca.key_up(self,cb)end
+function ab:char(cb)self:fireEvent("char",cb)ca.char(self,cb)end
+function ab:dispatchEvent(cb,...)local db=self.get("term")if db==nil then return end;if(bb(db))then if
+cb=="mouse_click"then return end end
+ca.dispatchEvent(self,cb,...)end;function ab:render()
+if(self._renderUpdate)then if self._render~=nil then ca.render(self)
+self._render:render()self._renderUpdate=false end end end
+return ab end
 project["elements/Image.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
@@ -2215,23 +2282,6 @@ cc:postRender()end end
 function db:destroy()if not self:isType("BaseFrame")then ab.destroy(self)
 return self else _b.header="Basalt Error"
 _b.error("Cannot destroy a BaseFrame.")end end;return db end
-project["elements/Checkbox.lua"] = function(...) local c=require("elements/VisualElement")
-local d=setmetatable({},c)d.__index=d
-d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
-d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("checkedText")
-local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
-d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
-local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
-d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")
-d.defineEvent(d,"mouse_up")function d.new()local _a=setmetatable({},d):__init()_a.class=d
-_a.set("backgroundEnabled",false)return _a end
-function d:init(_a,aa)
-c.init(self,_a,aa)self.set("type","CheckBox")end
-function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
-self.set("checked",not self.get("checked"))return true end;return false end
-function d:render()c.render(self)local _a=self.get("checked")
-local aa=self.get("text")local ba=self.get("checkedText")
-local ca=string.sub(_a and ba or aa,1,self.get("width"))self:textFg(1,1,ca,self.get("foreground"))end;return d end
 project["elements/Graph.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
@@ -2276,56 +2326,6 @@ for cc,dc in ipairs(_c.data)do local _d=math.floor(( (cc-1)*bc)+1)local ad=
 (dc-ab)/ (bb-ab)
 local bd=math.floor(_b- (ad* (_b-1)))bd=math.max(1,math.min(bd,_b))
 self:blit(_d,bd,_c.symbol,ba[_c.bgColor],ba[_c.fgColor])end end end end;return ca end
-project["elements/Dropdown.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("elements/List")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"isOpen",{default=false,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
-ca.defineProperty(ca,"selectedText",{default="",type="string"})
-ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
-return da end
-function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","DropDown")return self end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
-if cb==1 then self.set("isOpen",not
-self.get("isOpen"))if
-not self.get("isOpen")then self.set("height",1)else
-self.set("height",1 +math.min(self.get("dropdownHeight"),#
-self.get("items")))end
-return true elseif
-self.get("isOpen")and cb>1 and self.get("selectable")then local db=(cb-1)+self.get("offset")
-local _c=self.get("items")
-if db<=#_c then local ac=_c[db]
-if type(ac)=="string"then ac={text=ac}_c[db]=ac end
-if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="table"then
-cc.selected=false end end end;ac.selected=not ac.selected
-if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
-self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("selectedText")
-local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""
-da=da:sub(1,self.get("width")-2)end
-self:blit(1,1,da..string.rep(" ",self.get("width")-#
-da-1).. (
-self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
-if self.get("isOpen")then local ab=self.get("items")
-local bb=self.get("height")-1;local cb=self.get("offset")local db=self.get("width")
-for i=1,bb do local _c=i+cb
-local ac=ab[_c]
-if ac then if type(ac)=="string"then ac={text=ac}ab[_c]=ac end
-if
-ac.separator then local bc=(ac.text or"-"):sub(1,1)
-local cc=string.rep(bc,db)local dc=ac.foreground or self.get("foreground")local _d=
-ac.background or self.get("background")self:textBg(1,
-i+1,string.rep(" ",db),_d)
-self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected;bc=bc:sub(1,db)
-local dc=cc and(ac.selectedBackground or
-self.get("selectedBackground"))or(ac.background or
-self.get("background"))
-local _d=
-cc and(ac.selectedForeground or self.get("selectedForeground"))or(ac.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",db),dc)self:textFg(1,
-i+1,bc,_d)end end end end end;return ca end
 project["elements/BarChart.lua"] = function(...) local aa=require("elementManager")
 local ba=aa.getElement("VisualElement")local ca=aa.getElement("Graph")
 local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b;function _b.new()
