@@ -2,7 +2,7 @@
 _This is the ComboBox class. It extends the dropdown functionality with editable text input,_
 _allowing users to either select from a list or type their own custom text._
 
-Extends: `Dropdown`
+Extends: `DropDown`
 
 ## Properties
 
