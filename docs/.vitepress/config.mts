@@ -145,6 +145,7 @@ export default defineConfig({
             { text: 'Program', link: 'references/elements/Program' },
             { text: 'ScrollBar', link: 'references/elements/ScrollBar' },
             { text: 'Slider', link: 'references/elements/Slider' },
+            { text: 'Switch', link: 'references/elements/Switch' },
             { text: 'Table', link: 'references/elements/Table' },
             { text: 'TextBox', link: 'references/elements/TextBox' },
             { text: 'Tree', link: 'references/elements/Tree' },
