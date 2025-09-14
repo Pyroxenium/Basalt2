@@ -8,16 +8,12 @@ function codeBlockRunPlugin(md) {
     const info = token.info.trim()
     const content = token.content
 
-    // Check if the code block has a 'run' attribute
     if (info.includes('run')) {
-      // Remove 'run' from info for standard rendering
       const cleanInfo = info.replace(/\s*run\s*/, '').trim()
       token.info = cleanInfo
 
-      // Render the standard code block
       const codeHtml = defaultFence(tokens, idx, options, env, self)
 
-      // Wrap with run button - no language badge since we hide it anyway
       return `
         <div class="code-block-with-run">
           <div class="code-header">

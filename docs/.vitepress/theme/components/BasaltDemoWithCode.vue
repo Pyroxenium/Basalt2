@@ -40,7 +40,6 @@ function extractText(nodes) {
 
 const luaCode = computed(() => extractText(slots.default?.() ?? []))
 
-
 const highlightedCode = computed(() => {
   let code = luaCode.value
   
@@ -61,6 +60,7 @@ const highlightedCode = computed(() => {
 })
 
 async function startDemo() {
+  if (typeof window === 'undefined') return
   if (isLoading.value || showDemo.value) return
   
   isLoading.value = true
@@ -133,6 +133,8 @@ function closeDemo() {
 }
 
 function centerWindow() {
+  if (typeof window === 'undefined') return
+  
   const windowWidth = window.innerWidth
   const windowHeight = window.innerHeight
   position.x = Math.max(0, (windowWidth - 650) / 2)
@@ -140,6 +142,8 @@ function centerWindow() {
 }
 
 function startDrag(e) {
+  if (typeof document === 'undefined') return
+  
   if (e.target.closest('button')) return
   isDragging = true
   offset.x = e.clientX - position.x
@@ -150,7 +154,8 @@ function startDrag(e) {
 }
 
 function onDrag(e) {
-  if (!isDragging) return
+  if (!isDragging || typeof window === 'undefined') return
+  
   const maxX = window.innerWidth - 650
   const maxY = window.innerHeight - 480
   
@@ -159,6 +164,8 @@ function onDrag(e) {
 }
 
 function stopDrag() {
+  if (typeof document === 'undefined') return
+  
   isDragging = false
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
@@ -171,11 +178,17 @@ function handleKeydown(e) {
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
+  // SSR Guard - nur im Browser Event Listener hinzufügen
+  if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', handleKeydown)
+  }
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydown)
+  // SSR Guard
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('keydown', handleKeydown)
+  }
   closeDemo()
 })
 </script>
@@ -197,13 +210,12 @@ onUnmounted(() => {
         </button>
       </div>
       
-      <!-- Code Block with Syntax Highlighting -->
       <div class="code-block">
         <pre><code v-html="highlightedCode"></code></pre>
       </div>
     </div>
 
-    <Teleport to="body">
+    <Teleport v-if="typeof document !== 'undefined'" to="body">
       <div
         v-if="showDemo"
         ref="wrapperRef"

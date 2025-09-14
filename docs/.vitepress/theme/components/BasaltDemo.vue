@@ -10,13 +10,18 @@ let isDragging = false
 
 const slots = useSlots()
 let luaCode = ''
+
 onMounted(() => {
+  if (typeof window === 'undefined') return
+  
   luaCode = (slots.default?.() || [])
     .map(vnode => typeof vnode.children === 'string' ? vnode.children : '')
     .join('\n')
 })
 
 async function startDemo() {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return
+  
   showDemo.value = true
 
   const basalt = await fetch(
@@ -47,6 +52,8 @@ function closeDemo() {
 }
 
 function startDrag(e) {
+  if (typeof document === 'undefined') return
+  
   isDragging = true
   offset.x = e.clientX - position.x
   offset.y = e.clientY - position.y
@@ -55,32 +62,30 @@ function startDrag(e) {
 }
 
 function onDrag(e) {
-  if (isDragging) {
-    // Containergröße ermitteln
-    const containerEl = container.value?.parentElement
-    const contW = containerEl?.offsetWidth || 0
-    const contH = containerEl?.offsetHeight || 0
+  if (!isDragging || typeof window === 'undefined') return
+  
+  const containerEl = container.value?.parentElement
+  const contW = containerEl?.offsetWidth || 0
+  const contH = containerEl?.offsetHeight || 0
 
-    // Maximal erlaubte Positionen
-    const maxX = window.innerWidth - contW
-    const maxY = window.innerHeight - contH
+  const maxX = window.innerWidth - contW
+  const maxY = window.innerHeight - contH
 
-    // Neue Position berechnen
-    let newX = e.clientX - offset.x
-    let newY = e.clientY - offset.y
+  let newX = e.clientX - offset.x
+  let newY = e.clientY - offset.y
 
-    // Begrenzen (clampen)
-    if (newX < 0) newX = 0
-    if (newY < 0) newY = 0
-    if (newX > maxX) newX = maxX
-    if (newY > maxY) newY = maxY
+  if (newX < 0) newX = 0
+  if (newY < 0) newY = 0
+  if (newX > maxX) newX = maxX
+  if (newY > maxY) newY = maxY
 
-    position.x = newX
-    position.y = newY
-  }
+  position.x = newX
+  position.y = newY
 }
 
 function stopDrag() {
+  if (typeof document === 'undefined') return
+  
   isDragging = false
   document.removeEventListener('mousemove', onDrag)
   document.removeEventListener('mouseup', stopDrag)
