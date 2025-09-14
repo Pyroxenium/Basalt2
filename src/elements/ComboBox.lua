@@ -1,5 +1,5 @@
 local VisualElement = require("elements/VisualElement")
-local Dropdown = require("src.elements.DropDown")
+local DropDown = require("elements/DropDown")
 local tHex = require("libraries/colorHex")
 
 ---@configDescription A ComboBox that combines dropdown selection with editable text input
@@ -15,8 +15,8 @@ local tHex = require("libraries/colorHex")
 --- @usage     {text = "Option 3"},
 --- @usage })
 --- @usage ComboBox:setText("Custom input...")
----@class ComboBox : Dropdown
-local ComboBox = setmetatable({}, Dropdown)
+---@class ComboBox : DropDown
+local ComboBox = setmetatable({}, DropDown)
 ComboBox.__index = ComboBox
 
 ---@property editable boolean true Whether the ComboBox allows text input
@@ -58,7 +58,7 @@ end
 --- @return ComboBox self The initialized instance
 --- @protected
 function ComboBox:init(props, basalt)
-    Dropdown.init(self, props, basalt)
+    DropDown.init(self, props, basalt)
     self.set("type", "ComboBox")
 
     self.set("cursorPos", 1)
@@ -407,14 +407,14 @@ end
 --- Called when the ComboBox gains focus
 --- @shortDescription Called when gaining focus
 function ComboBox:focus()
-    Dropdown.focus(self)
+    DropDown.focus(self)
     -- Additional focus logic for input if needed
 end
 
 --- Called when the ComboBox loses focus
 --- @shortDescription Called when losing focus
 function ComboBox:blur()
-    Dropdown.blur(self)
+    DropDown.blur(self)
     self.set("isOpen", false)
     self.set("height", 1)
     self:updateRender()
