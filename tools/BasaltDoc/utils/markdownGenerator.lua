@@ -1,5 +1,22 @@
 local markdownGenerator = {}
 
+local function processDescription(description)
+    if not description then return nil end
+    local lines = {}
+    for line in description:gmatch("([^\n]*)\n?") do
+        if line ~= "" then
+            -- URLs in Markdown-Links umwandeln
+            line = line:gsub("https?://[^%s]+", function(url)
+                return "[" .. url .. "](" .. url .. ")"
+            end)
+            table.insert(lines, "_" .. line .. "_")
+        else
+            table.insert(lines, "")
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
 local function generateFunctionMarkdown(class, functions)
     local md = {}
 
@@ -130,7 +147,10 @@ function markdownGenerator.generate(ast)
             local title = class.title or class.name
             table.insert(md, "# " .. title)
             if class.description then
-                table.insert(md, "_" .. class.description .. "_")
+                local processedDesc = processDescription(class.description)
+                if processedDesc then
+                    table.insert(md, processedDesc)
+                end
             end
             if class.extends then
                 table.insert(md, "")

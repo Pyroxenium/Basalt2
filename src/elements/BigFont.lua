@@ -1,4 +1,3 @@
----@splitClass
 -------------------------------------------------------------------------------------
 -- Wojbies API 5.0 - Bigfont - functions to write bigger font using drawing sybols --
 -------------------------------------------------------------------------------------
@@ -11,8 +10,10 @@
 --   5. The origin of this software must not be misrepresented; you must not claim that you wrote the original software.
 --   NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. YOU ACKNOWLEDGE THAT THIS SOFTWARE IS NOT DESIGNED, LICENSED OR INTENDED FOR USE IN THE DESIGN, CONSTRUCTION, OPERATION OR MAINTENANCE OF ANY NUCLEAR FACILITY.
 
+
 -- Basalt - Nyorie: Please don't copy paste this code to your projects, this code is slightly changed (to fit the way basalt draws elements), if you want the original code, checkout this:
 -- http://www.computercraft.info/forums2/index.php?/topic/25367-bigfont-api-write-bigger-letters-v10/
+---@skip
 ---@class BigFontText
 local tHex = require("libraries/colorHex")
 
@@ -137,7 +138,7 @@ local function makeText(nSize, sString, nFC, nBC, bBlit)
     return {tText, tFront, tBack}
 end
 
---- This part has nothing to do with Wojbie's BigFont API:
+-- This part has nothing to do with Wojbie's BigFont API:
 
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
