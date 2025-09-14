@@ -19,15 +19,10 @@ Extends: `PropertySystem`
 |---|---|---|
 |[BaseElement.defineEvent](#baseelement-defineevent-class-eventname-requiredevent)|-|Registers a new event listener for the element (on class level)|
 |[BaseElement.registerEventCallback](#baseelement-registereventcallback-class-callbackname-string)|-|Registers a new event callback for the element (on class level)|
-|[BaseElement.new](#baseelement-new)|table|Creates a new BaseElement instance|
-|[BaseElement:init](#baseelement-init-props-basalt)|table|Initializes the BaseElement instance|
-|[BaseElement:postInit](#baseelement-postinit)|table|Post initialization|
 |[BaseElement:isType](#baseelement-istype-type)|boolean|Checks if the element is a specific type|
 |[BaseElement:listenEvent](#baseelement-listenevent-eventname-enable)|table|Enables or disables event listening for a specific event|
 |[BaseElement:registerCallback](#baseelement-registercallback-event-callback)|table|Registers a callback function|
 |[BaseElement:fireEvent](#baseelement-fireevent-event-any)|table|Triggers an event and calls all registered callbacks|
-|[BaseElement:dispatchEvent](#baseelement-dispatchevent-event)|handled|Handles all events|
-|[BaseElement:handleEvent](#baseelement-handleevent-event)|handled|The default event handler for all events|
 |[BaseElement:onChange](#baseelement-onchange-property-callback)|table|Observes a property and calls a callback when it changes|
 |[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Returns the base frame of the element|
 |[BaseElement:destroy](#baseelement-destroy)|-|Destroys the element and cleans up all references|
@@ -50,22 +45,6 @@ Registers a new event callback for the element (on class level)
 * `class` `table` The class to register
 * `callbackName` `string` The name of the callback to register
 * `string` `The` names of the events to register the callback for
-
-## BaseElement.new()
-### Returns
-* `table` `The` newly created BaseElement instance
-
-## BaseElement:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `table` `self` The initialized instance
-
-## BaseElement:postInit()
-### Returns
-* `table` `self` The BaseElement instance
 
 ## BaseElement:isType(type)
 
@@ -109,20 +88,6 @@ Triggers an event and calls all registered callbacks
 
 ### Returns
 * `table` `self` The BaseElement instance
-
-## BaseElement:dispatchEvent(event)
-### Parameters
-* `event` `string` The event to handle
-
-### Returns
-* `handled` `Whether` the event was handled
-
-## BaseElement:handleEvent(event)
-### Parameters
-* `event` `string` The event to handle
-
-### Returns
-* `handled` `Whether` the event was handled
 
 ## BaseElement:onChange(property, callback)
 

@@ -25,29 +25,8 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[ScrollBar.new](#scrollbar-new)|ScrollBar|Creates a new ScrollBar instance|
-|[ScrollBar:init](#scrollbar-init-props-basalt)|ScrollBar|Initializes the ScrollBar instance|
 |[ScrollBar:attach](#scrollbar-attach-element-config)|ScrollBar|Attaches the ScrollBar to an element's property|
 |[ScrollBar:updateAttachedElement](#scrollbar-updateattachedelement)|ScrollBar|Updates the attached element's property based on the ScrollBar value|
-|[ScrollBar:mouse_click](#scrollbar-mouse-click-button-x-y)|boolean|Handles mouse click events|
-|[ScrollBar:mouse_drag](#scrollbar-mouse-drag-button-x-y)|boolean|Handles mouse drag events|
-|[ScrollBar:mouse_scroll](#scrollbar-mouse-scroll-direction-x-y)|boolean|Handles mouse scroll events|
-|[ScrollBar:render](#scrollbar-render)|-|Renders the ScrollBar|
-
-## ScrollBar.new()
-
-Creates a new ScrollBar instance
-
-### Returns
-* `ScrollBar` `self` The newly created ScrollBar instance
-
-## ScrollBar:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `ScrollBar` `self` The initialized instance
 
 ## ScrollBar:attach(element, config)
 
@@ -66,32 +45,3 @@ Updates the attached element's property based on the ScrollBar value
 
 ### Returns
 * `ScrollBar` `self` The ScrollBar instance
-
-## ScrollBar:mouse_click(button, x, y)
-### Parameters
-* `button` `number` The mouse button clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `Whether` the event was handled
-
-## ScrollBar:mouse_drag(button, x, y)
-### Parameters
-* `button` `number` The mouse button being dragged
-* `x` `number` The x position of the drag
-* `y` `number` The y position of the drag
-
-### Returns
-* `boolean` `Whether` the event was handled
-
-## ScrollBar:mouse_scroll(direction, x, y)
-### Parameters
-* `direction` `number` The scroll direction (1 for up, -1 for down)
-* `x` `number` The x position of the scroll
-* `y` `number` The y position of the scroll
-
-### Returns
-* `boolean` `Whether` the event was handled
-
-## ScrollBar:render()

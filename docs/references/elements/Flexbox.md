@@ -19,24 +19,8 @@ Extends: `Container`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Flexbox.new](#flexbox-new)|Flexbox|Creates a new Flexbox instance|
-|[Flexbox:init](#flexbox-init-props-basalt)|Flexbox|Initializes the Flexbox instance|
 |[Flexbox:addChild](#flexbox-addchild-element)|Flexbox|Adds a child element to the flexbox|
-|[Flexbox:removeChild](#flexbox-removechild-element)|Flexbox|Removes a child element from the flexbox|
 |[Flexbox:addLineBreak](#flexbox-addlinebreak-self)|Flexbox|Adds a new line break to the flexbox.|
-|[Flexbox:render](#flexbox-render)|-|Renders the flexbox and its children|
-
-## Flexbox.new()
-### Returns
-* `Flexbox` `object` The newly created Flexbox instance
-
-## Flexbox:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Flexbox` `self` The initialized instance
 
 ## Flexbox:addChild(element)
 
@@ -44,13 +28,6 @@ Adds a child element to the flexbox
 
 ### Parameters
 * `element` `Element` The child element to add
-
-### Returns
-* `Flexbox` `self` The flexbox instance
-
-## Flexbox:removeChild(element)
-### Parameters
-* `element` `Element` The child element to remove
 
 ### Returns
 * `Flexbox` `self` The flexbox instance
@@ -64,5 +41,3 @@ Adds a new line break to the flexbox
 
 ### Returns
 * `Flexbox`
-
-## Flexbox:render()

@@ -25,34 +25,14 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[List.new](#list-new)|List|Creates a new List instance|
-|[List:init](#list-init-props-basalt)|List|Initializes the List instance|
 |[List:addItem](#list-additem-text)|List|Adds an item to the list|
 |[List:removeItem](#list-removeitem-index)|List|Removes an item from the list|
 |[List:clear](#list-clear)|List|Clears all items from the list|
 |[List:getSelectedItems](#list-getselecteditems)|table|Gets the currently selected items|
 |[List:getSelectedItem](#list-getselecteditem)|selected|Gets first selected item|
-|[List:mouse_click](#list-mouse-click-button-x-y)|boolean|Handles mouse click events|
-|[List:mouse_scroll](#list-mouse-scroll-direction-x-y)|boolean|Handles mouse scroll events|
 |[List:onSelect](#list-onselect-callback)|List|Registers a callback for the select event|
 |[List:scrollToBottom](#list-scrolltobottom)|List|Scrolls the list to the bottom|
 |[List:scrollToTop](#list-scrolltotop)|List|Scrolls the list to the top|
-|[List:render](#list-render)|-|Renders the list|
-
-## List.new()
-
-Creates a new List instance
-
-### Returns
-* `List` `self` The newly created List instance
-
-## List:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `List` `self` The initialized instance
 
 ## List:addItem(text)
 
@@ -116,24 +96,6 @@ Gets first selected item
 ### Returns
 * `selected` `The` first item
 
-## List:mouse_click(button, x, y)
-### Parameters
-* `button` `number` The mouse button that was clicked
-* `x` `number` The x-coordinate of the click
-* `y` `number` The y-coordinate of the click
-
-### Returns
-* `boolean` `Whether` the event was handled
-
-## List:mouse_scroll(direction, x, y)
-### Parameters
-* `direction` `number` The direction of the scroll (1 for down, -1 for up)
-* `x` `number` The x-coordinate of the scroll
-* `y` `number` The y-coordinate of the scroll
-
-### Returns
-* `boolean` `Whether` the event was handled
-
 ## List:onSelect(callback)
 
 Registers a callback for the select event
@@ -162,5 +124,3 @@ Scrolls the list to the top
 
 ### Returns
 * `List` `self` The List instance
-
-## List:render()

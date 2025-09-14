@@ -166,13 +166,9 @@ _Adds additional methods for VisualElement when adding animation plugin_
 
 |Method|Returns|Description|
 |---|---|---|
-|[VisualElement.hooks](#visualelement-hooks)|-||
-|[VisualElement.setup](#visualelement-setup)|-||
 |[VisualElement.stopAnimation](#visualelement-stopanimation)|-|Convenience to stop animations from the element|
 |[VisualElement:animate](#visualelement-animate)|Animation|Creates a new animation|
 
-## VisualElement.hooks()
-## VisualElement.setup()
 ## VisualElement.stopAnimation()
 
 Convenience to stop animations from the element

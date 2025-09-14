@@ -19,8 +19,6 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Image.new](#image-new)|Image|Creates a new Image instance|
-|[Image:init](#image-init-props-basalt)|Image|Initializes the Image instance|
 |[Image:resizeImage](#image-resizeimage-width-height)|Image|Resizes the image to the specified width and height|
 |[Image:getImageSize](#image-getimagesize)|number, number|Gets the size of the image|
 |[Image:getPixelData](#image-getpixeldata-x-y)|fg, bg, char|Gets pixel information at position|
@@ -37,22 +35,6 @@ Extends: `VisualElement`
 |[Image:getFrame](#image-getframe-frameindex)|table|Gets the specified frame|
 |[Image:getMetadata](#image-getmetadata)|table|Gets the metadata of the image|
 |[Image:setMetadata](#image-setmetadata-key-value)|Image|Sets the metadata of the image|
-|[Image:render](#image-render)|-|Renders the Image|
-
-## Image.new()
-
-Creates a new Image instance
-
-### Returns
-* `Image` `self` The newly created Image instance
-
-## Image:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Image` `self` The initialized instance
 
 ## Image:resizeImage(width, height)
 
@@ -224,5 +206,3 @@ Sets the metadata of the image
 
 ### Returns
 * `Image` `self` The Image instance
-
-## Image:render()

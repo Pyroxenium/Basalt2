@@ -9,22 +9,3 @@ Extends: `VisualElement`
 |---|---|---|---|
 |text|string|BigFont|BigFont text|
 |fontSize|number|1|The font size of the BigFont|
-
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-|[BigFont.new](#bigfont-new)|table|Creates a new BigFont instance|
-|[BigFont:init](#bigfont-init-props-basalt)|-|Initializes the BigFont instance|
-|[BigFont:render](#bigfont-render)|-|Renders the BigFont|
-
-## BigFont.new()
-### Returns
-* `table` `self` The created instance
-
-## BigFont:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-## BigFont:render()

@@ -21,33 +21,12 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Table.new](#table-new)|Table|Creates a new Table instance|
-|[Table:init](#table-init-props-basalt)|Table|Initializes the Table instance|
 |[Table:addColumn](#table-addcolumn-name-width)|Table|Adds a new column to the table|
 |[Table:addData](#table-adddata-any)|Table|Adds a new row of data to the table|
 |[Table:setColumnSortFunction](#table-setcolumnsortfunction-columnindex-sortfn)|Table|Sets a custom sort function for a column|
 |[Table:setFormattedData](#table-setformatteddata-displaydata-sortdata)|Table|Adds formatted data with raw sort values|
 |[Table:setData](#table-setdata-rawdata-formatters)|Table|Sets table data with optional column formatters|
-|[Table:calculateColumnWidths](#table-calculatecolumnwidths-columns-totalwidth)|table|Calculates column widths for rendering|
 |[Table:sortData](#table-sortdata-columnindex-fn)|Table|Sorts the table data by the specified column|
-|[Table:mouse_click](#table-mouse-click-button-x-y)|boolean|Handles header clicks for sorting and row selection|
-|[Table:mouse_scroll](#table-mouse-scroll-direction-x-y)|boolean|Handles scrolling through the table data|
-|[Table:render](#table-render)|-|Renders the table with headers, data and scrollbar|
-
-## Table.new()
-
-Creates a new Table instance
-
-### Returns
-* `Table` `self` The newly created Table instance
-
-## Table:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Table` `self` The initialized instance
 
 ## Table:addColumn(name, width)
 
@@ -103,14 +82,6 @@ Set data with automatic formatting
 ### Returns
 * `Table` `self` The Table instance
 
-## Table:calculateColumnWidths(columns, totalWidth)
-### Parameters
-* `columns` `table` The column definitions
-* `totalWidth` `number` The total available width
-
-### Returns
-* `table` `The` columns with calculated visibleWidth
-
 ## Table:sortData(columnIndex, fn)
 
 Sorts the table data by column
@@ -121,23 +92,3 @@ Sorts the table data by column
 
 ### Returns
 * `Table` `self` The Table instance
-
-## Table:mouse_click(button, x, y)
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Table:mouse_scroll(direction, x, y)
-### Parameters
-* `direction` `number` The scroll direction (-1 up, 1 down)
-* `x` `number` The x position of the scroll
-* `y` `number` The y position of the scroll
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Table:render()

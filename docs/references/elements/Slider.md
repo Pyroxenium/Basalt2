@@ -24,27 +24,7 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Slider.new](#slider-new)|Slider|Creates a new Slider instance|
-|[Slider:init](#slider-init-props-basalt)|Slider|Initializes the Slider instance|
 |[Slider:getValue](#slider-getvalue)|number|Gets the current value mapped to the max range|
-|[Slider:mouse_click](#slider-mouse-click-button-x-y)|boolean|Updates slider position on mouse click|
-|[Slider:mouse_scroll](#slider-mouse-scroll-button-x-y)|boolean|Handles mouse release events|
-|[Slider:render](#slider-render)|-|Renders the slider with track and handle|
-
-## Slider.new()
-
-Creates a new Slider instance
-
-### Returns
-* `Slider` `self` The newly created Slider instance
-
-## Slider:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Slider` `self` The initialized instance
 
 ## Slider:getValue()
 
@@ -57,23 +37,3 @@ Gets the current value of the slider
 ```lua
 local value = slider:getValue()
 ```
-
-## Slider:mouse_click(button, x, y)
-### Parameters
-* `button` `number` The mouse button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Slider:mouse_scroll(button, x, y)
-### Parameters
-* `button` `number` The mouse button that was released
-* `x` `number` The x position of the release
-* `y` `number` The y position of the release
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Slider:render()

@@ -6,11 +6,9 @@ _with support for inheritance, named styles, and dynamic theme switching._
 
 |Method|Returns|Description|
 |---|---|---|
-|[BaseElement.____getElementPath](#baseelement-----getelementpath)|-||
 |[BaseElement:applyTheme](#baseelement-applytheme-self-applytochildren)|BaseElement|Applies theme styles to the element|
 |[BaseElement:getTheme](#baseelement-gettheme-self)|table|Gets theme properties for the element|
 
-## BaseElement.____getElementPath()
 ## BaseElement:applyTheme(self, applyToChildren)
 
 Applies the current theme to this element

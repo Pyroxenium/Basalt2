@@ -15,8 +15,6 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Graph.new](#graph-new)|Graph|Creates a new Graph instance|
-|[Graph:init](#graph-init-props-basalt)|Graph|Initializes the Graph instance|
 |[Graph:addSeries](#graph-addseries-name-symbol-bgcol-fgcol-pointcount)|Graph|Adds a series to the graph|
 |[Graph:removeSeries](#graph-removeseries-name)|Graph|Removes a series from the graph|
 |[Graph:getSeries](#graph-getseries-name)|series|Gets a series from the graph|
@@ -25,22 +23,6 @@ Extends: `VisualElement`
 |[Graph:focusSeries](#graph-focusseries-name)|Graph|Focuses a series|
 |[Graph:setSeriesPointCount](#graph-setseriespointcount-name-count)|Graph|Sets the point count of a series|
 |[Graph:clear](#graph-clear-name)|Graph|Clears all points from a series|
-|[Graph:render](#graph-render)|-|Renders the graph|
-
-## Graph.new()
-
-Creates a new Graph instance
-
-### Returns
-* `Graph` `self` The newly created Graph instance
-
-## Graph:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Graph` `self` The initialized instance
 
 ## Graph:addSeries(name, symbol, bgCol, fgCol, pointCount)
 ### Parameters
@@ -107,5 +89,3 @@ Clears all points from a series
 
 ### Returns
 * `Graph` `self` The graph instance
-
-## Graph:render()

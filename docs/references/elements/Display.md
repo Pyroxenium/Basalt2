@@ -7,20 +7,8 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Display.new](#display-new)|table|Creates a new Display instance|
-|[Display:init](#display-init-props-basalt)|-|Initializes the Display instance|
 |[Display:getWindow](#display-getwindow)|table|Returns the current window object|
 |[Display:write](#display-write-x-y-text-fg-bg)|Display|Writes text to the display|
-|[Display:render](#display-render)|-|Renders the Display|
-
-## Display.new()
-### Returns
-* `table` `self` The created instance
-
-## Display:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
 
 ## Display:getWindow()
 
@@ -42,5 +30,3 @@ Writes text to the display at the given position with the given foreground and b
 
 ### Returns
 * `Display` `self` The display instance
-
-## Display:render()

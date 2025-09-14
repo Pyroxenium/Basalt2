@@ -11,38 +11,3 @@ Extends: `List`
 |dropdownHeight|number|5|Maximum height of the dropdown menu when open|
 |selectedText|string|""|The text to show when no item is selected|
 |dropSymbol|string|"\31"|The symbol to show for dropdown indication|
-
-## Functions
-
-|Method|Returns|Description|
-|---|---|---|
-|[Dropdown.new](#dropdown-new)|Dropdown|Creates a new Dropdown instance|
-|[Dropdown:init](#dropdown-init-props-basalt)|Dropdown|Initializes the Dropdown instance|
-|[Dropdown:mouse_click](#dropdown-mouse-click-button-x-y)|boolean|Handles mouse click events|
-|[Dropdown:render](#dropdown-render)|-|Renders the Dropdown|
-
-## Dropdown.new()
-
-Creates a new Dropdown instance
-
-### Returns
-* `Dropdown` `self` The newly created Dropdown instance
-
-## Dropdown:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `Dropdown` `self` The initialized instance
-
-## Dropdown:mouse_click(button, x, y)
-### Parameters
-* `button` `number` The button that was clicked
-* `x` `number` The x position of the click
-* `y` `number` The y position of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
-
-## Dropdown:render()

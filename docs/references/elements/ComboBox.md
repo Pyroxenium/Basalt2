@@ -24,16 +24,11 @@ Extends: `Dropdown`
 |Method|Returns|Description|
 |---|---|---|
 |[ComboBox.new](#combobox-new)|ComboBox|Creates a new ComboBox instance|
-|[ComboBox:init](#combobox-init-props-basalt)|ComboBox|Initializes the ComboBox instance|
 |[ComboBox:setText](#combobox-settext-text)|ComboBox|Sets the text content|
 |[ComboBox:getText](#combobox-gettext)|string|Gets the text content|
 |[ComboBox:setEditable](#combobox-seteditable-editable)|ComboBox|Sets editable state|
-|[ComboBox:getFilteredItems](#combobox-getfiltereditems)|-|Filters items for auto-complete|
-|[ComboBox:updateFilteredDropdown](#combobox-updatefiltereddropdown)|-|Updates dropdown with filtered items|
-|[ComboBox:updateViewport](#combobox-updateviewport)|-|Updates the viewport|
 |[ComboBox:char](#combobox-char-char)|-|Handles character input|
 |[ComboBox:key](#combobox-key-key-held)|-|Handles key input|
-|[ComboBox:mouse_click](#combobox-mouse-click-button-x-y)|boolean|Handles mouse clicks|
 |[ComboBox:render](#combobox-render)|-|Renders the ComboBox|
 |[ComboBox:focus](#combobox-focus)|-|Called when gaining focus|
 |[ComboBox:blur](#combobox-blur)|-|Called when losing focus|
@@ -44,14 +39,6 @@ Creates a new ComboBox instance
 
 ### Returns
 * `ComboBox` `self` The newly created ComboBox instance
-
-## ComboBox:init(props, basalt)
-### Parameters
-* `props` `table` The properties to initialize the element with
-* `basalt` `table` The basalt instance
-
-### Returns
-* `ComboBox` `self` The initialized instance
 
 ## ComboBox:setText(text)
 
@@ -80,15 +67,6 @@ Sets whether the ComboBox is editable
 ### Returns
 * `ComboBox` self
 
-## ComboBox:getFilteredItems()
-
-Filters items based on current text for auto-complete
-
-## ComboBox:updateFilteredDropdown()
-
-Updates the dropdown with filtered items
-
-## ComboBox:updateViewport()
 ## ComboBox:char(char)
 
 Handles character input when editable
@@ -103,18 +81,6 @@ Handles key input when editable
 ### Parameters
 * `key` `number` The key code that was pressed
 * `held` `boolean` Whether the key is being held
-
-## ComboBox:mouse_click(button, x, y)
-
-Handles mouse clicks
-
-### Parameters
-* `button` `number` The mouse button (1 = left, 2 = right, 3 = middle)
-* `x` `number` The x coordinate of the click
-* `y` `number` The y coordinate of the click
-
-### Returns
-* `boolean` `handled` Whether the event was handled
 
 ## ComboBox:render()
 
