@@ -1,6 +1,6 @@
 # ProgressBar
-_This is the progress bar class. It provides a visual representation of progress
-with optional percentage display and customizable colors._
+_This is the progress bar class. It provides a visual representation of progress_
+_with optional percentage display and customizable colors._
 
 Extends: `VisualElement`
 

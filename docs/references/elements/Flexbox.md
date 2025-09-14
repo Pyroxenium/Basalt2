@@ -1,7 +1,6 @@
 # Flexbox
-_This is the Flexbox class. It is a container that arranges its children in a flexible layout.
-The flexbox element adds the following properties to its children:
-_
+_This is the Flexbox class. It is a container that arranges its children in a flexible layout._
+_The flexbox element adds the following properties to its children:_
 
 Extends: `Container`
 

@@ -1,6 +1,6 @@
 # BaseElement
-_This is the theme plugin. It provides a theming system that allows for consistent styling across elements
-with support for inheritance, named styles, and dynamic theme switching._
+_This is the theme plugin. It provides a theming system that allows for consistent styling across elements_
+_with support for inheritance, named styles, and dynamic theme switching._
 
 ## Functions
 

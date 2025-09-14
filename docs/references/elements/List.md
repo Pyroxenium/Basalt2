@@ -1,6 +1,6 @@
 # List
-_This is the list class. It provides a scrollable list of selectable items with support for 
-custom item rendering, separators, and selection handling._
+_This is the list class. It provides a scrollable list of selectable items with support for _
+_custom item rendering, separators, and selection handling._
 
 Extends: `VisualElement`
 

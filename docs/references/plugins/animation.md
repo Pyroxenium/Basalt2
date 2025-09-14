@@ -46,8 +46,8 @@ Updates the animation
 Gets called when the animation is completed
 
 # Animation
-_This is the animation plugin. It provides a animation system for visual elements
-with support for sequences, easing functions, and multiple animation types._
+_This is the animation plugin. It provides a animation system for visual elements_
+_with support for sequences, easing functions, and multiple animation types._
 
 ## Functions
 

@@ -1,6 +1,6 @@
 # Table
-_This is the table class. It provides a sortable data grid with customizable columns,
-row selection, and scrolling capabilities._
+_This is the table class. It provides a sortable data grid with customizable columns,_
+_row selection, and scrolling capabilities._
 
 Extends: `VisualElement`
 

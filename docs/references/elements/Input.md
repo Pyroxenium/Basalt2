@@ -1,6 +1,6 @@
 # Input
-_This is the input class. It provides a text input field that can handle user input with various features like
-cursor movement, text manipulation, placeholder text, and input validation._
+_This is the input class. It provides a text input field that can handle user input with various features like_
+_cursor movement, text manipulation, placeholder text, and input validation._
 
 Extends: `VisualElement`
 

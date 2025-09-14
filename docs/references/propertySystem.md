@@ -1,6 +1,6 @@
 # PropertySystem
-_PropertySystem is a class that allows Elements to have properties that can be observed and updated.
-It also allows for properties to have custom getters and setters. This is the base system for all Elements._
+_PropertySystem is a class that allows Elements to have properties that can be observed and updated._
+_It also allows for properties to have custom getters and setters. This is the base system for all Elements._
 
 ## Functions
 

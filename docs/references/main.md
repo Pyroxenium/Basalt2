@@ -1,8 +1,8 @@
 # basalt
-_This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt.
+_This is the UI Manager and the starting point for your project. The following functions allow you to influence the default behavior of Basalt._
 
-Before you can access Basalt, you need to add the following code on top of your file:
-What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt"._
+_Before you can access Basalt, you need to add the following code on top of your file:_
+_What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt"._
 
 ## Functions
 

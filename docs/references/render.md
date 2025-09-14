@@ -1,6 +1,6 @@
 # Render
-_This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional 
-functionality. It also has a buffer system to reduce the number of calls_
+_This is the render module for Basalt. It tries to mimic the functionality of the `term` API. but with additional _
+_functionality. It also has a buffer system to reduce the number of calls_
 
 ## Functions
 

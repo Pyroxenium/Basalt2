@@ -23,8 +23,8 @@ Initializes a new state for this element
 * `BaseFrame` `self` The element instance
 
 # BaseElement
-_This is the state plugin. It provides a state management system for UI elements with support for
-persistent states, computed states, and state sharing between elements._
+_This is the state plugin. It provides a state management system for UI elements with support for_
+_persistent states, computed states, and state sharing between elements._
 
 ## Functions
 

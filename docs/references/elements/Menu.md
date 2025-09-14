@@ -1,6 +1,6 @@
 # Menu
-_This is the menu class. It provides a horizontal menu bar with selectable items.
-Menu items are displayed in a single row and can have custom colors and callbacks._
+_This is the menu class. It provides a horizontal menu bar with selectable items._
+_Menu items are displayed in a single row and can have custom colors and callbacks._
 
 Extends: `List`
 

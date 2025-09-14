@@ -1,6 +1,6 @@
 # ComboBox
-_This is the ComboBox class. It extends the dropdown functionality with editable text input,
-allowing users to either select from a list or type their own custom text._
+_This is the ComboBox class. It extends the dropdown functionality with editable text input,_
+_allowing users to either select from a list or type their own custom text._
 
 Extends: `Dropdown`
 

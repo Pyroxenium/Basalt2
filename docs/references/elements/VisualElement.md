@@ -1,6 +1,6 @@
 # VisualElement
-_This is the visual element class. It serves as the base class for all visual UI elements
-and provides core functionality for positioning, sizing, colors, and rendering._
+_This is the visual element class. It serves as the base class for all visual UI elements_
+_and provides core functionality for positioning, sizing, colors, and rendering._
 
 Extends: `BaseElement`
 

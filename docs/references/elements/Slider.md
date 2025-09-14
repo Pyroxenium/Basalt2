@@ -1,6 +1,6 @@
 # Slider
-_This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
-with customizable colors and value ranges._
+_This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,_
+_with customizable colors and value ranges._
 
 Extends: `VisualElement`
 

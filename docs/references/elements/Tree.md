@@ -1,6 +1,6 @@
 # Tree
-_This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
-with support for selection and scrolling._
+_This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,_
+_with support for selection and scrolling._
 
 Extends: `VisualElement`
 

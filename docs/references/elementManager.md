@@ -1,6 +1,6 @@
 # ElementManager
-_This class manages elements and plugins. It loads elements and plugins from the elements and plugins directories
-and then applies the plugins to the elements. It also provides a way to get elements and APIs._
+_This class manages elements and plugins. It loads elements and plugins from the elements and plugins directories_
+_and then applies the plugins to the elements. It also provides a way to get elements and APIs._
 
 ## Functions
 

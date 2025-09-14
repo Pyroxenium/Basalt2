@@ -124,9 +124,9 @@ Stops benchmarking for a container and all its children
 * `Container` `self` The container instance
 
 # Benchmark
-_This is the benchmark plugin. It provides performance measurement tools for elements and methods,
-with support for hierarchical profiling and detailed statistics. The plugin is meant to be used for very big projects
-where performance is critical. It allows you to measure the time taken by specific methods and log the results._
+_This is the benchmark plugin. It provides performance measurement tools for elements and methods,_
+_with support for hierarchical profiling and detailed statistics. The plugin is meant to be used for very big projects_
+_where performance is critical. It allows you to measure the time taken by specific methods and log the results._
 
 ## Functions
 
