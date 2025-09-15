@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
+---@configDescription A ScrollBar element that can be attached to other elements to control their scroll properties.
 
 ---A ScrollBar element that can be attached to other elements to control their scroll properties
 ---@class ScrollBar : VisualElement
