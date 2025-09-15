@@ -233,7 +233,7 @@ installScreen:addLabel(coloring)
     :setText("Select Version:")
     :setPosition(2, 4)
 
-local versionDropdown = installScreen:addDropdown()
+local versionDropdown = installScreen:addDropDown()
     :setPosition("{parent.width - self.width - 1}", 4)
     :setSize(15, 1)
     :setBackground(colors.black)
