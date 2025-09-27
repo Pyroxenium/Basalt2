@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field
 local VisualElement = require("elements/VisualElement")
 local tHex = require("libraries/colorHex")
 ---@configDescription A multi-line text editor component with cursor support and text manipulation features
@@ -24,12 +25,587 @@ TextBox.defineProperty(TextBox, "editable", {default = true, type = "boolean"})
 TextBox.defineProperty(TextBox, "syntaxPatterns", {default = {}, type = "table"})
 ---@property cursorColor number nil Color of the cursor
 TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "color"})
+---@property autoCompleteEnabled boolean false Whether autocomplete suggestions are enabled
+TextBox.defineProperty(TextBox, "autoCompleteEnabled", {default = false, type = "boolean"})
+---@property autoCompleteItems table {} List of suggestions used when no provider is supplied
+TextBox.defineProperty(TextBox, "autoCompleteItems", {default = {}, type = "table"})
+---@property autoCompleteProvider function nil Optional suggestion provider returning a list for the current prefix
+TextBox.defineProperty(TextBox, "autoCompleteProvider", {default = nil, type = "function", allowNil = true})
+---@property autoCompleteMinChars number 1 Minimum characters required before showing suggestions
+TextBox.defineProperty(TextBox, "autoCompleteMinChars", {default = 1, type = "number"})
+---@property autoCompleteMaxItems number 6 Maximum number of visible suggestions
+TextBox.defineProperty(TextBox, "autoCompleteMaxItems", {default = 6, type = "number"})
+---@property autoCompleteCaseInsensitive boolean true Whether suggestions should match case-insensitively
+TextBox.defineProperty(TextBox, "autoCompleteCaseInsensitive", {default = true, type = "boolean"})
+---@property autoCompleteTokenPattern string "[%w_]+" Pattern used to extract the current token for suggestions
+TextBox.defineProperty(TextBox, "autoCompleteTokenPattern", {default = "[%w_]+", type = "string"})
+---@property autoCompleteOffsetX number 0 Horizontal offset applied to the popup frame relative to the TextBox
+TextBox.defineProperty(TextBox, "autoCompleteOffsetX", {default = 0, type = "number"})
+---@property autoCompleteOffsetY number 1 Vertical offset applied to the popup frame relative to the TextBox bottom edge
+TextBox.defineProperty(TextBox, "autoCompleteOffsetY", {default = 1, type = "number"})
+---@property autoCompleteZOffset number 1 Z-index offset applied to the popup frame
+TextBox.defineProperty(TextBox, "autoCompleteZOffset", {default = 1, type = "number"})
+---@property autoCompleteMaxWidth number 0 Maximum width of the autocomplete popup (0 uses the textbox width)
+TextBox.defineProperty(TextBox, "autoCompleteMaxWidth", {default = 0, type = "number"})
+---@property autoCompleteShowBorder boolean true Whether to render a character border around the popup
+TextBox.defineProperty(TextBox, "autoCompleteShowBorder", {default = true, type = "boolean"})
+---@property autoCompleteBorderColor color black Color of the popup border when enabled
+TextBox.defineProperty(TextBox, "autoCompleteBorderColor", {default = colors.black, type = "color"})
+---@property autoCompleteBackground color lightGray Background color of the suggestion popup
+TextBox.defineProperty(TextBox, "autoCompleteBackground", {default = colors.lightGray, type = "color"})
+---@property autoCompleteForeground color black Foreground color of the suggestion popup
+TextBox.defineProperty(TextBox, "autoCompleteForeground", {default = colors.black, type = "color"})
+---@property autoCompleteSelectedBackground color gray Background color for the selected suggestion
+TextBox.defineProperty(TextBox, "autoCompleteSelectedBackground", {default = colors.gray, type = "color"})
+---@property autoCompleteSelectedForeground color white Foreground color for the selected suggestion
+TextBox.defineProperty(TextBox, "autoCompleteSelectedForeground", {default = colors.white, type = "color"})
+---@property autoCompleteAcceptOnEnter boolean true Whether pressing Enter accepts the current suggestion
+TextBox.defineProperty(TextBox, "autoCompleteAcceptOnEnter", {default = true, type = "boolean"})
+---@property autoCompleteAcceptOnClick boolean true Whether clicking a suggestion accepts it immediately
+TextBox.defineProperty(TextBox, "autoCompleteAcceptOnClick", {default = true, type = "boolean"})
+---@property autoCompleteCloseOnEscape boolean true Whether pressing Escape closes the popup
+TextBox.defineProperty(TextBox, "autoCompleteCloseOnEscape", {default = true, type = "boolean"})
 
 TextBox.defineEvent(TextBox, "mouse_click")
 TextBox.defineEvent(TextBox, "key")
 TextBox.defineEvent(TextBox, "char")
 TextBox.defineEvent(TextBox, "mouse_scroll")
 TextBox.defineEvent(TextBox, "paste")
+TextBox.defineEvent(TextBox, "auto_complete_open")
+TextBox.defineEvent(TextBox, "auto_complete_close")
+TextBox.defineEvent(TextBox, "auto_complete_accept")
+
+local updateAutoCompleteBorder
+local layoutAutoCompleteList
+
+local function autoCompleteVisible(self)
+    local frame = self._autoCompleteFrame
+    return frame and not frame._destroyed and frame.get and frame.get("visible")
+end
+
+local function getBorderPadding(self)
+    return self.get("autoCompleteShowBorder") and 1 or 0
+end
+
+local function updateAutoCompleteStyles(self)
+    local frame = self._autoCompleteFrame
+    local list = self._autoCompleteList
+    if not frame or frame._destroyed then return end
+    frame:setBackground(self.get("autoCompleteBackground"))
+    frame:setForeground(self.get("autoCompleteForeground"))
+    if list and not list._destroyed then
+        list:setBackground(self.get("autoCompleteBackground"))
+        list:setForeground(self.get("autoCompleteForeground"))
+        list:setSelectedBackground(self.get("autoCompleteSelectedBackground"))
+        list:setSelectedForeground(self.get("autoCompleteSelectedForeground"))
+        list:updateRender()
+    end
+    layoutAutoCompleteList(self)
+    updateAutoCompleteBorder(self)
+    frame:updateRender()
+end
+
+local function setAutoCompleteSelection(self, index, clampOnly)
+    local list = self._autoCompleteList
+    if not list or list._destroyed then return end
+    local items = list.get("items")
+    local count = #items
+    if count == 0 then return end
+    if index < 1 then index = 1 end
+    if index > count then index = count end
+    self._autoCompleteIndex = index
+
+    for i, item in ipairs(items) do
+        if type(item) == "table" then
+            item.selected = (i == index)
+        end
+    end
+
+    local height = list.get("height") or 0
+    local offset = list.get("offset") or 0
+    if not clampOnly and height > 0 then
+        if index > offset + height then
+            list:setOffset(math.max(0, index - height))
+        elseif index <= offset then
+            list:setOffset(math.max(0, index - 1))
+        end
+    end
+    list:updateRender()
+end
+
+local function hideAutoComplete(self, silent)
+    if autoCompleteVisible(self) then
+        self._autoCompleteFrame:setVisible(false)
+        if not silent then
+            self:fireEvent("auto_complete_close")
+        end
+    end
+    self._autoCompleteIndex = nil
+    self._autoCompleteSuggestions = nil
+    self._autoCompleteToken = nil
+    self._autoCompleteTokenStart = nil
+    self._autoCompletePopupWidth = nil
+end
+
+local function applyAutoCompleteSelection(self, item)
+    local suggestions = self._autoCompleteSuggestions or {}
+    local index = self._autoCompleteIndex or 1
+    local entry = item or suggestions[index]
+    if not entry then return end
+    local insertText = entry.insert or entry.text or ""
+    if insertText == "" then return end
+
+    local lines = self.get("lines")
+    local cursorY = self.get("cursorY")
+    local cursorX = self.get("cursorX")
+    local line = lines[cursorY] or ""
+    local startIndex = self._autoCompleteTokenStart or cursorX
+    if startIndex < 1 then startIndex = 1 end
+
+    local before = line:sub(1, startIndex - 1)
+    local after = line:sub(cursorX)
+    lines[cursorY] = before .. insertText .. after
+
+    self.set("cursorX", startIndex + #insertText)
+    self:updateViewport()
+    self:updateRender()
+    hideAutoComplete(self, true)
+    self:fireEvent("auto_complete_accept", insertText, entry.source or entry)
+end
+
+local function ensureAutoCompleteUI(self)
+    if not self.get("autoCompleteEnabled") then return nil end
+    local frame = self._autoCompleteFrame
+    if frame and not frame._destroyed then
+        return self._autoCompleteList
+    end
+
+    local base = self:getBaseFrame()
+    if not base or not base.addFrame then return nil end
+
+    frame = base:addFrame({
+        width = self.get("width"),
+        height = 1,
+        x = 1,
+        y = 1,
+        visible = false,
+        background = self.get("autoCompleteBackground"),
+        foreground = self.get("autoCompleteForeground"),
+        ignoreOffset = true,
+        z = self.get("z") + self.get("autoCompleteZOffset"),
+    })
+    frame:setIgnoreOffset(true)
+    frame:setVisible(false)
+
+    local padding = getBorderPadding(self)
+    local list = frame:addList({
+        x = padding + 1,
+        y = padding + 1,
+        width = math.max(1, frame.get("width") - padding * 2),
+        height = math.max(1, frame.get("height") - padding * 2),
+        selectable = true,
+        multiSelection = false,
+        background = self.get("autoCompleteBackground"),
+        foreground = self.get("autoCompleteForeground"),
+    })
+    list:setSelectedBackground(self.get("autoCompleteSelectedBackground"))
+    list:setSelectedForeground(self.get("autoCompleteSelectedForeground"))
+    list:setOffset(0)
+    list:onSelect(function(_, index, selectedItem)
+        if not autoCompleteVisible(self) then return end
+        setAutoCompleteSelection(self, index)
+        if self.get("autoCompleteAcceptOnClick") then
+            applyAutoCompleteSelection(self, selectedItem)
+        end
+    end)
+
+    self._autoCompleteFrame = frame
+    self._autoCompleteList = list
+    updateAutoCompleteStyles(self)
+    return list
+end
+
+layoutAutoCompleteList = function(self, contentWidth, visibleCount)
+    local frame = self._autoCompleteFrame
+    local list = self._autoCompleteList
+    if not frame or frame._destroyed or not list or list._destroyed then return end
+
+    local border = getBorderPadding(self)
+    local width = tonumber(contentWidth) or rawget(self, "_autoCompletePopupWidth") or list.get("width") or frame.get("width")
+    local height = tonumber(visibleCount) or (list.get and list.get("height")) or (#(rawget(self, "_autoCompleteSuggestions") or {}))
+
+    width = math.max(1, width or 1)
+    height = math.max(1, height or 1)
+
+    local frameWidth = frame.get and frame.get("width") or width
+    local frameHeight = frame.get and frame.get("height") or height
+    local maxWidth = math.max(1, frameWidth - border * 2)
+    local maxHeight = math.max(1, frameHeight - border * 2)
+    if width > maxWidth then width = maxWidth end
+    if height > maxHeight then height = maxHeight end
+
+    list:setPosition(border + 1, border + 1)
+    list:setWidth(math.max(1, width))
+    list:setHeight(math.max(1, height))
+end
+
+updateAutoCompleteBorder = function(self)
+    local frame = self._autoCompleteFrame
+    if not frame or frame._destroyed then return end
+
+    local canvas = frame.get and frame.get("canvas")
+    if not canvas then return end
+
+    canvas:setType("post")
+    if frame._autoCompleteBorderCommand then
+        canvas:removeCommand(frame._autoCompleteBorderCommand)
+        frame._autoCompleteBorderCommand = nil
+    end
+
+    if not self.get("autoCompleteShowBorder") then
+        frame:updateRender()
+        return
+    end
+
+    local borderColor = self.get("autoCompleteBorderColor") or colors.black
+
+    local commandIndex = canvas:addCommand(function(element)
+        local width = element.get("width") or 0
+        local height = element.get("height") or 0
+        if width < 1 or height < 1 then return end
+
+        local bgColor = element.get("background") or colors.black
+        local bgHex = tHex[bgColor] or tHex[colors.black]
+        local borderHex = tHex[borderColor] or tHex[colors.black]
+
+        element:textFg(1, 1, ("\131"):rep(width), borderColor)
+        element:multiBlit(1, height, width, 1, "\143", bgHex, borderHex)
+        element:multiBlit(1, 1, 1, height, "\149", borderHex, bgHex)
+        element:multiBlit(width, 1, 1, height, "\149", bgHex, borderHex)
+        element:blit(1, 1, "\151", borderHex, bgHex)
+        element:blit(width, 1, "\148", bgHex, borderHex)
+        element:blit(1, height, "\138", bgHex, borderHex)
+        element:blit(width, height, "\133", bgHex, borderHex)
+    end)
+
+    frame._autoCompleteBorderCommand = commandIndex
+    frame:updateRender()
+end
+
+local function getTokenInfo(self)
+    local lines = self.get("lines")
+    local cursorY = self.get("cursorY")
+    local cursorX = self.get("cursorX")
+    local line = lines[cursorY] or ""
+    local uptoCursor = line:sub(1, math.max(cursorX - 1, 0))
+    local pattern = self.get("autoCompleteTokenPattern") or "[%w_]+"
+
+    local token = ""
+    if pattern ~= "" then
+        token = uptoCursor:match("(" .. pattern .. ")$") or ""
+    end
+    local startIndex = cursorX - #token
+    if startIndex < 1 then startIndex = 1 end
+    return token, startIndex
+end
+
+local function normalizeSuggestion(entry)
+    if type(entry) == "string" then
+        return {text = entry, insert = entry, source = entry}
+    elseif type(entry) == "table" then
+        local text = entry.text or entry.label or entry.value or entry.insert or entry[1]
+        if not text then return nil end
+        local item = {
+            text = text,
+            insert = entry.insert or entry.value or text,
+            source = entry,
+        }
+        if entry.foreground then item.foreground = entry.foreground end
+        if entry.background then item.background = entry.background end
+        if entry.selectedForeground then item.selectedForeground = entry.selectedForeground end
+        if entry.selectedBackground then item.selectedBackground = entry.selectedBackground end
+        if entry.icon then item.icon = entry.icon end
+        if entry.info then item.info = entry.info end
+        return item
+    end
+end
+
+local function iterateSuggestions(source, handler)
+    if type(source) ~= "table" then return end
+    local length = #source
+    if length > 0 then
+        for index = 1, length do
+            handler(source[index])
+        end
+    else
+        for _, value in pairs(source) do
+            handler(value)
+        end
+    end
+end
+
+local function gatherSuggestions(self, token)
+    local provider = self.get("autoCompleteProvider")
+    local source = {}
+    if provider then
+        local ok, result = pcall(provider, self, token)
+        if ok and type(result) == "table" then
+            source = result
+        end
+    else
+        source = self.get("autoCompleteItems") or {}
+    end
+
+    local suggestions = {}
+    local caseInsensitive = self.get("autoCompleteCaseInsensitive")
+    local target = caseInsensitive and token:lower() or token
+    iterateSuggestions(source, function(entry)
+        local normalized = normalizeSuggestion(entry)
+        if normalized and normalized.text then
+            local compare = caseInsensitive and normalized.text:lower() or normalized.text
+            if target == "" or compare:find(target, 1, true) == 1 then
+                table.insert(suggestions, normalized)
+            end
+        end
+    end)
+
+    local maxItems = self.get("autoCompleteMaxItems")
+    if #suggestions > maxItems then
+        while #suggestions > maxItems do
+            table.remove(suggestions)
+        end
+    end
+    return suggestions
+end
+
+local function measureSuggestionWidth(self, suggestions)
+    local maxLen = 0
+    for _, entry in ipairs(suggestions) do
+        local text = entry
+        if type(entry) == "table" then
+            text = entry.text or entry.label or entry.value or entry.insert or entry[1]
+        end
+        if text ~= nil then
+            local len = #tostring(text)
+            if len > maxLen then
+                maxLen = len
+            end
+        end
+    end
+
+    local limit = self.get("autoCompleteMaxWidth")
+    local maxWidth = self.get("width")
+    if limit and limit > 0 then
+        maxWidth = math.min(maxWidth, limit)
+    end
+
+    local border = getBorderPadding(self)
+    local base = self:getBaseFrame()
+    if base and base.get then
+        local baseWidth = base.get("width")
+        if baseWidth and baseWidth > 0 then
+            local available = baseWidth - border * 2
+            if available < 1 then available = 1 end
+            maxWidth = math.min(maxWidth, available)
+        end
+    end
+
+    maxLen = math.min(maxLen, maxWidth)
+
+    return math.max(1, maxLen)
+end
+
+local function placeAutoCompleteFrame(self, visibleCount, width)
+    local frame = self._autoCompleteFrame
+    local list = self._autoCompleteList
+    if not frame or frame._destroyed then return end
+    local border = getBorderPadding(self)
+    local contentWidth = math.max(1, width or self.get("width"))
+    local contentHeight = math.max(1, visibleCount or 1)
+
+    local base = self:getBaseFrame()
+    if not base then return end
+    local baseWidth = base.get and base.get("width")
+    local baseHeight = base.get and base.get("height")
+
+    if baseWidth and baseWidth > 0 then
+        local maxContentWidth = baseWidth - border * 2
+        if maxContentWidth < 1 then maxContentWidth = 1 end
+        if contentWidth > maxContentWidth then
+            contentWidth = maxContentWidth
+        end
+    end
+
+    if baseHeight and baseHeight > 0 then
+        local maxContentHeight = baseHeight - border * 2
+        if maxContentHeight < 1 then maxContentHeight = 1 end
+        if contentHeight > maxContentHeight then
+            contentHeight = maxContentHeight
+        end
+    end
+
+    local frameWidth = contentWidth + border * 2
+    local frameHeight = contentHeight + border * 2
+    local originX, originY = self:calculatePosition()
+    local scrollX = self.get("scrollX") or 0
+    local scrollY = self.get("scrollY") or 0
+    local tokenStart = (self._autoCompleteTokenStart or self.get("cursorX"))
+    local column = tokenStart - scrollX
+    column = math.max(1, math.min(self.get("width"), column))
+
+    local cursorRow = self.get("cursorY") - scrollY
+    cursorRow = math.max(1, math.min(self.get("height"), cursorRow))
+
+    local offsetX = self.get("autoCompleteOffsetX")
+    local offsetY = self.get("autoCompleteOffsetY")
+
+    local baseX = originX + column - 1 + offsetX
+    local x = baseX - border
+    if border > 0 then
+        x = x + 1
+    end
+    local listTopBelow = originY + cursorRow + offsetY
+    local listBottomAbove = originY + cursorRow - offsetY - 1
+    local belowY = listTopBelow - border
+    local aboveY = listBottomAbove - contentHeight + 1 - border
+    local y = belowY
+
+    if baseWidth and baseWidth > 0 then
+        if frameWidth > baseWidth then
+            frameWidth = baseWidth
+            contentWidth = math.max(1, frameWidth - border * 2)
+        end
+        if x + frameWidth - 1 > baseWidth then
+            x = math.max(1, baseWidth - frameWidth + 1)
+        end
+        if x < 1 then
+            x = 1
+        end
+    else
+        if x < 1 then x = 1 end
+    end
+
+    if baseHeight and baseHeight > 0 then
+        if y + frameHeight - 1 > baseHeight then
+            y = aboveY
+            if y < 1 then
+                y = math.max(1, baseHeight - frameHeight + 1)
+            end
+        end
+        if y < 1 then
+            y = 1
+        end
+    else
+        if y < 1 then y = 1 end
+    end
+
+    frame:setPosition(x, y)
+    frame:setWidth(frameWidth)
+    frame:setHeight(frameHeight)
+    frame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+
+    layoutAutoCompleteList(self, contentWidth, contentHeight)
+
+    if list and not list._destroyed then
+        list:updateRender()
+    end
+    frame:updateRender()
+end
+
+local function refreshAutoComplete(self)
+    if not self.get("autoCompleteEnabled") then
+        hideAutoComplete(self, true)
+        return
+    end
+    if not self.get("focused") then
+        hideAutoComplete(self, true)
+        return
+    end
+
+    local token, startIndex = getTokenInfo(self)
+    self._autoCompleteToken = token
+    self._autoCompleteTokenStart = startIndex
+
+    if #token < self.get("autoCompleteMinChars") then
+        hideAutoComplete(self)
+        return
+    end
+
+    local suggestions = gatherSuggestions(self, token)
+    if #suggestions == 0 then
+        hideAutoComplete(self)
+        return
+    end
+
+    local list = ensureAutoCompleteUI(self)
+    if not list then return end
+
+    list:setOffset(0)
+    list:setItems(suggestions)
+    self._autoCompleteSuggestions = suggestions
+    setAutoCompleteSelection(self, 1, true)
+
+    local popupWidth = measureSuggestionWidth(self, suggestions)
+    self._autoCompletePopupWidth = popupWidth
+    placeAutoCompleteFrame(self, #suggestions, popupWidth)
+    updateAutoCompleteStyles(self)
+    self._autoCompleteFrame:setVisible(true)
+    self._autoCompleteList:updateRender()
+    self._autoCompleteFrame:updateRender()
+    self:fireEvent("auto_complete_open", token, suggestions)
+end
+
+local function handleAutoCompleteKey(self, key)
+    if not autoCompleteVisible(self) then return false end
+
+    if key == keys.tab or (key == keys.enter and self.get("autoCompleteAcceptOnEnter")) then
+        applyAutoCompleteSelection(self)
+        return true
+    elseif key == keys.up then
+        setAutoCompleteSelection(self, (self._autoCompleteIndex or 1) - 1)
+        return true
+    elseif key == keys.down then
+        setAutoCompleteSelection(self, (self._autoCompleteIndex or 1) + 1)
+        return true
+    elseif key == keys.pageUp then
+        local height = (self._autoCompleteList and self._autoCompleteList.get("height")) or 1
+        setAutoCompleteSelection(self, (self._autoCompleteIndex or 1) - height)
+        return true
+    elseif key == keys.pageDown then
+        local height = (self._autoCompleteList and self._autoCompleteList.get("height")) or 1
+        setAutoCompleteSelection(self, (self._autoCompleteIndex or 1) + height)
+        return true
+    elseif key == keys.escape and self.get("autoCompleteCloseOnEscape") then
+        hideAutoComplete(self)
+        return true
+    end
+    return false
+end
+
+local function handleAutoCompleteScroll(self, direction)
+    if not autoCompleteVisible(self) then return false end
+    local list = self._autoCompleteList
+    if not list or list._destroyed then return false end
+    local items = list.get("items")
+    local height = list.get("height") or 1
+    local offset = list.get("offset") or 0
+    local count = #items
+    if count == 0 then return false end
+
+    local maxOffset = math.max(0, count - height)
+    local newOffset = math.max(0, math.min(maxOffset, offset + direction))
+    if newOffset ~= offset then
+        list:setOffset(newOffset)
+    end
+
+    local target = (self._autoCompleteIndex or 1) + direction
+    if target >= 1 and target <= count then
+        setAutoCompleteSelection(self, target)
+    else
+        list:updateRender()
+    end
+    return true
+end
 
 --- Creates a new TextBox instance
 --- @shortDescription Creates a new TextBox instance
@@ -51,6 +627,100 @@ end
 function TextBox:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "TextBox")
+
+    local function refreshIfEnabled()
+        if self.get("autoCompleteEnabled") and self.get("focused") then
+            refreshAutoComplete(self)
+        end
+    end
+
+    local function restyle()
+        updateAutoCompleteStyles(self)
+    end
+
+    local function reposition()
+        if autoCompleteVisible(self) then
+            local suggestions = rawget(self, "_autoCompleteSuggestions") or {}
+            placeAutoCompleteFrame(self, math.max(#suggestions, 1), rawget(self, "_autoCompletePopupWidth") or self.get("width"))
+        end
+    end
+
+    self:observe("autoCompleteEnabled", function(_, value)
+        if not value then
+            hideAutoComplete(self, true)
+        elseif self.get("focused") then
+            refreshAutoComplete(self)
+        end
+    end)
+
+    self:observe("focused", function(_, focused)
+        if focused then
+            refreshIfEnabled()
+        else
+            hideAutoComplete(self, true)
+        end
+    end)
+
+    self:observe("foreground", restyle)
+    self:observe("background", restyle)
+    self:observe("autoCompleteBackground", restyle)
+    self:observe("autoCompleteForeground", restyle)
+    self:observe("autoCompleteSelectedBackground", restyle)
+    self:observe("autoCompleteSelectedForeground", restyle)
+    self:observe("autoCompleteBorderColor", restyle)
+
+    self:observe("autoCompleteZOffset", function()
+        if self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
+            self._autoCompleteFrame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+        end
+    end)
+    self:observe("z", function()
+        if self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
+            self._autoCompleteFrame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+        end
+    end)
+
+    self:observe("autoCompleteShowBorder", function()
+        restyle()
+        reposition()
+    end)
+
+    for _, prop in ipairs({
+        "autoCompleteItems",
+        "autoCompleteProvider",
+        "autoCompleteMinChars",
+        "autoCompleteMaxItems",
+        "autoCompleteCaseInsensitive",
+        "autoCompleteTokenPattern",
+        "autoCompleteOffsetX",
+        "autoCompleteOffsetY",
+    }) do
+        self:observe(prop, refreshIfEnabled)
+    end
+
+    self:observe("x", reposition)
+    self:observe("y", reposition)
+    self:observe("width", function()
+        reposition()
+        refreshIfEnabled()
+    end)
+    self:observe("height", reposition)
+    self:observe("cursorX", reposition)
+    self:observe("cursorY", reposition)
+    self:observe("scrollX", reposition)
+    self:observe("scrollY", reposition)
+    self:observe("autoCompleteOffsetX", reposition)
+    self:observe("autoCompleteOffsetY", reposition)
+    self:observe("autoCompleteMaxWidth", function()
+        if autoCompleteVisible(self) then
+            local suggestions = rawget(self, "_autoCompleteSuggestions") or {}
+            if #suggestions > 0 then
+                local popupWidth = measureSuggestionWidth(self, suggestions)
+                self._autoCompletePopupWidth = popupWidth
+                placeAutoCompleteFrame(self, math.max(#suggestions, 1), popupWidth)
+            end
+        end
+    end)
     return self
 end
 
@@ -167,6 +837,7 @@ end
 function TextBox:char(char)
     if not self.get("editable") or not self.get("focused") then return false end
     insertChar(self, char)
+    refreshAutoComplete(self)
     return true
 end
 
@@ -176,6 +847,9 @@ end
 --- @protected
 function TextBox:key(key)
     if not self.get("editable") or not self.get("focused") then return false end
+    if handleAutoCompleteKey(self, key) then
+        return true
+    end
     local lines = self.get("lines")
     local cursorX = self.get("cursorX")
     local cursorY = self.get("cursorY")
@@ -207,6 +881,7 @@ function TextBox:key(key)
     end
     self:updateRender()
     self:updateViewport()
+    refreshAutoComplete(self)
     return true
 end
 
@@ -217,6 +892,9 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function TextBox:mouse_scroll(direction, x, y)
+    if handleAutoCompleteScroll(self, direction) then
+        return true
+    end
     if self:isInBounds(x, y) then
         local scrollY = self.get("scrollY")
         local height = self.get("height")
@@ -256,7 +934,14 @@ function TextBox:mouse_click(button, x, y)
             self.set("cursorX", math.min((relX or 1) + (scrollX or 0), lineLen + 1))
         end
         self:updateRender()
+        refreshAutoComplete(self)
         return true
+    end
+    if autoCompleteVisible(self) then
+        local frame = self._autoCompleteFrame
+        if not (frame and frame:isInBounds(x, y)) and not self:isInBounds(x, y) then
+            hideAutoComplete(self)
+        end
     end
     return false
 end
@@ -274,6 +959,7 @@ function TextBox:paste(text)
         end
     end
 
+    refreshAutoComplete(self)
     return true
 end
 
@@ -291,6 +977,7 @@ function TextBox:setText(text)
         end
     end
     self.set("lines", lines)
+    hideAutoComplete(self, true)
     return self
 end
 
@@ -363,6 +1050,16 @@ function TextBox:render()
             self:setCursor(relativeX, relativeY, true, self.get("cursorColor") or self.get("foreground"))
         end
     end
+end
+
+function TextBox:destroy()
+    if self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
+        self._autoCompleteFrame:destroy()
+    end
+    self._autoCompleteFrame = nil
+    self._autoCompleteList = nil
+    self._autoCompletePopupWidth = nil
+    VisualElement.destroy(self)
 end
 
 return TextBox
