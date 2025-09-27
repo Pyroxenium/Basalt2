@@ -15,6 +15,26 @@ Extends: `VisualElement`
 |editable|boolean|true|Whether text can be edited|
 |syntaxPatterns|table|{}|Syntax highlighting patterns|
 |cursorColor|number|nil|Color of the cursor|
+|autoCompleteEnabled|boolean|false|Whether autocomplete suggestions are enabled|
+|autoCompleteItems|table|{}|List of suggestions used when no provider is supplied|
+|autoCompleteProvider|function|nil|Optional suggestion provider returning a list for the current prefix|
+|autoCompleteMinChars|number|1|Minimum characters required before showing suggestions|
+|autoCompleteMaxItems|number|6|Maximum number of visible suggestions|
+|autoCompleteCaseInsensitive|boolean|true|Whether suggestions should match case-insensitively|
+|autoCompleteTokenPattern|string|"[%w_]+"|Pattern used to extract the current token for suggestions|
+|autoCompleteOffsetX|number|0|Horizontal offset applied to the popup frame relative to the TextBox|
+|autoCompleteOffsetY|number|1|Vertical offset applied to the popup frame relative to the TextBox bottom edge|
+|autoCompleteZOffset|number|1|Z-index offset applied to the popup frame|
+|autoCompleteMaxWidth|number|0|Maximum width of the autocomplete popup (0 uses the textbox width)|
+|autoCompleteShowBorder|boolean|true|Whether to render a character border around the popup|
+|autoCompleteBorderColor|color|black|Color of the popup border when enabled|
+|autoCompleteBackground|color|lightGray|Background color of the suggestion popup|
+|autoCompleteForeground|color|black|Foreground color of the suggestion popup|
+|autoCompleteSelectedBackground|color|gray|Background color for the selected suggestion|
+|autoCompleteSelectedForeground|color|white|Foreground color for the selected suggestion|
+|autoCompleteAcceptOnEnter|boolean|true|Whether pressing Enter accepts the current suggestion|
+|autoCompleteAcceptOnClick|boolean|true|Whether clicking a suggestion accepts it immediately|
+|autoCompleteCloseOnEscape|boolean|true|Whether pressing Escape closes the popup|
 
 ## Functions
 
