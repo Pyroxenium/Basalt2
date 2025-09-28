@@ -25,6 +25,16 @@ TextBox.defineProperty(TextBox, "editable", {default = true, type = "boolean"})
 TextBox.defineProperty(TextBox, "syntaxPatterns", {default = {}, type = "table"})
 ---@property cursorColor number nil Color of the cursor
 TextBox.defineProperty(TextBox, "cursorColor", {default = nil, type = "color"})
+---@property autoPairEnabled boolean true Whether automatic bracket/quote pairing is enabled
+TextBox.defineProperty(TextBox, "autoPairEnabled", {default = true, type = "boolean"})
+---@property autoPairCharacters table { ["("]=")", ["["]="]", ["{"]="}", ['"']='"', ['\'']='\'', ['`']='`'} Mapping of opening to closing characters for auto pairing
+TextBox.defineProperty(TextBox, "autoPairCharacters", {default = { ["("]=")", ["["]="]", ["{"]="}", ['"']='"', ['\'']='\'', ['`']='`' }, type = "table"})
+---@property autoPairSkipClosing boolean true Skip inserting a closing char if the same one is already at cursor
+TextBox.defineProperty(TextBox, "autoPairSkipClosing", {default = true, type = "boolean"})
+---@property autoPairOverType boolean true When pressing a closing char that matches the next char, move over it instead of inserting
+TextBox.defineProperty(TextBox, "autoPairOverType", {default = true, type = "boolean"})
+---@property autoPairNewlineIndent boolean true On Enter between matching braces, create blank line and keep closing aligned
+TextBox.defineProperty(TextBox, "autoPairNewlineIndent", {default = true, type = "boolean"})
 ---@property autoCompleteEnabled boolean false Whether autocomplete suggestions are enabled
 TextBox.defineProperty(TextBox, "autoCompleteEnabled", {default = false, type = "boolean"})
 ---@property autoCompleteItems table {} List of suggestions used when no provider is supplied
@@ -487,7 +497,12 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
 
     if baseHeight and baseHeight > 0 then
         if y + frameHeight - 1 > baseHeight then
+            -- Place above
             y = aboveY
+            if border > 0 then
+                -- Shift further up so lower border does not overlap the text line
+                y = y - border
+            end
             if y < 1 then
                 y = math.max(1, baseHeight - frameHeight + 1)
             end
@@ -497,6 +512,9 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
         end
     else
         if y < 1 then y = 1 end
+        if y == aboveY and border > 0 then
+            y = math.max(1, y - border)
+        end
     end
 
     frame:setPosition(x, y)
@@ -767,6 +785,12 @@ local function insertChar(self, char)
     self:updateRender()
 end
 
+local function insertText(self, text)
+    for i = 1, #text do
+        insertChar(self, text:sub(i,i))
+    end
+end
+
 local function newLine(self)
     local lines = self.get("lines")
     local cursorX = self.get("cursorX")
@@ -836,6 +860,48 @@ end
 --- @protected
 function TextBox:char(char)
     if not self.get("editable") or not self.get("focused") then return false end
+    -- Auto-pair logic only triggers for single characters
+    local autoPair = self.get("autoPairEnabled")
+    if autoPair and #char == 1 then
+        local map = self.get("autoPairCharacters") or {}
+        local lines = self.get("lines")
+        local cursorX = self.get("cursorX")
+        local cursorY = self.get("cursorY")
+        local line = lines[cursorY] or ""
+        local afterChar = line:sub(cursorX, cursorX)
+
+        -- If typed char is an opening pair and we should skip duplicating closing when already there
+        local closing = map[char]
+        if closing then
+            -- If skip closing and same closing already directly after, just insert opening?
+            insertChar(self, char)
+            if self.get("autoPairSkipClosing") then
+                if afterChar ~= closing then
+                    insertChar(self, closing)
+                    -- Move cursor back inside pair
+                    self.set("cursorX", self.get("cursorX") - 1)
+                end
+            else
+                insertChar(self, closing)
+                self.set("cursorX", self.get("cursorX") - 1)
+            end
+            refreshAutoComplete(self)
+            return true
+        end
+
+        -- If typed char is a closing we might want to overtype
+        if self.get("autoPairOverType") then
+            for open, close in pairs(map) do
+                if char == close and afterChar == close then
+                    -- move over instead of inserting
+                    self.set("cursorX", cursorX + 1)
+                    refreshAutoComplete(self)
+                    return true
+                end
+            end
+        end
+    end
+
     insertChar(self, char)
     refreshAutoComplete(self)
     return true
@@ -855,6 +921,32 @@ function TextBox:key(key)
     local cursorY = self.get("cursorY")
 
     if key == keys.enter then
+        -- Smart newline between matching braces/brackets if enabled
+        if self.get("autoPairEnabled") and self.get("autoPairNewlineIndent") then
+            local lines = self.get("lines")
+            local cursorX = self.get("cursorX")
+            local cursorY = self.get("cursorY")
+            local line = lines[cursorY] or ""
+            local before = line:sub(1, cursorX - 1)
+            local after = line:sub(cursorX)
+            local pairMap = self.get("autoPairCharacters") or {}
+            local inverse = {}
+            for o,c in pairs(pairMap) do inverse[c]=o end
+            local prevChar = before:sub(-1)
+            local nextChar = after:sub(1,1)
+            if prevChar ~= "" and nextChar ~= "" and pairMap[prevChar] == nextChar then
+                -- Split line into two with an empty line between, caret positioned on inner line
+                lines[cursorY] = before
+                table.insert(lines, cursorY + 1, "")
+                table.insert(lines, cursorY + 2, after)
+                self.set("cursorY", cursorY + 1)
+                self.set("cursorX", 1)
+                self:updateViewport()
+                self:updateRender()
+                refreshAutoComplete(self)
+                return true
+            end
+        end
         newLine(self)
     elseif key == keys.backspace then
         backspace(self)
