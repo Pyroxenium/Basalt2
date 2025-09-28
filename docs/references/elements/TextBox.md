@@ -15,6 +15,11 @@ Extends: `VisualElement`
 |editable|boolean|true|Whether text can be edited|
 |syntaxPatterns|table|{}|Syntax highlighting patterns|
 |cursorColor|number|nil|Color of the cursor|
+|autoPairEnabled|boolean|true|Whether automatic bracket/quote pairing is enabled|
+|autoPairCharacters|table|{|["("]=")", ["["]="]", ["{"]="}", ['"']='"', ['\'']='\'', ['`']='`'} Mapping of opening to closing characters for auto pairing|
+|autoPairSkipClosing|boolean|true|Skip inserting a closing char if the same one is already at cursor|
+|autoPairOverType|boolean|true|When pressing a closing char that matches the next char, move over it instead of inserting|
+|autoPairNewlineIndent|boolean|true|On Enter between matching braces, create blank line and keep closing aligned|
 |autoCompleteEnabled|boolean|false|Whether autocomplete suggestions are enabled|
 |autoCompleteItems|table|{}|List of suggestions used when no provider is supplied|
 |autoCompleteProvider|function|nil|Optional suggestion provider returning a list for the current prefix|
