@@ -721,231 +721,237 @@ local bc=ac.get("z")local cc=i-1
 while cc>0 do local dc=_c[cc].get("z")if dc>bc then _c[cc+1]=_c[cc]
 cc=cc-1 else break end end;_c[cc+1]=ac end
 self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[cb]=_c end;self.set("childrenEventsSorted",true)return self end;return bb end
-project["elements/TextBox.lua"] = function(...) local a_a=require("elements/VisualElement")
-local b_a=require("libraries/colorHex")local c_a=setmetatable({},a_a)c_a.__index=c_a
-c_a.defineProperty(c_a,"lines",{default={""},type="table",canTriggerRender=true})
-c_a.defineProperty(c_a,"cursorX",{default=1,type="number"})
-c_a.defineProperty(c_a,"cursorY",{default=1,type="number"})
-c_a.defineProperty(c_a,"scrollX",{default=0,type="number",canTriggerRender=true})
-c_a.defineProperty(c_a,"scrollY",{default=0,type="number",canTriggerRender=true})
-c_a.defineProperty(c_a,"editable",{default=true,type="boolean"})
-c_a.defineProperty(c_a,"syntaxPatterns",{default={},type="table"})
-c_a.defineProperty(c_a,"cursorColor",{default=nil,type="color"})
-c_a.defineProperty(c_a,"autoCompleteEnabled",{default=false,type="boolean"})
-c_a.defineProperty(c_a,"autoCompleteItems",{default={},type="table"})
-c_a.defineProperty(c_a,"autoCompleteProvider",{default=nil,type="function",allowNil=true})
-c_a.defineProperty(c_a,"autoCompleteMinChars",{default=1,type="number"})
-c_a.defineProperty(c_a,"autoCompleteMaxItems",{default=6,type="number"})
-c_a.defineProperty(c_a,"autoCompleteCaseInsensitive",{default=true,type="boolean"})
-c_a.defineProperty(c_a,"autoCompleteTokenPattern",{default="[%w_]+",type="string"})
-c_a.defineProperty(c_a,"autoCompleteOffsetX",{default=0,type="number"})
-c_a.defineProperty(c_a,"autoCompleteOffsetY",{default=1,type="number"})
-c_a.defineProperty(c_a,"autoCompleteZOffset",{default=1,type="number"})
-c_a.defineProperty(c_a,"autoCompleteMaxWidth",{default=0,type="number"})
-c_a.defineProperty(c_a,"autoCompleteShowBorder",{default=true,type="boolean"})
-c_a.defineProperty(c_a,"autoCompleteBorderColor",{default=colors.black,type="color"})
-c_a.defineProperty(c_a,"autoCompleteBackground",{default=colors.lightGray,type="color"})
-c_a.defineProperty(c_a,"autoCompleteForeground",{default=colors.black,type="color"})
-c_a.defineProperty(c_a,"autoCompleteSelectedBackground",{default=colors.gray,type="color"})
-c_a.defineProperty(c_a,"autoCompleteSelectedForeground",{default=colors.white,type="color"})
-c_a.defineProperty(c_a,"autoCompleteAcceptOnEnter",{default=true,type="boolean"})
-c_a.defineProperty(c_a,"autoCompleteAcceptOnClick",{default=true,type="boolean"})
-c_a.defineProperty(c_a,"autoCompleteCloseOnEscape",{default=true,type="boolean"})c_a.defineEvent(c_a,"mouse_click")
-c_a.defineEvent(c_a,"key")c_a.defineEvent(c_a,"char")
-c_a.defineEvent(c_a,"mouse_scroll")c_a.defineEvent(c_a,"paste")
-c_a.defineEvent(c_a,"auto_complete_open")c_a.defineEvent(c_a,"auto_complete_close")
-c_a.defineEvent(c_a,"auto_complete_accept")local d_a;local _aa;local function aaa(a_b)local b_b=a_b._autoCompleteFrame
+project["elements/TextBox.lua"] = function(...) local b_a=require("elements/VisualElement")
+local c_a=require("libraries/colorHex")local d_a=setmetatable({},b_a)d_a.__index=d_a
+d_a.defineProperty(d_a,"lines",{default={""},type="table",canTriggerRender=true})
+d_a.defineProperty(d_a,"cursorX",{default=1,type="number"})
+d_a.defineProperty(d_a,"cursorY",{default=1,type="number"})
+d_a.defineProperty(d_a,"scrollX",{default=0,type="number",canTriggerRender=true})
+d_a.defineProperty(d_a,"scrollY",{default=0,type="number",canTriggerRender=true})
+d_a.defineProperty(d_a,"editable",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"syntaxPatterns",{default={},type="table"})
+d_a.defineProperty(d_a,"cursorColor",{default=nil,type="color"})
+d_a.defineProperty(d_a,"autoPairEnabled",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoPairCharacters",{default={["("]=")",["["]="]",["{"]="}",['"']='"',['\'']='\'',['`']='`'},type="table"})
+d_a.defineProperty(d_a,"autoPairSkipClosing",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoPairOverType",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoPairNewlineIndent",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteEnabled",{default=false,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteItems",{default={},type="table"})
+d_a.defineProperty(d_a,"autoCompleteProvider",{default=nil,type="function",allowNil=true})
+d_a.defineProperty(d_a,"autoCompleteMinChars",{default=1,type="number"})
+d_a.defineProperty(d_a,"autoCompleteMaxItems",{default=6,type="number"})
+d_a.defineProperty(d_a,"autoCompleteCaseInsensitive",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteTokenPattern",{default="[%w_]+",type="string"})
+d_a.defineProperty(d_a,"autoCompleteOffsetX",{default=0,type="number"})
+d_a.defineProperty(d_a,"autoCompleteOffsetY",{default=1,type="number"})
+d_a.defineProperty(d_a,"autoCompleteZOffset",{default=1,type="number"})
+d_a.defineProperty(d_a,"autoCompleteMaxWidth",{default=0,type="number"})
+d_a.defineProperty(d_a,"autoCompleteShowBorder",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteBorderColor",{default=colors.black,type="color"})
+d_a.defineProperty(d_a,"autoCompleteBackground",{default=colors.lightGray,type="color"})
+d_a.defineProperty(d_a,"autoCompleteForeground",{default=colors.black,type="color"})
+d_a.defineProperty(d_a,"autoCompleteSelectedBackground",{default=colors.gray,type="color"})
+d_a.defineProperty(d_a,"autoCompleteSelectedForeground",{default=colors.white,type="color"})
+d_a.defineProperty(d_a,"autoCompleteAcceptOnEnter",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteAcceptOnClick",{default=true,type="boolean"})
+d_a.defineProperty(d_a,"autoCompleteCloseOnEscape",{default=true,type="boolean"})d_a.defineEvent(d_a,"mouse_click")
+d_a.defineEvent(d_a,"key")d_a.defineEvent(d_a,"char")
+d_a.defineEvent(d_a,"mouse_scroll")d_a.defineEvent(d_a,"paste")
+d_a.defineEvent(d_a,"auto_complete_open")d_a.defineEvent(d_a,"auto_complete_close")
+d_a.defineEvent(d_a,"auto_complete_accept")local _aa;local aaa;local function baa(c_b)local d_b=c_b._autoCompleteFrame
 return
-b_b and not b_b._destroyed and b_b.get and b_b.get("visible")end
-local function baa(a_b)return
-a_b.get("autoCompleteShowBorder")and 1 or 0 end
-local function caa(a_b)local b_b=a_b._autoCompleteFrame;local c_b=a_b._autoCompleteList;if
-not b_b or b_b._destroyed then return end
-b_b:setBackground(a_b.get("autoCompleteBackground"))
-b_b:setForeground(a_b.get("autoCompleteForeground"))
-if c_b and not c_b._destroyed then
-c_b:setBackground(a_b.get("autoCompleteBackground"))
-c_b:setForeground(a_b.get("autoCompleteForeground"))
-c_b:setSelectedBackground(a_b.get("autoCompleteSelectedBackground"))
-c_b:setSelectedForeground(a_b.get("autoCompleteSelectedForeground"))c_b:updateRender()end;_aa(a_b)d_a(a_b)b_b:updateRender()end
-local function daa(a_b,b_b,c_b)local d_b=a_b._autoCompleteList
-if not d_b or d_b._destroyed then return end;local _ab=d_b.get("items")local aab=#_ab;if aab==0 then return end
-if b_b<1 then b_b=1 end;if b_b>aab then b_b=aab end;a_b._autoCompleteIndex=b_b
-for dab,_bb in ipairs(_ab)do if
-type(_bb)=="table"then _bb.selected=(dab==b_b)end end;local bab=d_b.get("height")or 0
-local cab=d_b.get("offset")or 0;if not c_b and bab>0 then
-if b_b>cab+bab then
-d_b:setOffset(math.max(0,b_b-bab))elseif b_b<=cab then d_b:setOffset(math.max(0,b_b-1))end end
-d_b:updateRender()end
-local function _ba(a_b,b_b)if aaa(a_b)then
-a_b._autoCompleteFrame:setVisible(false)
-if not b_b then a_b:fireEvent("auto_complete_close")end end
-a_b._autoCompleteIndex=nil;a_b._autoCompleteSuggestions=nil;a_b._autoCompleteToken=nil
-a_b._autoCompleteTokenStart=nil;a_b._autoCompletePopupWidth=nil end
-local function aba(a_b,b_b)local c_b=a_b._autoCompleteSuggestions or{}
-local d_b=a_b._autoCompleteIndex or 1;local _ab=b_b or c_b[d_b]if not _ab then return end
-local aab=_ab.insert or _ab.text or""if aab==""then return end;local bab=a_b.get("lines")
-local cab=a_b.get("cursorY")local dab=a_b.get("cursorX")local _bb=bab[cab]or""
-local abb=a_b._autoCompleteTokenStart or dab;if abb<1 then abb=1 end;local bbb=_bb:sub(1,abb-1)local cbb=_bb:sub(dab)bab[cab]=
-bbb..aab..cbb;a_b.set("cursorX",abb+#aab)
-a_b:updateViewport()a_b:updateRender()_ba(a_b,true)
-a_b:fireEvent("auto_complete_accept",aab,_ab.source or _ab)end
-local function bba(a_b)
-if not a_b.get("autoCompleteEnabled")then return nil end;local b_b=a_b._autoCompleteFrame;if b_b and not b_b._destroyed then
-return a_b._autoCompleteList end;local c_b=a_b:getBaseFrame()if not c_b or not
-c_b.addFrame then return nil end
-b_b=c_b:addFrame({width=a_b.get("width"),height=1,x=1,y=1,visible=false,background=a_b.get("autoCompleteBackground"),foreground=a_b.get("autoCompleteForeground"),ignoreOffset=true,z=
-a_b.get("z")+a_b.get("autoCompleteZOffset")})b_b:setIgnoreOffset(true)b_b:setVisible(false)
-local d_b=baa(a_b)
-local _ab=b_b:addList({x=d_b+1,y=d_b+1,width=math.max(1,b_b.get("width")-d_b*2),height=math.max(1,
-b_b.get("height")-d_b*2),selectable=true,multiSelection=false,background=a_b.get("autoCompleteBackground"),foreground=a_b.get("autoCompleteForeground")})
-_ab:setSelectedBackground(a_b.get("autoCompleteSelectedBackground"))
-_ab:setSelectedForeground(a_b.get("autoCompleteSelectedForeground"))_ab:setOffset(0)
-_ab:onSelect(function(aab,bab,cab)if not aaa(a_b)then return end
-daa(a_b,bab)
-if a_b.get("autoCompleteAcceptOnClick")then aba(a_b,cab)end end)a_b._autoCompleteFrame=b_b;a_b._autoCompleteList=_ab;caa(a_b)return _ab end
-_aa=function(a_b,b_b,c_b)local d_b=a_b._autoCompleteFrame;local _ab=a_b._autoCompleteList
+d_b and not d_b._destroyed and d_b.get and d_b.get("visible")end
+local function caa(c_b)return
+c_b.get("autoCompleteShowBorder")and 1 or 0 end
+local function daa(c_b)local d_b=c_b._autoCompleteFrame;local _ab=c_b._autoCompleteList;if
+not d_b or d_b._destroyed then return end
+d_b:setBackground(c_b.get("autoCompleteBackground"))
+d_b:setForeground(c_b.get("autoCompleteForeground"))
+if _ab and not _ab._destroyed then
+_ab:setBackground(c_b.get("autoCompleteBackground"))
+_ab:setForeground(c_b.get("autoCompleteForeground"))
+_ab:setSelectedBackground(c_b.get("autoCompleteSelectedBackground"))
+_ab:setSelectedForeground(c_b.get("autoCompleteSelectedForeground"))_ab:updateRender()end;aaa(c_b)_aa(c_b)d_b:updateRender()end
+local function _ba(c_b,d_b,_ab)local aab=c_b._autoCompleteList
+if not aab or aab._destroyed then return end;local bab=aab.get("items")local cab=#bab;if cab==0 then return end
+if d_b<1 then d_b=1 end;if d_b>cab then d_b=cab end;c_b._autoCompleteIndex=d_b
+for abb,bbb in ipairs(bab)do if
+type(bbb)=="table"then bbb.selected=(abb==d_b)end end;local dab=aab.get("height")or 0
+local _bb=aab.get("offset")or 0;if not _ab and dab>0 then
+if d_b>_bb+dab then
+aab:setOffset(math.max(0,d_b-dab))elseif d_b<=_bb then aab:setOffset(math.max(0,d_b-1))end end
+aab:updateRender()end
+local function aba(c_b,d_b)if baa(c_b)then
+c_b._autoCompleteFrame:setVisible(false)
+if not d_b then c_b:fireEvent("auto_complete_close")end end
+c_b._autoCompleteIndex=nil;c_b._autoCompleteSuggestions=nil;c_b._autoCompleteToken=nil
+c_b._autoCompleteTokenStart=nil;c_b._autoCompletePopupWidth=nil end
+local function bba(c_b,d_b)local _ab=c_b._autoCompleteSuggestions or{}
+local aab=c_b._autoCompleteIndex or 1;local bab=d_b or _ab[aab]if not bab then return end
+local cab=bab.insert or bab.text or""if cab==""then return end;local dab=c_b.get("lines")
+local _bb=c_b.get("cursorY")local abb=c_b.get("cursorX")local bbb=dab[_bb]or""
+local cbb=c_b._autoCompleteTokenStart or abb;if cbb<1 then cbb=1 end;local dbb=bbb:sub(1,cbb-1)local _cb=bbb:sub(abb)dab[_bb]=
+dbb..cab.._cb;c_b.set("cursorX",cbb+#cab)
+c_b:updateViewport()c_b:updateRender()aba(c_b,true)
+c_b:fireEvent("auto_complete_accept",cab,bab.source or bab)end
+local function cba(c_b)
+if not c_b.get("autoCompleteEnabled")then return nil end;local d_b=c_b._autoCompleteFrame;if d_b and not d_b._destroyed then
+return c_b._autoCompleteList end;local _ab=c_b:getBaseFrame()if not _ab or not
+_ab.addFrame then return nil end
+d_b=_ab:addFrame({width=c_b.get("width"),height=1,x=1,y=1,visible=false,background=c_b.get("autoCompleteBackground"),foreground=c_b.get("autoCompleteForeground"),ignoreOffset=true,z=
+c_b.get("z")+c_b.get("autoCompleteZOffset")})d_b:setIgnoreOffset(true)d_b:setVisible(false)
+local aab=caa(c_b)
+local bab=d_b:addList({x=aab+1,y=aab+1,width=math.max(1,d_b.get("width")-aab*2),height=math.max(1,
+d_b.get("height")-aab*2),selectable=true,multiSelection=false,background=c_b.get("autoCompleteBackground"),foreground=c_b.get("autoCompleteForeground")})
+bab:setSelectedBackground(c_b.get("autoCompleteSelectedBackground"))
+bab:setSelectedForeground(c_b.get("autoCompleteSelectedForeground"))bab:setOffset(0)
+bab:onSelect(function(cab,dab,_bb)if not baa(c_b)then return end
+_ba(c_b,dab)
+if c_b.get("autoCompleteAcceptOnClick")then bba(c_b,_bb)end end)c_b._autoCompleteFrame=d_b;c_b._autoCompleteList=bab;daa(c_b)return bab end
+aaa=function(c_b,d_b,_ab)local aab=c_b._autoCompleteFrame;local bab=c_b._autoCompleteList
 if
-not d_b or d_b._destroyed or not _ab or _ab._destroyed then return end;local aab=baa(a_b)
-local bab=
-tonumber(b_b)or rawget(a_b,"_autoCompletePopupWidth")or _ab.get("width")or d_b.get("width")
-local cab=tonumber(c_b)or(_ab.get and _ab.get("height"))or(# (
-rawget(a_b,"_autoCompleteSuggestions")or{}))bab=math.max(1,bab or 1)cab=math.max(1,cab or 1)local dab=
-d_b.get and d_b.get("width")or bab;local _bb=
-d_b.get and d_b.get("height")or cab;local abb=math.max(1,
-dab-aab*2)
-local bbb=math.max(1,_bb-aab*2)if bab>abb then bab=abb end;if cab>bbb then cab=bbb end
-_ab:setPosition(aab+1,aab+1)_ab:setWidth(math.max(1,bab))
-_ab:setHeight(math.max(1,cab))end
-d_a=function(a_b)local b_b=a_b._autoCompleteFrame
-if not b_b or b_b._destroyed then return end;local c_b=b_b.get and b_b.get("canvas")
-if not c_b then return end;c_b:setType("post")
-if b_b._autoCompleteBorderCommand then
-c_b:removeCommand(b_b._autoCompleteBorderCommand)b_b._autoCompleteBorderCommand=nil end;if not a_b.get("autoCompleteShowBorder")then
-b_b:updateRender()return end;local d_b=a_b.get("autoCompleteBorderColor")or
+not aab or aab._destroyed or not bab or bab._destroyed then return end;local cab=caa(c_b)
+local dab=
+tonumber(d_b)or rawget(c_b,"_autoCompletePopupWidth")or bab.get("width")or aab.get("width")
+local _bb=tonumber(_ab)or(bab.get and bab.get("height"))or(# (
+rawget(c_b,"_autoCompleteSuggestions")or{}))dab=math.max(1,dab or 1)_bb=math.max(1,_bb or 1)local abb=
+aab.get and aab.get("width")or dab;local bbb=
+aab.get and aab.get("height")or _bb;local cbb=math.max(1,
+abb-cab*2)
+local dbb=math.max(1,bbb-cab*2)if dab>cbb then dab=cbb end;if _bb>dbb then _bb=dbb end
+bab:setPosition(cab+1,cab+1)bab:setWidth(math.max(1,dab))
+bab:setHeight(math.max(1,_bb))end
+_aa=function(c_b)local d_b=c_b._autoCompleteFrame
+if not d_b or d_b._destroyed then return end;local _ab=d_b.get and d_b.get("canvas")
+if not _ab then return end;_ab:setType("post")
+if d_b._autoCompleteBorderCommand then
+_ab:removeCommand(d_b._autoCompleteBorderCommand)d_b._autoCompleteBorderCommand=nil end;if not c_b.get("autoCompleteShowBorder")then
+d_b:updateRender()return end;local aab=c_b.get("autoCompleteBorderColor")or
 colors.black
-local _ab=c_b:addCommand(function(aab)local bab=
-aab.get("width")or 0;local cab=aab.get("height")or 0;if bab<1 or
-cab<1 then return end
-local dab=aab.get("background")or colors.black;local _bb=b_a[dab]or b_a[colors.black]local abb=b_a[d_b]or
-b_a[colors.black]
-aab:textFg(1,1,("\131"):rep(bab),d_b)aab:multiBlit(1,cab,bab,1,"\143",_bb,abb)
-aab:multiBlit(1,1,1,cab,"\149",abb,_bb)aab:multiBlit(bab,1,1,cab,"\149",_bb,abb)
-aab:blit(1,1,"\151",abb,_bb)aab:blit(bab,1,"\148",_bb,abb)
-aab:blit(1,cab,"\138",_bb,abb)aab:blit(bab,cab,"\133",_bb,abb)end)b_b._autoCompleteBorderCommand=_ab;b_b:updateRender()end
-local function cba(a_b)local b_b=a_b.get("lines")local c_b=a_b.get("cursorY")
-local d_b=a_b.get("cursorX")local _ab=b_b[c_b]or""
-local aab=_ab:sub(1,math.max(d_b-1,0))
-local bab=a_b.get("autoCompleteTokenPattern")or"[%w_]+"local cab=""if bab~=""then
-cab=aab:match("("..bab..")$")or""end;local dab=d_b-#cab;if dab<1 then dab=1 end;return cab,dab end
-local function dba(a_b)
-if type(a_b)=="string"then return{text=a_b,insert=a_b,source=a_b}elseif
-type(a_b)=="table"then local b_b=
-a_b.text or a_b.label or a_b.value or a_b.insert or a_b[1]if not b_b then return
+local bab=_ab:addCommand(function(cab)local dab=
+cab.get("width")or 0;local _bb=cab.get("height")or 0;if dab<1 or
+_bb<1 then return end
+local abb=cab.get("background")or colors.black;local bbb=c_a[abb]or c_a[colors.black]local cbb=c_a[aab]or
+c_a[colors.black]
+cab:textFg(1,1,("\131"):rep(dab),aab)cab:multiBlit(1,_bb,dab,1,"\143",bbb,cbb)
+cab:multiBlit(1,1,1,_bb,"\149",cbb,bbb)cab:multiBlit(dab,1,1,_bb,"\149",bbb,cbb)
+cab:blit(1,1,"\151",cbb,bbb)cab:blit(dab,1,"\148",bbb,cbb)
+cab:blit(1,_bb,"\138",bbb,cbb)cab:blit(dab,_bb,"\133",bbb,cbb)end)d_b._autoCompleteBorderCommand=bab;d_b:updateRender()end
+local function dba(c_b)local d_b=c_b.get("lines")local _ab=c_b.get("cursorY")
+local aab=c_b.get("cursorX")local bab=d_b[_ab]or""
+local cab=bab:sub(1,math.max(aab-1,0))
+local dab=c_b.get("autoCompleteTokenPattern")or"[%w_]+"local _bb=""if dab~=""then
+_bb=cab:match("("..dab..")$")or""end;local abb=aab-#_bb;if abb<1 then abb=1 end;return _bb,abb end
+local function _ca(c_b)
+if type(c_b)=="string"then return{text=c_b,insert=c_b,source=c_b}elseif
+type(c_b)=="table"then local d_b=
+c_b.text or c_b.label or c_b.value or c_b.insert or c_b[1]if not d_b then return
 nil end
-local c_b={text=b_b,insert=a_b.insert or a_b.value or b_b,source=a_b}if a_b.foreground then c_b.foreground=a_b.foreground end;if
-a_b.background then c_b.background=a_b.background end;if a_b.selectedForeground then
-c_b.selectedForeground=a_b.selectedForeground end;if a_b.selectedBackground then
-c_b.selectedBackground=a_b.selectedBackground end
-if a_b.icon then c_b.icon=a_b.icon end;if a_b.info then c_b.info=a_b.info end;return c_b end end
-local function _ca(a_b,b_b)if type(a_b)~="table"then return end;local c_b=#a_b
-if c_b>0 then for index=1,c_b do
-b_b(a_b[index])end else for d_b,_ab in pairs(a_b)do b_b(_ab)end end end
-local function aca(a_b,b_b)local c_b=a_b.get("autoCompleteProvider")local d_b={}
-if c_b then
-local dab,_bb=pcall(c_b,a_b,b_b)if dab and type(_bb)=="table"then d_b=_bb end else d_b=
-a_b.get("autoCompleteItems")or{}end;local _ab={}local aab=a_b.get("autoCompleteCaseInsensitive")local bab=aab and
-b_b:lower()or b_b
-_ca(d_b,function(dab)local _bb=dba(dab)
-if _bb and _bb.text then
-local abb=
-aab and _bb.text:lower()or _bb.text;if bab==""or abb:find(bab,1,true)==1 then
-table.insert(_ab,_bb)end end end)local cab=a_b.get("autoCompleteMaxItems")if#_ab>cab then while#_ab>cab do
-table.remove(_ab)end end;return _ab end
-local function bca(a_b,b_b)local c_b=0
-for cab,dab in ipairs(b_b)do local _bb=dab;if type(dab)=="table"then
-_bb=
-dab.text or dab.label or dab.value or dab.insert or dab[1]end;if _bb~=nil then
-local abb=#tostring(_bb)if abb>c_b then c_b=abb end end end;local d_b=a_b.get("autoCompleteMaxWidth")
-local _ab=a_b.get("width")if d_b and d_b>0 then _ab=math.min(_ab,d_b)end
-local aab=baa(a_b)local bab=a_b:getBaseFrame()
-if bab and bab.get then
-local cab=bab.get("width")if cab and cab>0 then local dab=cab-aab*2;if dab<1 then dab=1 end
-_ab=math.min(_ab,dab)end end;c_b=math.min(c_b,_ab)return math.max(1,c_b)end
-local function cca(a_b,b_b,c_b)local d_b=a_b._autoCompleteFrame;local _ab=a_b._autoCompleteList;if
-not d_b or d_b._destroyed then return end;local aab=baa(a_b)
-local bab=math.max(1,c_b or a_b.get("width"))local cab=math.max(1,b_b or 1)local dab=a_b:getBaseFrame()if not dab then
-return end;local _bb=dab.get and dab.get("width")local abb=dab.get and
-dab.get("height")
-if _bb and _bb>0 then local _ac=_bb-aab*2;if _ac<1 then
-_ac=1 end;if bab>_ac then bab=_ac end end;if abb and abb>0 then local _ac=abb-aab*2;if _ac<1 then _ac=1 end
-if cab>_ac then cab=_ac end end;local bbb=bab+aab*2
-local cbb=cab+aab*2;local dbb,_cb=a_b:calculatePosition()
-local acb=a_b.get("scrollX")or 0;local bcb=a_b.get("scrollY")or 0;local ccb=(a_b._autoCompleteTokenStart or
-a_b.get("cursorX"))local dcb=ccb-acb
-dcb=math.max(1,math.min(a_b.get("width"),dcb))local _db=a_b.get("cursorY")-bcb
-_db=math.max(1,math.min(a_b.get("height"),_db))local adb=a_b.get("autoCompleteOffsetX")
-local bdb=a_b.get("autoCompleteOffsetY")local cdb=dbb+dcb-1 +adb;local ddb=cdb-aab
-if aab>0 then ddb=ddb+1 end;local __c=_cb+_db+bdb;local a_c=_cb+_db-bdb-1;local b_c=__c-aab;local c_c=
-a_c-cab+1 -aab;local d_c=b_c
-if _bb and _bb>0 then if bbb>_bb then bbb=_bb
-bab=math.max(1,bbb-aab*2)end;if ddb+bbb-1 >_bb then
-ddb=math.max(1,_bb-bbb+1)end;if ddb<1 then ddb=1 end else if ddb<1 then ddb=1 end end
-if abb and abb>0 then if d_c+cbb-1 >abb then d_c=c_c;if d_c<1 then
-d_c=math.max(1,abb-cbb+1)end end
-if d_c<1 then d_c=1 end else if d_c<1 then d_c=1 end end;d_b:setPosition(ddb,d_c)d_b:setWidth(bbb)
-d_b:setHeight(cbb)
-d_b:setZ(a_b.get("z")+a_b.get("autoCompleteZOffset"))_aa(a_b,bab,cab)if _ab and not _ab._destroyed then
-_ab:updateRender()end;d_b:updateRender()end
-local function dca(a_b)
-if not a_b.get("autoCompleteEnabled")then _ba(a_b,true)return end
-if not a_b.get("focused")then _ba(a_b,true)return end;local b_b,c_b=cba(a_b)a_b._autoCompleteToken=b_b
-a_b._autoCompleteTokenStart=c_b
-if#b_b<a_b.get("autoCompleteMinChars")then _ba(a_b)return end;local d_b=aca(a_b,b_b)if#d_b==0 then _ba(a_b)return end
-local _ab=bba(a_b)if not _ab then return end;_ab:setOffset(0)_ab:setItems(d_b)
-a_b._autoCompleteSuggestions=d_b;daa(a_b,1,true)local aab=bca(a_b,d_b)a_b._autoCompletePopupWidth=aab;cca(a_b,
-#d_b,aab)caa(a_b)
-a_b._autoCompleteFrame:setVisible(true)a_b._autoCompleteList:updateRender()
-a_b._autoCompleteFrame:updateRender()a_b:fireEvent("auto_complete_open",b_b,d_b)end
-local function _da(a_b,b_b)if not aaa(a_b)then return false end
-if b_b==keys.tab or(b_b==keys.enter and
-a_b.get("autoCompleteAcceptOnEnter"))then
-aba(a_b)return true elseif b_b==keys.up then
-daa(a_b,(a_b._autoCompleteIndex or 1)-1)return true elseif b_b==keys.down then
-daa(a_b,(a_b._autoCompleteIndex or 1)+1)return true elseif b_b==keys.pageUp then
-local c_b=(a_b._autoCompleteList and
-a_b._autoCompleteList.get("height"))or 1
-daa(a_b,(a_b._autoCompleteIndex or 1)-c_b)return true elseif b_b==keys.pageDown then
-local c_b=(a_b._autoCompleteList and
-a_b._autoCompleteList.get("height"))or 1
-daa(a_b,(a_b._autoCompleteIndex or 1)+c_b)return true elseif
-b_b==keys.escape and a_b.get("autoCompleteCloseOnEscape")then _ba(a_b)return true end;return false end
-local function ada(a_b,b_b)if not aaa(a_b)then return false end;local c_b=a_b._autoCompleteList;if not c_b or
-c_b._destroyed then return false end
-local d_b=c_b.get("items")local _ab=c_b.get("height")or 1
-local aab=c_b.get("offset")or 0;local bab=#d_b;if bab==0 then return false end
-local cab=math.max(0,bab-_ab)local dab=math.max(0,math.min(cab,aab+b_b))if
-dab~=aab then c_b:setOffset(dab)end;local _bb=(a_b._autoCompleteIndex or 1)+
-b_b;if _bb>=1 and _bb<=bab then
-daa(a_b,_bb)else c_b:updateRender()end;return true end
-function c_a.new()local a_b=setmetatable({},c_a):__init()
-a_b.class=c_a;a_b.set("width",20)a_b.set("height",10)return a_b end
-function c_a:init(a_b,b_b)a_a.init(self,a_b,b_b)
+local _ab={text=d_b,insert=c_b.insert or c_b.value or d_b,source=c_b}if c_b.foreground then _ab.foreground=c_b.foreground end;if
+c_b.background then _ab.background=c_b.background end;if c_b.selectedForeground then
+_ab.selectedForeground=c_b.selectedForeground end;if c_b.selectedBackground then
+_ab.selectedBackground=c_b.selectedBackground end
+if c_b.icon then _ab.icon=c_b.icon end;if c_b.info then _ab.info=c_b.info end;return _ab end end
+local function aca(c_b,d_b)if type(c_b)~="table"then return end;local _ab=#c_b
+if _ab>0 then for index=1,_ab do
+d_b(c_b[index])end else for aab,bab in pairs(c_b)do d_b(bab)end end end
+local function bca(c_b,d_b)local _ab=c_b.get("autoCompleteProvider")local aab={}
+if _ab then
+local abb,bbb=pcall(_ab,c_b,d_b)if abb and type(bbb)=="table"then aab=bbb end else aab=
+c_b.get("autoCompleteItems")or{}end;local bab={}local cab=c_b.get("autoCompleteCaseInsensitive")local dab=cab and
+d_b:lower()or d_b
+aca(aab,function(abb)local bbb=_ca(abb)
+if bbb and bbb.text then
+local cbb=
+cab and bbb.text:lower()or bbb.text;if dab==""or cbb:find(dab,1,true)==1 then
+table.insert(bab,bbb)end end end)local _bb=c_b.get("autoCompleteMaxItems")if#bab>_bb then while#bab>_bb do
+table.remove(bab)end end;return bab end
+local function cca(c_b,d_b)local _ab=0
+for _bb,abb in ipairs(d_b)do local bbb=abb;if type(abb)=="table"then
+bbb=
+abb.text or abb.label or abb.value or abb.insert or abb[1]end;if bbb~=nil then
+local cbb=#tostring(bbb)if cbb>_ab then _ab=cbb end end end;local aab=c_b.get("autoCompleteMaxWidth")
+local bab=c_b.get("width")if aab and aab>0 then bab=math.min(bab,aab)end
+local cab=caa(c_b)local dab=c_b:getBaseFrame()
+if dab and dab.get then
+local _bb=dab.get("width")if _bb and _bb>0 then local abb=_bb-cab*2;if abb<1 then abb=1 end
+bab=math.min(bab,abb)end end;_ab=math.min(_ab,bab)return math.max(1,_ab)end
+local function dca(c_b,d_b,_ab)local aab=c_b._autoCompleteFrame;local bab=c_b._autoCompleteList;if
+not aab or aab._destroyed then return end;local cab=caa(c_b)
+local dab=math.max(1,_ab or c_b.get("width"))local _bb=math.max(1,d_b or 1)local abb=c_b:getBaseFrame()if not abb then
+return end;local bbb=abb.get and abb.get("width")local cbb=abb.get and
+abb.get("height")
+if bbb and bbb>0 then local bac=bbb-cab*2;if bac<1 then
+bac=1 end;if dab>bac then dab=bac end end;if cbb and cbb>0 then local bac=cbb-cab*2;if bac<1 then bac=1 end
+if _bb>bac then _bb=bac end end;local dbb=dab+cab*2
+local _cb=_bb+cab*2;local acb,bcb=c_b:calculatePosition()
+local ccb=c_b.get("scrollX")or 0;local dcb=c_b.get("scrollY")or 0;local _db=(c_b._autoCompleteTokenStart or
+c_b.get("cursorX"))local adb=_db-ccb
+adb=math.max(1,math.min(c_b.get("width"),adb))local bdb=c_b.get("cursorY")-dcb
+bdb=math.max(1,math.min(c_b.get("height"),bdb))local cdb=c_b.get("autoCompleteOffsetX")
+local ddb=c_b.get("autoCompleteOffsetY")local __c=acb+adb-1 +cdb;local a_c=__c-cab
+if cab>0 then a_c=a_c+1 end;local b_c=bcb+bdb+ddb;local c_c=bcb+bdb-ddb-1;local d_c=b_c-cab;local _ac=
+c_c-_bb+1 -cab;local aac=d_c
+if bbb and bbb>0 then if dbb>bbb then dbb=bbb
+dab=math.max(1,dbb-cab*2)end;if a_c+dbb-1 >bbb then
+a_c=math.max(1,bbb-dbb+1)end;if a_c<1 then a_c=1 end else if a_c<1 then a_c=1 end end
+if cbb and cbb>0 then
+if aac+_cb-1 >cbb then aac=_ac;if cab>0 then aac=aac-cab end;if
+aac<1 then aac=math.max(1,cbb-_cb+1)end end;if aac<1 then aac=1 end else if aac<1 then aac=1 end;if aac==_ac and cab>0 then
+aac=math.max(1,aac-cab)end end;aab:setPosition(a_c,aac)aab:setWidth(dbb)
+aab:setHeight(_cb)
+aab:setZ(c_b.get("z")+c_b.get("autoCompleteZOffset"))aaa(c_b,dab,_bb)if bab and not bab._destroyed then
+bab:updateRender()end;aab:updateRender()end
+local function _da(c_b)
+if not c_b.get("autoCompleteEnabled")then aba(c_b,true)return end
+if not c_b.get("focused")then aba(c_b,true)return end;local d_b,_ab=dba(c_b)c_b._autoCompleteToken=d_b
+c_b._autoCompleteTokenStart=_ab
+if#d_b<c_b.get("autoCompleteMinChars")then aba(c_b)return end;local aab=bca(c_b,d_b)if#aab==0 then aba(c_b)return end
+local bab=cba(c_b)if not bab then return end;bab:setOffset(0)bab:setItems(aab)
+c_b._autoCompleteSuggestions=aab;_ba(c_b,1,true)local cab=cca(c_b,aab)c_b._autoCompletePopupWidth=cab;dca(c_b,
+#aab,cab)daa(c_b)
+c_b._autoCompleteFrame:setVisible(true)c_b._autoCompleteList:updateRender()
+c_b._autoCompleteFrame:updateRender()c_b:fireEvent("auto_complete_open",d_b,aab)end
+local function ada(c_b,d_b)if not baa(c_b)then return false end
+if d_b==keys.tab or(d_b==keys.enter and
+c_b.get("autoCompleteAcceptOnEnter"))then
+bba(c_b)return true elseif d_b==keys.up then
+_ba(c_b,(c_b._autoCompleteIndex or 1)-1)return true elseif d_b==keys.down then
+_ba(c_b,(c_b._autoCompleteIndex or 1)+1)return true elseif d_b==keys.pageUp then
+local _ab=(c_b._autoCompleteList and
+c_b._autoCompleteList.get("height"))or 1
+_ba(c_b,(c_b._autoCompleteIndex or 1)-_ab)return true elseif d_b==keys.pageDown then
+local _ab=(c_b._autoCompleteList and
+c_b._autoCompleteList.get("height"))or 1
+_ba(c_b,(c_b._autoCompleteIndex or 1)+_ab)return true elseif
+d_b==keys.escape and c_b.get("autoCompleteCloseOnEscape")then aba(c_b)return true end;return false end
+local function bda(c_b,d_b)if not baa(c_b)then return false end;local _ab=c_b._autoCompleteList;if not _ab or
+_ab._destroyed then return false end
+local aab=_ab.get("items")local bab=_ab.get("height")or 1
+local cab=_ab.get("offset")or 0;local dab=#aab;if dab==0 then return false end
+local _bb=math.max(0,dab-bab)local abb=math.max(0,math.min(_bb,cab+d_b))if
+abb~=cab then _ab:setOffset(abb)end;local bbb=(c_b._autoCompleteIndex or 1)+
+d_b;if bbb>=1 and bbb<=dab then
+_ba(c_b,bbb)else _ab:updateRender()end;return true end
+function d_a.new()local c_b=setmetatable({},d_a):__init()
+c_b.class=d_a;c_b.set("width",20)c_b.set("height",10)return c_b end
+function d_a:init(c_b,d_b)b_a.init(self,c_b,d_b)
 self.set("type","TextBox")
-local function c_b()if
-self.get("autoCompleteEnabled")and self.get("focused")then dca(self)end end;local function d_b()caa(self)end
-local function _ab()
-if aaa(self)then
-local aab=rawget(self,"_autoCompleteSuggestions")or{}
-cca(self,math.max(#aab,1),rawget(self,"_autoCompletePopupWidth")or
+local function _ab()if
+self.get("autoCompleteEnabled")and self.get("focused")then _da(self)end end;local function aab()daa(self)end
+local function bab()
+if baa(self)then
+local cab=rawget(self,"_autoCompleteSuggestions")or{}
+dca(self,math.max(#cab,1),rawget(self,"_autoCompletePopupWidth")or
 self.get("width"))end end
-self:observe("autoCompleteEnabled",function(aab,bab)if not bab then _ba(self,true)elseif self.get("focused")then
-dca(self)end end)
-self:observe("focused",function(aab,bab)if bab then c_b()else _ba(self,true)end end)self:observe("foreground",d_b)
-self:observe("background",d_b)self:observe("autoCompleteBackground",d_b)
-self:observe("autoCompleteForeground",d_b)
-self:observe("autoCompleteSelectedBackground",d_b)
-self:observe("autoCompleteSelectedForeground",d_b)self:observe("autoCompleteBorderColor",d_b)
+self:observe("autoCompleteEnabled",function(cab,dab)if not dab then aba(self,true)elseif self.get("focused")then
+_da(self)end end)
+self:observe("focused",function(cab,dab)if dab then _ab()else aba(self,true)end end)self:observe("foreground",aab)
+self:observe("background",aab)self:observe("autoCompleteBackground",aab)
+self:observe("autoCompleteForeground",aab)
+self:observe("autoCompleteSelectedBackground",aab)
+self:observe("autoCompleteSelectedForeground",aab)self:observe("autoCompleteBorderColor",aab)
 self:observe("autoCompleteZOffset",function()
 if
 
@@ -955,121 +961,144 @@ self:observe("z",function()
 if
 self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
 self._autoCompleteFrame:setZ(self.get("z")+self.get("autoCompleteZOffset"))end end)
-self:observe("autoCompleteShowBorder",function()d_b()_ab()end)
-for aab,bab in
-ipairs({"autoCompleteItems","autoCompleteProvider","autoCompleteMinChars","autoCompleteMaxItems","autoCompleteCaseInsensitive","autoCompleteTokenPattern","autoCompleteOffsetX","autoCompleteOffsetY"})do self:observe(bab,c_b)end;self:observe("x",_ab)self:observe("y",_ab)self:observe("width",function()
-_ab()c_b()end)
-self:observe("height",_ab)self:observe("cursorX",_ab)
-self:observe("cursorY",_ab)self:observe("scrollX",_ab)
-self:observe("scrollY",_ab)self:observe("autoCompleteOffsetX",_ab)
-self:observe("autoCompleteOffsetY",_ab)
+self:observe("autoCompleteShowBorder",function()aab()bab()end)
+for cab,dab in
+ipairs({"autoCompleteItems","autoCompleteProvider","autoCompleteMinChars","autoCompleteMaxItems","autoCompleteCaseInsensitive","autoCompleteTokenPattern","autoCompleteOffsetX","autoCompleteOffsetY"})do self:observe(dab,_ab)end;self:observe("x",bab)self:observe("y",bab)self:observe("width",function()
+bab()_ab()end)
+self:observe("height",bab)self:observe("cursorX",bab)
+self:observe("cursorY",bab)self:observe("scrollX",bab)
+self:observe("scrollY",bab)self:observe("autoCompleteOffsetX",bab)
+self:observe("autoCompleteOffsetY",bab)
 self:observe("autoCompleteMaxWidth",function()
-if aaa(self)then
-local aab=rawget(self,"_autoCompleteSuggestions")or{}if#aab>0 then local bab=bca(self,aab)self._autoCompletePopupWidth=bab
-cca(self,math.max(#aab,1),bab)end end end)return self end;function c_a:addSyntaxPattern(a_b,b_b)
-table.insert(self.get("syntaxPatterns"),{pattern=a_b,color=b_b})return self end
-function c_a:removeSyntaxPattern(a_b)local b_b=
+if baa(self)then
+local cab=rawget(self,"_autoCompleteSuggestions")or{}if#cab>0 then local dab=cca(self,cab)self._autoCompletePopupWidth=dab
+dca(self,math.max(#cab,1),dab)end end end)return self end;function d_a:addSyntaxPattern(c_b,d_b)
+table.insert(self.get("syntaxPatterns"),{pattern=c_b,color=d_b})return self end
+function d_a:removeSyntaxPattern(c_b)local d_b=
 self.get("syntaxPatterns")or{}
-if type(a_b)~="number"then return self end
-if a_b>=1 and a_b<=#b_b then table.remove(b_b,a_b)
-self.set("syntaxPatterns",b_b)self:updateRender()end;return self end;function c_a:clearSyntaxPatterns()self.set("syntaxPatterns",{})
+if type(c_b)~="number"then return self end
+if c_b>=1 and c_b<=#d_b then table.remove(d_b,c_b)
+self.set("syntaxPatterns",d_b)self:updateRender()end;return self end;function d_a:clearSyntaxPatterns()self.set("syntaxPatterns",{})
 self:updateRender()return self end
-local function bda(a_b,b_b)
-local c_b=a_b.get("lines")local d_b=a_b.get("cursorX")local _ab=a_b.get("cursorY")
-local aab=c_b[_ab]
-c_b[_ab]=aab:sub(1,d_b-1)..b_b..aab:sub(d_b)a_b.set("cursorX",d_b+1)a_b:updateViewport()
-a_b:updateRender()end
-local function cda(a_b)local b_b=a_b.get("lines")local c_b=a_b.get("cursorX")
-local d_b=a_b.get("cursorY")local _ab=b_b[d_b]local aab=_ab:sub(c_b)
-b_b[d_b]=_ab:sub(1,c_b-1)table.insert(b_b,d_b+1,aab)a_b.set("cursorX",1)a_b.set("cursorY",
-d_b+1)a_b:updateViewport()
-a_b:updateRender()end
-local function dda(a_b)local b_b=a_b.get("lines")local c_b=a_b.get("cursorX")
-local d_b=a_b.get("cursorY")local _ab=b_b[d_b]
-if c_b>1 then
-b_b[d_b]=_ab:sub(1,c_b-2).._ab:sub(c_b)a_b.set("cursorX",c_b-1)elseif d_b>1 then local aab=b_b[d_b-1]a_b.set("cursorX",
-#aab+1)a_b.set("cursorY",d_b-1)b_b[d_b-1]=
-aab.._ab;table.remove(b_b,d_b)end;a_b:updateViewport()a_b:updateRender()end
-function c_a:updateViewport()local a_b=self.get("cursorX")
-local b_b=self.get("cursorY")local c_b=self.get("scrollX")local d_b=self.get("scrollY")
-local _ab=self.get("width")local aab=self.get("height")
-if a_b-c_b>_ab then
-self.set("scrollX",a_b-_ab)elseif a_b-c_b<1 then self.set("scrollX",a_b-1)end
-if b_b-d_b>aab then self.set("scrollY",b_b-aab)elseif b_b-d_b<1 then self.set("scrollY",
-b_b-1)end;return self end;function c_a:char(a_b)if
-not self.get("editable")or not self.get("focused")then return false end;bda(self,a_b)
-dca(self)return true end
-function c_a:key(a_b)if
-
+local function cda(c_b,d_b)
+local _ab=c_b.get("lines")local aab=c_b.get("cursorX")local bab=c_b.get("cursorY")
+local cab=_ab[bab]
+_ab[bab]=cab:sub(1,aab-1)..d_b..cab:sub(aab)c_b.set("cursorX",aab+1)c_b:updateViewport()
+c_b:updateRender()end
+local function dda(c_b,d_b)for i=1,#d_b do cda(c_b,d_b:sub(i,i))end end
+local function __b(c_b)local d_b=c_b.get("lines")local _ab=c_b.get("cursorX")
+local aab=c_b.get("cursorY")local bab=d_b[aab]local cab=bab:sub(_ab)
+d_b[aab]=bab:sub(1,_ab-1)table.insert(d_b,aab+1,cab)c_b.set("cursorX",1)c_b.set("cursorY",
+aab+1)c_b:updateViewport()
+c_b:updateRender()end
+local function a_b(c_b)local d_b=c_b.get("lines")local _ab=c_b.get("cursorX")
+local aab=c_b.get("cursorY")local bab=d_b[aab]
+if _ab>1 then
+d_b[aab]=bab:sub(1,_ab-2)..bab:sub(_ab)c_b.set("cursorX",_ab-1)elseif aab>1 then local cab=d_b[aab-1]c_b.set("cursorX",
+#cab+1)c_b.set("cursorY",aab-1)d_b[aab-1]=
+cab..bab;table.remove(d_b,aab)end;c_b:updateViewport()c_b:updateRender()end
+function d_a:updateViewport()local c_b=self.get("cursorX")
+local d_b=self.get("cursorY")local _ab=self.get("scrollX")local aab=self.get("scrollY")
+local bab=self.get("width")local cab=self.get("height")
+if c_b-_ab>bab then
+self.set("scrollX",c_b-bab)elseif c_b-_ab<1 then self.set("scrollX",c_b-1)end
+if d_b-aab>cab then self.set("scrollY",d_b-cab)elseif d_b-aab<1 then self.set("scrollY",
+d_b-1)end;return self end
+function d_a:char(c_b)if
 not self.get("editable")or not self.get("focused")then return false end
-if _da(self,a_b)then return true end;local b_b=self.get("lines")local c_b=self.get("cursorX")
-local d_b=self.get("cursorY")
-if a_b==keys.enter then cda(self)elseif a_b==keys.backspace then dda(self)elseif
-a_b==keys.left then
-if c_b>1 then self.set("cursorX",c_b-1)elseif d_b>1 then
-self.set("cursorY",d_b-1)self.set("cursorX",#b_b[d_b-1]+1)end elseif a_b==keys.right then if c_b<=#b_b[d_b]then
-self.set("cursorX",c_b+1)elseif d_b<#b_b then self.set("cursorY",d_b+1)
-self.set("cursorX",1)end elseif a_b==keys.up and
-d_b>1 then self.set("cursorY",d_b-1)
-self.set("cursorX",math.min(c_b,#
-b_b[d_b-1]+1))elseif a_b==keys.down and d_b<#b_b then
-self.set("cursorY",d_b+1)
-self.set("cursorX",math.min(c_b,#b_b[d_b+1]+1))end;self:updateRender()self:updateViewport()dca(self)return
+local d_b=self.get("autoPairEnabled")
+if d_b and#c_b==1 then
+local _ab=self.get("autoPairCharacters")or{}local aab=self.get("lines")local bab=self.get("cursorX")
+local cab=self.get("cursorY")local dab=aab[cab]or""local _bb=dab:sub(bab,bab)local abb=_ab[c_b]
+if abb then
+cda(self,c_b)
+if self.get("autoPairSkipClosing")then
+if _bb~=abb then cda(self,abb)self.set("cursorX",
+self.get("cursorX")-1)end else cda(self,abb)
+self.set("cursorX",self.get("cursorX")-1)end;_da(self)return true end
+if self.get("autoPairOverType")then
+for bbb,cbb in pairs(_ab)do if c_b==cbb and _bb==cbb then
+self.set("cursorX",bab+1)_da(self)return true end end end end;cda(self,c_b)_da(self)return true end
+function d_a:key(c_b)if
+not self.get("editable")or not self.get("focused")then return false end
+if ada(self,c_b)then return true end;local d_b=self.get("lines")local _ab=self.get("cursorX")
+local aab=self.get("cursorY")
+if c_b==keys.enter then
+if self.get("autoPairEnabled")and
+self.get("autoPairNewlineIndent")then local bab=self.get("lines")
+local cab=self.get("cursorX")local dab=self.get("cursorY")local _bb=bab[dab]or""
+local abb=_bb:sub(1,cab-1)local bbb=_bb:sub(cab)
+local cbb=self.get("autoPairCharacters")or{}local dbb={}for bcb,ccb in pairs(cbb)do dbb[ccb]=bcb end;local _cb=abb:sub(-1)
+local acb=bbb:sub(1,1)
+if _cb~=""and acb~=""and cbb[_cb]==acb then bab[dab]=abb;table.insert(bab,
+dab+1,"")table.insert(bab,dab+2,bbb)self.set("cursorY",
+dab+1)self.set("cursorX",1)
+self:updateViewport()self:updateRender()_da(self)return true end end;__b(self)elseif c_b==keys.backspace then a_b(self)elseif c_b==keys.left then
+if _ab>1 then self.set("cursorX",
+_ab-1)elseif aab>1 then self.set("cursorY",aab-1)self.set("cursorX",
+#d_b[aab-1]+1)end elseif c_b==keys.right then if _ab<=#d_b[aab]then
+self.set("cursorX",_ab+1)elseif aab<#d_b then self.set("cursorY",aab+1)
+self.set("cursorX",1)end elseif c_b==keys.up and
+aab>1 then self.set("cursorY",aab-1)
+self.set("cursorX",math.min(_ab,#
+d_b[aab-1]+1))elseif c_b==keys.down and aab<#d_b then
+self.set("cursorY",aab+1)
+self.set("cursorX",math.min(_ab,#d_b[aab+1]+1))end;self:updateRender()self:updateViewport()_da(self)return
 true end
-function c_a:mouse_scroll(a_b,b_b,c_b)if ada(self,a_b)then return true end
-if self:isInBounds(b_b,c_b)then
-local d_b=self.get("scrollY")local _ab=self.get("height")local aab=self.get("lines")local bab=math.max(0,#aab-
-_ab+2)
-local cab=math.max(0,math.min(bab,d_b+a_b))self.set("scrollY",cab)self:updateRender()return true end;return false end
-function c_a:mouse_click(a_b,b_b,c_b)
-if a_a.mouse_click(self,a_b,b_b,c_b)then
-local d_b,_ab=self:getRelativePosition(b_b,c_b)local aab=self.get("scrollX")local bab=self.get("scrollY")local cab=
-(_ab or 0)+ (bab or 0)
-local dab=self.get("lines")or{}if cab<1 then cab=1 end
-if cab<=#dab and dab[cab]~=nil then
-self.set("cursorY",cab)local _bb=#tostring(dab[cab])
-self.set("cursorX",math.min((d_b or 1)+ (aab or 0),
-_bb+1))end;self:updateRender()dca(self)return true end
-if aaa(self)then local d_b=self._autoCompleteFrame;if
+function d_a:mouse_scroll(c_b,d_b,_ab)if bda(self,c_b)then return true end
+if self:isInBounds(d_b,_ab)then
+local aab=self.get("scrollY")local bab=self.get("height")local cab=self.get("lines")local dab=math.max(0,#cab-
+bab+2)
+local _bb=math.max(0,math.min(dab,aab+c_b))self.set("scrollY",_bb)self:updateRender()return true end;return false end
+function d_a:mouse_click(c_b,d_b,_ab)
+if b_a.mouse_click(self,c_b,d_b,_ab)then
+local aab,bab=self:getRelativePosition(d_b,_ab)local cab=self.get("scrollX")local dab=self.get("scrollY")local _bb=
+(bab or 0)+ (dab or 0)
+local abb=self.get("lines")or{}if _bb<1 then _bb=1 end
+if _bb<=#abb and abb[_bb]~=nil then
+self.set("cursorY",_bb)local bbb=#tostring(abb[_bb])
+self.set("cursorX",math.min((aab or 1)+ (cab or 0),
+bbb+1))end;self:updateRender()_da(self)return true end
+if baa(self)then local aab=self._autoCompleteFrame;if
 not
-(d_b and d_b:isInBounds(b_b,c_b))and not self:isInBounds(b_b,c_b)then _ba(self)end end;return false end
-function c_a:paste(a_b)if
+(aab and aab:isInBounds(d_b,_ab))and not self:isInBounds(d_b,_ab)then aba(self)end end;return false end
+function d_a:paste(c_b)if
 not self.get("editable")or not self.get("focused")then return false end
-for b_b in a_b:gmatch(".")do if b_b=="\n"then
-cda(self)else bda(self,b_b)end end;dca(self)return true end
-function c_a:setText(a_b)local b_b={}
-if a_b==""then b_b={""}else for c_b in(a_b.."\n"):gmatch("([^\n]*)\n")do
-table.insert(b_b,c_b)end end;self.set("lines",b_b)_ba(self,true)return self end
-function c_a:getText()return table.concat(self.get("lines"),"\n")end
-local function __b(a_b,b_b)local c_b=b_b
-local d_b=string.rep(b_a[a_b.get("foreground")],#c_b)local _ab=a_b.get("syntaxPatterns")
-for aab,bab in ipairs(_ab)do local cab=1
+for d_b in c_b:gmatch(".")do if d_b=="\n"then
+__b(self)else cda(self,d_b)end end;_da(self)return true end
+function d_a:setText(c_b)local d_b={}
+if c_b==""then d_b={""}else for _ab in(c_b.."\n"):gmatch("([^\n]*)\n")do
+table.insert(d_b,_ab)end end;self.set("lines",d_b)aba(self,true)return self end
+function d_a:getText()return table.concat(self.get("lines"),"\n")end
+local function b_b(c_b,d_b)local _ab=d_b
+local aab=string.rep(c_a[c_b.get("foreground")],#_ab)local bab=c_b.get("syntaxPatterns")
+for cab,dab in ipairs(bab)do local _bb=1
 while true do
-local dab,_bb=c_b:find(bab.pattern,cab)if not dab then break end;local abb=_bb-dab+1
-if abb<=0 then
-d_b=d_b:sub(1,dab-1)..
-string.rep(b_a[bab.color],1)..d_b:sub(dab+1)cab=dab+1 else
-d_b=d_b:sub(1,dab-1)..string.rep(b_a[bab.color],abb)..d_b:sub(
-_bb+1)cab=_bb+1 end end end;return c_b,d_b end
-function c_a:render()a_a.render(self)local a_b=self.get("lines")
-local b_b=self.get("scrollX")local c_b=self.get("scrollY")local d_b=self.get("width")
-local _ab=self.get("height")local aab=b_a[self.get("foreground")]
-local bab=b_a[self.get("background")]
-for y=1,_ab do local cab=y+c_b;local dab=a_b[cab]or""local _bb,abb=__b(self,dab)local bbb=_bb:sub(b_b+1,b_b+
-d_b)local cbb=abb:sub(b_b+1,b_b+d_b)local dbb=
-d_b-#bbb
-if dbb>0 then bbb=bbb..string.rep(" ",dbb)cbb=cbb..
-string.rep(b_a[self.get("foreground")],dbb)end
-self:blit(1,y,bbb,cbb,string.rep(bab,#bbb))end
-if self.get("focused")then local cab=self.get("cursorX")-b_b;local dab=
-self.get("cursorY")-c_b;if cab>=1 and cab<=d_b and dab>=1 and
-dab<=_ab then
-self:setCursor(cab,dab,true,self.get("cursorColor")or
+local abb,bbb=_ab:find(dab.pattern,_bb)if not abb then break end;local cbb=bbb-abb+1
+if cbb<=0 then
+aab=aab:sub(1,abb-1)..
+string.rep(c_a[dab.color],1)..aab:sub(abb+1)_bb=abb+1 else
+aab=aab:sub(1,abb-1)..string.rep(c_a[dab.color],cbb)..aab:sub(
+bbb+1)_bb=bbb+1 end end end;return _ab,aab end
+function d_a:render()b_a.render(self)local c_b=self.get("lines")
+local d_b=self.get("scrollX")local _ab=self.get("scrollY")local aab=self.get("width")
+local bab=self.get("height")local cab=c_a[self.get("foreground")]
+local dab=c_a[self.get("background")]
+for y=1,bab do local _bb=y+_ab;local abb=c_b[_bb]or""local bbb,cbb=b_b(self,abb)local dbb=bbb:sub(d_b+1,d_b+
+aab)local _cb=cbb:sub(d_b+1,d_b+aab)local acb=
+aab-#dbb
+if acb>0 then dbb=dbb..string.rep(" ",acb)_cb=_cb..
+string.rep(c_a[self.get("foreground")],acb)end
+self:blit(1,y,dbb,_cb,string.rep(dab,#dbb))end
+if self.get("focused")then local _bb=self.get("cursorX")-d_b;local abb=
+self.get("cursorY")-_ab;if _bb>=1 and _bb<=aab and abb>=1 and
+abb<=bab then
+self:setCursor(_bb,abb,true,self.get("cursorColor")or
 self.get("foreground"))end end end
-function c_a:destroy()
+function d_a:destroy()
 if
 self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then self._autoCompleteFrame:destroy()end;self._autoCompleteFrame=nil;self._autoCompleteList=nil
-self._autoCompletePopupWidth=nil;a_a.destroy(self)end;return c_a end
+self._autoCompletePopupWidth=nil;b_a.destroy(self)end;return d_a end
 project["elements/Button.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")
 local ba=require("libraries/utils").getCenteredPosition;local ca=setmetatable({},aa)ca.__index=ca
