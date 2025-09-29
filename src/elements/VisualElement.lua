@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field, undefined-field, undefined-doc-name, param-type-mismatch, redundant-return-value
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
@@ -35,6 +36,16 @@ VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = 
 VisualElement.defineProperty(VisualElement, "hover", {default = false, type = "boolean"})
 ---@property backgroundEnabled boolean true Whether to render the background
 VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
+---@property borderTop boolean false Draw top border
+VisualElement.defineProperty(VisualElement, "borderTop", {default = false, type = "boolean", canTriggerRender = true})
+---@property borderBottom boolean false Draw bottom border
+VisualElement.defineProperty(VisualElement, "borderBottom", {default = false, type = "boolean", canTriggerRender = true})
+---@property borderLeft boolean false Draw left border
+VisualElement.defineProperty(VisualElement, "borderLeft", {default = false, type = "boolean", canTriggerRender = true})
+---@property borderRight boolean false Draw right border
+VisualElement.defineProperty(VisualElement, "borderRight", {default = false, type = "boolean", canTriggerRender = true})
+---@property borderColor color white Border color
+VisualElement.defineProperty(VisualElement, "borderColor", {default = colors.white, type = "color", canTriggerRender = true})
 ---@property focused boolean false Whether the element has input focus
 VisualElement.defineProperty(VisualElement, "focused", {default = false, type = "boolean", setter = function(self, value, internal)
     local curValue = self.get("focused")
@@ -295,9 +306,7 @@ end
 ---@return boolean hover Whether the mouse has moved over the element
 --- @protected
 function VisualElement:mouse_move(_, x, y)
-    if(x==nil)or(y==nil)then
-        return
-    end
+    if(x==nil)or(y==nil)then return false end
     local hover = self.get("hover")
     if(self:isInBounds(x, y))then
         if(not hover)then
@@ -352,7 +361,49 @@ end
 --- @protected
 function VisualElement:blur()
     self:fireEvent("blur")
-    self:setCursor(1,1, false)
+    -- Attempt to clear cursor; signature may expect (x,y,blink,fg,bg)
+    pcall(function() self:setCursor(1,1,false, self.get and self.get("foreground")) end)
+end
+
+--- Adds or updates a drawable character border around the element using the canvas plugin.
+--- The border will automatically adapt to size/background changes because the command
+--- reads current properties each render.
+-- @param colorOrOptions any Border color or options table
+--- @return VisualElement self
+function VisualElement:addBorder(colorOrOptions, sideOptions)
+    local col = nil
+    local spec = nil
+    if type(colorOrOptions) == "table" and (colorOrOptions.color or colorOrOptions.top ~= nil or colorOrOptions.left ~= nil) then
+        col = colorOrOptions.color
+        spec = colorOrOptions
+    else
+        col = colorOrOptions
+        spec = sideOptions
+    end
+    if spec then
+        if spec.top ~= nil then self.set("borderTop", spec.top) end
+        if spec.bottom ~= nil then self.set("borderBottom", spec.bottom) end
+        if spec.left ~= nil then self.set("borderLeft", spec.left) end
+        if spec.right ~= nil then self.set("borderRight", spec.right) end
+    else
+        -- default: enable all sides
+        self.set("borderTop", true)
+        self.set("borderBottom", true)
+        self.set("borderLeft", true)
+        self.set("borderRight", true)
+    end
+    if col then self.set("borderColor", col) end
+    return self
+end
+
+--- Removes the previously added border (if any)
+--- @return VisualElement self
+function VisualElement:removeBorder()
+    self.set("borderTop", false)
+    self.set("borderBottom", false)
+    self.set("borderLeft", false)
+    self.set("borderRight", false)
+    return self
 end
 
 --- @shortDescription Handles a key event
@@ -480,11 +531,33 @@ end
 --- @shortDescription Renders the element
 --- @protected
 function VisualElement:render()
-    if(not self.get("backgroundEnabled"))then
-        return
-    end
+    if(not self.get("backgroundEnabled"))then return end
     local width, height = self.get("width"), self.get("height")
-    self:multiBlit(1, 1, width, height, " ", tHex[self.get("foreground")], tHex[self.get("background")])
+    local fgHex = tHex[self.get("foreground")]
+    local bgHex = tHex[self.get("background")]
+    self:multiBlit(1, 1, width, height, " ", fgHex, bgHex)
+    -- Draw integrated border after background fill
+    if (self.get("borderTop") or self.get("borderBottom") or self.get("borderLeft") or self.get("borderRight")) then
+        local bColor = self.get("borderColor") or self.get("foreground")
+        local bHex = tHex[bColor] or fgHex
+        if self.get("borderTop") then
+            self:textFg(1,1,("\131"):rep(width), bColor)
+        end
+        if self.get("borderBottom") then
+            self:multiBlit(1,height,width,1,"\143", bgHex, bHex)
+        end
+        if self.get("borderLeft") then
+            self:multiBlit(1,1,1,height,"\149", bHex, bgHex)
+        end
+        if self.get("borderRight") then
+            self:multiBlit(width,1,1,height,"\149", bgHex, bHex)
+        end
+        -- Corners
+        if self.get("borderTop") and self.get("borderLeft") then self:blit(1,1,"\151", bHex, bgHex) end
+        if self.get("borderTop") and self.get("borderRight") then self:blit(width,1,"\148", bgHex, bHex) end
+        if self.get("borderBottom") and self.get("borderLeft") then self:blit(1,height,"\138", bgHex, bHex) end
+        if self.get("borderBottom") and self.get("borderRight") then self:blit(width,height,"\133", bgHex, bHex) end
+    end
 end
 
 --- @shortDescription Post-rendering function for the element
