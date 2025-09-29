@@ -2218,6 +2218,11 @@ _b.defineProperty(_b,"foreground",{default=colors.white,type="color",canTriggerR
 _b.defineProperty(_b,"clicked",{default=false,type="boolean"})
 _b.defineProperty(_b,"hover",{default=false,type="boolean"})
 _b.defineProperty(_b,"backgroundEnabled",{default=true,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"borderTop",{default=false,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"borderBottom",{default=false,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"borderLeft",{default=false,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"borderRight",{default=false,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"borderColor",{default=colors.white,type="color",canTriggerRender=true})
 _b.defineProperty(_b,"focused",{default=false,type="boolean",setter=function(cb,db,_c)local ac=cb.get("focused")
 if db==ac then return db end;if db then cb:focus()else cb:blur()end;if not _c and cb.parent then
 if db then
@@ -2279,7 +2284,7 @@ self:fireEvent("mouse_up",cb,self:getRelativePosition(db,_c))return true end;ret
 false end
 function _b:mouse_release(cb,db,_c)
 self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))self.set("clicked",false)end
-function _b:mouse_move(cb,db,_c)if(db==nil)or(_c==nil)then return end
+function _b:mouse_move(cb,db,_c)if(db==nil)or(_c==nil)then return false end
 local ac=self.get("hover")
 if(self:isInBounds(db,_c))then if(not ac)then self.set("hover",true)
 self:fireEvent("mouse_enter",self:getRelativePosition(db,_c))end;return true else if(ac)then
@@ -2289,14 +2294,30 @@ function _b:mouse_scroll(cb,db,_c)if(self:isInBounds(db,_c))then
 self:fireEvent("mouse_scroll",cb,self:getRelativePosition(db,_c))return true end;return false end
 function _b:mouse_drag(cb,db,_c)if(self.get("clicked"))then
 self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
-self:fireEvent("blur")self:setCursor(1,1,false)end
-function _b:key(cb,db)if
-(self.get("focused"))then self:fireEvent("key",cb,db)end end;function _b:key_up(cb)
-if(self.get("focused"))then self:fireEvent("key_up",cb)end end;function _b:char(cb)if(self.get("focused"))then
-self:fireEvent("char",cb)end end
-function _b:calculatePosition()
-local cb,db=self.get("x"),self.get("y")
-if not self.get("ignoreOffset")then if self.parent~=nil then
+self:fireEvent("blur")
+pcall(function()
+self:setCursor(1,1,false,self.get and self.get("foreground"))end)end
+function _b:addBorder(cb,db)
+local _c=nil;local ac=nil
+if type(cb)=="table"and
+(cb.color or cb.top~=nil or cb.left~=nil)then _c=cb.color;ac=cb else _c=cb;ac=db end
+if ac then
+if ac.top~=nil then self.set("borderTop",ac.top)end
+if ac.bottom~=nil then self.set("borderBottom",ac.bottom)end
+if ac.left~=nil then self.set("borderLeft",ac.left)end
+if ac.right~=nil then self.set("borderRight",ac.right)end else self.set("borderTop",true)
+self.set("borderBottom",true)self.set("borderLeft",true)
+self.set("borderRight",true)end;if _c then self.set("borderColor",_c)end;return self end
+function _b:removeBorder()self.set("borderTop",false)
+self.set("borderBottom",false)self.set("borderLeft",false)
+self.set("borderRight",false)return self end;function _b:key(cb,db)
+if(self.get("focused"))then self:fireEvent("key",cb,db)end end;function _b:key_up(cb)if(self.get("focused"))then
+self:fireEvent("key_up",cb)end end
+function _b:char(cb)if
+(self.get("focused"))then self:fireEvent("char",cb)end end
+function _b:calculatePosition()local cb,db=self.get("x"),self.get("y")
+if not
+self.get("ignoreOffset")then if self.parent~=nil then
 local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end
 function _b:getAbsolutePosition(cb,db)local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then
 _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end;local bc=self.parent
@@ -2319,7 +2340,22 @@ if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
 function _b:render()
 if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
-self:multiBlit(1,1,cb,db," ",da[self.get("foreground")],da[self.get("background")])end;function _b:postRender()end;function _b:destroy()self.set("visible",false)
+local _c=da[self.get("foreground")]local ac=da[self.get("background")]
+self:multiBlit(1,1,cb,db," ",_c,ac)
+if
+(self.get("borderTop")or self.get("borderBottom")or
+self.get("borderLeft")or self.get("borderRight"))then
+local bc=self.get("borderColor")or self.get("foreground")local cc=da[bc]or _c;if self.get("borderTop")then
+self:textFg(1,1,("\131"):rep(cb),bc)end;if self.get("borderBottom")then
+self:multiBlit(1,db,cb,1,"\143",ac,cc)end;if self.get("borderLeft")then
+self:multiBlit(1,1,1,db,"\149",cc,ac)end;if self.get("borderRight")then
+self:multiBlit(cb,1,1,db,"\149",ac,cc)end
+if self.get("borderTop")and
+self.get("borderLeft")then self:blit(1,1,"\151",cc,ac)end;if self.get("borderTop")and self.get("borderRight")then
+self:blit(cb,1,"\148",ac,cc)end
+if self.get("borderBottom")and
+self.get("borderLeft")then self:blit(1,db,"\138",ac,cc)end;if self.get("borderBottom")and self.get("borderRight")then
+self:blit(cb,db,"\133",ac,cc)end end end;function _b:postRender()end;function _b:destroy()self.set("visible",false)
 ca.destroy(self)end;return _b end
 project["elements/ProgressBar.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
