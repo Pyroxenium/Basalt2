@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field, undefined-field, undefined-doc-name, param-type-mismatch, redundant-return-value
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
@@ -295,9 +296,7 @@ end
 ---@return boolean hover Whether the mouse has moved over the element
 --- @protected
 function VisualElement:mouse_move(_, x, y)
-    if(x==nil)or(y==nil)then
-        return
-    end
+    if(x==nil)or(y==nil)then return false end
     local hover = self.get("hover")
     if(self:isInBounds(x, y))then
         if(not hover)then
@@ -352,7 +351,92 @@ end
 --- @protected
 function VisualElement:blur()
     self:fireEvent("blur")
-    self:setCursor(1,1, false)
+    -- Attempt to clear cursor; signature may expect (x,y,blink,fg,bg)
+    pcall(function() self:setCursor(1,1,false, self.get and self.get("foreground")) end)
+end
+
+--- Adds or updates a drawable character border around the element using the canvas plugin.
+--- The border will automatically adapt to size/background changes because the command
+--- reads current properties each render.
+-- @param colorOrOptions any Border color or options table
+--- @return VisualElement self
+function VisualElement:addBorder(colorOrOptions, sideOptions)
+    -- Usage:
+    --  element:addBorder(colors.red) -- all sides
+    --  element:addBorder(colors.red, {top=true, bottom=false})
+    --  element:addBorder({color=colors.red, left=true, right=true, top=false, bottom=true})
+    local ok, _ = pcall(require, "plugins/canvas") -- ensure canvas plugin registered
+    if not ok then return self end
+    local canvas = self.get and self.get("canvas")
+    if not canvas then return self end
+
+    local borderColor
+    local sidesSpec
+    if type(colorOrOptions) == "table" and (colorOrOptions.color or colorOrOptions.top ~= nil or colorOrOptions.bottom ~= nil or colorOrOptions.left ~= nil or colorOrOptions.right ~= nil) then
+        borderColor = colorOrOptions.color
+        sidesSpec = colorOrOptions
+    else
+        borderColor = colorOrOptions
+        sidesSpec = sideOptions
+    end
+
+    borderColor = borderColor or (self.get and self.get("foreground")) or colors.white
+    local sides = {
+        top = sidesSpec and sidesSpec.top ~= false,
+        bottom = sidesSpec and sidesSpec.bottom ~= false,
+        left = sidesSpec and sidesSpec.left ~= false,
+        right = sidesSpec and sidesSpec.right ~= false,
+    }
+
+    canvas:setType("post")
+    if self._borderCommandId then
+        canvas:removeCommand(self._borderCommandId)
+        self._borderCommandId = nil
+    end
+
+    self._borderCommandId = canvas:addCommand(function(el)
+        local width, height = el.get("width"), el.get("height")
+        if width < 1 or height < 1 then return end
+        local bg = el.get("background") or colors.black
+        local bHex = tHex[borderColor] or tHex[colors.white]
+        local bgHex = tHex[bg] or tHex[colors.black]
+
+        -- Horizontal sides
+        if sides.top then
+            el:textFg(1, 1, ("\131"):rep(width), borderColor)
+        end
+        if sides.bottom then
+            el:multiBlit(1, height, width, 1, "\143", bgHex, bHex)
+        end
+
+        -- Vertical sides
+        if sides.left then
+            el:multiBlit(1, 1, 1, height, "\149", bHex, bgHex)
+        end
+        if sides.right then
+            el:multiBlit(width, 1, 1, height, "\149", bgHex, bHex)
+        end
+
+        -- Corners only if both adjoining sides exist
+        if sides.top and sides.left then el:blit(1, 1, "\151", bHex, bgHex) end
+        if sides.top and sides.right then el:blit(width, 1, "\148", bgHex, bHex) end
+        if sides.bottom and sides.left then el:blit(1, height, "\138", bgHex, bHex) end
+        if sides.bottom and sides.right then el:blit(width, height, "\133", bgHex, bHex) end
+    end)
+    self:updateRender()
+    return self
+end
+
+--- Removes the previously added border (if any)
+--- @return VisualElement self
+function VisualElement:removeBorder()
+    local canvas = self.get and self.get("canvas")
+    if canvas and self._borderCommandId then
+        canvas:removeCommand(self._borderCommandId)
+        self._borderCommandId = nil
+        self:updateRender()
+    end
+    return self
 end
 
 --- @shortDescription Handles a key event
