@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field, undefined-field, undefined-doc-name, param-type-mismatch, redundant-return-value
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 local tHex = require("libraries/colorHex")
@@ -295,9 +296,7 @@ end
 ---@return boolean hover Whether the mouse has moved over the element
 --- @protected
 function VisualElement:mouse_move(_, x, y)
-    if(x==nil)or(y==nil)then
-        return
-    end
+    if(x==nil)or(y==nil)then return false end
     local hover = self.get("hover")
     if(self:isInBounds(x, y))then
         if(not hover)then
@@ -352,7 +351,60 @@ end
 --- @protected
 function VisualElement:blur()
     self:fireEvent("blur")
-    self:setCursor(1,1, false)
+    -- Attempt to clear cursor; signature may expect (x,y,blink,fg,bg)
+    pcall(function() self:setCursor(1,1,false, self.get and self.get("foreground")) end)
+end
+
+--- Adds or updates a drawable character border around the element using the canvas plugin.
+--- The border will automatically adapt to size/background changes because the command
+--- reads current properties each render.
+--- @param color color The border (foreground) color
+--- @return VisualElement self
+function VisualElement:addBorder(color)
+    local ok, _ = pcall(require, "plugins/canvas") -- ensure canvas plugin registered
+    if not ok then return self end
+    local canvas = self.get and self.get("canvas")
+    if not canvas then return self end
+    canvas:setType("post")
+    if self._borderCommandId then
+        canvas:removeCommand(self._borderCommandId)
+        self._borderCommandId = nil
+    end
+    local borderColor = color or self.get("foreground") or colors.white
+    self._borderCommandId = canvas:addCommand(function(el)
+        local width, height = el.get("width"), el.get("height")
+        if width < 1 or height < 1 then return end
+        local bg = el.get("background") or colors.black
+        local bHex = tHex[borderColor] or tHex[colors.white]
+        local bgHex = tHex[bg] or tHex[colors.black]
+        -- Top line
+        el:textFg(1, 1, ("\131"):rep(width), borderColor)
+        -- Bottom line
+        el:multiBlit(1, height, width, 1, "\143", bgHex, bHex)
+        -- Left vertical
+        el:multiBlit(1, 1, 1, height, "\149", bHex, bgHex)
+        -- Right vertical
+        el:multiBlit(width, 1, 1, height, "\149", bgHex, bHex)
+        -- Corners
+        el:blit(1, 1, "\151", bHex, bgHex)
+        el:blit(width, 1, "\148", bgHex, bHex)
+        el:blit(1, height, "\138", bgHex, bHex)
+        el:blit(width, height, "\133", bgHex, bHex)
+    end)
+    self:updateRender()
+    return self
+end
+
+--- Removes the previously added border (if any)
+--- @return VisualElement self
+function VisualElement:removeBorder()
+    local canvas = self.get and self.get("canvas")
+    if canvas and self._borderCommandId then
+        canvas:removeCommand(self._borderCommandId)
+        self._borderCommandId = nil
+        self:updateRender()
+    end
+    return self
 end
 
 --- @shortDescription Handles a key event
