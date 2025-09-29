@@ -18,6 +18,11 @@ Extends: `BaseElement`
 |clicked|boolean|false|Whether the element is currently clicked|
 |hover|boolean|false|Whether the mouse is currently hover over the element (Craftos-PC only)|
 |backgroundEnabled|boolean|true|Whether to render the background|
+|borderTop|boolean|false|Draw top border|
+|borderBottom|boolean|false|Draw bottom border|
+|borderLeft|boolean|false|Draw left border|
+|borderRight|boolean|false|Draw right border|
+|borderColor|color|white|Border color|
 |focused|boolean|false|Whether the element has input focus|
 |visible|boolean|true|Whether the element is visible|
 |ignoreOffset|boolean|false|Whether to ignore the parent's offset|
@@ -33,6 +38,10 @@ Extends: `BaseElement`
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement:isInBounds](#visualelement-isinbounds-x-y)|boolean|Checks if point is within bounds|
+|[VisualElement:addBorder](#visualelement-addborder-colororoptions)|VisualElement|Adds or updates a drawable character border around the element using the canvas plugin.
+The border will automatically adapt to size/background changes because the command
+reads current properties each render.|
+|[VisualElement:removeBorder](#visualelement-removeborder)|VisualElement|Removes the previously added border (if any)|
 |[VisualElement:calculatePosition](#visualelement-calculateposition)|number, number|Calculates the position of the element|
 |[VisualElement:getAbsolutePosition](#visualelement-getabsoluteposition-x-y)|number, number|Returns the absolute position of the element|
 |[VisualElement:getRelativePosition](#visualelement-getrelativeposition-x-y)|number, number|Returns the relative position of the element|
@@ -48,6 +57,25 @@ Checks if the specified coordinates are within the bounds of the element
 
 ### Returns
 * `boolean` `isInBounds` Whether the coordinates are within the bounds of the element
+
+## VisualElement:addBorder(colorOrOptions)
+
+Adds or updates a drawable character border around the element using the canvas plugin.
+The border will automatically adapt to size/background changes because the command
+reads current properties each render.
+
+### Parameters
+* `colorOrOptions` `any` Border color or options table
+
+### Returns
+* `VisualElement` self
+
+## VisualElement:removeBorder()
+
+Removes the previously added border (if any)
+
+### Returns
+* `VisualElement` self
 
 ## VisualElement:calculatePosition()
 
