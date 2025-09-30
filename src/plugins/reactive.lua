@@ -20,7 +20,23 @@ local mathEnv = {
     abs = math.abs
 }
 
+local function analyzeDependencies(expr)
+    return {
+        parent = expr:find("parent%."),
+        self = expr:find("self%."),
+        other = expr:find("[^(parent)][^(self)]%.")
+    }
+end
+
 local function parseExpression(expr, element, propName)
+    local deps = analyzeDependencies(expr)
+    
+    if deps.parent and not element.parent then
+        errorManager.header = "Reactive evaluation error"
+        errorManager.error("Expression uses parent but no parent available")
+        return function() return nil end
+    end
+    
     expr = expr:gsub("^{(.+)}$", "%1")
 
     expr = expr:gsub("([%w_]+)%$([%w_]+)", function(obj, prop)
@@ -139,6 +155,8 @@ local observerCache = setmetatable({}, {
 })
 
 local function setupObservers(element, expr, propertyName)
+    local deps = analyzeDependencies(expr)
+    
     if observerCache[element][propertyName] then
         for _, observer in ipairs(observerCache[element][propertyName]) do
             observer.target:removeObserver(observer.property, observer.callback)
@@ -149,11 +167,11 @@ local function setupObservers(element, expr, propertyName)
     for ref, prop in expr:gmatch("([%w_]+)%.([%w_]+)") do
         if not protectedNames[ref] then
             local target
-            if ref == "self" then
+            if ref == "self" and deps.self then
                 target = element
-            elseif ref == "parent" then
+            elseif ref == "parent" and deps.parent then
                 target = element.parent
-            else
+            elseif deps.other then
                 target = element:getBaseFrame():getChild(ref)
             end
 
@@ -177,6 +195,11 @@ end
 PropertySystem.addSetterHook(function(element, propertyName, value, config)
     if type(value) == "string" and value:match("^{.+}$") then
         local expr = value:gsub("^{(.+)}$", "%1")
+        local deps = analyzeDependencies(expr)
+        
+        if deps.parent and not element.parent then
+            return config.default
+        end
         if not validateReferences(expr, element) then
             return config.default
         end
@@ -192,8 +215,15 @@ PropertySystem.addSetterHook(function(element, propertyName, value, config)
         end
 
         return function(self)
+            if element._destroyed or (deps.parent and not element.parent) then
+                return config.default
+            end
+
             local success, result = pcall(functionCache[element][value])
             if not success then
+                if result and result:match("attempt to index.-nil value") then
+                    return config.default
+                end
                 errorManager.header = "Reactive evaluation error"
                 if type(result) == "string" then
                     errorManager.error("Error evaluating expression: " .. result)
@@ -225,6 +255,7 @@ BaseElement.hooks = {
                 end
             end
             observerCache[self] = nil
+            functionCache[self] = nil
         end
     end
 }

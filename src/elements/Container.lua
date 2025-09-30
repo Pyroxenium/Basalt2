@@ -689,6 +689,12 @@ end
 --- @private
 function Container:destroy()
     if not self:isType("BaseFrame") then
+        for _, child in ipairs(self._values.children) do
+            if child.destroy then
+                child:destroy()
+            end
+        end
+        self:removeAllObservers()
         VisualElement.destroy(self)
         return self
     else
