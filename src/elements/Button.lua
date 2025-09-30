@@ -1,14 +1,34 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
----@cofnigDescription The Button is a standard button element with click handling and state management.
+---@configDescription The Button is a standard button element with click handling and state management.
 
---- The Button is a standard button element with click handling and state management.
+--- A clickable interface element that triggers actions when pressed. Supports text labels, custom styling, and automatic text centering. Commonly used for user interactions and form submissions.
+--- @usage -- Create a simple action button
+--- @usage local button = parent:addButton()
+--- @usage     :setPosition(5, 5)
+--- @usage     :setText("Click me!")
+--- @usage     :setBackground(colors.blue)
+--- @usage     :setForeground(colors.white)
+--- @usage
+--- @usage -- Add click handling
+--- @usage button:onClick(function(self, button, x, y)
+--- @usage     -- Change appearance when clicked
+--- @usage     self:setBackground(colors.green)
+--- @usage     self:setText("Success!")
+--- @usage     
+--- @usage     -- Revert after delay
+--- @usage     basalt.schedule(function()
+--- @usage         sleep(1)
+--- @usage         self:setBackground(colors.blue)
+--- @usage         self:setText("Click me!")
+--- @usage     end)
+--- @usage end)
 ---@class Button : VisualElement
 local Button = setmetatable({}, VisualElement)
 Button.__index = Button
 
----@property text string Button Button text
+---@property text string Button Label text displayed centered within the button
 Button.defineProperty(Button, "text", {default = "Button", type = "string", canTriggerRender = true})
 
 Button.defineEvent(Button, "mouse_click")

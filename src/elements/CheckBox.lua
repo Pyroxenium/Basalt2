@@ -1,14 +1,26 @@
 local VisualElement = require("elements/VisualElement")
----@cofnigDescription This is a checkbox. It is a visual element that can be checked.
+---@configDescription This is a checkbox. It is a visual element that can be checked.
 
---- The CheckBox is a visual element that can be checked.
----@class CheckBox : VisualElement
+--- A toggleable UI element that can be checked or unchecked. Displays different text based on its state and supports automatic sizing. Commonly used in forms and settings interfaces for boolean options.
+--- @usage -- Create a checkbox for a setting
+--- @usage local checkbox = parent:addCheckBox()
+--- @usage     :setText("Enable Feature")
+--- @usage     :setCheckedText("✓")
+--- @usage     :onChange("checked", function(self, checked)
+--- @usage         -- React to checkbox state changes
+--- @usage         if checked then
+--- @usage             -- Handle enabled state
+--- @usage         else
+--- @usage             -- Handle disabled state
+--- @usage         end
+--- @usage     end)
+--- @class CheckBox : VisualElement
 local CheckBox = setmetatable({}, VisualElement)
 CheckBox.__index = CheckBox
 
----@property checked boolean Whether checkbox is checked
+---@property checked boolean false The current state of the checkbox (true=checked, false=unchecked)
 CheckBox.defineProperty(CheckBox, "checked", {default = false, type = "boolean", canTriggerRender = true})
----@property text string empty Text to display
+---@property text string empty Text shown when the checkbox is unchecked
 CheckBox.defineProperty(CheckBox, "text", {default = " ", type = "string", canTriggerRender = true, setter=function(self, value)
     local checkedText = self.get("checkedText")
     local width = math.max(#value, #checkedText)
@@ -17,7 +29,7 @@ CheckBox.defineProperty(CheckBox, "text", {default = " ", type = "string", canTr
     end
     return value
 end})
----@property checkedText string Text when checked
+---@property checkedText string x Text shown when the checkbox is checked
 CheckBox.defineProperty(CheckBox, "checkedText", {default = "x", type = "string", canTriggerRender = true, setter=function(self, value)
     local text = self.get("text")
     local width = math.max(#value, #text)
@@ -26,7 +38,7 @@ CheckBox.defineProperty(CheckBox, "checkedText", {default = "x", type = "string"
     end
     return value
 end})
----@property autoSize boolean true Whether to automatically size the checkbox
+---@property autoSize boolean true Automatically adjusts width based on text length
 CheckBox.defineProperty(CheckBox, "autoSize", {default = true, type = "boolean"})
 
 CheckBox.defineEvent(CheckBox, "mouse_click")
@@ -51,7 +63,8 @@ function CheckBox:init(props, basalt)
     self.set("type", "CheckBox")
 end
 
---- @shortDescription Handles mouse click events
+--- Handles mouse interactions to toggle the checkbox state
+--- @shortDescription Toggles checked state on mouse click
 --- @param button number The button that was clicked
 --- @param x number The x position of the click
 --- @param y number The y position of the click

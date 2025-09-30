@@ -5,39 +5,49 @@ local tHex = require("libraries/colorHex")
 ---@configDescription A ComboBox that combines dropdown selection with editable text input
 ---@configDefault false
 
---- This is the ComboBox class. It extends the dropdown functionality with editable text input,
---- allowing users to either select from a list or type their own custom text.
---- @usage local ComboBox = main:addCombobox()
---- @usage ComboBox:setEditable(true)
---- @usage ComboBox:setItems({
---- @usage     {text = "Option 1"},
---- @usage     {text = "Option 2"},
---- @usage     {text = "Option 3"},
---- @usage })
---- @usage ComboBox:setText("Custom input...")
+--- A hybrid input element that combines a text input field with a dropdown list. Users can either type directly or select from predefined options. 
+--- Supports auto-completion, custom styling, and both single and multi-selection modes.
+--- @usage -- Create a searchable country selector
+--- @usage local combo = main:addComboBox()
+--- @usage     :setPosition(5, 5)
+--- @usage     :setSize(20, 1)  -- Height will expand when opened
+--- @usage     :setItems({
+--- @usage         {text = "Germany"},
+--- @usage         {text = "France"},
+--- @usage         {text = "Spain"},
+--- @usage         {text = "Italy"}
+--- @usage     })
+--- @usage     :setPlaceholder("Select country...")
+--- @usage     :setAutoComplete(true)  -- Enable filtering while typing
+--- @usage 
+--- @usage -- Handle selection changes
+--- @usage combo:onChange(function(self, value)
+--- @usage     -- value will be the selected country
+--- @usage     basalt.debug("Selected:", value)
+--- @usage end)
 ---@class ComboBox : DropDown
 local ComboBox = setmetatable({}, DropDown)
 ComboBox.__index = ComboBox
 
----@property editable boolean true Whether the ComboBox allows text input
+---@property editable boolean true Enables direct text input in the field
 ComboBox.defineProperty(ComboBox, "editable", {default = true, type = "boolean", canTriggerRender = true})
----@property text string "" The current text content of the ComboBox
+---@property text string "" The current text value of the input field
 ComboBox.defineProperty(ComboBox, "text", {default = "", type = "string", canTriggerRender = true})
----@property cursorPos number 1 The current cursor position in the text
+---@property cursorPos number 1 Current cursor position in the text input
 ComboBox.defineProperty(ComboBox, "cursorPos", {default = 1, type = "number"})
----@property viewOffset number 0 The horizontal scroll offset for viewing long text
+---@property viewOffset number 0 Horizontal scroll position for viewing long text
 ComboBox.defineProperty(ComboBox, "viewOffset", {default = 0, type = "number", canTriggerRender = true})
----@property placeholder string "..." Text to display when input is empty
+---@property placeholder string "..." Text shown when the input is empty
 ComboBox.defineProperty(ComboBox, "placeholder", {default = "...", type = "string"})
----@property placeholderColor color gray Color of the placeholder text
+---@property placeholderColor color gray Color used for placeholder text
 ComboBox.defineProperty(ComboBox, "placeholderColor", {default = colors.gray, type = "color"})
----@property focusedBackground color blue Background color when ComboBox is focused
+---@property focusedBackground color blue Background color when input is focused
 ComboBox.defineProperty(ComboBox, "focusedBackground", {default = colors.blue, type = "color"})
----@property focusedForeground color white Foreground color when ComboBox is focused  
+---@property focusedForeground color white Text color when input is focused
 ComboBox.defineProperty(ComboBox, "focusedForeground", {default = colors.white, type = "color"})
----@property autoComplete boolean false Whether to enable auto-complete filtering when typing
+---@property autoComplete boolean false Enables filtering dropdown items while typing
 ComboBox.defineProperty(ComboBox, "autoComplete", {default = false, type = "boolean"})
----@property manuallyOpened boolean false Whether the dropdown was manually opened (not by auto-complete)
+---@property manuallyOpened boolean false Indicates if dropdown was opened by user action
 ComboBox.defineProperty(ComboBox, "manuallyOpened", {default = false, type = "boolean"})
 
 --- Creates a new ComboBox instance
@@ -145,6 +155,7 @@ function ComboBox:updateFilteredDropdown()
     end
     self:updateRender()
 end
+
 --- @shortDescription Updates the viewport
 --- @private
 function ComboBox:updateViewport()

@@ -5,7 +5,7 @@ local Render = require("render")
 ---@configDescription This is the base frame class. It is the root element of all elements and the only element without a parent.
 
 
---- This is the base frame class. It is the root element of all elements and the only element without a parent.
+--- This is the root frame class that serves as the foundation for the UI hierarchy. It manages the rendering context and acts as the top-level container for all other elements. Unlike other elements, it renders directly to a terminal or monitor and does not require a parent element.
 ---@class BaseFrame : Container
 ---@field _render Render The render object
 ---@field _renderUpdate boolean Whether the render object needs to be updated
@@ -110,22 +110,31 @@ function BaseFrame:textBg(x, y, text, bg)
     self._render:textBg(x, y, text, bg)
 end
 
---- @shortDescription Renders a text with a background color to the render Object
+--- @shortDescription Draws plain text to the render Object
 --- @param x number The x position to render to
 --- @param y number The y position to render to
 --- @param text string The text to render
---- @param bg colors The background color
 --- @protected
 function BaseFrame:drawText(x, y, text)
     if x < 1 then text = string.sub(text, 1 - x); x = 1 end
     self._render:text(x, y, text)
 end
 
+--- @shortDescription Draws a foreground color to the render Object
+--- @param x number The x position to render to
+--- @param y number The y position to render to
+--- @param fg colors The foreground color
+--- @protected
 function BaseFrame:drawFg(x, y, fg)
     if x < 1 then fg = string.sub(fg, 1 - x); x = 1 end
     self._render:fg(x, y, fg)
 end
 
+--- @shortDescription Draws a background color to the render Object
+--- @param x number The x position to render to
+--- @param y number The y position to render to
+--- @param bg colors The background color
+--- @protected
 function BaseFrame:drawBg(x, y, bg)
     if x < 1 then bg = string.sub(bg, 1 - x); x = 1 end
     self._render:bg(x, y, bg)

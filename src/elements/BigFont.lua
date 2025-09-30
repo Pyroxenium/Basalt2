@@ -145,22 +145,34 @@ local VisualElement = elementManager.getElement("VisualElement")
 ---@cofnigDescription The BigFont is a text element that displays large text.
 ---@configDefault false
 
---- The BigFont element is a text element that displays larger text. It uses Wojbie's BigFont API to render the text in a larger font size. Credits to Wojbie for the original API.
---- @run local basalt = require("basalt")
---- @run local main = basalt.getMainFrame()
---- @run local font = main:addBigFont()
---- @run font:setText("Hello World!")
---- @run basalt.run()
+--- A specialized text element that renders characters in larger sizes using Wojbie's BigFont API. Supports multiple font sizes and custom colors while maintaining the pixel-art style of ComputerCraft. Ideal for headers, titles, and emphasis text.
+--- @usage -- Create a large welcome message
+--- @usage local main = basalt.getMainFrame()
+--- @usage local title = main:addBigFont()
+--- @usage     :setPosition(3, 3)
+--- @usage     :setFontSize(2)  -- Makes text twice as large
+--- @usage     :setText("Welcome!")
+--- @usage     :setForeground(colors.yellow)  -- Make text yellow
+--- @usage
+--- @usage -- For animated text
+--- @usage basalt.schedule(function()
+--- @usage     while true do
+--- @usage         title:setForeground(colors.yellow)
+--- @usage         sleep(0.5)
+--- @usage         title:setForeground(colors.orange)
+--- @usage         sleep(0.5)
+--- @usage     end
+--- @usage end)
 ---@class BigFont : VisualElement
 local BigFont = setmetatable({}, VisualElement)
 BigFont.__index = BigFont
 
----@property text string BigFont BigFont text
+---@property text string BigFont The text string to display in enlarged format
 BigFont.defineProperty(BigFont, "text", {default = "BigFont", type = "string", canTriggerRender = true, setter=function(self, value)
     self.bigfontText = makeText(self.get("fontSize"), value, self.get("foreground"), self.get("background"))
     return value
 end})
----@property fontSize number 1 The font size of the BigFont
+---@property fontSize number 1 Scale factor for text size (1-3, where 1 is 3x3 pixels per character)
 BigFont.defineProperty(BigFont, "fontSize", {default = 1, type = "number", canTriggerRender = true, setter=function(self, value)
     self.bigfontText = makeText(value, self.get("text"), self.get("foreground"), self.get("background"))
     return value

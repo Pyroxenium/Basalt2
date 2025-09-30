@@ -3,13 +3,37 @@ local VisualElement = elementManager.getElement("VisualElement")
 local getCenteredPosition = require("libraries/utils").getCenteredPosition
 local deepcopy = require("libraries/utils").deepcopy
 local colorHex = require("libraries/colorHex")
----@configDescription The Display is a special element which uses the cc window API which you can use.
+---@configDescription The Display is a special element which uses the CC Window API which you can use.
 ---@configDefault false
 
---- The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs.
---- @usage local display = main:addDisplay() -- Create a display element
---- @usage local displayWindow = display:getWindow() -- Get the window object of the display
---- @usage displayWindow.write("Hello World!") -- Write "Hello World!" to the display
+--- A specialized element that provides direct access to ComputerCraft's Window API. 
+--- It acts as a canvas where you can use standard CC terminal operations, making it ideal for:
+--- - Integration with existing CC programs and APIs
+--- - Custom drawing operations
+--- - Terminal emulation
+--- - Complex text manipulation
+--- The Display maintains its own terminal buffer and can be manipulated using familiar CC terminal methods.
+--- @usage -- Create a display for a custom terminal
+--- @usage local display = main:addDisplay()
+--- @usage     :setSize(30, 10)
+--- @usage     :setPosition(2, 2)
+--- @usage
+--- @usage -- Get the window object for CC API operations
+--- @usage local win = display:getWindow()
+--- @usage
+--- @usage -- Use standard CC terminal operations
+--- @usage win.setTextColor(colors.yellow)
+--- @usage win.setBackgroundColor(colors.blue)
+--- @usage win.clear()
+--- @usage win.setCursorPos(1, 1)
+--- @usage win.write("Hello World!")
+--- @usage
+--- @usage -- Or use the helper method
+--- @usage display:write(1, 2, "Direct write", colors.red, colors.black)
+--- @usage
+--- @usage -- Useful for external APIs
+--- @usage local paintutils = require("paintutils")
+--- @usage paintutils.drawLine(1, 1, 10, 1, colors.red, win)
 ---@class Display : VisualElement
 local Display = setmetatable({}, VisualElement)
 Display.__index = Display
@@ -79,21 +103,21 @@ function Display:init(props, basalt)
     end)
 end
 
---- Returns the current window object
---- @shortDescription Returns the current window object
---- @return table window The current window object
+--- Retrieves the underlying ComputerCraft window object
+--- @shortDescription Gets the CC window instance
+--- @return table window A CC window object with all standard terminal methods
 function Display:getWindow()
     return self._window
 end
 
---- Writes text to the display at the given position with the given foreground and background colors
---- @shortDescription Writes text to the display
---- @param x number The x position to write to
---- @param y number The y position to write to
---- @param text string The text to write
---- @param fg? colors The foreground color (optional)
---- @param bg? colors The background color (optional)
---- @return Display self The display instance
+--- Writes text directly to the display with optional colors
+--- @shortDescription Writes colored text to the display
+--- @param x number X position (1-based)
+--- @param y number Y position (1-based)
+--- @param text string Text to write
+--- @param fg? colors Foreground color (optional)
+--- @param bg? colors Background color (optional)
+--- @return Display self For method chaining
 function Display:write(x, y, text, fg, bg)
     local window = self._window
     if window then

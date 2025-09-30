@@ -3,12 +3,12 @@ local uuid = require("libraries/utils").uuid
 local errorManager = require("errorManager")
 ---@configDescription The base class for all UI elements in Basalt.
 
---- The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality.
+--- The fundamental base class for all UI elements in Basalt. It implements core functionality like event handling, property management, lifecycle hooks, and the observer pattern. Every UI component inherits from this class to ensure consistent behavior and interface.
 --- @class BaseElement : PropertySystem
 local BaseElement = setmetatable({}, PropertySystem)
 BaseElement.__index = BaseElement
 
---- @property type string BaseElement The type identifier of the element
+--- @property type string BaseElement A hierarchical identifier of the element's type chain
 BaseElement.defineProperty(BaseElement, "type", {default = {"BaseElement"}, type = "string", setter=function(self, value)
     if type(value) == "string" then
         table.insert(self._values.type, 1, value)
@@ -22,19 +22,19 @@ end, getter = function(self, _, index)
     return self._values.type[index or 1]
 end})
 
---- @property id string BaseElement The unique identifier for the element
+--- @property id string BaseElement Auto-generated unique identifier for element lookup
 BaseElement.defineProperty(BaseElement, "id", {default = "", type = "string", readonly = true})
 
---- @property name string BaseElement The name of the element
+--- @property name string BaseElement User-defined name for the element
 BaseElement.defineProperty(BaseElement, "name", {default = "", type = "string"})
 
---- @property eventCallbacks table BaseElement The event callbacks for the element
+--- @property eventCallbacks table BaseElement Collection of registered event handler functions
 BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = "table"})
 
---- @property enabled boolean BaseElement Whether the element is enabled or not
+--- @property enabled boolean BaseElement Controls event processing for this element
 BaseElement.defineProperty(BaseElement, "enabled", {default = true, type = "boolean" })
 
---- Registers a new event listener for the element (on class level)
+--- Registers a class-level event listener with optional dependency
 --- @shortDescription Registers a new event listener for the element (on class level)
 --- @param class table The class to register
 --- @param eventName string The name of the event to register
@@ -49,8 +49,8 @@ function BaseElement.defineEvent(class, eventName, requiredEvent)
     }
 end
 
---- Registers a new event callback for the element (on class level)
---- @shortDescription Registers a new event callback for the element (on class level)
+--- Defines a class-level event callback method with automatic event registration
+--- @shortDescription Registers a new event callback method with auto-registration
 --- @param class table The class to register
 --- @param callbackName string The name of the callback to register
 --- @param ... string The names of the events to register the callback for
@@ -143,8 +143,8 @@ function BaseElement:postInit()
     return self
 end
 
---- Checks if the element is a specific type
---- @shortDescription Checks if the element is a specific type
+--- Checks if the element matches or inherits from the specified type
+--- @shortDescription Tests if element is of or inherits given type
 --- @param type string The type to check for
 --- @return boolean isType Whether the element is of the specified type
 function BaseElement:isType(type)
@@ -156,8 +156,8 @@ function BaseElement:isType(type)
     return false
 end
 
---- Enables or disables event listening for a specific event
---- @shortDescription Enables or disables event listening for a specific event
+--- Configures event listening behavior with automatic parent notification
+--- @shortDescription Enables/disables event handling for this element
 --- @param eventName string The name of the event to listen for
 --- @param enable? boolean Whether to enable or disable the event (default: true)
 --- @return table self The BaseElement instance
@@ -179,8 +179,8 @@ function BaseElement:listenEvent(eventName, enable)
     return self
 end
 
---- Registers a callback function for an event
---- @shortDescription Registers a callback function
+--- Adds an event handler function with automatic event registration
+--- @shortDescription Registers a function to handle specific events
 --- @param event string The event to register the callback for
 --- @param callback function The callback function to register
 --- @return table self The BaseElement instance
@@ -197,8 +197,8 @@ function BaseElement:registerCallback(event, callback)
     return self
 end
 
---- Triggers an event and calls all registered callbacks
---- @shortDescription Triggers an event and calls all registered callbacks
+--- Executes all registered callbacks for the specified event
+--- @shortDescription Triggers event callbacks with provided arguments
 --- @param event string The event to fire
 --- @param ... any Additional arguments to pass to the callbacks
 --- @return table self The BaseElement instance
@@ -236,8 +236,8 @@ function BaseElement:handleEvent(event, ...)
     return false
 end
 
---- Observes a property and calls a callback when it changes
---- @shortDescription Observes a property and calls a callback when it changes
+--- Sets up a property change observer with immediate callback registration
+--- @shortDescription Watches property changes with callback notification
 --- @param property string The property to observe
 --- @param callback function The callback to call when the property changes
 --- @return table self The BaseElement instance
@@ -246,8 +246,8 @@ function BaseElement:onChange(property, callback)
     return self
 end
 
---- Returns the base frame of the element
---- @shortDescription Returns the base frame of the element
+--- Traverses parent chain to locate the root frame element
+--- @shortDescription Retrieves the root frame of this element's tree
 --- @return BaseFrame BaseFrame The base frame of the element
 function BaseElement:getBaseFrame()
     if self.parent then
@@ -256,8 +256,8 @@ function BaseElement:getBaseFrame()
     return self
 end
 
---- Destroys the element and cleans up all references
---- @shortDescription Destroys the element and cleans up all references
+--- Removes the element from UI tree and cleans up resources
+--- @shortDescription Removes element and performs cleanup
 function BaseElement:destroy()
     if(self.parent) then
         self.parent:removeChild(self)
@@ -267,8 +267,8 @@ function BaseElement:destroy()
     self:setFocused(false)
 end
 
---- Requests a render update for this element
---- @shortDescription Requests a render update for this element
+--- Propagates render request up the element tree
+--- @shortDescription Requests UI update for this element
 --- @return table self The BaseElement instance
 function BaseElement:updateRender()
     if(self.parent) then

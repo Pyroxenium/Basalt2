@@ -6,24 +6,28 @@ local split = require("libraries/utils").split
 ---@configDescription The container class. It is a visual element that can contain other elements. It is the base class for all containers
 ---@configDefault true
 
---- The Container class serves as a fundamental building block for organizing UI elements. It acts as a parent element that can hold and manage child elements.
---- @usage local container = basalt.getMainFrame()
---- @usage container:addButton()  -- Add a child element
+--- A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, 
+--- rendering hierarchy, and coordinate space management. They serve as the backbone of Basalt's UI structure by providing:
+--- - Child element management and organization
+--- - Event bubbling and distribution
+--- - Visibility calculations and clipping
+--- - Focus management
+--- - Coordinate space transformation
 ---@class Container : VisualElement
 local Container = setmetatable({}, VisualElement)
 Container.__index = Container
 
----@property children table {} The children of the container
+---@property children table {} Collection of all child elements
 Container.defineProperty(Container, "children", {default = {}, type = "table"})
----@property childrenSorted boolean true Whether the children are sorted
+---@property childrenSorted boolean true Indicates if children are sorted by z-index
 Container.defineProperty(Container, "childrenSorted", {default = true, type = "boolean"})
----@property childrenEventsSorted boolean true Whether the children events are sorted
+---@property childrenEventsSorted boolean true Indicates if event handlers are properly sorted
 Container.defineProperty(Container, "childrenEventsSorted", {default = true, type = "boolean"})
----@property childrenEvents table {} The children events of the container
+---@property childrenEvents table {} Registered event handlers for all children
 Container.defineProperty(Container, "childrenEvents", {default = {}, type = "table"})
----@property eventListenerCount table {} The event listener count of the container
+---@property eventListenerCount table {} Number of listeners per event type
 Container.defineProperty(Container, "eventListenerCount", {default = {}, type = "table"})
----@property focusedChild table nil The focused child of the container
+---@property focusedChild table nil Currently focused child element (receives keyboard events)
 Container.defineProperty(Container, "focusedChild", {default = nil, type = "table", allowNil=true, setter = function(self, value, internal)
     local oldChild = self._values.focusedChild
 
@@ -46,18 +50,18 @@ Container.defineProperty(Container, "focusedChild", {default = nil, type = "tabl
     return value
 end})
 
----@property visibleChildren table {} The visible children of the container
+---@property visibleChildren table {} Currently visible child elements (calculated based on viewport)
 Container.defineProperty(Container, "visibleChildren", {default = {}, type = "table"})
----@property visibleChildrenEvents table {} The visible children events of the container
+---@property visibleChildrenEvents table {} Event handlers for currently visible children
 Container.defineProperty(Container, "visibleChildrenEvents", {default = {}, type = "table"})
 
----@property offsetX number 0 Horizontal content offset
+---@property offsetX number 0 Horizontal scroll/content offset
 Container.defineProperty(Container, "offsetX", {default = 0, type = "number", canTriggerRender = true, setter=function(self, value)
     self.set("childrenSorted", false)
     self.set("childrenEventsSorted", false)
     return value
 end})
----@property offsetY number 0 Vertical content offset
+---@property offsetY number 0 Vertical scroll/content offset
 Container.defineProperty(Container, "offsetY", {default = 0, type = "number", canTriggerRender = true, setter=function(self, value)
     self.set("childrenSorted", false)
     self.set("childrenEventsSorted", false)
@@ -112,10 +116,10 @@ function Container:init(props, basalt)
     end)
 end
 
---- Returns whether a child is visible
---- @shortDescription Returns whether a child is visible
---- @param child table The child to check
---- @return boolean boolean the child is visible
+--- Tests whether a child element is currently visible within the container's viewport
+--- @shortDescription Checks if a child element is visible
+--- @param child table The child element to check
+--- @return boolean isVisible Whether the child is within view bounds
 function Container:isChildVisible(child)
     if not child:isType("VisualElement") then return false end
     if(child.get("visible") == false)then return false end
@@ -142,10 +146,10 @@ function Container:isChildVisible(child)
            (relativeY <= containerH)
 end
 
---- Adds a child to the container
---- @shortDescription Adds a child to the container
---- @param child table The child to add
---- @return Container self The container instance
+--- Adds a new element to this container's hierarchy
+--- @shortDescription Adds a child element to the container
+--- @param child table The element to add as a child
+--- @return Container self For method chaining
 function Container:addChild(child)
     if child == self then
         error("Cannot add container to itself")
@@ -188,9 +192,9 @@ local function sortAndFilterChildren(self, children)
     return visibleChildren
 end
 
---- Clears the container
---- @shortDescription Clears the container
---- @return Container self The container instance
+--- Removes all child elements and resets the container's state
+--- @shortDescription Removes all children and resets container
+--- @return Container self For method chaining
 function Container:clear()
     self.set("children", {})
     self.set("childrenEvents", {})
@@ -201,9 +205,9 @@ function Container:clear()
     return self
 end
 
---- Sorts the children of the container
---- @shortDescription Sorts the children of the container
---- @return Container self The container instance
+--- Re-sorts children by their z-index and updates visibility
+--- @shortDescription Updates child element ordering
+--- @return Container self For method chaining
 function Container:sortChildren()
     self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
     self.set("childrenSorted", true)
@@ -234,11 +238,11 @@ function Container:registerChildrenEvents(child)
     return self
 end
 
---- Registers the children events of the container
---- @shortDescription Registers the children events of the container
---- @param child table The child to register events for
---- @param eventName string The event name to register
---- @return Container self The container instance
+--- Registers an event handler for a specific child element
+--- @shortDescription Sets up event handling for a child
+--- @param child table The child element to register events for
+--- @param eventName string The name of the event to register
+--- @return Container self For method chaining
 function Container:registerChildEvent(child, eventName)
     if not self._values.childrenEvents[eventName] then
         self._values.childrenEvents[eventName] = {}
@@ -304,10 +308,10 @@ function Container:unregisterChildEvent(child, eventName)
     return self
 end
 
---- Removes a child from the container
---- @shortDescription Removes a child from the container
---- @param child table The child to remove
---- @return Container self The container instance
+--- Removes an element from this container's hierarchy and cleans up its events
+--- @shortDescription Removes a child element from the container
+--- @param child table The element to remove
+--- @return Container self For method chaining
 function Container:removeChild(child)
     if child == nil then return self end
     for i,v in ipairs(self._values.children) do
@@ -323,10 +327,10 @@ function Container:removeChild(child)
     return self
 end
 
---- Removes a child from the container
---- @shortDescription Removes a child from the container
---- @param path string The path to the child to remove
---- @return Container? self The container instance
+--- Locates a child element using a path-like syntax (e.g. "panel/button1")
+--- @shortDescription Finds a child element by its path
+--- @param path string Path to the child (e.g. "panel/button1", "header/title")
+--- @return Element? child The found element or nil if not found
 function Container:getChild(path)
     if type(path) == "string" then
         local parts = split(path, "/")
