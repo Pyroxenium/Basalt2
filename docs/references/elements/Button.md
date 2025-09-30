@@ -1,5 +1,5 @@
 # Button
-_The Button is a standard button element with click handling and state management._
+_A clickable interface element that triggers actions when pressed. Supports text labels, custom styling, and automatic text centering. Commonly used for user interactions and form submissions._
 
 Extends: `VisualElement`
 
@@ -7,4 +7,4 @@ Extends: `VisualElement`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|text|string|Button|Button text|
+|text|string|Button|Label text displayed centered within the button|

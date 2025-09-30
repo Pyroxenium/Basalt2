@@ -1,5 +1,5 @@
 # BigFont
-_The BigFont element is a text element that displays larger text. It uses Wojbie's BigFont API to render the text in a larger font size. Credits to Wojbie for the original API._
+_A specialized text element that renders characters in larger sizes using Wojbie's BigFont API. Supports multiple font sizes and custom colors while maintaining the pixel-art style of ComputerCraft. Ideal for headers, titles, and emphasis text._
 
 Extends: `VisualElement`
 
@@ -7,5 +7,5 @@ Extends: `VisualElement`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|text|string|BigFont|BigFont text|
-|fontSize|number|1|The font size of the BigFont|
+|text|string|BigFont|The text string to display in enlarged format|
+|fontSize|number|1|Scale factor for text size (1-3, where 1 is 3x3 pixels per character)|

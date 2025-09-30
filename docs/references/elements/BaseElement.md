@@ -1,5 +1,5 @@
 # BaseElement
-_The base class for all UI elements in Basalt. This class provides basic properties and event handling functionality._
+_The fundamental base class for all UI elements in Basalt. It implements core functionality like event handling, property management, lifecycle hooks, and the observer pattern. Every UI component inherits from this class to ensure consistent behavior and interface._
 
 Extends: `PropertySystem`
 
@@ -7,30 +7,30 @@ Extends: `PropertySystem`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|type|string|BaseElement|The type identifier of the element|
-|id|string|BaseElement|The unique identifier for the element|
-|name|string|BaseElement|The name of the element|
-|eventCallbacks|table|BaseElement|The event callbacks for the element|
-|enabled|boolean|BaseElement|Whether the element is enabled or not|
+|type|string|BaseElement|A hierarchical identifier of the element's type chain|
+|id|string|BaseElement|Auto-generated unique identifier for element lookup|
+|name|string|BaseElement|User-defined name for the element|
+|eventCallbacks|table|BaseElement|Collection of registered event handler functions|
+|enabled|boolean|BaseElement|Controls event processing for this element|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
 |[BaseElement.defineEvent](#baseelement-defineevent-class-eventname-requiredevent)|-|Registers a new event listener for the element (on class level)|
-|[BaseElement.registerEventCallback](#baseelement-registereventcallback-class-callbackname-string)|-|Registers a new event callback for the element (on class level)|
-|[BaseElement:isType](#baseelement-istype-type)|boolean|Checks if the element is a specific type|
-|[BaseElement:listenEvent](#baseelement-listenevent-eventname-enable)|table|Enables or disables event listening for a specific event|
-|[BaseElement:registerCallback](#baseelement-registercallback-event-callback)|table|Registers a callback function|
-|[BaseElement:fireEvent](#baseelement-fireevent-event-any)|table|Triggers an event and calls all registered callbacks|
-|[BaseElement:onChange](#baseelement-onchange-property-callback)|table|Observes a property and calls a callback when it changes|
-|[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Returns the base frame of the element|
-|[BaseElement:destroy](#baseelement-destroy)|-|Destroys the element and cleans up all references|
-|[BaseElement:updateRender](#baseelement-updaterender)|table|Requests a render update for this element|
+|[BaseElement.registerEventCallback](#baseelement-registereventcallback-class-callbackname-string)|-|Registers a new event callback method with auto-registration|
+|[BaseElement:isType](#baseelement-istype-type)|boolean|Tests if element is of or inherits given type|
+|[BaseElement:listenEvent](#baseelement-listenevent-eventname-enable)|table|Enables/disables event handling for this element|
+|[BaseElement:registerCallback](#baseelement-registercallback-event-callback)|table|Registers a function to handle specific events|
+|[BaseElement:fireEvent](#baseelement-fireevent-event-any)|table|Triggers event callbacks with provided arguments|
+|[BaseElement:onChange](#baseelement-onchange-property-callback)|table|Watches property changes with callback notification|
+|[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Retrieves the root frame of this element's tree|
+|[BaseElement:destroy](#baseelement-destroy)|-|Removes element and performs cleanup|
+|[BaseElement:updateRender](#baseelement-updaterender)|table|Requests UI update for this element|
 
 ## BaseElement.defineEvent(class, eventName, requiredEvent?)
 
-Registers a new event listener for the element (on class level)
+Registers a class-level event listener with optional dependency
 
 ### Parameters
 * `class` `table` The class to register
@@ -39,7 +39,7 @@ Registers a new event listener for the element (on class level)
 
 ## BaseElement.registerEventCallback(class, callbackName, string)
 
-Registers a new event callback for the element (on class level)
+Defines a class-level event callback method with automatic event registration
 
 ### Parameters
 * `class` `table` The class to register
@@ -48,7 +48,7 @@ Registers a new event callback for the element (on class level)
 
 ## BaseElement:isType(type)
 
-Checks if the element is a specific type
+Checks if the element matches or inherits from the specified type
 
 ### Parameters
 * `type` `string` The type to check for
@@ -58,7 +58,7 @@ Checks if the element is a specific type
 
 ## BaseElement:listenEvent(eventName, enable?)
 
-Enables or disables event listening for a specific event
+Configures event listening behavior with automatic parent notification
 
 ### Parameters
 * `eventName` `string` The name of the event to listen for
@@ -69,7 +69,7 @@ Enables or disables event listening for a specific event
 
 ## BaseElement:registerCallback(event, callback)
 
-Registers a callback function for an event
+Adds an event handler function with automatic event registration
 
 ### Parameters
 * `event` `string` The event to register the callback for
@@ -80,7 +80,7 @@ Registers a callback function for an event
 
 ## BaseElement:fireEvent(event, any)
 
-Triggers an event and calls all registered callbacks
+Executes all registered callbacks for the specified event
 
 ### Parameters
 * `event` `string` The event to fire
@@ -91,7 +91,7 @@ Triggers an event and calls all registered callbacks
 
 ## BaseElement:onChange(property, callback)
 
-Observes a property and calls a callback when it changes
+Sets up a property change observer with immediate callback registration
 
 ### Parameters
 * `property` `string` The property to observe
@@ -102,18 +102,18 @@ Observes a property and calls a callback when it changes
 
 ## BaseElement:getBaseFrame()
 
-Returns the base frame of the element
+Traverses parent chain to locate the root frame element
 
 ### Returns
 * `BaseFrame` `BaseFrame` The base frame of the element
 
 ## BaseElement:destroy()
 
-Destroys the element and cleans up all references
+Removes the element from UI tree and cleans up resources
 
 ## BaseElement:updateRender()
 
-Requests a render update for this element
+Propagates render request up the element tree
 
 ### Returns
 * `table` `self` The BaseElement instance
