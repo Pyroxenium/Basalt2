@@ -1544,9 +1544,11 @@ not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEv
 self:sortChildrenEvents(bc)end end;for bc,cc in ipairs(self.get("visibleChildren"))do if cc==self then
 _b.error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()
 cc:postRender()end end
-function db:destroy()if not self:isType("BaseFrame")then ab.destroy(self)
-return self else _b.header="Basalt Error"
-_b.error("Cannot destroy a BaseFrame.")end end;return db end
+function db:destroy()
+if not self:isType("BaseFrame")then
+for bc,cc in
+ipairs(self._values.children)do if cc.destroy then cc:destroy()end end;self:removeAllObservers()ab.destroy(self)return self else
+_b.header="Basalt Error"_b.error("Cannot destroy a BaseFrame.")end end;return db end
 project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
 local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
@@ -2650,73 +2652,82 @@ if bd then local cd=bd.readAll()bd.close()
 cb.default=textutils.unserializeJSON(cd)if not cb.default then
 ab.error("Failed to load theme from "..ad)end else
 ab.error("Could not open theme file: "..ad)end end;return{BaseElement=_c,API=_d} end
-project["plugins/reactive.lua"] = function(...) local ab=require("errorManager")
-local bb=require("propertySystem")local cb={colors=true,math=true,clamp=true,round=true}
-local db={clamp=function(ad,bd,cd)return
-math.min(math.max(ad,bd),cd)end,round=function(ad)
-return math.floor(ad+0.5)end,floor=math.floor,ceil=math.ceil,abs=math.abs}
-local function _c(ad,bd,cd)ad=ad:gsub("^{(.+)}$","%1")
-ad=ad:gsub("([%w_]+)%$([%w_]+)",function(b_a,c_a)
-if b_a=="self"then return
-string.format('__getState("%s")',c_a)elseif b_a=="parent"then return
-string.format('__getParentState("%s")',c_a)else return
-string.format('__getElementState("%s", "%s")',b_a,c_a)end end)
-ad=ad:gsub("([%w_]+)%.([%w_]+)",function(b_a,c_a)if cb[b_a]then return b_a.."."..c_a end;if
-tonumber(b_a)then return b_a.."."..c_a end;return
-string.format('__getProperty("%s", "%s")',b_a,c_a)end)
-local dd=setmetatable({colors=colors,math=math,tostring=tostring,tonumber=tonumber,__getState=function(b_a)return bd:getState(b_a)end,__getParentState=function(b_a)return
-bd.parent:getState(b_a)end,__getElementState=function(b_a,c_a)if tonumber(b_a)then return nil end
-local d_a=bd:getBaseFrame():getChild(b_a)if not d_a then ab.header="Reactive evaluation error"
-ab.error("Could not find element: "..b_a)return nil end;return
-d_a:getState(c_a).value end,__getProperty=function(b_a,c_a)if
-tonumber(b_a)then return nil end
-if b_a=="self"then return bd.get(c_a)elseif b_a=="parent"then return
-bd.parent.get(c_a)else local d_a=bd.parent:getChild(b_a)if not d_a then
-ab.header="Reactive evaluation error"
-ab.error("Could not find element: "..b_a)return nil end
-return d_a.get(c_a)end end},{__index=db})if(bd._properties[cd].type=="string")then
-ad="tostring("..ad..")"elseif(bd._properties[cd].type=="number")then
-ad="tonumber("..ad..")"end;local __a,a_a=load("return "..
-ad,"reactive","t",dd)
-if not __a then
-ab.header="Reactive evaluation error"ab.error("Invalid expression: "..a_a)return
-function()return nil end end;return __a end
-local function ac(ad,bd)
-for cd in ad:gmatch("([%w_]+)%.")do
-if not cb[cd]then
-if cd=="self"then elseif cd=="parent"then
-if not bd.parent then
-ab.header="Reactive evaluation error"ab.error("No parent element available")return false end else
-if(tonumber(cd)==nil)then local dd=bd.parent:getChild(cd)if not dd then
-ab.header="Reactive evaluation error"
-ab.error("Referenced element not found: "..cd)return false end end end end end;return true end;local bc=setmetatable({},{__mode="k"})
-local cc=setmetatable({},{__mode="k",__index=function(ad,bd)ad[bd]={}
-return ad[bd]end})
-local function dc(ad,bd,cd)
-if cc[ad][cd]then for __a,a_a in ipairs(cc[ad][cd])do
-a_a.target:removeObserver(a_a.property,a_a.callback)end end;local dd={}
-for __a,a_a in bd:gmatch("([%w_]+)%.([%w_]+)")do
-if not cb[__a]then local b_a;if __a=="self"then b_a=ad elseif
-__a=="parent"then b_a=ad.parent else
-b_a=ad:getBaseFrame():getChild(__a)end;if b_a then
-local c_a={target=b_a,property=a_a,callback=function()
-ad:updateRender()end}b_a:observe(a_a,c_a.callback)
-table.insert(dd,c_a)end end end;cc[ad][cd]=dd end
-bb.addSetterHook(function(ad,bd,cd,dd)
-if type(cd)=="string"and cd:match("^{.+}$")then
-local __a=cd:gsub("^{(.+)}$","%1")if not ac(__a,ad)then return dd.default end;dc(ad,__a,bd)if
-not bc[ad]then bc[ad]={}end;if not bc[ad][cd]then local a_a=_c(cd,ad,bd)
-bc[ad][cd]=a_a end
+project["plugins/reactive.lua"] = function(...) local bb=require("errorManager")
+local cb=require("propertySystem")local db={colors=true,math=true,clamp=true,round=true}
+local _c={clamp=function(cd,dd,__a)return
+math.min(math.max(cd,dd),__a)end,round=function(cd)
+return math.floor(cd+0.5)end,floor=math.floor,ceil=math.ceil,abs=math.abs}
+local function ac(cd)return
+{parent=cd:find("parent%."),self=cd:find("self%."),other=cd:find("[^(parent)][^(self)]%.")}end
+local function bc(cd,dd,__a)local a_a=ac(cd)
+if a_a.parent and not dd.parent then
+bb.header="Reactive evaluation error"
+bb.error("Expression uses parent but no parent available")return function()return nil end end;cd=cd:gsub("^{(.+)}$","%1")
+cd=cd:gsub("([%w_]+)%$([%w_]+)",function(_aa,aaa)
+if _aa=="self"then return
+string.format('__getState("%s")',aaa)elseif _aa=="parent"then return
+string.format('__getParentState("%s")',aaa)else return
+string.format('__getElementState("%s", "%s")',_aa,aaa)end end)
+cd=cd:gsub("([%w_]+)%.([%w_]+)",function(_aa,aaa)if db[_aa]then return _aa.."."..aaa end;if
+tonumber(_aa)then return _aa.."."..aaa end;return
+string.format('__getProperty("%s", "%s")',_aa,aaa)end)
+local b_a=setmetatable({colors=colors,math=math,tostring=tostring,tonumber=tonumber,__getState=function(_aa)return dd:getState(_aa)end,__getParentState=function(_aa)return
+dd.parent:getState(_aa)end,__getElementState=function(_aa,aaa)if tonumber(_aa)then return nil end
+local baa=dd:getBaseFrame():getChild(_aa)if not baa then bb.header="Reactive evaluation error"
+bb.error("Could not find element: ".._aa)return nil end;return
+baa:getState(aaa).value end,__getProperty=function(_aa,aaa)if
+tonumber(_aa)then return nil end
+if _aa=="self"then return dd.get(aaa)elseif _aa=="parent"then return
+dd.parent.get(aaa)else local baa=dd.parent:getChild(_aa)if not baa then
+bb.header="Reactive evaluation error"
+bb.error("Could not find element: ".._aa)return nil end
+return baa.get(aaa)end end},{__index=_c})if(dd._properties[__a].type=="string")then
+cd="tostring("..cd..")"elseif(dd._properties[__a].type=="number")then
+cd="tonumber("..cd..")"end;local c_a,d_a=load(
+"return "..cd,"reactive","t",b_a)
+if not c_a then
+bb.header="Reactive evaluation error"bb.error("Invalid expression: "..d_a)return
+function()return nil end end;return c_a end
+local function cc(cd,dd)
+for __a in cd:gmatch("([%w_]+)%.")do
+if not db[__a]then
+if __a=="self"then elseif __a=="parent"then
+if not dd.parent then
+bb.header="Reactive evaluation error"bb.error("No parent element available")return false end else
+if(tonumber(__a)==nil)then local a_a=dd.parent:getChild(__a)if not a_a then
+bb.header="Reactive evaluation error"
+bb.error("Referenced element not found: "..__a)return false end end end end end;return true end;local dc=setmetatable({},{__mode="k"})
+local _d=setmetatable({},{__mode="k",__index=function(cd,dd)cd[dd]={}
+return cd[dd]end})
+local function ad(cd,dd,__a)local a_a=ac(dd)
+if _d[cd][__a]then for c_a,d_a in ipairs(_d[cd][__a])do
+d_a.target:removeObserver(d_a.property,d_a.callback)end end;local b_a={}
+for c_a,d_a in dd:gmatch("([%w_]+)%.([%w_]+)")do
+if not db[c_a]then local _aa
+if
+c_a=="self"and a_a.self then _aa=cd elseif c_a=="parent"and a_a.parent then _aa=cd.parent elseif a_a.other then
+_aa=cd:getBaseFrame():getChild(c_a)end;if _aa then
+local aaa={target=_aa,property=d_a,callback=function()cd:updateRender()end}_aa:observe(d_a,aaa.callback)
+table.insert(b_a,aaa)end end end;_d[cd][__a]=b_a end
+cb.addSetterHook(function(cd,dd,__a,a_a)
+if type(__a)=="string"and __a:match("^{.+}$")then
+local b_a=__a:gsub("^{(.+)}$","%1")local c_a=ac(b_a)
+if c_a.parent and not cd.parent then return a_a.default end;if not cc(b_a,cd)then return a_a.default end;ad(cd,b_a,dd)if not
+dc[cd]then dc[cd]={}end;if not dc[cd][__a]then local d_a=bc(__a,cd,dd)
+dc[cd][__a]=d_a end
 return
-function(a_a)local b_a,c_a=pcall(bc[ad][cd])
-if not b_a then
-ab.header="Reactive evaluation error"
-if type(c_a)=="string"then
-ab.error("Error evaluating expression: "..c_a)else ab.error("Error evaluating expression")end;return dd.default end;return c_a end end end)local _d={}
-_d.hooks={destroy=function(ad)
-if cc[ad]then
-for bd,cd in pairs(cc[ad])do for dd,__a in ipairs(cd)do
-__a.target:removeObserver(__a.property,__a.callback)end end;cc[ad]=nil end end}return{BaseElement=_d} end
+function(d_a)if
+cd._destroyed or(c_a.parent and not cd.parent)then return a_a.default end
+local _aa,aaa=pcall(dc[cd][__a])
+if not _aa then if aaa and aaa:match("attempt to index.-nil value")then return
+a_a.default end
+bb.header="Reactive evaluation error"
+if type(aaa)=="string"then
+bb.error("Error evaluating expression: "..aaa)else bb.error("Error evaluating expression")end;return a_a.default end;return aaa end end end)local bd={}
+bd.hooks={destroy=function(cd)
+if _d[cd]then
+for dd,__a in pairs(_d[cd])do for a_a,b_a in ipairs(__a)do
+b_a.target:removeObserver(b_a.property,b_a.callback)end end;_d[cd]=nil;dc[cd]=nil end end}return{BaseElement=bd} end
 project["plugins/state.lua"] = function(...) local _a=require("propertySystem")
 local aa=require("errorManager")local ba={}function ba.setup(da)
 da.defineProperty(da,"states",{default={},type="table"})
