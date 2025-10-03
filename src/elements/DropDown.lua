@@ -5,24 +5,62 @@ local tHex = require("libraries/colorHex")
 ---@configDescription A DropDown menu that shows a list of selectable items
 ---@configDefault false
 
---- This is the DropDown class. It is a visual element that can show a list of selectable items in a DropDown menu.
---- @usage local DropDown = main:addDropdown()
---- @usage DropDown:setItems({
---- @usage     {text = "Item 1", callback = function() basalt.LOGGER.debug("Item 1 selected") end},
---- @usage     {text = "Item 2", callback = function() basalt.LOGGER.debug("Item 2 selected") end},
---- @usage     {text = "Item 3", callback = function() basalt.LOGGER.debug("Item 3 selected") end},
+--- Item Properties:
+--- Property|Type|Description
+--- -------|------|-------------
+--- text|string|The display text for the item
+--- separator|boolean|Makes item a divider line
+--- callback|function|Function called when selected
+--- foreground|color|Normal text color
+--- background|color|Normal background color
+--- selectedForeground|color|Text color when selected
+--- selectedBackground|color|Background when selected
+
+--- A collapsible selection menu that expands to show multiple options when clicked. Supports single and multi-selection modes, custom item styling, separators, and item callbacks.
+--- @usage -- Create a styled dropdown menu
+--- @usage local dropdown = main:addDropDown()
+--- @usage     :setPosition(5, 5)
+--- @usage     :setSize(20, 1)  -- Height expands when opened
+--- @usage     :setSelectedText("Select an option...")
+--- @usage 
+--- @usage -- Add items with different styles and callbacks
+--- @usage dropdown:setItems({
+--- @usage     {
+--- @usage         text = "Category A",
+--- @usage         background = colors.blue,
+--- @usage         foreground = colors.white
+--- @usage     },
+--- @usage     { separator = true, text = "-" },  -- Add a separator
+--- @usage     {
+--- @usage         text = "Option 1",
+--- @usage         callback = function(self)
+--- @usage             -- Handle selection
+--- @usage             basalt.debug("Selected Option 1")
+--- @usage         end
+--- @usage     },
+--- @usage     {
+--- @usage         text = "Option 2",
+--- @usage         -- Custom colors when selected
+--- @usage         selectedBackground = colors.green,
+--- @usage         selectedForeground = colors.white
+--- @usage     }
 --- @usage })
+--- @usage
+--- @usage -- Listen for selections
+--- @usage dropdown:onChange(function(self, value)
+--- @usage     basalt.debug("Selected:", value)
+--- @usage end)
 ---@class DropDown : List
 local DropDown = setmetatable({}, List)
 DropDown.__index = DropDown
 
----@property isOpen boolean false Whether the DropDown menu is currently open
+---@property isOpen boolean false Controls the expanded/collapsed state
 DropDown.defineProperty(DropDown, "isOpen", {default = false, type = "boolean", canTriggerRender = true})
----@property dropdownHeight number 5 Maximum height of the DropDown menu when open
+---@property dropdownHeight number 5 Maximum visible items when expanded
 DropDown.defineProperty(DropDown, "dropdownHeight", {default = 5, type = "number"})
----@property selectedText string "" The text to show when no item is selected
+---@property selectedText string "" Text shown when no selection made
 DropDown.defineProperty(DropDown, "selectedText", {default = "", type = "string"})
----@property dropSymbol string "\31" The symbol to show for DropDown indication
+---@property dropSymbol string "\31" Indicator for dropdown state
 DropDown.defineProperty(DropDown, "dropSymbol", {default = "\31", type = "string"})
 
 --- Creates a new DropDown instance

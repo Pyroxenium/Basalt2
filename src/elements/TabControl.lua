@@ -26,7 +26,8 @@ TabControl.defineProperty(TabControl, "activeTabBackground", {default = colors.w
 ---@property activeTabTextColor color Foreground color for the active tab text
 TabControl.defineProperty(TabControl, "activeTabTextColor", {default = colors.black, type = "color", canTriggerRender = true})
 
-TabControl.defineEvent(TabControl, "tabChanged")
+TabControl.defineEvent(TabControl, "mouse_click")
+TabControl.defineEvent(TabControl, "mouse_up")
 
 --- @shortDescription Creates a new TabControl instance
 --- @return TabControl self The created instance
