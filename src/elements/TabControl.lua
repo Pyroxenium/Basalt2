@@ -10,20 +10,20 @@ local log = require("log")
 local TabControl = setmetatable({}, Container)
 TabControl.__index = TabControl
 
----@property activeTab number The currently active tab ID
+---@property activeTab number nil The currently active tab ID
 TabControl.defineProperty(TabControl, "activeTab", {default = nil, type = "number", allowNil = true, canTriggerRender = true, setter = function(self, value)
     return value
 end})
----@property tabHeight number Height of the tab header area
+---@property tabHeight number 1 Height of the tab header area
 TabControl.defineProperty(TabControl, "tabHeight", {default = 1, type = "number", canTriggerRender = true})
----@property tabs table List of tab definitions
+---@property tabs table {} List of tab definitions
 TabControl.defineProperty(TabControl, "tabs", {default = {}, type = "table"})
 
----@property headerBackground color Background color for the tab header area
+---@property headerBackground color gray Background color for the tab header area
 TabControl.defineProperty(TabControl, "headerBackground", {default = colors.gray, type = "color", canTriggerRender = true})
----@property activeTabBackground color Background color for the active tab
+---@property activeTabBackground color white Background color for the active tab
 TabControl.defineProperty(TabControl, "activeTabBackground", {default = colors.white, type = "color", canTriggerRender = true})
----@property activeTabTextColor color Foreground color for the active tab text
+---@property activeTabTextColor color black Foreground color for the active tab text
 TabControl.defineProperty(TabControl, "activeTabTextColor", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property scrollableTab boolean false Enables scroll mode for tabs if they exceed width
 TabControl.defineProperty(TabControl, "scrollableTab", {default = false, type = "boolean", canTriggerRender = true})
