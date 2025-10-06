@@ -7,12 +7,12 @@ Extends: `Container`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|activeTab|number|The|currently active tab ID|
-|tabHeight|number|Height|of the tab header area|
-|tabs|table|List|of tab definitions|
-|headerBackground|color|Background|color for the tab header area|
-|activeTabBackground|color|Background|color for the active tab|
-|activeTabTextColor|color|Foreground|color for the active tab text|
+|activeTab|number|nil|The currently active tab ID|
+|tabHeight|number|1|Height of the tab header area|
+|tabs|table|{}|List of tab definitions|
+|headerBackground|color|gray|Background color for the tab header area|
+|activeTabBackground|color|white|Background color for the active tab|
+|activeTabTextColor|color|black|Foreground color for the active tab text|
 |scrollableTab|boolean|false|Enables scroll mode for tabs if they exceed width|
 |tabScrollOffset|number|0|Current scroll offset for tabs in scrollable mode|
 
