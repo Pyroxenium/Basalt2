@@ -12,8 +12,8 @@ Extends: `VisualElement`
 |expandedNodes|table|{}|Table of nodes that are currently expanded|
 |scrollOffset|number|0|Current vertical scroll position|
 |horizontalOffset|number|0|Current horizontal scroll position|
-|nodeColor|color|white|Color of unselected nodes|
-|selectedColor|color|lightBlue|Background color of selected node|
+|selectedForegroundColor|color|white|foreground color of selected node|
+|selectedBackgroundColor|color|lightBlue|background color of selected node|
 
 ## Functions
 
