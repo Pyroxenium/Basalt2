@@ -13,8 +13,8 @@ Extends: `Container`
 |headerBackground|color|Background|color for the tab header area|
 |activeTabBackground|color|Background|color for the active tab|
 |activeTabTextColor|color|Foreground|color for the active tab text|
-|scrollableTab|boolean|Enables|scroll mode for tabs if they exceed width|
-|tabScrollOffset|number|Current|scroll offset for tabs in scrollable mode|
+|scrollableTab|boolean|false|Enables scroll mode for tabs if they exceed width|
+|tabScrollOffset|number|0|Current scroll offset for tabs in scrollable mode|
 
 ## Functions
 
