@@ -25,9 +25,9 @@ TabControl.defineProperty(TabControl, "headerBackground", {default = colors.gray
 TabControl.defineProperty(TabControl, "activeTabBackground", {default = colors.white, type = "color", canTriggerRender = true})
 ---@property activeTabTextColor color Foreground color for the active tab text
 TabControl.defineProperty(TabControl, "activeTabTextColor", {default = colors.black, type = "color", canTriggerRender = true})
----@property scrollableTab boolean Enables scroll mode for tabs if they exceed width
+---@property scrollableTab boolean false Enables scroll mode for tabs if they exceed width
 TabControl.defineProperty(TabControl, "scrollableTab", {default = false, type = "boolean", canTriggerRender = true})
----@property tabScrollOffset number Current scroll offset for tabs in scrollable mode
+---@property tabScrollOffset number 0 Current scroll offset for tabs in scrollable mode
 TabControl.defineProperty(TabControl, "tabScrollOffset", {default = 0, type = "number", canTriggerRender = true})
 
 TabControl.defineEvent(TabControl, "mouse_click")
