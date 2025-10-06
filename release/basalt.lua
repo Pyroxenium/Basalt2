@@ -604,9 +604,10 @@ bb.defineProperty(bb,"tabHeight",{default=1,type="number",canTriggerRender=true}
 bb.defineProperty(bb,"tabs",{default={},type="table"})
 bb.defineProperty(bb,"headerBackground",{default=colors.gray,type="color",canTriggerRender=true})
 bb.defineProperty(bb,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
-bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})bb.defineEvent(bb,"tabChanged")function bb.new()
-local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",20)cb.set("height",10)
-cb.set("z",10)return cb end
+bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})bb.defineEvent(bb,"mouse_click")
+bb.defineEvent(bb,"mouse_up")function bb.new()local cb=setmetatable({},bb):__init()
+cb.class=bb;cb.set("width",20)cb.set("height",10)cb.set("z",10)return
+cb end
 function bb:init(cb,db)
 da.init(self,cb,db)self.set("type","TabControl")end
 function bb:newTab(cb)local db=self.get("tabs")or{}local _c=#db+1
