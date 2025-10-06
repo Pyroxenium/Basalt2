@@ -25,9 +25,14 @@ TabControl.defineProperty(TabControl, "headerBackground", {default = colors.gray
 TabControl.defineProperty(TabControl, "activeTabBackground", {default = colors.white, type = "color", canTriggerRender = true})
 ---@property activeTabTextColor color Foreground color for the active tab text
 TabControl.defineProperty(TabControl, "activeTabTextColor", {default = colors.black, type = "color", canTriggerRender = true})
+---@property scrollableTab boolean Enables scroll mode for tabs if they exceed width
+TabControl.defineProperty(TabControl, "scrollableTab", {default = false, type = "boolean", canTriggerRender = true})
+---@property tabScrollOffset number Current scroll offset for tabs in scrollable mode
+TabControl.defineProperty(TabControl, "tabScrollOffset", {default = 0, type = "number", canTriggerRender = true})
 
 TabControl.defineEvent(TabControl, "mouse_click")
 TabControl.defineEvent(TabControl, "mouse_up")
+TabControl.defineEvent(TabControl, "mouse_scroll")
 
 --- @shortDescription Creates a new TabControl instance
 --- @return TabControl self The created instance
@@ -183,27 +188,94 @@ function TabControl:_getHeaderMetrics()
     local tabs = self.get("tabs") or {}
     local width = self.get("width") or 1
     local minTabH = self.get("tabHeight") or 1
+    local scrollable = self.get("scrollableTab")
 
     local positions = {}
-    local line = 1
-    local cursorX = 1
-    for i, tab in ipairs(tabs) do
-        local tabWidth = #tab.title + 2
-        if tabWidth > width then
-            tabWidth = width
-        end
-        if cursorX + tabWidth - 1 > width then
-            line = line + 1
-            cursorX = 1
-        end
-        table.insert(positions, {id = tab.id, title = tab.title, line = line, x1 = cursorX, x2 = cursorX + tabWidth - 1, width = tabWidth})
-        cursorX = cursorX + tabWidth
-    end
 
-    local computedLines = line
-    local headerHeight = math.max(minTabH, computedLines)
-    return {headerHeight = headerHeight, lines = computedLines, positions = positions}
+    if scrollable then
+        local scrollOffset = self.get("tabScrollOffset") or 0
+        local actualX = 1
+        local totalWidth = 0
+
+        for i, tab in ipairs(tabs) do
+            local tabWidth = #tab.title + 2
+            if tabWidth > width then
+                tabWidth = width
+            end
+
+            local visualX = actualX - scrollOffset
+            local startClip = 0
+            local endClip = 0
+
+            if visualX < 1 then
+                startClip = 1 - visualX
+            end
+
+            if visualX + tabWidth - 1 > width then
+                endClip = (visualX + tabWidth - 1) - width
+            end
+
+            if visualX + tabWidth > 1 and visualX <= width then
+                local displayX = math.max(1, visualX)
+                local displayWidth = tabWidth - startClip - endClip
+
+                table.insert(positions, {
+                    id = tab.id, 
+                    title = tab.title, 
+                    line = 1, 
+                    x1 = displayX,
+                    x2 = displayX + displayWidth - 1,
+                    width = tabWidth,
+                    displayWidth = displayWidth,
+                    actualX = actualX,
+                    startClip = startClip,
+                    endClip = endClip
+                })
+            end
+
+            actualX = actualX + tabWidth
+        end
+
+        totalWidth = actualX - 1
+
+        return {
+            headerHeight = 1, 
+            lines = 1, 
+            positions = positions,
+            totalWidth = totalWidth,
+            scrollOffset = scrollOffset,
+            maxScroll = math.max(0, totalWidth - width)
+        }
+    else
+        local line = 1
+        local cursorX = 1
+
+        for i, tab in ipairs(tabs) do
+            local tabWidth = #tab.title + 2
+            if tabWidth > width then
+                tabWidth = width
+            end
+            if cursorX + tabWidth - 1 > width then
+                line = line + 1
+                cursorX = 1
+            end
+            table.insert(positions, {
+                id = tab.id, 
+                title = tab.title, 
+                line = line, 
+                x1 = cursorX, 
+                x2 = cursorX + tabWidth - 1,
+                width = tabWidth
+            })
+            cursorX = cursorX + tabWidth
+        end
+
+        local computedLines = line
+        local headerHeight = math.max(minTabH, computedLines)
+        return {headerHeight = headerHeight, lines = computedLines, positions = positions}
+    end
 end
+
 
 --- @shortDescription Handles mouse click events for tab switching
 --- @param button number The button that was clicked
@@ -327,17 +399,38 @@ function TabControl:mouse_drag(button, x, y)
     return false
 end
 
+---Scrolls the tab header left or right if scrollableTab is enabled
+--- @shortDescription Scrolls the tab header left or right if scrollableTab is enabled
+--- @param direction number -1 to scroll left, 1 to scroll right
+--- @return TabControl self For method chaining
+function TabControl:scrollTabs(direction)
+    if not self.get("scrollableTab") then return self end
+
+    local metrics = self:_getHeaderMetrics()
+    local currentOffset = self.get("tabScrollOffset") or 0
+    local maxScroll = metrics.maxScroll or 0
+
+    local newOffset = currentOffset + (direction * 5)
+    newOffset = math.max(0, math.min(maxScroll, newOffset))
+
+    self.set("tabScrollOffset", newOffset)
+    return self
+end
+
 function TabControl:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
-        local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
-    local headerH = self:_getHeaderMetrics().headerHeight
-    if baseRelY <= headerH then
+        local headerH = self:_getHeaderMetrics().headerHeight
+
+        if self.get("scrollableTab") and y == self.get("y") then
+            self:scrollTabs(direction)
             return true
         end
+
         return Container.mouse_scroll(self, direction, x, y)
     end
     return false
 end
+
 
 --- @shortDescription Sets the cursor position; accounts for tab header offset when delegating to parent
 function TabControl:setCursor(x, y, blink, color)
@@ -360,19 +453,31 @@ end
 --- @protected
 function TabControl:render()
     VisualElement.render(self)
-
     local width = self.get("width")
-
     local metrics = self:_getHeaderMetrics()
     local headerH = metrics.headerHeight or 1
-    VisualElement.multiBlit(self, 1, 1, width, headerH, " ", tHex[self.get("foreground")], tHex[self.get("headerBackground")])
 
+    VisualElement.multiBlit(self, 1, 1, width, headerH, " ", tHex[self.get("foreground")], tHex[self.get("headerBackground")])
     local activeTab = self.get("activeTab")
+
     for _, pos in ipairs(metrics.positions) do
-    local bgColor = (pos.id == activeTab) and self.get("activeTabBackground") or self.get("headerBackground")
-    local fgColor = (pos.id == activeTab) and self.get("activeTabTextColor") or self.get("foreground")
-    VisualElement.multiBlit(self, pos.x1, pos.line, pos.width, 1, " ", tHex[self.get("foreground")], tHex[bgColor])
-    VisualElement.textFg(self, pos.x1 + 1, pos.line, pos.title, fgColor)
+        local bgColor = (pos.id == activeTab) and self.get("activeTabBackground") or self.get("headerBackground")
+        local fgColor = (pos.id == activeTab) and self.get("activeTabTextColor") or self.get("foreground")
+
+        VisualElement.multiBlit(self, pos.x1, pos.line, pos.displayWidth or (pos.x2 - pos.x1 + 1), 1, " ", tHex[self.get("foreground")], tHex[bgColor])
+
+        local displayTitle = pos.title
+        local textStartInTitle = 1 + (pos.startClip or 0)
+        local textLength = #pos.title - (pos.startClip or 0) - (pos.endClip or 0)
+
+        if textLength > 0 then
+            displayTitle = pos.title:sub(textStartInTitle, textStartInTitle + textLength - 1)
+            local textX = pos.x1
+            if (pos.startClip or 0) == 0 then
+                textX = textX + 1
+            end
+            VisualElement.textFg(self, textX, pos.line, displayTitle, fgColor)
+        end
     end
 
     if not self.get("childrenSorted") then
