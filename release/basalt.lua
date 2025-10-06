@@ -1550,61 +1550,65 @@ if not self:isType("BaseFrame")then
 for bc,cc in
 ipairs(self._values.children)do if cc.destroy then cc:destroy()end end;self:removeAllObservers()ab.destroy(self)return self else
 _b.header="Basalt Error"_b.error("Cannot destroy a BaseFrame.")end end;return db end
-project["elements/Tree.lua"] = function(...) local _a=require("elements/VisualElement")local aa=string.sub
-local ba=setmetatable({},_a)ba.__index=ba
-ba.defineProperty(ba,"nodes",{default={},type="table",canTriggerRender=true,setter=function(da,_b)if#_b>0 then
-da.get("expandedNodes")[_b[1]]=true end;return _b end})
-ba.defineProperty(ba,"selectedNode",{default=nil,type="table",canTriggerRender=true})
-ba.defineProperty(ba,"expandedNodes",{default={},type="table",canTriggerRender=true})
-ba.defineProperty(ba,"scrollOffset",{default=0,type="number",canTriggerRender=true})
-ba.defineProperty(ba,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
-ba.defineProperty(ba,"nodeColor",{default=colors.white,type="color"})
-ba.defineProperty(ba,"selectedColor",{default=colors.lightBlue,type="color"})ba.defineEvent(ba,"mouse_click")
-ba.defineEvent(ba,"mouse_scroll")function ba.new()local da=setmetatable({},ba):__init()
-da.class=ba;da.set("width",30)da.set("height",10)da.set("z",5)
-return da end
-function ba:init(da,_b)
-_a.init(self,da,_b)self.set("type","Tree")return self end;function ba:expandNode(da)self.get("expandedNodes")[da]=true
+project["elements/Tree.lua"] = function(...) local aa=require("elements/VisualElement")local ba=string.sub
+local ca=require("libraries/colorHex")local da=setmetatable({},aa)da.__index=da
+da.defineProperty(da,"nodes",{default={},type="table",canTriggerRender=true,setter=function(ab,bb)if#bb>0 then
+ab.get("expandedNodes")[bb[1]]=true end;return bb end})
+da.defineProperty(da,"selectedNode",{default=nil,type="table",canTriggerRender=true})
+da.defineProperty(da,"expandedNodes",{default={},type="table",canTriggerRender=true})
+da.defineProperty(da,"scrollOffset",{default=0,type="number",canTriggerRender=true})
+da.defineProperty(da,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
+da.defineProperty(da,"selectedForegroundColor",{default=colors.white,type="color"})
+da.defineProperty(da,"selectedBackgroundColor",{default=colors.lightBlue,type="color"})da.defineEvent(da,"mouse_click")
+da.defineEvent(da,"mouse_scroll")function da.new()local ab=setmetatable({},da):__init()
+ab.class=da;ab.set("width",30)ab.set("height",10)ab.set("z",5)
+return ab end
+function da:init(ab,bb)
+aa.init(self,ab,bb)self.set("type","Tree")return self end;function da:expandNode(ab)self.get("expandedNodes")[ab]=true
 self:updateRender()return self end
-function ba:collapseNode(da)self.get("expandedNodes")[da]=
-nil;self:updateRender()return self end;function ba:toggleNode(da)if self.get("expandedNodes")[da]then
-self:collapseNode(da)else self:expandNode(da)end
+function da:collapseNode(ab)self.get("expandedNodes")[ab]=
+nil;self:updateRender()return self end;function da:toggleNode(ab)if self.get("expandedNodes")[ab]then
+self:collapseNode(ab)else self:expandNode(ab)end
 return self end
-local function ca(da,_b,ab,bb)bb=bb or{}ab=
-ab or 0;for cb,db in ipairs(da)do table.insert(bb,{node=db,level=ab})
+local function _b(ab,bb,cb,db)db=db or{}cb=
+cb or 0;for _c,ac in ipairs(ab)do table.insert(db,{node=ac,level=cb})
 if
-_b[db]and db.children then ca(db.children,_b,ab+1,bb)end end;return bb end
-function ba:mouse_click(da,_b,ab)
-if _a.mouse_click(self,da,_b,ab)then
-local bb,cb=self:getRelativePosition(_b,ab)
-local db=ca(self.get("nodes"),self.get("expandedNodes"))local _c=cb+self.get("scrollOffset")
-if db[_c]then local ac=db[_c]
-local bc=ac.node
-if bb<=ac.level*2 +2 then self:toggleNode(bc)end;self.set("selectedNode",bc)
-self:fireEvent("node_select",bc)end;return true end;return false end
-function ba:onSelect(da)self:registerCallback("node_select",da)return self end
-function ba:mouse_scroll(da,_b,ab)
-if _a.mouse_scroll(self,da,_b,ab)then
-local bb=ca(self.get("nodes"),self.get("expandedNodes"))
-local cb=math.max(0,#bb-self.get("height"))
-local db=math.min(cb,math.max(0,self.get("scrollOffset")+da))self.set("scrollOffset",db)return true end;return false end
-function ba:getNodeSize()local da,_b=0,0
-local ab=ca(self.get("nodes"),self.get("expandedNodes"))for bb,cb in ipairs(ab)do
-da=math.max(da,cb.level+#cb.node.text)end;_b=#ab;return da,_b end
-function ba:render()_a.render(self)
-local da=ca(self.get("nodes"),self.get("expandedNodes"))local _b=self.get("height")local ab=self.get("selectedNode")
-local bb=self.get("expandedNodes")local cb=self.get("scrollOffset")
-local db=self.get("horizontalOffset")
-for y=1,_b do local _c=da[y+cb]
-if _c then local ac=_c.node;local bc=_c.level
-local cc=string.rep("  ",bc)local dc=" "if ac.children and#ac.children>0 then
-dc=bb[ac]and"\31"or"\16"end
-local _d=
-ac==ab and self.get("selectedColor")or self.get("background")
-local ad=cc..dc.." ".. (ac.text or"Node")local bd=aa(ad,db+1,db+self.get("width"))
-self:textFg(1,y,
-bd..string.rep(" ",self.get("width")-#bd),self.get("foreground"))else
-self:textFg(1,y,string.rep(" ",self.get("width")),self.get("foreground"),self.get("background"))end end end;return ba end
+bb[ac]and ac.children then _b(ac.children,bb,cb+1,db)end end;return db end
+function da:mouse_click(ab,bb,cb)
+if aa.mouse_click(self,ab,bb,cb)then
+local db,_c=self:getRelativePosition(bb,cb)
+local ac=_b(self.get("nodes"),self.get("expandedNodes"))local bc=_c+self.get("scrollOffset")
+if ac[bc]then local cc=ac[bc]
+local dc=cc.node
+if db<=cc.level*2 +2 then self:toggleNode(dc)end;self.set("selectedNode",dc)
+self:fireEvent("node_select",dc)end;return true end;return false end
+function da:onSelect(ab)self:registerCallback("node_select",ab)return self end
+function da:mouse_scroll(ab,bb,cb)
+if aa.mouse_scroll(self,ab,bb,cb)then
+local db=_b(self.get("nodes"),self.get("expandedNodes"))
+local _c=math.max(0,#db-self.get("height"))
+local ac=math.min(_c,math.max(0,self.get("scrollOffset")+ab))self.set("scrollOffset",ac)return true end;return false end
+function da:getNodeSize()local ab,bb=0,0
+local cb=_b(self.get("nodes"),self.get("expandedNodes"))for db,_c in ipairs(cb)do
+ab=math.max(ab,_c.level+#_c.node.text)end;bb=#cb;return ab,bb end
+function da:render()aa.render(self)
+local ab=_b(self.get("nodes"),self.get("expandedNodes"))local bb=self.get("height")local cb=self.get("selectedNode")
+local db=self.get("expandedNodes")local _c=self.get("scrollOffset")
+local ac=self.get("horizontalOffset")
+for y=1,bb do local bc=ab[y+_c]
+if bc then local cc=bc.node;local dc=bc.level
+local _d=string.rep("  ",dc)local ad=" "if cc.children and#cc.children>0 then
+ad=db[cc]and"\31"or"\16"end;local bd=cc==cb
+local cd=bd and
+self.get("selectedBackgroundColor")or self.get("background")local dd=bd and self.get("selectedForegroundColor")or
+self.get("foreground")
+local __a=_d..ad.." ".. (
+cc.text or"Node")local a_a=ba(__a,ac+1,ac+self.get("width"))
+local b_a=a_a..string.rep(" ",
+self.get("width")-#a_a)
+local c_a=ca[cd]:rep(#b_a)or ca[colors.black]:rep(#b_a)
+local d_a=ca[dd]:rep(#b_a)or ca[colors.white]:rep(#b_a)self:blit(1,y,b_a,d_a,c_a)else
+self:blit(1,y,string.rep(" ",self.get("width")),ca[self.get("foreground")]:rep(self.get("width")),ca[self.get("background")]:rep(self.get("width")))end end end;return da end
 project["elements/DropDown.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
