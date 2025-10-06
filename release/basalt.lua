@@ -604,10 +604,12 @@ bb.defineProperty(bb,"tabHeight",{default=1,type="number",canTriggerRender=true}
 bb.defineProperty(bb,"tabs",{default={},type="table"})
 bb.defineProperty(bb,"headerBackground",{default=colors.gray,type="color",canTriggerRender=true})
 bb.defineProperty(bb,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
-bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})bb.defineEvent(bb,"mouse_click")
-bb.defineEvent(bb,"mouse_up")function bb.new()local cb=setmetatable({},bb):__init()
-cb.class=bb;cb.set("width",20)cb.set("height",10)cb.set("z",10)return
-cb end
+bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"scrollableTab",{default=false,type="boolean",canTriggerRender=true})
+bb.defineProperty(bb,"tabScrollOffset",{default=0,type="number",canTriggerRender=true})bb.defineEvent(bb,"mouse_click")
+bb.defineEvent(bb,"mouse_up")bb.defineEvent(bb,"mouse_scroll")function bb.new()
+local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",20)cb.set("height",10)
+cb.set("z",10)return cb end
 function bb:init(cb,db)
 da.init(self,cb,db)self.set("type","TabControl")end
 function bb:newTab(cb)local db=self.get("tabs")or{}local _c=#db+1
@@ -640,12 +642,22 @@ if not da.isChildVisible(self,cb)then return false end
 if cb._tabId then return cb._tabId==self.get("activeTab")end;return true end
 function bb:getContentYOffset()local cb=self:_getHeaderMetrics()return cb.headerHeight end
 function bb:_getHeaderMetrics()local cb=self.get("tabs")or{}
-local db=self.get("width")or 1;local _c=self.get("tabHeight")or 1;local ac={}local bc=1;local cc=1
-for ad,bd in
-ipairs(cb)do local cd=#bd.title+2;if cd>db then cd=db end
-if cc+cd-1 >db then bc=bc+1;cc=1 end
-table.insert(ac,{id=bd.id,title=bd.title,line=bc,x1=cc,x2=cc+cd-1,width=cd})cc=cc+cd end;local dc=bc;local _d=math.max(_c,dc)
-return{headerHeight=_d,lines=dc,positions=ac}end
+local db=self.get("width")or 1;local _c=self.get("tabHeight")or 1
+local ac=self.get("scrollableTab")local bc={}
+if ac then local cc=self.get("tabScrollOffset")or 0
+local dc=1;local _d=0
+for ad,bd in ipairs(cb)do local cd=#bd.title+2;if cd>db then cd=db end;local dd=dc-cc
+local __a=0;local a_a=0;if dd<1 then __a=1 -dd end
+if dd+cd-1 >db then a_a=(dd+cd-1)-db end
+if dd+cd>1 and dd<=db then local b_a=math.max(1,dd)local c_a=cd-__a-a_a
+table.insert(bc,{id=bd.id,title=bd.title,line=1,x1=b_a,x2=
+b_a+c_a-1,width=cd,displayWidth=c_a,actualX=dc,startClip=__a,endClip=a_a})end;dc=dc+cd end;_d=dc-1;return
+{headerHeight=1,lines=1,positions=bc,totalWidth=_d,scrollOffset=cc,maxScroll=math.max(0,_d-db)}else local cc=1;local dc=1
+for bd,cd in ipairs(cb)do local dd=#
+cd.title+2;if dd>db then dd=db end
+if dc+dd-1 >db then cc=cc+1;dc=1 end
+table.insert(bc,{id=cd.id,title=cd.title,line=cc,x1=dc,x2=dc+dd-1,width=dd})dc=dc+dd end;local _d=cc;local ad=math.max(_c,_d)
+return{headerHeight=ad,lines=_d,positions=bc}end end
 function bb:mouse_click(cb,db,_c)
 if not ca.mouse_click(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
 local cc=self:_getHeaderMetrics()
@@ -688,10 +700,15 @@ function bb:mouse_drag(cb,db,_c)
 if ca.mouse_drag(self,cb,db,_c)then
 local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then
 return true end;return da.mouse_drag(self,cb,db,_c)end;return false end
+function bb:scrollTabs(cb)
+if not self.get("scrollableTab")then return self end;local db=self:_getHeaderMetrics()
+local _c=self.get("tabScrollOffset")or 0;local ac=db.maxScroll or 0;local bc=_c+ (cb*5)
+bc=math.max(0,math.min(ac,bc))self.set("tabScrollOffset",bc)return self end
 function bb:mouse_scroll(cb,db,_c)
 if ca.mouse_scroll(self,cb,db,_c)then
-local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getHeaderMetrics().headerHeight;if bc<=cc then
-return true end;return da.mouse_scroll(self,cb,db,_c)end;return false end
+local ac=self:_getHeaderMetrics().headerHeight;if self.get("scrollableTab")and _c==self.get("y")then
+self:scrollTabs(cb)return true end;return
+da.mouse_scroll(self,cb,db,_c)end;return false end
 function bb:setCursor(cb,db,_c,ac)local bc=self:_getHeaderMetrics().headerHeight
 if
 self.parent then local cc,dc=self:calculatePosition()local _d=cb+cc-1
@@ -706,7 +723,12 @@ for bc,cc in ipairs(db.positions)do
 local dc=(cc.id==ac)and
 self.get("activeTabBackground")or self.get("headerBackground")local _d=(cc.id==ac)and self.get("activeTabTextColor")or
 self.get("foreground")
-ca.multiBlit(self,cc.x1,cc.line,cc.width,1," ",_b[self.get("foreground")],_b[dc])ca.textFg(self,cc.x1 +1,cc.line,cc.title,_d)end
+ca.multiBlit(self,cc.x1,cc.line,
+cc.displayWidth or(cc.x2 -cc.x1 +1),1," ",_b[self.get("foreground")],_b[dc])local ad=cc.title;local bd=1 + (cc.startClip or 0)
+local cd=#cc.title- (cc.startClip or
+0)- (cc.endClip or 0)if cd>0 then ad=cc.title:sub(bd,bd+cd-1)local dd=cc.x1;if
+(cc.startClip or 0)==0 then dd=dd+1 end
+ca.textFg(self,dd,cc.line,ad,_d)end end
 if not self.get("childrenSorted")then self:sortChildren()end
 if not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents or
 {})do
