@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 local sub = string.sub
+local tHex = require("libraries/colorHex")
 ---@cofnigDescription The tree element provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
 
 
@@ -24,10 +25,10 @@ Tree.defineProperty(Tree, "expandedNodes", {default = {}, type = "table", canTri
 Tree.defineProperty(Tree, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
 ---@property horizontalOffset number 0 Current horizontal scroll position
 Tree.defineProperty(Tree, "horizontalOffset", {default = 0, type = "number", canTriggerRender = true})
----@property nodeColor color white Color of unselected nodes
-Tree.defineProperty(Tree, "nodeColor", {default = colors.white, type = "color"})
----@property selectedColor color lightBlue Background color of selected node
-Tree.defineProperty(Tree, "selectedColor", {default = colors.lightBlue, type = "color"})
+---@property selectedForegroundColor color white foreground color of selected node
+Tree.defineProperty(Tree, "selectedForegroundColor", {default = colors.white, type = "color"})
+---@property selectedBackgroundColor color lightBlue background color of selected node
+Tree.defineProperty(Tree, "selectedBackgroundColor", {default = colors.lightBlue, type = "color"})
 
 Tree.defineEvent(Tree, "mouse_click")
 Tree.defineEvent(Tree, "mouse_scroll")
@@ -197,15 +198,23 @@ function Tree:render()
                 symbol = expandedNodes[node] and "\31" or "\16"
             end
 
-            local bg = node == selectedNode and self.get("selectedColor") or self.get("background")
-            local fullText = indent .. symbol .." " .. (node.text or "Node")
-            local text = sub(fullText, horizontalOffset + 1, horizontalOffset + self.get("width"))
+            local isSelected = node == selectedNode
+            local _bg = isSelected and self.get("selectedBackgroundColor") or self.get("background")
+            local _fg = isSelected and self.get("selectedForegroundColor") or self.get("foreground")
 
-            self:textFg(1, y, text .. string.rep(" ", self.get("width") - #text), self.get("foreground"))
+            local fullText = indent .. symbol .. " " .. (node.text or "Node")
+            local text = sub(fullText, horizontalOffset + 1, horizontalOffset + self.get("width"))
+            local paddedText = text .. string.rep(" ", self.get("width") - #text)
+
+            local bg = tHex[_bg]:rep(#paddedText) or tHex[colors.black]:rep(#paddedText)
+            local fg = tHex[_fg]:rep(#paddedText) or tHex[colors.white]:rep(#paddedText)
+
+            self:blit(1, y, paddedText, fg, bg)
         else
-            self:textFg(1, y, string.rep(" ", self.get("width")), self.get("foreground"), self.get("background"))
+            self:blit(1, y, string.rep(" ", self.get("width")), tHex[self.get("foreground")]:rep(self.get("width")), tHex[self.get("background")]:rep(self.get("width")))
         end
     end
 end
+
 
 return Tree
