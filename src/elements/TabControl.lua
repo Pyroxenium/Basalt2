@@ -103,6 +103,7 @@ function TabControl:newTab(title)
 
     return proxy
 end
+TabControl.addTab = TabControl.newTab
 
 --- @shortDescription Sets an element to belong to a specific tab
 --- @param element table The element to assign to a tab
