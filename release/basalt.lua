@@ -15,6 +15,7 @@ minified_elementDirectory["TabControl"] = {}
 minified_elementDirectory["TextBox"] = {}
 minified_elementDirectory["Button"] = {}
 minified_elementDirectory["Label"] = {}
+minified_elementDirectory["SideNav"] = {}
 minified_elementDirectory["Input"] = {}
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["Switch"] = {}
@@ -625,11 +626,11 @@ function(ad,...)
 local bd=ac[dc](ac,...)
 if bd then bd._tabId=_c;ac.set("childrenSorted",false)
 ac.set("childrenEventsSorted",false)ac:updateRender()end;return bd end end;local _d=ac[dc]if type(_d)=="function"then
-return function(ad,...)return _d(ac,...)end end;return _d end})return bc end
-function bb:setTab(cb,db)cb._tabId=db;self:updateTabVisibility()return self end
-function bb:addElement(cb,db)local _c=da.addElement(self,cb)
-local ac=db or self.get("activeTab")
-if ac then _c._tabId=ac;self:updateTabVisibility()end;return _c end
+return function(ad,...)return _d(ac,...)end end;return _d end})return bc end;bb.addTab=bb.newTab;function bb:setTab(cb,db)cb._tabId=db
+self:updateTabVisibility()return self end
+function bb:addElement(cb,db)
+local _c=da.addElement(self,cb)local ac=db or self.get("activeTab")if ac then _c._tabId=ac
+self:updateTabVisibility()end;return _c end
 function bb:addChild(cb)da.addChild(self,cb)if not cb._tabId then
 local db=self.get("tabs")or{}
 if#db>0 then cb._tabId=1;self:updateTabVisibility()end end;return self end;function bb:updateTabVisibility()self.set("childrenSorted",false)
@@ -1158,6 +1159,178 @@ aa.render(self)local da=self.get("text")
 if(self.get("autoSize"))then
 self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
+project["elements/SideNav.lua"] = function(...) local ba=require("elementManager")
+local ca=require("elements/VisualElement")local da=ba.getElement("Container")
+local _b=require("libraries/colorHex")local ab=require("log")local bb=setmetatable({},da)bb.__index=bb
+bb.defineProperty(bb,"activeTab",{default=
+nil,type="number",allowNil=true,canTriggerRender=true,setter=function(cb,db)return db end})
+bb.defineProperty(bb,"sidebarWidth",{default=12,type="number",canTriggerRender=true})
+bb.defineProperty(bb,"tabs",{default={},type="table"})
+bb.defineProperty(bb,"sidebarBackground",{default=colors.gray,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})
+bb.defineProperty(bb,"sidebarScrollOffset",{default=0,type="number",canTriggerRender=true})
+bb.defineProperty(bb,"sidebarPosition",{default="left",type="string",canTriggerRender=true})bb.defineEvent(bb,"mouse_click")
+bb.defineEvent(bb,"mouse_up")bb.defineEvent(bb,"mouse_scroll")function bb.new()
+local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",30)cb.set("height",15)
+cb.set("z",10)return cb end
+function bb:init(cb,db)
+da.init(self,cb,db)self.set("type","SideNav")end
+function bb:newTab(cb)local db=self.get("tabs")or{}local _c=#db+1
+table.insert(db,{id=_c,title=tostring(
+cb or("Item ".._c))})self.set("tabs",db)if not self.get("activeTab")then
+self.set("activeTab",_c)end;self:updateTabVisibility()
+local ac=self;local bc={}
+setmetatable(bc,{__index=function(cc,dc)
+if
+type(dc)=="string"and dc:sub(1,3)=="add"and type(ac[dc])=="function"then
+return
+function(ad,...)
+local bd=ac[dc](ac,...)
+if bd then bd._tabId=_c;ac.set("childrenSorted",false)
+ac.set("childrenEventsSorted",false)ac:updateRender()end;return bd end end;local _d=ac[dc]if type(_d)=="function"then
+return function(ad,...)return _d(ac,...)end end;return _d end})return bc end;bb.addTab=bb.newTab;function bb:setTab(cb,db)cb._tabId=db
+self:updateTabVisibility()return self end
+function bb:addElement(cb,db)
+local _c=da.addElement(self,cb)local ac=db or self.get("activeTab")if ac then _c._tabId=ac
+self:updateTabVisibility()end;return _c end
+function bb:addChild(cb)da.addChild(self,cb)if not cb._tabId then
+local db=self.get("tabs")or{}
+if#db>0 then cb._tabId=1;self:updateTabVisibility()end end;return self end;function bb:updateTabVisibility()self.set("childrenSorted",false)
+self.set("childrenEventsSorted",false)end
+function bb:setActiveTab(cb)
+local db=self.get("activeTab")if db==cb then return self end;self.set("activeTab",cb)
+self:updateTabVisibility()self:dispatchEvent("tabChanged",cb,db)return self end
+function bb:isChildVisible(cb)
+if not da.isChildVisible(self,cb)then return false end
+if cb._tabId then return cb._tabId==self.get("activeTab")end;return true end
+function bb:getContentXOffset()local cb=self:_getSidebarMetrics()return cb.sidebarWidth end
+function bb:_getSidebarMetrics()local cb=self.get("tabs")or{}
+local db=self.get("height")or 1;local _c=self.get("sidebarWidth")or 12;local ac=
+self.get("sidebarScrollOffset")or 0
+local bc=self.get("sidebarPosition")or"left"local cc={}local dc=1;local _d=#cb
+for ad,bd in ipairs(cb)do local cd=1;local dd=dc-ac;local __a=0;local a_a=0
+if dd<1 then __a=1 -dd end;if dd+cd-1 >db then a_a=(dd+cd-1)-db end
+if
+dd+cd>1 and dd<=db then local b_a=math.max(1,dd)local c_a=cd-__a-a_a
+table.insert(cc,{id=bd.id,title=bd.title,y1=b_a,y2=b_a+c_a-1,height=cd,displayHeight=c_a,actualY=dc,startClip=__a,endClip=a_a})end;dc=dc+cd end;return
+{sidebarWidth=_c,sidebarPosition=bc,positions=cc,totalHeight=_d,scrollOffset=ac,maxScroll=math.max(0,_d-db)}end
+function bb:mouse_click(cb,db,_c)
+if not ca.mouse_click(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
+local cc=self:_getSidebarMetrics()local dc=self.get("width")or 1;local _d=false;if
+cc.sidebarPosition=="right"then _d=ac> (dc-cc.sidebarWidth)else
+_d=ac<=cc.sidebarWidth end
+if _d then if#cc.positions==0 then
+return true end;for ad,bd in ipairs(cc.positions)do
+if bc>=bd.y1 and bc<=bd.y2 then
+self:setActiveTab(bd.id)self.set("focusedChild",nil)return true end end
+return true end;return da.mouse_click(self,cb,db,_c)end
+function bb:getRelativePosition(cb,db)local _c=self:_getSidebarMetrics()
+local ac=self.get("width")or 1
+if cb==nil or db==nil then return ca.getRelativePosition(self)else
+local bc,cc=ca.getRelativePosition(self,cb,db)
+if _c.sidebarPosition=="right"then return bc,cc else return bc-_c.sidebarWidth,cc end end end
+function bb:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d=self:_getSidebarMetrics()
+if
+_d.sidebarPosition=="right"then return da.multiBlit(self,cb,db,_c,ac,bc,cc,dc)else
+return da.multiBlit(self,(cb or 1)+
+_d.sidebarWidth,db,_c,ac,bc,cc,dc)end end
+function bb:textFg(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+if
+bc.sidebarPosition=="right"then return da.textFg(self,cb,db,_c,ac)else return
+da.textFg(self,(cb or 1)+bc.sidebarWidth,db,_c,ac)end end
+function bb:textBg(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+if
+bc.sidebarPosition=="right"then return da.textBg(self,cb,db,_c,ac)else return
+da.textBg(self,(cb or 1)+bc.sidebarWidth,db,_c,ac)end end
+function bb:drawText(cb,db,_c)local ac=self:_getSidebarMetrics()
+if
+ac.sidebarPosition=="right"then return da.drawText(self,cb,db,_c)else return
+da.drawText(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
+function bb:drawFg(cb,db,_c)local ac=self:_getSidebarMetrics()
+if
+ac.sidebarPosition=="right"then return da.drawFg(self,cb,db,_c)else return
+da.drawFg(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
+function bb:drawBg(cb,db,_c)local ac=self:_getSidebarMetrics()
+if
+ac.sidebarPosition=="right"then return da.drawBg(self,cb,db,_c)else return
+da.drawBg(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
+function bb:blit(cb,db,_c,ac,bc)local cc=self:_getSidebarMetrics()
+if cc.sidebarPosition=="right"then return
+da.blit(self,cb,db,_c,ac,bc)else return
+da.blit(self,(cb or 1)+cc.sidebarWidth,db,_c,ac,bc)end end
+function bb:mouse_up(cb,db,_c)
+if not ca.mouse_up(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
+local cc=self:_getSidebarMetrics()local dc=self.get("width")or 1;local _d=false;if
+cc.sidebarPosition=="right"then _d=ac> (dc-cc.sidebarWidth)else
+_d=ac<=cc.sidebarWidth end;if _d then return true end;return
+da.mouse_up(self,cb,db,_c)end
+function bb:mouse_release(cb,db,_c)ca.mouse_release(self,cb,db,_c)
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
+local dc=self.get("width")or 1;local _d=false
+if cc.sidebarPosition=="right"then
+_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return end;return da.mouse_release(self,cb,db,_c)end
+function bb:mouse_move(cb,db,_c)
+if ca.mouse_move(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
+local dc=self.get("width")or 1;local _d=false
+if cc.sidebarPosition=="right"then
+_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return true end
+local ad={self:getRelativePosition(db,_c)}
+local bd,cd=self:callChildrenEvent(true,"mouse_move",table.unpack(ad))if bd then return true end end;return false end
+function bb:mouse_drag(cb,db,_c)
+if ca.mouse_drag(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
+local dc=self.get("width")or 1;local _d=false
+if cc.sidebarPosition=="right"then
+_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return true end;return da.mouse_drag(self,cb,db,_c)end;return false end
+function bb:scrollSidebar(cb)local db=self:_getSidebarMetrics()local _c=
+self.get("sidebarScrollOffset")or 0;local ac=db.maxScroll or 0;local bc=_c+
+(cb*2)bc=math.max(0,math.min(ac,bc))
+self.set("sidebarScrollOffset",bc)return self end
+function bb:mouse_scroll(cb,db,_c)
+if ca.mouse_scroll(self,cb,db,_c)then
+local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
+local dc=self.get("width")or 1;local _d=false
+if cc.sidebarPosition=="right"then
+_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then self:scrollSidebar(cb)return true end;return
+da.mouse_scroll(self,cb,db,_c)end;return false end
+function bb:setCursor(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+if self.parent then
+local cc,dc=self:calculatePosition()local _d,ad
+if bc.sidebarPosition=="right"then _d=cb+cc-1;ad=db+dc-1 else _d=cb+cc-1 +
+bc.sidebarWidth;ad=db+dc-1 end
+if
+
+(_d<1)or(_d>self.parent.get("width"))or(ad<1)or(ad>self.parent.get("height"))then return self.parent:setCursor(_d,ad,false)end;return self.parent:setCursor(_d,ad,_c,ac)end;return self end
+function bb:render()ca.render(self)local cb=self.get("height")
+local db=self:_getSidebarMetrics()local _c=db.sidebarWidth or 12;for y=1,cb do
+ca.multiBlit(self,1,y,_c,1," ",_b[self.get("foreground")],_b[self.get("sidebarBackground")])end
+local ac=self.get("activeTab")
+for bc,cc in ipairs(db.positions)do
+local dc=
+(cc.id==ac)and self.get("activeTabBackground")or self.get("sidebarBackground")local _d=(cc.id==ac)and self.get("activeTabTextColor")or
+self.get("foreground")local ad=
+cc.displayHeight or(cc.y2 -cc.y1 +1)for dy=0,ad-1 do
+ca.multiBlit(self,1,
+cc.y1 +dy,_c,1," ",_b[self.get("foreground")],_b[dc])end;local bd=cc.title;if#bd>_c-2 then bd=bd:sub(1,
+_c-2)end
+ca.textFg(self,2,cc.y1,bd,_d)end
+if not self.get("childrenSorted")then self:sortChildren()end
+if not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents or
+{})do
+self:sortChildrenEvents(bc)end end
+for bc,cc in ipairs(self.get("visibleChildren")or{})do if cc==self then
+error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()cc:postRender()end end
+function bb:sortChildrenEvents(cb)
+local db=self._values.childrenEvents and self._values.childrenEvents[cb]
+if db then local _c={}for ac,bc in ipairs(db)do
+if self:isChildVisible(bc)then table.insert(_c,bc)end end
+for i=2,#_c do local ac=_c[i]
+local bc=ac.get("z")local cc=i-1
+while cc>0 do local dc=_c[cc].get("z")if dc>bc then _c[cc+1]=_c[cc]
+cc=cc-1 else break end end;_c[cc+1]=ac end
+self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[cb]=_c end;self.set("childrenEventsSorted",true)return self end;return bb end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
