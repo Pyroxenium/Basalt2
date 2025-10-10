@@ -116,6 +116,7 @@ export default defineConfig({
               items: [
                 { text: 'BaseFrame', link: 'references/elements/BaseFrame' },
                 { text: 'Frame', link: 'references/elements/Frame' },
+                { text: 'SideNav', link: 'references/elements/SideNav' },
                 { text: 'TabControl', link: 'references/elements/TabControl' },
               ],
             },
