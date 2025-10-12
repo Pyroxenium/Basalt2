@@ -2,7 +2,6 @@ local elementManager = require("elementManager")
 local VisualElement = require("elements/VisualElement")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
-local log = require("log")
 ---@configDescription A SideNav element that provides sidebar navigation with multiple content areas.
 
 --- The SideNav is a container that provides sidebar navigation functionality
@@ -27,7 +26,7 @@ SideNav.defineProperty(SideNav, "activeTabBackground", {default = colors.white, 
 SideNav.defineProperty(SideNav, "activeTabTextColor", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property sidebarScrollOffset number 0 Current scroll offset for navigation items in scrollable mode
 SideNav.defineProperty(SideNav, "sidebarScrollOffset", {default = 0, type = "number", canTriggerRender = true})
----@property sidebarPosition string "left" Position of the sidebar ("left" or "right")
+---@property sidebarPosition string left Position of the sidebar ("left" or "right")
 SideNav.defineProperty(SideNav, "sidebarPosition", {default = "left", type = "string", canTriggerRender = true})
 
 SideNav.defineEvent(SideNav, "mouse_click")
@@ -198,7 +197,7 @@ function SideNav:_getSidebarMetrics()
 
     for i, tab in ipairs(tabs) do
         local itemHeight = 1
-        
+
         local visualY = actualY - scrollOffset
         local startClip = 0
         local endClip = 0
@@ -255,14 +254,14 @@ function SideNav:mouse_click(button, x, y)
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
     local width = self.get("width") or 1
-    
+
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
         inSidebar = baseRelX > (width - metrics.sidebarWidth)
     else
         inSidebar = baseRelX <= metrics.sidebarWidth
     end
-    
+
     if inSidebar then
         if #metrics.positions == 0 then return true end
         for _, pos in ipairs(metrics.positions) do
@@ -280,7 +279,7 @@ end
 function SideNav:getRelativePosition(x, y)
     local metrics = self:_getSidebarMetrics()
     local width = self.get("width") or 1
-    
+
     if x == nil or y == nil then
         return VisualElement.getRelativePosition(self)
     else
@@ -363,14 +362,14 @@ function SideNav:mouse_up(button, x, y)
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
     local width = self.get("width") or 1
-    
+
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
         inSidebar = baseRelX > (width - metrics.sidebarWidth)
     else
         inSidebar = baseRelX <= metrics.sidebarWidth
     end
-    
+
     if inSidebar then
         return true
     end
@@ -382,14 +381,14 @@ function SideNav:mouse_release(button, x, y)
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
     local width = self.get("width") or 1
-    
+
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
         inSidebar = baseRelX > (width - metrics.sidebarWidth)
     else
         inSidebar = baseRelX <= metrics.sidebarWidth
     end
-    
+
     if inSidebar then
         return
     end
@@ -401,14 +400,14 @@ function SideNav:mouse_move(_, x, y)
         local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
         local metrics = self:_getSidebarMetrics()
         local width = self.get("width") or 1
-        
+
         local inSidebar = false
         if metrics.sidebarPosition == "right" then
             inSidebar = baseRelX > (width - metrics.sidebarWidth)
         else
             inSidebar = baseRelX <= metrics.sidebarWidth
         end
-        
+
         if inSidebar then
             return true
         end
@@ -426,14 +425,14 @@ function SideNav:mouse_drag(button, x, y)
         local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
         local metrics = self:_getSidebarMetrics()
         local width = self.get("width") or 1
-        
+
         local inSidebar = false
         if metrics.sidebarPosition == "right" then
             inSidebar = baseRelX > (width - metrics.sidebarWidth)
         else
             inSidebar = baseRelX <= metrics.sidebarWidth
         end
-        
+
         if inSidebar then
             return true
         end
@@ -487,7 +486,7 @@ function SideNav:setCursor(x, y, blink, color)
     if self.parent then
         local xPos, yPos = self:calculatePosition()
         local targetX, targetY
-        
+
         if metrics.sidebarPosition == "right" then
             targetX = x + xPos - 1
             targetY = y + yPos - 1
@@ -513,14 +512,12 @@ function SideNav:render()
     local metrics = self:_getSidebarMetrics()
     local sidebarW = metrics.sidebarWidth or 12
 
-    -- Render sidebar background
     for y = 1, height do
         VisualElement.multiBlit(self, 1, y, sidebarW, 1, " ", tHex[self.get("foreground")], tHex[self.get("sidebarBackground")])
     end
 
     local activeTab = self.get("activeTab")
 
-    -- Render navigation items
     for _, pos in ipairs(metrics.positions) do
         local bgColor = (pos.id == activeTab) and self.get("activeTabBackground") or self.get("sidebarBackground")
         local fgColor = (pos.id == activeTab) and self.get("activeTabTextColor") or self.get("foreground")
@@ -530,12 +527,11 @@ function SideNav:render()
             VisualElement.multiBlit(self, 1, pos.y1 + dy, sidebarW, 1, " ", tHex[self.get("foreground")], tHex[bgColor])
         end
 
-        -- Render title text (truncate if necessary)
         local displayTitle = pos.title
         if #displayTitle > sidebarW - 2 then
             displayTitle = displayTitle:sub(1, sidebarW - 2)
         end
-        
+
         VisualElement.textFg(self, 2, pos.y1, displayTitle, fgColor)
     end
 

@@ -536,7 +536,6 @@ function VisualElement:render()
     local fgHex = tHex[self.get("foreground")]
     local bgHex = tHex[self.get("background")]
     self:multiBlit(1, 1, width, height, " ", fgHex, bgHex)
-    -- Draw integrated border after background fill
     if (self.get("borderTop") or self.get("borderBottom") or self.get("borderLeft") or self.get("borderRight")) then
         local bColor = self.get("borderColor") or self.get("foreground")
         local bHex = tHex[bColor] or fgHex

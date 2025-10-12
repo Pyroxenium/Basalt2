@@ -199,8 +199,8 @@ function Tree:render()
             end
 
             local isSelected = node == selectedNode
-            local _bg = isSelected and self.get("selectedBackgroundColor") or self.get("background")
-            local _fg = isSelected and self.get("selectedForegroundColor") or self.get("foreground")
+            local _bg = isSelected and self.get("selectedBackgroundColor") or (node.background or node.bg or self.get("background"))
+            local _fg = isSelected and self.get("selectedForegroundColor") or (node.foreground or node.fg or self.get("foreground"))
 
             local fullText = indent .. symbol .. " " .. (node.text or "Node")
             local text = sub(fullText, horizontalOffset + 1, horizontalOffset + self.get("width"))
@@ -215,6 +215,5 @@ function Tree:render()
         end
     end
 end
-
 
 return Tree
