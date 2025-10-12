@@ -14,7 +14,7 @@ Extends: `Container`
 |activeTabBackground|color|white|Background color for the active navigation item|
 |activeTabTextColor|color|black|Foreground color for the active navigation item text|
 |sidebarScrollOffset|number|0|Current scroll offset for navigation items in scrollable mode|
-|sidebarPosition|string|"left"|Position of the sidebar ("left" or "right")|
+|sidebarPosition|string|left|Position of the sidebar ("left" or "right")|
 
 ## Functions
 
