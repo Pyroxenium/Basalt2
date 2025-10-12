@@ -1159,178 +1159,178 @@ aa.render(self)local da=self.get("text")
 if(self.get("autoSize"))then
 self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
-project["elements/SideNav.lua"] = function(...) local ba=require("elementManager")
-local ca=require("elements/VisualElement")local da=ba.getElement("Container")
-local _b=require("libraries/colorHex")local ab=require("log")local bb=setmetatable({},da)bb.__index=bb
-bb.defineProperty(bb,"activeTab",{default=
-nil,type="number",allowNil=true,canTriggerRender=true,setter=function(cb,db)return db end})
-bb.defineProperty(bb,"sidebarWidth",{default=12,type="number",canTriggerRender=true})
-bb.defineProperty(bb,"tabs",{default={},type="table"})
-bb.defineProperty(bb,"sidebarBackground",{default=colors.gray,type="color",canTriggerRender=true})
-bb.defineProperty(bb,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
-bb.defineProperty(bb,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})
-bb.defineProperty(bb,"sidebarScrollOffset",{default=0,type="number",canTriggerRender=true})
-bb.defineProperty(bb,"sidebarPosition",{default="left",type="string",canTriggerRender=true})bb.defineEvent(bb,"mouse_click")
-bb.defineEvent(bb,"mouse_up")bb.defineEvent(bb,"mouse_scroll")function bb.new()
-local cb=setmetatable({},bb):__init()cb.class=bb;cb.set("width",30)cb.set("height",15)
-cb.set("z",10)return cb end
-function bb:init(cb,db)
-da.init(self,cb,db)self.set("type","SideNav")end
-function bb:newTab(cb)local db=self.get("tabs")or{}local _c=#db+1
-table.insert(db,{id=_c,title=tostring(
-cb or("Item ".._c))})self.set("tabs",db)if not self.get("activeTab")then
-self.set("activeTab",_c)end;self:updateTabVisibility()
-local ac=self;local bc={}
-setmetatable(bc,{__index=function(cc,dc)
+project["elements/SideNav.lua"] = function(...) local aa=require("elementManager")
+local ba=require("elements/VisualElement")local ca=aa.getElement("Container")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"activeTab",{default=nil,type="number",allowNil=true,canTriggerRender=true,setter=function(ab,bb)
+return bb end})
+_b.defineProperty(_b,"sidebarWidth",{default=12,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"tabs",{default={},type="table"})
+_b.defineProperty(_b,"sidebarBackground",{default=colors.gray,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"activeTabBackground",{default=colors.white,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"activeTabTextColor",{default=colors.black,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"sidebarScrollOffset",{default=0,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"sidebarPosition",{default="left",type="string",canTriggerRender=true})_b.defineEvent(_b,"mouse_click")
+_b.defineEvent(_b,"mouse_up")_b.defineEvent(_b,"mouse_scroll")function _b.new()
+local ab=setmetatable({},_b):__init()ab.class=_b;ab.set("width",30)ab.set("height",15)
+ab.set("z",10)return ab end
+function _b:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","SideNav")end
+function _b:newTab(ab)local bb=self.get("tabs")or{}local cb=#bb+1
+table.insert(bb,{id=cb,title=tostring(
+ab or("Item "..cb))})self.set("tabs",bb)if not self.get("activeTab")then
+self.set("activeTab",cb)end;self:updateTabVisibility()
+local db=self;local _c={}
+setmetatable(_c,{__index=function(ac,bc)
 if
-type(dc)=="string"and dc:sub(1,3)=="add"and type(ac[dc])=="function"then
+type(bc)=="string"and bc:sub(1,3)=="add"and type(db[bc])=="function"then
 return
-function(ad,...)
-local bd=ac[dc](ac,...)
-if bd then bd._tabId=_c;ac.set("childrenSorted",false)
-ac.set("childrenEventsSorted",false)ac:updateRender()end;return bd end end;local _d=ac[dc]if type(_d)=="function"then
-return function(ad,...)return _d(ac,...)end end;return _d end})return bc end;bb.addTab=bb.newTab;function bb:setTab(cb,db)cb._tabId=db
+function(dc,...)
+local _d=db[bc](db,...)
+if _d then _d._tabId=cb;db.set("childrenSorted",false)
+db.set("childrenEventsSorted",false)db:updateRender()end;return _d end end;local cc=db[bc]if type(cc)=="function"then
+return function(dc,...)return cc(db,...)end end;return cc end})return _c end;_b.addTab=_b.newTab;function _b:setTab(ab,bb)ab._tabId=bb
 self:updateTabVisibility()return self end
-function bb:addElement(cb,db)
-local _c=da.addElement(self,cb)local ac=db or self.get("activeTab")if ac then _c._tabId=ac
-self:updateTabVisibility()end;return _c end
-function bb:addChild(cb)da.addChild(self,cb)if not cb._tabId then
-local db=self.get("tabs")or{}
-if#db>0 then cb._tabId=1;self:updateTabVisibility()end end;return self end;function bb:updateTabVisibility()self.set("childrenSorted",false)
+function _b:addElement(ab,bb)
+local cb=ca.addElement(self,ab)local db=bb or self.get("activeTab")if db then cb._tabId=db
+self:updateTabVisibility()end;return cb end
+function _b:addChild(ab)ca.addChild(self,ab)if not ab._tabId then
+local bb=self.get("tabs")or{}
+if#bb>0 then ab._tabId=1;self:updateTabVisibility()end end;return self end;function _b:updateTabVisibility()self.set("childrenSorted",false)
 self.set("childrenEventsSorted",false)end
-function bb:setActiveTab(cb)
-local db=self.get("activeTab")if db==cb then return self end;self.set("activeTab",cb)
-self:updateTabVisibility()self:dispatchEvent("tabChanged",cb,db)return self end
-function bb:isChildVisible(cb)
-if not da.isChildVisible(self,cb)then return false end
-if cb._tabId then return cb._tabId==self.get("activeTab")end;return true end
-function bb:getContentXOffset()local cb=self:_getSidebarMetrics()return cb.sidebarWidth end
-function bb:_getSidebarMetrics()local cb=self.get("tabs")or{}
-local db=self.get("height")or 1;local _c=self.get("sidebarWidth")or 12;local ac=
+function _b:setActiveTab(ab)
+local bb=self.get("activeTab")if bb==ab then return self end;self.set("activeTab",ab)
+self:updateTabVisibility()self:dispatchEvent("tabChanged",ab,bb)return self end
+function _b:isChildVisible(ab)
+if not ca.isChildVisible(self,ab)then return false end
+if ab._tabId then return ab._tabId==self.get("activeTab")end;return true end
+function _b:getContentXOffset()local ab=self:_getSidebarMetrics()return ab.sidebarWidth end
+function _b:_getSidebarMetrics()local ab=self.get("tabs")or{}
+local bb=self.get("height")or 1;local cb=self.get("sidebarWidth")or 12;local db=
 self.get("sidebarScrollOffset")or 0
-local bc=self.get("sidebarPosition")or"left"local cc={}local dc=1;local _d=#cb
-for ad,bd in ipairs(cb)do local cd=1;local dd=dc-ac;local __a=0;local a_a=0
-if dd<1 then __a=1 -dd end;if dd+cd-1 >db then a_a=(dd+cd-1)-db end
+local _c=self.get("sidebarPosition")or"left"local ac={}local bc=1;local cc=#ab
+for dc,_d in ipairs(ab)do local ad=1;local bd=bc-db;local cd=0;local dd=0
+if bd<1 then cd=1 -bd end;if bd+ad-1 >bb then dd=(bd+ad-1)-bb end
 if
-dd+cd>1 and dd<=db then local b_a=math.max(1,dd)local c_a=cd-__a-a_a
-table.insert(cc,{id=bd.id,title=bd.title,y1=b_a,y2=b_a+c_a-1,height=cd,displayHeight=c_a,actualY=dc,startClip=__a,endClip=a_a})end;dc=dc+cd end;return
-{sidebarWidth=_c,sidebarPosition=bc,positions=cc,totalHeight=_d,scrollOffset=ac,maxScroll=math.max(0,_d-db)}end
-function bb:mouse_click(cb,db,_c)
-if not ca.mouse_click(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
-local cc=self:_getSidebarMetrics()local dc=self.get("width")or 1;local _d=false;if
-cc.sidebarPosition=="right"then _d=ac> (dc-cc.sidebarWidth)else
-_d=ac<=cc.sidebarWidth end
-if _d then if#cc.positions==0 then
-return true end;for ad,bd in ipairs(cc.positions)do
-if bc>=bd.y1 and bc<=bd.y2 then
-self:setActiveTab(bd.id)self.set("focusedChild",nil)return true end end
-return true end;return da.mouse_click(self,cb,db,_c)end
-function bb:getRelativePosition(cb,db)local _c=self:_getSidebarMetrics()
-local ac=self.get("width")or 1
-if cb==nil or db==nil then return ca.getRelativePosition(self)else
-local bc,cc=ca.getRelativePosition(self,cb,db)
-if _c.sidebarPosition=="right"then return bc,cc else return bc-_c.sidebarWidth,cc end end end
-function bb:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d=self:_getSidebarMetrics()
+bd+ad>1 and bd<=bb then local __a=math.max(1,bd)local a_a=ad-cd-dd
+table.insert(ac,{id=_d.id,title=_d.title,y1=__a,y2=__a+a_a-1,height=ad,displayHeight=a_a,actualY=bc,startClip=cd,endClip=dd})end;bc=bc+ad end;return
+{sidebarWidth=cb,sidebarPosition=_c,positions=ac,totalHeight=cc,scrollOffset=db,maxScroll=math.max(0,cc-bb)}end
+function _b:mouse_click(ab,bb,cb)
+if not ba.mouse_click(self,ab,bb,cb)then return false end;local db,_c=ba.getRelativePosition(self,bb,cb)
+local ac=self:_getSidebarMetrics()local bc=self.get("width")or 1;local cc=false;if
+ac.sidebarPosition=="right"then cc=db> (bc-ac.sidebarWidth)else
+cc=db<=ac.sidebarWidth end
+if cc then if#ac.positions==0 then
+return true end;for dc,_d in ipairs(ac.positions)do
+if _c>=_d.y1 and _c<=_d.y2 then
+self:setActiveTab(_d.id)self.set("focusedChild",nil)return true end end
+return true end;return ca.mouse_click(self,ab,bb,cb)end
+function _b:getRelativePosition(ab,bb)local cb=self:_getSidebarMetrics()
+local db=self.get("width")or 1
+if ab==nil or bb==nil then return ba.getRelativePosition(self)else
+local _c,ac=ba.getRelativePosition(self,ab,bb)
+if cb.sidebarPosition=="right"then return _c,ac else return _c-cb.sidebarWidth,ac end end end
+function _b:multiBlit(ab,bb,cb,db,_c,ac,bc)local cc=self:_getSidebarMetrics()
 if
-_d.sidebarPosition=="right"then return da.multiBlit(self,cb,db,_c,ac,bc,cc,dc)else
-return da.multiBlit(self,(cb or 1)+
-_d.sidebarWidth,db,_c,ac,bc,cc,dc)end end
-function bb:textFg(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+cc.sidebarPosition=="right"then return ca.multiBlit(self,ab,bb,cb,db,_c,ac,bc)else
+return ca.multiBlit(self,(ab or 1)+
+cc.sidebarWidth,bb,cb,db,_c,ac,bc)end end
+function _b:textFg(ab,bb,cb,db)local _c=self:_getSidebarMetrics()
 if
-bc.sidebarPosition=="right"then return da.textFg(self,cb,db,_c,ac)else return
-da.textFg(self,(cb or 1)+bc.sidebarWidth,db,_c,ac)end end
-function bb:textBg(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+_c.sidebarPosition=="right"then return ca.textFg(self,ab,bb,cb,db)else return
+ca.textFg(self,(ab or 1)+_c.sidebarWidth,bb,cb,db)end end
+function _b:textBg(ab,bb,cb,db)local _c=self:_getSidebarMetrics()
 if
-bc.sidebarPosition=="right"then return da.textBg(self,cb,db,_c,ac)else return
-da.textBg(self,(cb or 1)+bc.sidebarWidth,db,_c,ac)end end
-function bb:drawText(cb,db,_c)local ac=self:_getSidebarMetrics()
+_c.sidebarPosition=="right"then return ca.textBg(self,ab,bb,cb,db)else return
+ca.textBg(self,(ab or 1)+_c.sidebarWidth,bb,cb,db)end end
+function _b:drawText(ab,bb,cb)local db=self:_getSidebarMetrics()
 if
-ac.sidebarPosition=="right"then return da.drawText(self,cb,db,_c)else return
-da.drawText(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
-function bb:drawFg(cb,db,_c)local ac=self:_getSidebarMetrics()
+db.sidebarPosition=="right"then return ca.drawText(self,ab,bb,cb)else return
+ca.drawText(self,(ab or 1)+db.sidebarWidth,bb,cb)end end
+function _b:drawFg(ab,bb,cb)local db=self:_getSidebarMetrics()
 if
-ac.sidebarPosition=="right"then return da.drawFg(self,cb,db,_c)else return
-da.drawFg(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
-function bb:drawBg(cb,db,_c)local ac=self:_getSidebarMetrics()
+db.sidebarPosition=="right"then return ca.drawFg(self,ab,bb,cb)else return
+ca.drawFg(self,(ab or 1)+db.sidebarWidth,bb,cb)end end
+function _b:drawBg(ab,bb,cb)local db=self:_getSidebarMetrics()
 if
-ac.sidebarPosition=="right"then return da.drawBg(self,cb,db,_c)else return
-da.drawBg(self,(cb or 1)+ac.sidebarWidth,db,_c)end end
-function bb:blit(cb,db,_c,ac,bc)local cc=self:_getSidebarMetrics()
-if cc.sidebarPosition=="right"then return
-da.blit(self,cb,db,_c,ac,bc)else return
-da.blit(self,(cb or 1)+cc.sidebarWidth,db,_c,ac,bc)end end
-function bb:mouse_up(cb,db,_c)
-if not ca.mouse_up(self,cb,db,_c)then return false end;local ac,bc=ca.getRelativePosition(self,db,_c)
-local cc=self:_getSidebarMetrics()local dc=self.get("width")or 1;local _d=false;if
-cc.sidebarPosition=="right"then _d=ac> (dc-cc.sidebarWidth)else
-_d=ac<=cc.sidebarWidth end;if _d then return true end;return
-da.mouse_up(self,cb,db,_c)end
-function bb:mouse_release(cb,db,_c)ca.mouse_release(self,cb,db,_c)
-local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
-local dc=self.get("width")or 1;local _d=false
-if cc.sidebarPosition=="right"then
-_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return end;return da.mouse_release(self,cb,db,_c)end
-function bb:mouse_move(cb,db,_c)
-if ca.mouse_move(self,cb,db,_c)then
-local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
-local dc=self.get("width")or 1;local _d=false
-if cc.sidebarPosition=="right"then
-_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return true end
-local ad={self:getRelativePosition(db,_c)}
-local bd,cd=self:callChildrenEvent(true,"mouse_move",table.unpack(ad))if bd then return true end end;return false end
-function bb:mouse_drag(cb,db,_c)
-if ca.mouse_drag(self,cb,db,_c)then
-local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
-local dc=self.get("width")or 1;local _d=false
-if cc.sidebarPosition=="right"then
-_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then return true end;return da.mouse_drag(self,cb,db,_c)end;return false end
-function bb:scrollSidebar(cb)local db=self:_getSidebarMetrics()local _c=
-self.get("sidebarScrollOffset")or 0;local ac=db.maxScroll or 0;local bc=_c+
-(cb*2)bc=math.max(0,math.min(ac,bc))
-self.set("sidebarScrollOffset",bc)return self end
-function bb:mouse_scroll(cb,db,_c)
-if ca.mouse_scroll(self,cb,db,_c)then
-local ac,bc=ca.getRelativePosition(self,db,_c)local cc=self:_getSidebarMetrics()
-local dc=self.get("width")or 1;local _d=false
-if cc.sidebarPosition=="right"then
-_d=ac> (dc-cc.sidebarWidth)else _d=ac<=cc.sidebarWidth end;if _d then self:scrollSidebar(cb)return true end;return
-da.mouse_scroll(self,cb,db,_c)end;return false end
-function bb:setCursor(cb,db,_c,ac)local bc=self:_getSidebarMetrics()
+db.sidebarPosition=="right"then return ca.drawBg(self,ab,bb,cb)else return
+ca.drawBg(self,(ab or 1)+db.sidebarWidth,bb,cb)end end
+function _b:blit(ab,bb,cb,db,_c)local ac=self:_getSidebarMetrics()
+if ac.sidebarPosition=="right"then return
+ca.blit(self,ab,bb,cb,db,_c)else return
+ca.blit(self,(ab or 1)+ac.sidebarWidth,bb,cb,db,_c)end end
+function _b:mouse_up(ab,bb,cb)
+if not ba.mouse_up(self,ab,bb,cb)then return false end;local db,_c=ba.getRelativePosition(self,bb,cb)
+local ac=self:_getSidebarMetrics()local bc=self.get("width")or 1;local cc=false;if
+ac.sidebarPosition=="right"then cc=db> (bc-ac.sidebarWidth)else
+cc=db<=ac.sidebarWidth end;if cc then return true end;return
+ca.mouse_up(self,ab,bb,cb)end
+function _b:mouse_release(ab,bb,cb)ba.mouse_release(self,ab,bb,cb)
+local db,_c=ba.getRelativePosition(self,bb,cb)local ac=self:_getSidebarMetrics()
+local bc=self.get("width")or 1;local cc=false
+if ac.sidebarPosition=="right"then
+cc=db> (bc-ac.sidebarWidth)else cc=db<=ac.sidebarWidth end;if cc then return end;return ca.mouse_release(self,ab,bb,cb)end
+function _b:mouse_move(ab,bb,cb)
+if ba.mouse_move(self,ab,bb,cb)then
+local db,_c=ba.getRelativePosition(self,bb,cb)local ac=self:_getSidebarMetrics()
+local bc=self.get("width")or 1;local cc=false
+if ac.sidebarPosition=="right"then
+cc=db> (bc-ac.sidebarWidth)else cc=db<=ac.sidebarWidth end;if cc then return true end
+local dc={self:getRelativePosition(bb,cb)}
+local _d,ad=self:callChildrenEvent(true,"mouse_move",table.unpack(dc))if _d then return true end end;return false end
+function _b:mouse_drag(ab,bb,cb)
+if ba.mouse_drag(self,ab,bb,cb)then
+local db,_c=ba.getRelativePosition(self,bb,cb)local ac=self:_getSidebarMetrics()
+local bc=self.get("width")or 1;local cc=false
+if ac.sidebarPosition=="right"then
+cc=db> (bc-ac.sidebarWidth)else cc=db<=ac.sidebarWidth end;if cc then return true end;return ca.mouse_drag(self,ab,bb,cb)end;return false end
+function _b:scrollSidebar(ab)local bb=self:_getSidebarMetrics()local cb=
+self.get("sidebarScrollOffset")or 0;local db=bb.maxScroll or 0;local _c=cb+
+(ab*2)_c=math.max(0,math.min(db,_c))
+self.set("sidebarScrollOffset",_c)return self end
+function _b:mouse_scroll(ab,bb,cb)
+if ba.mouse_scroll(self,ab,bb,cb)then
+local db,_c=ba.getRelativePosition(self,bb,cb)local ac=self:_getSidebarMetrics()
+local bc=self.get("width")or 1;local cc=false
+if ac.sidebarPosition=="right"then
+cc=db> (bc-ac.sidebarWidth)else cc=db<=ac.sidebarWidth end;if cc then self:scrollSidebar(ab)return true end;return
+ca.mouse_scroll(self,ab,bb,cb)end;return false end
+function _b:setCursor(ab,bb,cb,db)local _c=self:_getSidebarMetrics()
 if self.parent then
-local cc,dc=self:calculatePosition()local _d,ad
-if bc.sidebarPosition=="right"then _d=cb+cc-1;ad=db+dc-1 else _d=cb+cc-1 +
-bc.sidebarWidth;ad=db+dc-1 end
+local ac,bc=self:calculatePosition()local cc,dc
+if _c.sidebarPosition=="right"then cc=ab+ac-1;dc=bb+bc-1 else cc=ab+ac-1 +
+_c.sidebarWidth;dc=bb+bc-1 end
 if
 
-(_d<1)or(_d>self.parent.get("width"))or(ad<1)or(ad>self.parent.get("height"))then return self.parent:setCursor(_d,ad,false)end;return self.parent:setCursor(_d,ad,_c,ac)end;return self end
-function bb:render()ca.render(self)local cb=self.get("height")
-local db=self:_getSidebarMetrics()local _c=db.sidebarWidth or 12;for y=1,cb do
-ca.multiBlit(self,1,y,_c,1," ",_b[self.get("foreground")],_b[self.get("sidebarBackground")])end
-local ac=self.get("activeTab")
-for bc,cc in ipairs(db.positions)do
-local dc=
-(cc.id==ac)and self.get("activeTabBackground")or self.get("sidebarBackground")local _d=(cc.id==ac)and self.get("activeTabTextColor")or
-self.get("foreground")local ad=
-cc.displayHeight or(cc.y2 -cc.y1 +1)for dy=0,ad-1 do
-ca.multiBlit(self,1,
-cc.y1 +dy,_c,1," ",_b[self.get("foreground")],_b[dc])end;local bd=cc.title;if#bd>_c-2 then bd=bd:sub(1,
-_c-2)end
-ca.textFg(self,2,cc.y1,bd,_d)end
+(cc<1)or(cc>self.parent.get("width"))or(dc<1)or(dc>self.parent.get("height"))then return self.parent:setCursor(cc,dc,false)end;return self.parent:setCursor(cc,dc,cb,db)end;return self end
+function _b:render()ba.render(self)local ab=self.get("height")
+local bb=self:_getSidebarMetrics()local cb=bb.sidebarWidth or 12;for y=1,ab do
+ba.multiBlit(self,1,y,cb,1," ",da[self.get("foreground")],da[self.get("sidebarBackground")])end
+local db=self.get("activeTab")
+for _c,ac in ipairs(bb.positions)do
+local bc=
+(ac.id==db)and self.get("activeTabBackground")or self.get("sidebarBackground")local cc=(ac.id==db)and self.get("activeTabTextColor")or
+self.get("foreground")local dc=
+ac.displayHeight or(ac.y2 -ac.y1 +1)for dy=0,dc-1 do
+ba.multiBlit(self,1,
+ac.y1 +dy,cb,1," ",da[self.get("foreground")],da[bc])end;local _d=ac.title;if#_d>cb-2 then _d=_d:sub(1,
+cb-2)end
+ba.textFg(self,2,ac.y1,_d,cc)end
 if not self.get("childrenSorted")then self:sortChildren()end
-if not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents or
+if not self.get("childrenEventsSorted")then for _c in pairs(self._values.childrenEvents or
 {})do
-self:sortChildrenEvents(bc)end end
-for bc,cc in ipairs(self.get("visibleChildren")or{})do if cc==self then
-error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()cc:postRender()end end
-function bb:sortChildrenEvents(cb)
-local db=self._values.childrenEvents and self._values.childrenEvents[cb]
-if db then local _c={}for ac,bc in ipairs(db)do
-if self:isChildVisible(bc)then table.insert(_c,bc)end end
-for i=2,#_c do local ac=_c[i]
-local bc=ac.get("z")local cc=i-1
-while cc>0 do local dc=_c[cc].get("z")if dc>bc then _c[cc+1]=_c[cc]
-cc=cc-1 else break end end;_c[cc+1]=ac end
-self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[cb]=_c end;self.set("childrenEventsSorted",true)return self end;return bb end
+self:sortChildrenEvents(_c)end end
+for _c,ac in ipairs(self.get("visibleChildren")or{})do if ac==self then
+error("CIRCULAR REFERENCE DETECTED!")return end;ac:render()ac:postRender()end end
+function _b:sortChildrenEvents(ab)
+local bb=self._values.childrenEvents and self._values.childrenEvents[ab]
+if bb then local cb={}for db,_c in ipairs(bb)do
+if self:isChildVisible(_c)then table.insert(cb,_c)end end
+for i=2,#cb do local db=cb[i]
+local _c=db.get("z")local ac=i-1
+while ac>0 do local bc=cb[ac].get("z")if bc>_c then cb[ac+1]=cb[ac]
+ac=ac-1 else break end end;cb[ac+1]=db end
+self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[ab]=cb end;self.set("childrenEventsSorted",true)return self end;return _b end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
@@ -1795,10 +1795,11 @@ if bc then local cc=bc.node;local dc=bc.level
 local _d=string.rep("  ",dc)local ad=" "if cc.children and#cc.children>0 then
 ad=db[cc]and"\31"or"\16"end;local bd=cc==cb
 local cd=bd and
-self.get("selectedBackgroundColor")or self.get("background")local dd=bd and self.get("selectedForegroundColor")or
-self.get("foreground")
-local __a=_d..ad.." ".. (
-cc.text or"Node")local a_a=ba(__a,ac+1,ac+self.get("width"))
+self.get("selectedBackgroundColor")or
+(cc.background or cc.bg or self.get("background"))
+local dd=bd and self.get("selectedForegroundColor")or(
+cc.foreground or cc.fg or self.get("foreground"))
+local __a=_d..ad.." ".. (cc.text or"Node")local a_a=ba(__a,ac+1,ac+self.get("width"))
 local b_a=a_a..string.rep(" ",
 self.get("width")-#a_a)
 local c_a=ca[cd]:rep(#b_a)or ca[colors.black]:rep(#b_a)
