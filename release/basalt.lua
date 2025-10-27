@@ -36,10 +36,10 @@ minified_elementDirectory["ProgressBar"] = {}
 minified_elementDirectory["CheckBox"] = {}
 minified_elementDirectory["BaseElement"] = {}
 minified_elementDirectory["List"] = {}
+minified_elementDirectory["Collection"] = {}
 minified_pluginDirectory["canvas"] = {}
 minified_pluginDirectory["theme"] = {}
 minified_pluginDirectory["reactive"] = {}
-minified_pluginDirectory["state"] = {}
 minified_pluginDirectory["xml"] = {}
 minified_pluginDirectory["debug"] = {}
 minified_pluginDirectory["animation"] = {}
@@ -345,7 +345,7 @@ function ab:dispatchEvent(_c,...)
 local ac=self.get("program")local bc=da.dispatchEvent(self,_c,...)
 if ac then ac:resume(_c,...)
 if
-(self.get("focused"))then local cc=ac.window.getCursorBlink()
+(self:hasState("focused"))then local cc=ac.window.getCursorBlink()
 local dc,_d=ac.window.getCursorPos()
 self:setCursor(dc,_d,cc,ac.window.getTextColor())end;self:updateRender()end;return bc end
 function ab:focus()
@@ -487,13 +487,12 @@ project["elements/ComboBox.lua"] = function(...) local _a=require("elements/Visu
 local aa=require("elements/DropDown")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true,seetter=function(da,_b)
+da.set("cursorPos",#da.get("text")+1)da:updateViewport()end})
 ca.defineProperty(ca,"cursorPos",{default=1,type="number"})
 ca.defineProperty(ca,"viewOffset",{default=0,type="number",canTriggerRender=true})
 ca.defineProperty(ca,"placeholder",{default="...",type="string"})
 ca.defineProperty(ca,"placeholderColor",{default=colors.gray,type="color"})
-ca.defineProperty(ca,"focusedBackground",{default=colors.blue,type="color"})
-ca.defineProperty(ca,"focusedForeground",{default=colors.white,type="color"})
 ca.defineProperty(ca,"autoComplete",{default=false,type="boolean"})
 ca.defineProperty(ca,"manuallyOpened",{default=false,type="boolean"})function ca.new()local da=setmetatable({},ca):__init()
 da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
@@ -501,37 +500,33 @@ return da end
 function ca:init(da,_b)
 aa.init(self,da,_b)self.set("type","ComboBox")
 self.set("cursorPos",1)self.set("viewOffset",0)return self end
-function ca:setText(da)if da==nil then da=""end
-self.set("text",tostring(da))
-self.set("cursorPos",#self.get("text")+1)self:updateViewport()return self end;function ca:getText()return self.get("text")end;function ca:setEditable(da)
-self.set("editable",da)return self end
-function ca:getFilteredItems()
-local da=self.get("items")or{}local _b=self.get("text"):lower()if not
-self.get("autoComplete")or#_b==0 then return da end
-local ab={}
+function ca:getFilteredItems()local da=self.get("items")or{}
+local _b=self.get("text"):lower()
+if not self.get("autoComplete")or#_b==0 then return da end;local ab={}
 for bb,cb in ipairs(da)do local db=""
-if type(cb)=="string"then db=cb:lower()elseif type(cb)=="table"and
-cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
+if type(cb)=="string"then db=cb:lower()elseif
+type(cb)=="table"and cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
 function ca:updateFilteredDropdown()
 if not self.get("autoComplete")then return end;local da=self:getFilteredItems()local _b=#da>0 and
 #self.get("text")>0
-if _b then self.set("isOpen",true)
+if _b then self:setState("opened")
 self.set("manuallyOpened",false)local ab=self.get("dropdownHeight")or 5
-local bb=math.min(ab,#da)self.set("height",1 +bb)else self.set("isOpen",false)
-self.set("manuallyOpened",false)self.set("height",1)end;self:updateRender()end
+local bb=math.min(ab,#da)self.set("height",1 +bb)else
+self:unsetState("opened")self.set("manuallyOpened",false)
+self.set("height",1)end;self:updateRender()end
 function ca:updateViewport()local da=self.get("text")
 local _b=self.get("cursorPos")local ab=self.get("width")local bb=self.get("dropSymbol")
 local cb=ab-#bb;if cb<1 then cb=1 end;local db=self.get("viewOffset")if _b-db>cb then db=_b-cb elseif
 _b-1 <db then db=math.max(0,_b-1)end
 self.set("viewOffset",db)end
 function ca:char(da)if not self.get("editable")then return end;if not
-self.get("focused")then return end;local _b=self.get("text")
+self:hasState("focused")then return end;local _b=self.get("text")
 local ab=self.get("cursorPos")local bb=_b:sub(1,ab-1)..da.._b:sub(ab)
 self.set("text",bb)self.set("cursorPos",ab+1)self:updateViewport()
 if
 self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end
 function ca:key(da,_b)if not self.get("editable")then return end;if not
-self.get("focused")then return end;local ab=self.get("text")
+self:hasState("focused")then return end;local ab=self.get("text")
 local bb=self.get("cursorPos")
 if da==keys.left then
 self.set("cursorPos",math.max(1,bb-1))self:updateViewport()elseif da==keys.right then
@@ -546,56 +541,56 @@ if
 self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.home then self.set("cursorPos",1)
 self:updateViewport()elseif da==keys["end"]then self.set("cursorPos",#ab+1)
 self:updateViewport()elseif da==keys.enter then
-self.set("isOpen",not self.get("isOpen"))self:updateRender()end end
+if self:hasState("opened")then
+self:unsetState("opened")else self:setState("opened")end;self:updateRender()end end
 function ca:mouse_click(da,_b,ab)
 if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
 local db=self.get("width")local _c=self.get("dropSymbol")
+local ac=self:hasState("opened")
 if cb==1 then
-if
-bb>=db-#_c+1 and bb<=db then local ac=self.get("isOpen")self.set("isOpen",not ac)
-if
-self.get("isOpen")then local bc=self.get("items")or{}
+if bb>=db-#_c+1 and bb<=db then if ac then
+self:unsetState("opened")else self:setState("opened")end
+if not ac then local bc=
+self.get("items")or{}
 local cc=self.get("dropdownHeight")or 5;local dc=math.min(cc,#bc)self.set("height",1 +dc)
 self.set("manuallyOpened",true)else self.set("height",1)
 self.set("manuallyOpened",false)end;self:updateRender()return true end
 if bb<=db-#_c and self.get("editable")then
-local ac=self.get("text")local bc=self.get("viewOffset")local cc=#ac+1
-local dc=math.min(cc,bc+bb)self.set("cursorPos",dc)self:updateRender()return true end;return true elseif
-self.get("isOpen")and cb>1 and self.get("selectable")then local ac=(cb-1)+self.get("offset")
-local bc=self.get("items")
-if ac<=#bc then local cc=bc[ac]
-if type(cc)=="string"then cc={text=cc}bc[ac]=cc end
-if not self.get("multiSelection")then for dc,_d in ipairs(bc)do if type(_d)=="table"then
-_d.selected=false end end end;cc.selected=true;if cc.text then self:setText(cc.text)end
-self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("text")
-local _b=self.get("width")local ab=self.get("dropSymbol")local bb=self.get("focused")
-local cb=self.get("isOpen")local db=self.get("viewOffset")
-local _c=self.get("placeholder")
-local ac=bb and self.get("focusedBackground")or self.get("background")
-local bc=bb and self.get("focusedForeground")or self.get("foreground")local cc=da;local dc=_b-#ab;if#da==0 and not bb and#_c>0 then cc=_c
-bc=self.get("placeholderColor")end
-if#cc>0 then cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=cc..
-(cb and"\31"or"\17")
-self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))
-if bb and self.get("editable")then local ad=self.get("cursorPos")
-local bd=ad-db;if bd>=1 and bd<=dc then
-self:setCursor(bd,1,true,self.get("foreground"))end end
-if cb then local ad
+local bc=self.get("text")local cc=self.get("viewOffset")local dc=#bc+1
+local _d=math.min(dc,cc+bb)self.set("cursorPos",_d)self:updateRender()return true end;return true elseif ac and cb>1 and self.get("selectable")then local bc=(cb-1)+
+self.get("offset")local cc=self.get("items")
+if bc<=#cc then
+local dc=cc[bc]if type(dc)=="string"then dc={text=dc}cc[bc]=dc end
+if not
+self.get("multiSelection")then for _d,ad in ipairs(cc)do
+if type(ad)=="table"then ad.selected=false end end end;dc.selected=true;if dc.text then self:setText(dc.text)end
+self:unsetState("opened")self.set("height",1)self:updateRender()return true end end;return false end
+function ca:render()_a.render(self)local da=self.getResolved("text")
+local _b=self.get("width")local ab=self.getResolved("dropSymbol")
+local bb=self:hasState("focused")local cb=self:hasState("opened")
+local db=self.get("viewOffset")local _c=self.getResolved("placeholder")
+local ac=self.getResolved("background")local bc=self.getResolved("foreground")local cc=da;local dc=_b-#ab;if
+#da==0 and not bb and#_c>0 then cc=_c
+bc=self.get("placeholderColor")end;if#cc>0 then
+cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=
+cc.. (cb and"\31"or"\17")
+self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))if bb and self.get("editable")then local ad=self.get("cursorPos")
+local bd=ad-db
+if bd>=1 and bd<=dc then self:setCursor(bd,1,true,bc)end end
+if cb then
+local ad
 if
 self.get("autoComplete")and not self.get("manuallyOpened")then ad=self:getFilteredItems()else ad=self.get("items")end
 local bd=math.min(self.get("dropdownHeight"),#ad)
 if bd>0 then local cd=self.get("offset")
 for i=1,bd do local dd=i+cd
 if ad[dd]then local __a=ad[dd]
-local a_a=__a.text or""local b_a=__a.selected or false
-local c_a=
-b_a and self.get("selectedBackground")or self.get("background")
-local d_a=b_a and self.get("selectedForeground")or self.get("foreground")if#a_a>_b then a_a=a_a:sub(1,_b)end;a_a=a_a..
-string.rep(" ",_b-#a_a)
-self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;function ca:focus()aa.focus(self)end
-function ca:blur()aa.blur(self)
-self.set("isOpen",false)self.set("height",1)self:updateRender()end;return ca end
+local a_a=__a.text or""local b_a=__a.selected or false;local c_a=
+b_a and self.get("selectedBackground")or ac;local d_a=b_a and
+self.get("selectedForeground")or bc;if
+#a_a>_b then a_a=a_a:sub(1,_b)end
+a_a=a_a..string.rep(" ",_b-#a_a)
+self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;return ca end
 project["elements/TabControl.lua"] = function(...) local ba=require("elementManager")
 local ca=require("elements/VisualElement")local da=ba.getElement("Container")
 local _b=require("libraries/colorHex")local ab=require("log")local bb=setmetatable({},da)bb.__index=bb
@@ -929,7 +924,7 @@ aab:setZ(c_b.get("z")+c_b.get("autoCompleteZOffset"))aaa(c_b,dab,_bb)if bab and 
 bab:updateRender()end;aab:updateRender()end
 local function _da(c_b)
 if not c_b.get("autoCompleteEnabled")then aba(c_b,true)return end
-if not c_b.get("focused")then aba(c_b,true)return end;local d_b,_ab=dba(c_b)c_b._autoCompleteToken=d_b
+if not c_b:hasState("focused")then aba(c_b,true)return end;local d_b,_ab=dba(c_b)c_b._autoCompleteToken=d_b
 c_b._autoCompleteTokenStart=_ab
 if#d_b<c_b.get("autoCompleteMinChars")then aba(c_b)return end;local aab=bca(c_b,d_b)if#aab==0 then aba(c_b)return end
 local bab=cba(c_b)if not bab then return end;bab:setOffset(0)bab:setItems(aab)
@@ -963,15 +958,14 @@ c_b.class=d_a;c_b.set("width",20)c_b.set("height",10)return c_b end
 function d_a:init(c_b,d_b)b_a.init(self,c_b,d_b)
 self.set("type","TextBox")
 local function _ab()if
-self.get("autoCompleteEnabled")and self.get("focused")then _da(self)end end;local function aab()daa(self)end
+self.get("autoCompleteEnabled")and self:hasState("focused")then _da(self)end end;local function aab()daa(self)end
 local function bab()
 if baa(self)then
 local cab=rawget(self,"_autoCompleteSuggestions")or{}
 dca(self,math.max(#cab,1),rawget(self,"_autoCompletePopupWidth")or
 self.get("width"))end end
-self:observe("autoCompleteEnabled",function(cab,dab)if not dab then aba(self,true)elseif self.get("focused")then
-_da(self)end end)
-self:observe("focused",function(cab,dab)if dab then _ab()else aba(self,true)end end)self:observe("foreground",aab)
+self:observe("autoCompleteEnabled",function(cab,dab)if not dab then aba(self,true)elseif self:hasState("focused")then
+_da(self)end end)self:observe("foreground",aab)
 self:observe("background",aab)self:observe("autoCompleteBackground",aab)
 self:observe("autoCompleteForeground",aab)
 self:observe("autoCompleteSelectedBackground",aab)
@@ -1028,36 +1022,37 @@ if c_b-_ab>bab then
 self.set("scrollX",c_b-bab)elseif c_b-_ab<1 then self.set("scrollX",c_b-1)end
 if d_b-aab>cab then self.set("scrollY",d_b-cab)elseif d_b-aab<1 then self.set("scrollY",
 d_b-1)end;return self end
-function d_a:char(c_b)if
-not self.get("editable")or not self.get("focused")then return false end
-local d_b=self.get("autoPairEnabled")
-if d_b and#c_b==1 then
-local _ab=self.get("autoPairCharacters")or{}local aab=self.get("lines")local bab=self.get("cursorX")
-local cab=self.get("cursorY")local dab=aab[cab]or""local _bb=dab:sub(bab,bab)local abb=_ab[c_b]
-if abb then
-cda(self,c_b)
-if self.get("autoPairSkipClosing")then
-if _bb~=abb then cda(self,abb)self.set("cursorX",
-self.get("cursorX")-1)end else cda(self,abb)
-self.set("cursorX",self.get("cursorX")-1)end;_da(self)return true end
+function d_a:char(c_b)
+if not self.get("editable")or
+not self:hasState("focused")then return false end;local d_b=self.get("autoPairEnabled")
+if d_b and#c_b==1 then local _ab=
+self.get("autoPairCharacters")or{}local aab=self.get("lines")
+local bab=self.get("cursorX")local cab=self.get("cursorY")local dab=aab[cab]or""
+local _bb=dab:sub(bab,bab)local abb=_ab[c_b]
+if abb then cda(self,c_b)
+if self.get("autoPairSkipClosing")then if _bb~=abb then
+cda(self,abb)
+self.set("cursorX",self.get("cursorX")-1)end else cda(self,abb)self.set("cursorX",
+self.get("cursorX")-1)end;_da(self)return true end
 if self.get("autoPairOverType")then
 for bbb,cbb in pairs(_ab)do if c_b==cbb and _bb==cbb then
 self.set("cursorX",bab+1)_da(self)return true end end end end;cda(self,c_b)_da(self)return true end
-function d_a:key(c_b)if
-not self.get("editable")or not self.get("focused")then return false end
-if ada(self,c_b)then return true end;local d_b=self.get("lines")local _ab=self.get("cursorX")
-local aab=self.get("cursorY")
+function d_a:key(c_b)
+if not self.get("editable")or
+not self:hasState("focused")then return false end;if ada(self,c_b)then return true end;local d_b=self.get("lines")
+local _ab=self.get("cursorX")local aab=self.get("cursorY")
 if c_b==keys.enter then
-if self.get("autoPairEnabled")and
-self.get("autoPairNewlineIndent")then local bab=self.get("lines")
-local cab=self.get("cursorX")local dab=self.get("cursorY")local _bb=bab[dab]or""
-local abb=_bb:sub(1,cab-1)local bbb=_bb:sub(cab)
-local cbb=self.get("autoPairCharacters")or{}local dbb={}for bcb,ccb in pairs(cbb)do dbb[ccb]=bcb end;local _cb=abb:sub(-1)
-local acb=bbb:sub(1,1)
-if _cb~=""and acb~=""and cbb[_cb]==acb then bab[dab]=abb;table.insert(bab,
-dab+1,"")table.insert(bab,dab+2,bbb)self.set("cursorY",
-dab+1)self.set("cursorX",1)
-self:updateViewport()self:updateRender()_da(self)return true end end;__b(self)elseif c_b==keys.backspace then a_b(self)elseif c_b==keys.left then
+if
+self.get("autoPairEnabled")and self.get("autoPairNewlineIndent")then
+local bab=self.get("lines")local cab=self.get("cursorX")local dab=self.get("cursorY")local _bb=
+bab[dab]or""local abb=_bb:sub(1,cab-1)local bbb=_bb:sub(cab)local cbb=
+self.get("autoPairCharacters")or{}local dbb={}
+for bcb,ccb in pairs(cbb)do dbb[ccb]=bcb end;local _cb=abb:sub(-1)local acb=bbb:sub(1,1)
+if _cb~=""and acb~=""and
+cbb[_cb]==acb then bab[dab]=abb;table.insert(bab,dab+1,"")table.insert(bab,
+dab+2,bbb)self.set("cursorY",dab+1)
+self.set("cursorX",1)self:updateViewport()self:updateRender()_da(self)return
+true end end;__b(self)elseif c_b==keys.backspace then a_b(self)elseif c_b==keys.left then
 if _ab>1 then self.set("cursorX",
 _ab-1)elseif aab>1 then self.set("cursorY",aab-1)self.set("cursorX",
 #d_b[aab-1]+1)end elseif c_b==keys.right then if _ab<=#d_b[aab]then
@@ -1086,10 +1081,10 @@ bbb+1))end;self:updateRender()_da(self)return true end
 if baa(self)then local aab=self._autoCompleteFrame;if
 not
 (aab and aab:isInBounds(d_b,_ab))and not self:isInBounds(d_b,_ab)then aba(self)end end;return false end
-function d_a:paste(c_b)if
-not self.get("editable")or not self.get("focused")then return false end
-for d_b in c_b:gmatch(".")do if d_b=="\n"then
-__b(self)else cda(self,d_b)end end;_da(self)return true end
+function d_a:paste(c_b)
+if not self.get("editable")or
+not self:hasState("focused")then return false end;for d_b in c_b:gmatch(".")do
+if d_b=="\n"then __b(self)else cda(self,d_b)end end;_da(self)return true end
 function d_a:setText(c_b)local d_b={}
 if c_b==""then d_b={""}else for _ab in(c_b.."\n"):gmatch("([^\n]*)\n")do
 table.insert(d_b,_ab)end end;self.set("lines",d_b)aba(self,true)return self end
@@ -1114,7 +1109,7 @@ aab-#dbb
 if acb>0 then dbb=dbb..string.rep(" ",acb)_cb=_cb..
 string.rep(c_a[self.get("foreground")],acb)end
 self:blit(1,y,dbb,_cb,string.rep(dab,#dbb))end
-if self.get("focused")then local _bb=self.get("cursorX")-d_b;local abb=
+if self:hasState("focused")then local _bb=self.get("cursorX")-d_b;local abb=
 self.get("cursorY")-_ab;if _bb>=1 and _bb<=aab and abb>=1 and
 abb<=bab then
 self:setCursor(_bb,abb,true,self.get("cursorColor")or
@@ -1132,10 +1127,10 @@ da.class=ca;da.set("width",10)da.set("height",3)da.set("z",5)
 return da end;function ca:init(da,_b)
 aa.init(self,da,_b)self.set("type","Button")end
 function ca:render()
-aa.render(self)local da=self.get("text")
+aa.render(self)local da=self.getResolved("text")
 da=da:sub(1,self.get("width"))
 local _b,ab=ba(da,self.get("width"),self.get("height"))
-self:textFg(_b,ab,da,self.get("foreground"))end;return ca end
+self:textFg(_b,ab,da,self.getResolved("foreground"))end;return ca end
 project["elements/Label.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/utils").wrapText
 local ca=setmetatable({},aa)ca.__index=ca
@@ -1339,45 +1334,46 @@ aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
 aa.defineProperty(aa,"placeholder",{default="...",type="string"})
 aa.defineProperty(aa,"placeholderColor",{default=colors.gray,type="color"})
-aa.defineProperty(aa,"focusedBackground",{default=colors.blue,type="color"})
-aa.defineProperty(aa,"focusedForeground",{default=colors.white,type="color"})
 aa.defineProperty(aa,"pattern",{default=nil,type="string"})
 aa.defineProperty(aa,"cursorColor",{default=nil,type="number"})
 aa.defineProperty(aa,"replaceChar",{default=nil,type="string",canTriggerRender=true})aa.defineEvent(aa,"mouse_click")
-aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
+aa.defineEvent(aa,"mouse_up")aa.defineEvent(aa,"key")aa.defineEvent(aa,"char")
 aa.defineEvent(aa,"paste")
 function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;ba.set("width",8)ba.set("z",3)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
 function aa:setCursor(ba,ca,da,_b)
 ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
-function aa:char(ba)if not self.get("focused")then return false end
-local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
-local ab=self.get("pattern")if _b and#ca>=_b then return false end;if ab and not ba:match(ab)then return
-false end
-self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
+function aa:char(ba)
+if not self:hasState("focused")then return false end;local ca=self.get("text")local da=self.get("cursorPos")
+local _b=self.get("maxLength")local ab=self.get("pattern")
+if _b and#ca>=_b then return false end;if ab and not ba:match(ab)then return false end
+self.set("text",ca:sub(1,
+da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
 self.get("cursorPos")-self.get("viewOffset")
 self:setCursor(bb,1,true,
 self.get("cursorColor")or self.get("foreground"))d.char(self,ba)return true end
-function aa:key(ba,ca)if not self.get("focused")then return false end
-local da=self.get("cursorPos")local _b=self.get("text")local ab=self.get("viewOffset")
-local bb=self.get("width")
-if ba==keys.left then if da>1 then self.set("cursorPos",da-1)
-if da-1 <=ab then self.set("viewOffset",math.max(0,
-da-2))end end elseif ba==keys.right then if da<=#_b then self.set("cursorPos",
-da+1)if da-ab>=bb then
-self.set("viewOffset",da-bb+1)end end elseif
-ba==keys.backspace then if da>1 then
+function aa:key(ba,ca)
+if not self:hasState("focused")then return false end;local da=self.get("cursorPos")local _b=self.get("text")
+local ab=self.get("viewOffset")local bb=self.get("width")
+if ba==keys.left then
+if da>1 then
+self.set("cursorPos",da-1)if da-1 <=ab then
+self.set("viewOffset",math.max(0,da-2))end end elseif ba==keys.right then
+if da<=#_b then self.set("cursorPos",da+1)if da-ab>=bb then self.set("viewOffset",
+da-bb+1)end end elseif ba==keys.backspace then if da>1 then
 self.set("text",_b:sub(1,da-2).._b:sub(da))self.set("cursorPos",da-1)self:updateRender()
 self:updateViewport()end end
 local cb=self.get("cursorPos")-self.get("viewOffset")
-self:setCursor(cb,1,true,self.get("cursorColor")or self.get("foreground"))d.key(self,ba,ca)return true end
+self:setCursor(cb,1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))d.key(self,ba,ca)return true end
 function aa:mouse_click(ba,ca,da)
 if d.mouse_click(self,ba,ca,da)then
 local _b,ab=self:getRelativePosition(ca,da)local bb=self.get("text")local cb=self.get("viewOffset")
 local db=#bb+1;local _c=math.min(db,cb+_b)self.set("cursorPos",_c)
 local ac=_c-cb
-self:setCursor(ac,1,true,self.get("cursorColor")or self.get("foreground"))return true end;return false end
+self:setCursor(ac,1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))return true end;return false end
 function aa:updateViewport()local ba=self.get("width")
 local ca=self.get("cursorPos")local da=self.get("viewOffset")
 local _b=#self.get("text")
@@ -1386,29 +1382,28 @@ ca-1)end
 self.set("viewOffset",math.max(0,math.min(self.get("viewOffset"),_b-ba+1)))return self end
 function aa:focus()d.focus(self)
 self:setCursor(self.get("cursorPos")-
-self.get("viewOffset"),1,true,self.get("cursorColor")or self.get("foreground"))self:updateRender()end
+self.get("viewOffset"),1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))self:updateRender()end
 function aa:blur()d.blur(self)
-self:setCursor(1,1,false,self.get("cursorColor")or
-self.get("foreground"))self:updateRender()end
-function aa:paste(ba)if not self.get("focused")then return false end
-local ca=self.get("text")local da=self.get("cursorPos")local _b=self.get("maxLength")
-local ab=self.get("pattern")local bb=ca:sub(1,da-1)..ba..ca:sub(da)if
-_b and#bb>_b then bb=bb:sub(1,_b)end;if ab and not bb:match(ab)then
-return false end;self.set("text",bb)
-self.set("cursorPos",da+#ba)self:updateViewport()end
-function aa:render()local ba=self.get("text")local ca=self.get("viewOffset")
-local da=self.get("width")local _b=self.get("placeholder")
-local ab=self.get("focusedBackground")local bb=self.get("focusedForeground")
-local cb=self.get("focused")local db,_c=self.get("width"),self.get("height")
-local ac=self.get("replaceChar")
-self:multiBlit(1,1,db,_c," ",_a[cb and bb or self.get("foreground")],_a[
-cb and ab or self.get("background")])if
-#ba==0 and#_b~=0 and self.get("focused")==false then
-self:textFg(1,1,_b:sub(1,db),self.get("placeholderColor"))return end;if(cb)then
+self:setCursor(1,1,false,self.getResolved("cursorColor")or
+self.getResolved("foreground"))self:updateRender()end
+function aa:paste(ba)
+if not self:hasState("focused")then return false end;local ca=self.get("text")local da=self.get("cursorPos")
+local _b=self.get("maxLength")local ab=self.get("pattern")
+local bb=ca:sub(1,da-1)..ba..ca:sub(da)if _b and#bb>_b then bb=bb:sub(1,_b)end;if
+ab and not bb:match(ab)then return false end;self.set("text",bb)self.set("cursorPos",da+
+#ba)self:updateViewport()end
+function aa:render()local ba=self.getResolved("text")
+local ca=self.get("viewOffset")local da=self.getResolved("placeholder")
+local _b=self:hasState("focused")local ab,bb=self.get("width"),self.get("height")
+local cb=self.getResolved("replaceChar")
+self:multiBlit(1,1,ab,bb," ",_a[self.getResolved("foreground")],_a[self.getResolved("background")])if#ba==0 and#da~=0 and not _b then
+self:textFg(1,1,da:sub(1,ab),self.getResolved("placeholderColor"))return end;if(_b)then
 self:setCursor(
-self.get("cursorPos")-ca,1,true,self.get("cursorColor")or self.get("foreground"))end
-local bc=ba:sub(ca+1,ca+db)if ac and#ac>0 then bc=ac:rep(#bc)end
-self:textFg(1,1,bc,self.get("foreground"))end;return aa end
+self.get("cursorPos")-ca,1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))end
+local db=ba:sub(ca+1,ca+ab)if cb and#cb>0 then db=cb:rep(#db)end
+self:textFg(1,1,db,self.getResolved("foreground"))end;return aa end
 project["elements/BigFont.lua"] = function(...) local _b=require("libraries/colorHex")
 local ab={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local bb={}local cb={}
 do local dc=0;local _d=#ab[1]local ad=#ab[1][1]
@@ -1559,9 +1554,9 @@ db.defineProperty(db,"eventListenerCount",{default={},type="table"})
 db.defineProperty(db,"focusedChild",{default=nil,type="table",allowNil=true,setter=function(bc,cc,dc)local _d=bc._values.focusedChild
 if cc==_d then return cc end
 if _d then
-if _d:isType("Container")then _d.set("focusedChild",nil,true)end;_d.set("focused",false,true)end
-if cc and not dc then cc.set("focused",true,true)if bc.parent then
-bc.parent:setFocusedChild(bc)end end;return cc end})
+if _d:isType("Container")then _d.set("focusedChild",nil,true)end;_d:setFocused(false,true)end;if cc and not dc then cc:setFocused(true,true)if bc.parent then
+bc.parent:setFocusedChild(bc)end end;return
+cc end})
 db.defineProperty(db,"visibleChildren",{default={},type="table"})
 db.defineProperty(db,"visibleChildrenEvents",{default={},type="table"})
 db.defineProperty(db,"offsetX",{default=0,type="number",canTriggerRender=true,setter=function(bc,cc)bc.set("childrenSorted",false)
@@ -1668,8 +1663,9 @@ if ab.mouse_click(self,bc,cc,dc)then
 local _d=ac(self,"mouse_click",bc,cc,dc)
 local ad,bd=self:callChildrenEvent(true,"mouse_click",table.unpack(_d))
 if(ad)then self.set("focusedChild",bd)return true end;self.set("focusedChild",nil)return true end;return false end
-function db:mouse_up(bc,cc,dc)
-if ab.mouse_up(self,bc,cc,dc)then local _d=ac(self,"mouse_up",bc,cc,dc)
+function db:mouse_up(bc,cc,dc)self:mouse_release(bc,cc,dc)
+if ab.mouse_up(self,bc,cc,dc)then
+local _d=ac(self,"mouse_up",bc,cc,dc)
 local ad,bd=self:callChildrenEvent(true,"mouse_up",table.unpack(_d))if(ad)then return true end end;return false end
 function db:mouse_release(bc,cc,dc)ab.mouse_release(self,bc,cc,dc)
 local _d=ac(self,"mouse_release",bc,cc,dc)
@@ -1805,56 +1801,62 @@ self.get("width")-#a_a)
 local c_a=ca[cd]:rep(#b_a)or ca[colors.black]:rep(#b_a)
 local d_a=ca[dd]:rep(#b_a)or ca[colors.white]:rep(#b_a)self:blit(1,y,b_a,d_a,c_a)else
 self:blit(1,y,string.rep(" ",self.get("width")),ca[self.get("foreground")]:rep(self.get("width")),ca[self.get("background")]:rep(self.get("width")))end end end;return da end
-project["elements/DropDown.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("elements/List")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"isOpen",{default=false,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
-ca.defineProperty(ca,"selectedText",{default="",type="string"})
-ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
-return da end
-function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","DropDown")return self end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
-if cb==1 then self.set("isOpen",not
-self.get("isOpen"))if
-not self.get("isOpen")then self.set("height",1)else
-self.set("height",1 +math.min(self.get("dropdownHeight"),#
-self.get("items")))end
-return true elseif
-self.get("isOpen")and cb>1 and self.get("selectable")then local db=(cb-1)+self.get("offset")
-local _c=self.get("items")
-if db<=#_c then local ac=_c[db]
-if type(ac)=="string"then ac={text=ac}_c[db]=ac end
-if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="table"then
-cc.selected=false end end end;ac.selected=not ac.selected
-if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
-self.set("isOpen",false)self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.get("selectedText")
-local _b=self:getSelectedItems()if#_b>0 then local ab=_b[1]da=ab.text or""
-da=da:sub(1,self.get("width")-2)end
-self:blit(1,1,da..string.rep(" ",self.get("width")-#
-da-1).. (
-self.get("isOpen")and"\31"or"\17"),string.rep(ba[self.get("foreground")],self.get("width")),string.rep(ba[self.get("background")],self.get("width")))
-if self.get("isOpen")then local ab=self.get("items")
-local bb=self.get("height")-1;local cb=self.get("offset")local db=self.get("width")
-for i=1,bb do local _c=i+cb
-local ac=ab[_c]
-if ac then if type(ac)=="string"then ac={text=ac}ab[_c]=ac end
+project["elements/DropDown.lua"] = function(...) local aa=require("elements/VisualElement")
+local ba=require("elements/List")local ca=require("elements/ScrollBar")
+local da=require("libraries/colorHex")local _b=setmetatable({},ba)_b.__index=_b
+_b.defineProperty(_b,"dropdownHeight",{default=5,type="number"})
+_b.defineProperty(_b,"selectedText",{default="",type="string"})
+_b.defineProperty(_b,"dropSymbol",{default="\31",type="string"})function _b.new()local ab=setmetatable({},_b):__init()
+ab.class=_b;ab.set("width",16)ab.set("height",1)ab.set("z",8)
+return ab end;function _b:init(ab,bb)
+ba.init(self,ab,bb)self.set("type","DropDown")
+self:registerState("opened",nil,200)return self end
+function _b:mouse_click(ab,bb,cb)
 if
-ac.separator then local bc=(ac.text or"-"):sub(1,1)
-local cc=string.rep(bc,db)local dc=ac.foreground or self.get("foreground")local _d=
-ac.background or self.get("background")self:textBg(1,
-i+1,string.rep(" ",db),_d)
-self:textFg(1,i+1,cc,dc)else local bc=ac.text;local cc=ac.selected;bc=bc:sub(1,db)
-local dc=cc and(ac.selectedBackground or
-self.get("selectedBackground"))or(ac.background or
-self.get("background"))
-local _d=
-cc and(ac.selectedForeground or self.get("selectedForeground"))or(ac.foreground or self.get("foreground"))self:textBg(1,i+1,string.rep(" ",db),dc)self:textFg(1,
-i+1,bc,_d)end end end end end;return ca end
+not aa.mouse_click(self,ab,bb,cb)then return false end;local db,_c=self:getRelativePosition(bb,cb)
+local ac=self:hasState("opened")
+if _c==1 then
+if ac then self.set("height",1)self:unsetState("opened")else
+self.set("height",
+1 +
+math.min(self.get("dropdownHeight"),#self.get("items")))self:setState("opened")end;return true elseif ac and _c>1 and self.get("selectable")then local bc=(_c-1)+
+self.get("offset")local cc=self.get("items")
+if bc<=#cc then
+local dc=cc[bc]if type(dc)=="string"then dc={text=dc}cc[bc]=dc end
+if not
+self.get("multiSelection")then for _d,ad in ipairs(cc)do
+if type(ad)=="table"then ad.selected=false end end end;dc.selected=not dc.selected
+if dc.callback then dc.callback(self)end;self:fireEvent("select",bc,dc)
+self:unsetState("opened")self:unsetState("clicked")self.set("height",1)
+self:updateRender()return true end end;return false end
+function _b:render()aa.render(self)local ab=self.get("selectedText")
+local bb=self:hasState("opened")local cb=self:getSelectedItems()
+if#cb>0 then local db=cb[1]
+ab=db.text or""ab=ab:sub(1,self.get("width")-2)end
+self:blit(1,1,ab..
+string.rep(" ",self.get("width")-#ab-1).. (bb and"\31"or"\17"),string.rep(da[self.getResolved("foreground")],self.get("width")),string.rep(da[self.getResolved("background")],self.get("width")))
+if bb then local db=self.get("items")
+local _c=self.get("height")-1;local ac=self.get("offset")local bc=self.get("width")
+for i=1,_c do local cc=i+ac
+local dc=db[cc]
+if dc then if type(dc)=="string"then dc={text=dc}db[cc]=dc end
+if
+dc.separator then local _d=(dc.text or"-"):sub(1,1)
+local ad=string.rep(_d,bc)
+local bd=dc.fg or self.getResolved("foreground")
+local cd=dc.bg or self.getResolved("background")self:textBg(1,i+1,string.rep(" ",bc),cd)self:textFg(1,
+i+1,ad,bd)else local _d=dc.text;local ad=dc.selected
+_d=_d:sub(1,bc)
+local bd=ad and
+(dc.selectedBg or self.getResolved("selectedBackground"))or
+(dc.bg or self.getResolved("background"))
+local cd=ad and
+(dc.selectedFg or self.getResolved("selectedForeground"))or
+(dc.fg or self.getResolved("foreground"))self:textBg(1,i+1,string.rep(" ",bc),bd)self:textFg(1,
+i+1,_d,cd)end end end end end
+function _b:focus()aa.focus(self)self:setState("opened")end
+function _b:blur()aa.blur(self)self:unsetState("opened")
+self.set("height",1)self:updateRender()end;return _b end
 project["elements/Display.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")
 local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
@@ -2414,25 +2416,20 @@ _b.defineProperty(_b,"x",{default=1,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"y",{default=1,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"z",{default=1,type="number",canTriggerRender=true,setter=function(cb,db)
 if cb.parent then cb.parent:sortChildren()end;return db end})
+_b.defineProperty(_b,"constraints",{default={},type="table"})
 _b.defineProperty(_b,"width",{default=1,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"height",{default=1,type="number",canTriggerRender=true})
 _b.defineProperty(_b,"background",{default=colors.black,type="color",canTriggerRender=true})
 _b.defineProperty(_b,"foreground",{default=colors.white,type="color",canTriggerRender=true})
-_b.defineProperty(_b,"clicked",{default=false,type="boolean"})
-_b.defineProperty(_b,"hover",{default=false,type="boolean"})
 _b.defineProperty(_b,"backgroundEnabled",{default=true,type="boolean",canTriggerRender=true})
 _b.defineProperty(_b,"borderTop",{default=false,type="boolean",canTriggerRender=true})
 _b.defineProperty(_b,"borderBottom",{default=false,type="boolean",canTriggerRender=true})
 _b.defineProperty(_b,"borderLeft",{default=false,type="boolean",canTriggerRender=true})
 _b.defineProperty(_b,"borderRight",{default=false,type="boolean",canTriggerRender=true})
 _b.defineProperty(_b,"borderColor",{default=colors.white,type="color",canTriggerRender=true})
-_b.defineProperty(_b,"focused",{default=false,type="boolean",setter=function(cb,db,_c)local ac=cb.get("focused")
-if db==ac then return db end;if db then cb:focus()else cb:blur()end;if not _c and cb.parent then
-if db then
-cb.parent:setFocusedChild(cb)else cb.parent:setFocusedChild(nil)end end;return db end})
 _b.defineProperty(_b,"visible",{default=true,type="boolean",canTriggerRender=true,setter=function(cb,db)
 if(cb.parent~=nil)then
-cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;if(db==false)then cb.set("clicked",false)end;return db end})
+cb.parent.set("childrenSorted",false)cb.parent.set("childrenEventsSorted",false)end;if(db==false)then cb:unsetState("clicked")end;return db end})
 _b.defineProperty(_b,"ignoreOffset",{default=false,type="boolean"})_b.combineProperties(_b,"position","x","y")
 _b.combineProperties(_b,"size","width","height")
 _b.combineProperties(_b,"color","foreground","background")_b.defineEvent(_b,"focus")
@@ -2449,6 +2446,9 @@ local ab,bb=math.max,math.min;function _b.new()local cb=setmetatable({},_b):__in
 cb.class=_b;return cb end
 function _b:init(cb,db)
 ca.init(self,cb,db)self.set("type","VisualElement")
+self:registerState("disabled",nil,1000)self:registerState("clicked",nil,500)
+self:registerState("hover",nil,400)self:registerState("focused",nil,300)
+self:registerState("dragging",nil,600)
 self:observe("x",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)
 self:observe("y",function()if self.parent then
@@ -2459,6 +2459,102 @@ self:observe("height",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)
 self:observe("visible",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)end
+function _b:setConstraint(cb,db,_c,ac)local bc=self.get("constraints")if bc[cb]then
+self:_removeConstraintObservers(cb,bc[cb])end
+bc[cb]={element=db,property=_c,offset=ac or 0}self.set("constraints",bc)
+self:_addConstraintObservers(cb,bc[cb])self._constraintsDirty=true;self:updateRender()return self end
+function _b:resolveAllConstraints()if not self._constraintsDirty then return self end
+local cb=self.get("constraints")if not cb or not next(cb)then return self end
+local db={"width","height","left","right","top","bottom","x","y","centerX","centerY"}
+for _c,ac in ipairs(db)do if cb[ac]then local bc=self:_resolveConstraint(ac,cb[ac])
+self:_applyConstraintValue(ac,bc)end end;self._constraintsDirty=false;return self end
+function _b:_applyConstraintValue(cb,db)
+if cb=="x"or cb=="left"then self.set("x",db)elseif cb=="y"or
+cb=="top"then self.set("y",db)elseif cb=="right"then local _c=self.get("width")self.set("x",
+db-_c+1)elseif cb=="bottom"then local _c=self.get("height")self.set("y",
+db-_c+1)elseif cb=="centerX"then local _c=self.get("width")self.set("x",
+db-math.floor(_c/2))elseif cb=="centerY"then
+local _c=self.get("height")self.set("y",db-math.floor(_c/2))elseif
+cb=="width"then self.set("width",db)elseif cb=="height"then self.set("height",db)end end
+function _b:_addConstraintObservers(cb,db)local _c=db.element;local ac=db.property
+if _c=="parent"then _c=self.parent end;if not _c then return end
+local bc=function()self._constraintsDirty=true
+self:resolveAllConstraints()self:updateRender()end
+if not self._constraintObserverCallbacks then self._constraintObserverCallbacks={}end;if not self._constraintObserverCallbacks[cb]then
+self._constraintObserverCallbacks[cb]={}end;local cc={}
+if
+ac=="left"or ac=="x"then cc={"x"}elseif ac=="right"then cc={"x","width"}elseif ac=="top"or ac=="y"then cc={"y"}elseif ac==
+"bottom"then cc={"y","height"}elseif ac=="centerX"then cc={"x","width"}elseif ac=="centerY"then
+cc={"y","height"}elseif ac=="width"then cc={"width"}elseif ac=="height"then cc={"height"}end;for dc,_d in ipairs(cc)do _c:observe(_d,bc)
+table.insert(self._constraintObserverCallbacks[cb],{element=_c,property=_d,callback=bc})end end
+function _b:_removeConstraintObservers(cb,db)
+if not self._constraintObserverCallbacks or not
+self._constraintObserverCallbacks[cb]then return end;for _c,ac in ipairs(self._constraintObserverCallbacks[cb])do
+ac.element:removeObserver(ac.property,ac.callback)end;self._constraintObserverCallbacks[cb]=
+nil end
+function _b:_removeAllConstraintObservers()
+if not self._constraintObserverCallbacks then return end
+for cb,db in pairs(self._constraintObserverCallbacks)do for _c,ac in ipairs(db)do
+ac.element:removeObserver(ac.property,ac.callback)end end;self._constraintObserverCallbacks=nil end
+function _b:removeConstraint(cb)local db=self.get("constraints")db[cb]=nil
+self.set("constraints",db)self:updateConstraints()return self end
+function _b:updateConstraints()local cb=self.get("constraints")
+for db,_c in pairs(cb)do
+local ac=self:_resolveConstraint(db,_c)
+if db=="x"or db=="left"then self.set("x",ac)elseif db=="y"or db=="top"then
+self.set("y",ac)elseif db=="right"then local bc=self.get("width")
+self.set("x",ac-bc+1)elseif db=="bottom"then local bc=self.get("height")
+self.set("y",ac-bc+1)elseif db=="centerX"then local bc=self.get("width")
+self.set("x",ac-math.floor(bc/2))elseif db=="centerY"then local bc=self.get("height")
+self.set("y",ac-math.floor(bc/2))elseif db=="width"then self.set("width",ac)elseif db=="height"then
+self.set("height",ac)end end end
+function _b:_resolveConstraint(cb,db)local _c=db.element;local ac=db.property;local bc=db.offset;if _c=="parent"then
+_c=self.parent end
+if not _c then return self.get(cb)or 1 end;local cc
+if ac=="left"or ac=="x"then cc=_c.get("x")elseif ac=="right"then cc=_c.get("x")+
+_c.get("width")-1 elseif ac=="top"or ac=="y"then
+cc=_c.get("y")elseif ac=="bottom"then
+cc=_c.get("y")+_c.get("height")-1 elseif ac=="centerX"then
+cc=_c.get("x")+math.floor(_c.get("width")/2)elseif ac=="centerY"then
+cc=_c.get("y")+math.floor(_c.get("height")/2)elseif ac=="width"then cc=_c.get("width")elseif ac=="height"then cc=_c.get("height")end
+if type(bc)=="number"then if bc>-1 and bc<1 and bc~=0 then
+return math.floor(cc*bc)else return cc+bc end end;return cc end;function _b:alignRight(cb,db)db=db or 0
+return self:setConstraint("right",cb,"right",db)end;function _b:alignLeft(cb,db)db=db or 0;return
+self:setConstraint("left",cb,"left",db)end
+function _b:alignTop(cb,db)db=
+db or 0;return self:setConstraint("top",cb,"top",db)end;function _b:alignBottom(cb,db)db=db or 0
+return self:setConstraint("bottom",cb,"bottom",db)end
+function _b:centerHorizontal(cb,db)db=db or 0;return
+self:setConstraint("centerX",cb,"centerX",db)end;function _b:centerVertical(cb,db)db=db or 0
+return self:setConstraint("centerY",cb,"centerY",db)end;function _b:centerIn(cb)return
+self:centerHorizontal(cb):centerVertical(cb)end
+function _b:rightOf(cb,db)
+db=db or 0;return self:setConstraint("left",cb,"right",db)end;function _b:leftOf(cb,db)db=db or 0
+return self:setConstraint("right",cb,"left",-db)end;function _b:below(cb,db)db=db or 0;return
+self:setConstraint("top",cb,"bottom",db)end
+function _b:above(cb,db)
+db=db or 0;return self:setConstraint("bottom",cb,"top",-db)end;function _b:stretchWidth(cb,db)db=db or 0
+return self:setConstraint("left",cb,"left",db):setConstraint("right",cb,"right",
+-db)end;function _b:stretchHeight(cb,db)db=
+db or 0
+return self:setConstraint("top",cb,"top",db):setConstraint("bottom",cb,"bottom",
+-db)end;function _b:stretch(cb,db)return
+self:stretchWidth(cb,db):stretchHeight(cb,db)end
+function _b:widthPercent(cb,db)return self:setConstraint("width",cb,"width",
+db/100)end;function _b:heightPercent(cb,db)
+return self:setConstraint("height",cb,"height",db/100)end;function _b:matchWidth(cb,db)db=db or 0;return
+self:setConstraint("width",cb,"width",db)end;function _b:matchHeight(cb,db)db=
+db or 0
+return self:setConstraint("height",cb,"height",db)end;function _b:fillParent(cb)return
+self:stretch("parent",cb)end;function _b:fillWidth(cb)return
+self:stretchWidth("parent",cb)end;function _b:fillHeight(cb)return
+self:stretchHeight("parent",cb)end;function _b:center()return
+self:centerIn("parent")end;function _b:toRight(cb)return
+self:alignRight("parent",- (cb or 0))end;function _b:toLeft(cb)return self:alignLeft("parent",
+cb or 0)end;function _b:toTop(cb)return self:alignTop("parent",
+cb or 0)end
+function _b:toBottom(cb)return self:alignBottom("parent",
+- (cb or 0))end
 function _b:multiBlit(cb,db,_c,ac,bc,cc,dc)local _d,ad=self:calculatePosition()cb=cb+_d-1
 db=db+ad-1;self.parent:multiBlit(cb,db,_c,ac,bc,cc,dc)end
 function _b:textFg(cb,db,_c,ac)local bc,cc=self:calculatePosition()cb=cb+bc-1
@@ -2479,14 +2575,16 @@ if(self.parent)then
 cb=cb-self.parent.get("offsetX")db=db-self.parent.get("offsetY")end end;return
 cb>=_c and cb<=
 _c+bc-1 and db>=ac and db<=ac+cc-1 end
-function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self.set("clicked",true)
+function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self:setState("clicked")
 self:fireEvent("mouse_click",cb,self:getRelativePosition(db,_c))return true end;return
 false end
-function _b:mouse_up(cb,db,_c)if self:isInBounds(db,_c)then self.set("clicked",false)
-self:fireEvent("mouse_up",cb,self:getRelativePosition(db,_c))return true end;return
-false end
+function _b:mouse_up(cb,db,_c)
+if self:isInBounds(db,_c)then self:unsetState("clicked")
+self:unsetState("dragging")
+self:fireEvent("mouse_up",cb,self:getRelativePosition(db,_c))return true end;return false end
 function _b:mouse_release(cb,db,_c)
-self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))self.set("clicked",false)end
+self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))self:unsetState("clicked")
+self:unsetState("dragging")end
 function _b:mouse_move(cb,db,_c)if(db==nil)or(_c==nil)then return false end
 local ac=self.get("hover")
 if(self:isInBounds(db,_c))then if(not ac)then self.set("hover",true)
@@ -2495,15 +2593,24 @@ self.set("hover",false)
 self:fireEvent("mouse_leave",self:getRelativePosition(db,_c))end end;return false end
 function _b:mouse_scroll(cb,db,_c)if(self:isInBounds(db,_c))then
 self:fireEvent("mouse_scroll",cb,self:getRelativePosition(db,_c))return true end;return false end
-function _b:mouse_drag(cb,db,_c)if(self.get("clicked"))then
-self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
+function _b:mouse_drag(cb,db,_c)if(self:hasState("clicked"))then
+self:fireEvent("mouse_drag",cb,self:getRelativePosition(db,_c))return true end;return false end
+function _b:setFocused(cb,db)local _c=self:hasState("focused")
+if cb==_c then return self end
+if cb then self:setState("focused")self:focus()
+if
+not db and self.parent then self.parent:setFocusedChild(self)end else self:unsetState("focused")self:blur()
+if
+not db and self.parent then self.parent:setFocusedChild(nil)end end;return self end
+function _b:isFocused()return self:hasState("focused")end;function _b:focus()self:fireEvent("focus")end;function _b:blur()
 self:fireEvent("blur")
 pcall(function()
-self:setCursor(1,1,false,self.get and self.get("foreground"))end)end
-function _b:addBorder(cb,db)
-local _c=nil;local ac=nil
-if type(cb)=="table"and
-(cb.color or cb.top~=nil or cb.left~=nil)then _c=cb.color;ac=cb else _c=cb;ac=db end
+self:setCursor(1,1,false,self.get and self.getResolved("foreground"))end)end;function _b:isFocused()return
+self:hasState("focused")end
+function _b:addBorder(cb,db)local _c=nil;local ac=nil
+if
+type(cb)==
+"table"and(cb.color or cb.top~=nil or cb.left~=nil)then _c=cb.color;ac=cb else _c=cb;ac=db end
 if ac then
 if ac.top~=nil then self.set("borderTop",ac.top)end
 if ac.bottom~=nil then self.set("borderBottom",ac.bottom)end
@@ -2514,13 +2621,14 @@ self.set("borderRight",true)end;if _c then self.set("borderColor",_c)end;return 
 function _b:removeBorder()self.set("borderTop",false)
 self.set("borderBottom",false)self.set("borderLeft",false)
 self.set("borderRight",false)return self end;function _b:key(cb,db)
-if(self.get("focused"))then self:fireEvent("key",cb,db)end end;function _b:key_up(cb)if(self.get("focused"))then
-self:fireEvent("key_up",cb)end end
-function _b:char(cb)if
-(self.get("focused"))then self:fireEvent("char",cb)end end
-function _b:calculatePosition()local cb,db=self.get("x"),self.get("y")
-if not
-self.get("ignoreOffset")then if self.parent~=nil then
+if(self:hasState("focused"))then self:fireEvent("key",cb,db)end end
+function _b:key_up(cb)if
+(self:hasState("focused"))then self:fireEvent("key_up",cb)end end;function _b:char(cb)
+if(self:hasState("focused"))then self:fireEvent("char",cb)end end
+function _b:calculatePosition()
+self:resolveAllConstraints()local cb,db=self.get("x"),self.get("y")
+if
+not self.get("ignoreOffset")then if self.parent~=nil then
 local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end
 function _b:getAbsolutePosition(cb,db)local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then
 _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end;local bc=self.parent
@@ -2542,24 +2650,21 @@ function _b:prioritize()
 if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
 function _b:render()
-if(not self.get("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
-local _c=da[self.get("foreground")]local ac=da[self.get("background")]
-self:multiBlit(1,1,cb,db," ",_c,ac)
+if(not self.getResolved("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
+local _c=da[self.getResolved("foreground")]local ac=da[self.getResolved("background")]
+local bc,cc,dc,_d=self.getResolved("borderTop"),self.getResolved("borderBottom"),self.getResolved("borderLeft"),self.getResolved("borderRight")self:multiBlit(1,1,cb,db," ",_c,ac)
 if
-(self.get("borderTop")or self.get("borderBottom")or
-self.get("borderLeft")or self.get("borderRight"))then
-local bc=self.get("borderColor")or self.get("foreground")local cc=da[bc]or _c;if self.get("borderTop")then
-self:textFg(1,1,("\131"):rep(cb),bc)end;if self.get("borderBottom")then
-self:multiBlit(1,db,cb,1,"\143",ac,cc)end;if self.get("borderLeft")then
-self:multiBlit(1,1,1,db,"\149",cc,ac)end;if self.get("borderRight")then
-self:multiBlit(cb,1,1,db,"\149",ac,cc)end
-if self.get("borderTop")and
-self.get("borderLeft")then self:blit(1,1,"\151",cc,ac)end;if self.get("borderTop")and self.get("borderRight")then
-self:blit(cb,1,"\148",ac,cc)end
-if self.get("borderBottom")and
-self.get("borderLeft")then self:blit(1,db,"\138",ac,cc)end;if self.get("borderBottom")and self.get("borderRight")then
-self:blit(cb,db,"\133",ac,cc)end end end;function _b:postRender()end;function _b:destroy()self.set("visible",false)
-ca.destroy(self)end;return _b end
+(bc or cc or dc or _d)then
+local ad=self.getResolved("borderColor")or self.getResolved("foreground")local bd=da[ad]or _c;if bc then
+self:textFg(1,1,("\131"):rep(cb),ad)end;if cc then
+self:multiBlit(1,db,cb,1,"\143",ac,bd)end;if dc then
+self:multiBlit(1,1,1,db,"\149",bd,ac)end;if _d then
+self:multiBlit(cb,1,1,db,"\149",ac,bd)end
+if bc and dc then self:blit(1,1,"\151",bd,ac)end;if bc and _d then self:blit(cb,1,"\148",ac,bd)end;if
+cc and dc then self:blit(1,db,"\138",ac,bd)end;if cc and _d then
+self:blit(cb,db,"\133",ac,bd)end end end;function _b:postRender()end
+function _b:destroy()
+self:_removeAllConstraintObservers()self.set("visible",false)ca.destroy(self)end;return _b end
 project["elements/ProgressBar.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"progress",{default=0,type="number",canTriggerRender=true})
@@ -2597,9 +2702,10 @@ function d:init(_a,aa)
 c.init(self,_a,aa)self.set("type","CheckBox")end
 function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
 self.set("checked",not self.get("checked"))return true end;return false end
-function d:render()c.render(self)local _a=self.get("checked")
-local aa=self.get("text")local ba=self.get("checkedText")
-local ca=string.sub(_a and ba or aa,1,self.get("width"))self:textFg(1,1,ca,self.get("foreground"))end;return d end
+function d:render()c.render(self)local _a=self.getResolved("checked")
+local aa=self.getResolved("text")local ba=self.getResolved("checkedText")
+local ca=string.sub(_a and ba or aa,1,self.get("width"))
+self:textFg(1,1,ca,self.getResolved("foreground"))end;return d end
 project["elements/BaseElement.lua"] = function(...) local _a=require("propertySystem")
 local aa=require("libraries/utils").uuid;local ba=require("errorManager")local ca=setmetatable({},_a)
 ca.__index=ca
@@ -2611,6 +2717,7 @@ ca.defineProperty(ca,"id",{default="",type="string",readonly=true})
 ca.defineProperty(ca,"name",{default="",type="string"})
 ca.defineProperty(ca,"eventCallbacks",{default={},type="table"})
 ca.defineProperty(ca,"enabled",{default=true,type="boolean"})
+ca.defineProperty(ca,"states",{default={},type="table",canTriggerRender=true})
 function ca.defineEvent(da,_b,ab)
 if not rawget(da,'_eventConfigs')then da._eventConfigs={}end;da._eventConfigs[_b]={requires=ab and ab or _b}end
 function ca.registerEventCallback(da,_b,...)
@@ -2621,8 +2728,8 @@ db:listenEvent(ac,true)end end;db:registerCallback(cb,...)return db end end;func
 da.class=ca;return da end
 function ca:init(da,_b)
 if self._initialized then return self end;self._initialized=true;self._props=da;self._values.id=aa()
-self.basalt=_b;self._registeredEvents={}local ab=getmetatable(self).__index
-local bb={}ab=self.class
+self.basalt=_b;self._registeredEvents={}self._registeredStates={}
+local ab=getmetatable(self).__index;local bb={}ab=self.class
 while ab do
 if type(ab)=="table"and ab._eventConfigs then for cb,db in
 pairs(ab._eventConfigs)do if not bb[cb]then bb[cb]=db end end end
@@ -2647,10 +2754,30 @@ function ca:registerCallback(da,_b)if not self._registeredEvents[da]then
 self:listenEvent(da,true)end
 if
 not self._values.eventCallbacks[da]then self._values.eventCallbacks[da]={}end
-table.insert(self._values.eventCallbacks[da],_b)return self end
+table.insert(self._values.eventCallbacks[da],_b)return self end;function ca:registerState(da,_b,ab)
+self._registeredStates[da]={condition=_b,priority=ab or 0}return self end
+function ca:setState(da,_b)
+local ab=self.get("states")if not _b and self._registeredStates[da]then
+_b=self._registeredStates[da].priority end;ab[da]=_b or 0
+self.set("states",ab)return self end
+function ca:unsetState(da)local _b=self.get("states")if _b[da]~=nil then _b[da]=nil
+self.set("states",_b)end;return self end
+function ca:hasState(da)local _b=self.get("states")return _b[da]~=nil end
+function ca:getCurrentState()local da=self.get("states")local _b=-math.huge;local ab=nil;for bb,cb in
+pairs(da)do if cb>_b then _b=cb;ab=bb end end;return ab end
+function ca:getActiveStates()local da=self.get("states")local _b={}for ab,bb in pairs(da)do
+table.insert(_b,{name=ab,priority=bb})end
+table.sort(_b,function(ab,bb)
+return ab.priority>bb.priority end)return _b end
+function ca:updateConditionalStates()
+for da,_b in pairs(self._registeredStates)do
+if _b.condition then if _b.condition(self)then
+self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end;function ca:unregisterState(da)self._stateRegistry[da]=nil
+self:unsetState(da)return self end
 function ca:fireEvent(da,...)
-if self.get("eventCallbacks")[da]then for _b,ab in
-ipairs(self.get("eventCallbacks")[da])do local bb=ab(self,...)return bb end end;return self end
+if
+self.get("eventCallbacks")[da]then for _b,ab in ipairs(self.get("eventCallbacks")[da])do
+local bb=ab(self,...)return bb end end;return self end
 function ca:dispatchEvent(da,...)
 if self.get("enabled")==false then return false end;if self[da]then return self[da](self,...)end;return
 self:handleEvent(da,...)end;function ca:handleEvent(da,...)return false end;function ca:onChange(da,_b)
@@ -2661,63 +2788,89 @@ if(self.parent)then self.parent:removeChild(self)end;self._destroyed=true;self:r
 self:setFocused(false)end;function ca:updateRender()
 if
 (self.parent)then self.parent:updateRender()else self._renderUpdate=true end;return self end;return ca end
-project["elements/List.lua"] = function(...) local c=require("elements/VisualElement")
-local d=setmetatable({},c)d.__index=d
-d.defineProperty(d,"items",{default={},type="table",canTriggerRender=true})
-d.defineProperty(d,"selectable",{default=true,type="boolean"})
-d.defineProperty(d,"multiSelection",{default=false,type="boolean"})
-d.defineProperty(d,"offset",{default=0,type="number",canTriggerRender=true})
-d.defineProperty(d,"selectedBackground",{default=colors.blue,type="color"})
-d.defineProperty(d,"selectedForeground",{default=colors.white,type="color"})d.defineEvent(d,"mouse_click")
-d.defineEvent(d,"mouse_scroll")
-function d.new()local _a=setmetatable({},d):__init()_a.class=d
-_a.set("width",16)_a.set("height",8)_a.set("z",5)
-_a.set("background",colors.gray)return _a end
-function d:init(_a,aa)c.init(self,_a,aa)self.set("type","List")return self end;function d:addItem(_a)local aa=self.get("items")table.insert(aa,_a)
+project["elements/List.lua"] = function(...) local d=require("elements/Collection")
+local _a=setmetatable({},d)_a.__index=_a
+_a.defineProperty(_a,"offset",{default=0,type="number",canTriggerRender=true})_a.defineEvent(_a,"mouse_click")
+_a.defineEvent(_a,"mouse_up")_a.defineEvent(_a,"mouse_scroll")
+local aa={text={type="string",default="Entry"},bg={type="number",default=
+nil},fg={type="number",default=nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=
+nil}}
+function _a.new()local ba=setmetatable({},_a):__init()
+ba.class=_a;ba.set("width",16)ba.set("height",8)ba.set("z",5)
+ba.set("background",colors.gray)return ba end;function _a:init(ba,ca)d.init(self,ba,ca)self._entrySchema=aa
+self.set("type","List")return self end
+function _a:mouse_click(ba,ca,da)
+if
+d.mouse_click(self,ba,ca,da)and self.get("selectable")then
+local _b,ab=self:getRelativePosition(ca,da)local bb=ab+self.get("offset")
+local cb=self.get("items")
+if bb<=#cb then local db=cb[bb]if not self.get("multiSelection")then
+for _c,ac in ipairs(cb)do if
+type(ac)=="table"then ac.selected=false end end end
+db.selected=not db.selected;if db.callback then db.callback(self)end
+self:fireEvent("select",bb,db)self:updateRender()end;return true end;return false end
+function _a:mouse_scroll(ba,ca,da)
+if d.mouse_scroll(self,ba,ca,da)then local _b=self.get("offset")
+local ab=math.max(0,#
+self.get("items")-self.get("height"))_b=math.min(ab,math.max(0,_b+ba))
+self.set("offset",_b)return true end;return false end
+function _a:onSelect(ba)self:registerCallback("select",ba)return self end
+function _a:scrollToBottom()
+local ba=math.max(0,#self.get("items")-self.get("height"))self.set("offset",ba)return self end
+function _a:scrollToTop()self.set("offset",0)return self end
+function _a:render()d.render(self)local ba=self.get("items")
+local ca=self.get("height")local da=self.get("offset")local _b=self.get("width")
+local ab=self.getResolved("background")local bb=self.getResolved("foreground")
+for i=1,ca do local cb=i+da;local db=ba[cb]
+if
+db then
+if db.separator then local _c=(db.text or"-"):sub(1,1)
+local ac=string.rep(_c,_b)local bc=db.fg or bb;local cc=db.bg or ab
+self:textBg(1,i,string.rep(" ",_b),cc)self:textFg(1,i,ac:sub(1,_b),bc)else local _c=db.text
+local ac=db.selected
+local bc=ac and
+(db.selectedBg or self.getResolved("selectedBackground"))or(db.bg or ab)
+local cc=ac and
+(db.selectedFg or self.getResolved("selectedForeground"))or(db.fg or bb)self:textBg(1,i,string.rep(" ",_b),bc)
+self:textFg(1,i,_c:sub(1,_b),cc)end end end end;return _a end
+project["elements/Collection.lua"] = function(...) local d=require("elements/VisualElement")
+local _a=require("libraries/collectionentry")local aa=setmetatable({},d)aa.__index=aa
+aa.defineProperty(aa,"items",{default={},type="table"})
+aa.defineProperty(aa,"selectable",{default=true,type="boolean"})
+aa.defineProperty(aa,"multiSelection",{default=false,type="boolean"})
+aa.defineProperty(aa,"selectedBackground",{default=colors.blue,type="color"})
+aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color"})function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;return ba end
+function aa:init(ba,ca)
+d.init(self,ba,ca)self._entrySchema={}self.set("type","Collection")return self end
+function aa:addItem(ba)if type(ba)=="string"then ba={text=ba}end;if ba.selected==nil then
+ba.selected=false end
+local ca=_a.new(self,ba,self._entrySchema)table.insert(self.get("items"),ca)
+self:updateRender()return ca end
+function aa:removeItem(ba)local ca=self.get("items")if type(ba)=="number"then
+table.remove(ca,ba)else
+for da,_b in pairs(ca)do if _b==ba then table.remove(ca,da)break end end end
 self:updateRender()return self end
-function d:removeItem(_a)
-local aa=self.get("items")table.remove(aa,_a)self:updateRender()return self end
-function d:clear()self.set("items",{})self:updateRender()return self end
-function d:getSelectedItems()local _a={}for aa,ba in ipairs(self.get("items"))do
-if
-type(ba)=="table"and ba.selected then local ca=ba;ca.index=aa;table.insert(_a,ca)end end;return _a end
-function d:getSelectedItem()local _a=self.get("items")for aa,ba in ipairs(_a)do if
-type(ba)=="table"and ba.selected then return ba end end;return
-nil end
-function d:mouse_click(_a,aa,ba)
-if
-self:isInBounds(aa,ba)and self.get("selectable")then local ca,da=self:getRelativePosition(aa,ba)
-local _b=da+self.get("offset")local ab=self.get("items")
-if _b<=#ab then local bb=ab[_b]if type(bb)=="string"then
-bb={text=bb}ab[_b]=bb end;if
-not self.get("multiSelection")then
-for cb,db in ipairs(ab)do if type(db)=="table"then db.selected=false end end end
-bb.selected=not bb.selected;if bb.callback then bb.callback(self)end
-self:fireEvent("mouse_click",_a,aa,ba)self:fireEvent("select",_b,bb)self:updateRender()end;return true end;return false end
-function d:mouse_scroll(_a,aa,ba)
-if self:isInBounds(aa,ba)then local ca=self.get("offset")
-local da=math.max(0,#
-self.get("items")-self.get("height"))ca=math.min(da,math.max(0,ca+_a))
-self.set("offset",ca)self:fireEvent("mouse_scroll",_a,aa,ba)return true end;return false end
-function d:onSelect(_a)self:registerCallback("select",_a)return self end
-function d:scrollToBottom()
-local _a=math.max(0,#self.get("items")-self.get("height"))self.set("offset",_a)return self end;function d:scrollToTop()self.set("offset",0)return self end
-function d:render()
-c.render(self)local _a=self.get("items")local aa=self.get("height")
-local ba=self.get("offset")local ca=self.get("width")
-for i=1,aa do local da=i+ba;local _b=_a[da]
-if _b then if
-type(_b)=="string"then _b={text=_b}_a[da]=_b end
-if _b.separator then
-local ab=(_b.text or"-"):sub(1,1)local bb=string.rep(ab,ca)
-local cb=_b.foreground or self.get("foreground")local db=_b.background or self.get("background")
-self:textBg(1,i,string.rep(" ",ca),db)self:textFg(1,i,bb:sub(1,ca),cb)else local ab=_b.text
-local bb=_b.selected
-local cb=
-bb and(_b.selectedBackground or self.get("selectedBackground"))or(_b.background or self.get("background"))
-local db=
-bb and(_b.selectedForeground or self.get("selectedForeground"))or(_b.foreground or self.get("foreground"))self:textBg(1,i,string.rep(" ",ca),cb)
-self:textFg(1,i,ab:sub(1,ca),db)end end end end;return d end
+function aa:clear()self.set("items",{})self:updateRender()return self end
+function aa:getSelectedItems()local ba={}for ca,da in ipairs(self.get("items"))do
+if type(da)=="table"and
+da.selected then local _b=da;_b.index=ca;table.insert(ba,_b)end end;return ba end
+function aa:getSelectedItem()local ba=self.get("items")
+for ca,da in ipairs(ba)do if type(da)=="table"and
+da.selected then return da end end;return nil end
+function aa:selectItem(ba)local ca=self.get("items")
+if type(ba)=="number"then
+if ca[ba]and
+type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
+if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
+function aa:unselectItem(ba)local ca=self.get("items")
+if type(ba)=="number"then
+if ca[ba]and
+type(ca[ba])=="table"then ca[ba].selected=false end else
+for da,_b in pairs(ca)do if _b==ba then
+if type(ca[da])=="table"then ca[da].selected=false end;break end end end;self:updateRender()return self end;function aa:clearItemSelection()local ba=self.get("items")
+for ca,da in ipairs(ba)do da.selected=false end;return self end;function aa:onSelect(ba)
+self:registerCallback("select",ba)return self end;return aa end
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
 function da.new(cb)
@@ -2806,7 +2959,7 @@ function bb.hooks.postRender(cb)
 local db=cb.get("canvas")if db and#db.commands.post>0 then for _c,ac in pairs(db.commands.post)do
 ac(cb)end end end;return{VisualElement=bb,API=da} end
 project["plugins/theme.lua"] = function(...) local ab=require("errorManager")
-local bb={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background="{self.clicked and colors.black or colors.cyan}",foreground="{self.clicked and colors.cyan or colors.black}"},names={basaltDebugLog={background=colors.red,foreground=colors.white},test={background="{self.clicked and colors.black or colors.green}",foreground="{self.clicked and colors.green or colors.black}"}}}}local cb={default=bb}local db="default"
+local bb={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background=colors.cyan,foreground=colors.black},names={basaltDebugLog={background=colors.red,foreground=colors.white}}}}local cb={default=bb}local db="default"
 local _c={hooks={postInit={pre=function(ad)if ad._postInitialized then return ad end
 ad:applyTheme()end}}}
 function _c.____getElementPath(ad,bd)if bd then table.insert(bd,1,ad._values.type)else
@@ -2929,55 +3082,6 @@ bd.hooks={destroy=function(cd)
 if _d[cd]then
 for dd,__a in pairs(_d[cd])do for a_a,b_a in ipairs(__a)do
 b_a.target:removeObserver(b_a.property,b_a.callback)end end;_d[cd]=nil;dc[cd]=nil end end}return{BaseElement=bd} end
-project["plugins/state.lua"] = function(...) local _a=require("propertySystem")
-local aa=require("errorManager")local ba={}function ba.setup(da)
-da.defineProperty(da,"states",{default={},type="table"})
-da.defineProperty(da,"stateObserver",{default={},type="table"})end
-function ba:initializeState(da,_b,ab,bb)
-local cb=self.get("states")if cb[da]then
-aa.error("State '"..da.."' already exists")return self end;local db=bb or"states/"..
-self.get("name")..".state"local _c={}
-if ab and
-fs.exists(db)then local ac=fs.open(db,"r")_c=
-textutils.unserialize(ac.readAll())or{}ac.close()end;cb[da]={value=ab and _c[da]or _b,persist=ab}
-return self end;local ca={}
-function ca:setState(da,_b)local ab=self:getBaseFrame()
-local bb=ab.get("states")local cb=ab.get("stateObserver")
-if not bb[da]then aa.error("State '"..
-da.."' not initialized")end
-if bb[da].persist then
-local db="states/"..ab.get("name")..".state"local _c={}
-if fs.exists(db)then local cc=fs.open(db,"r")_c=
-textutils.unserialize(cc.readAll())or{}cc.close()end;_c[da]=_b;local ac=fs.getDir(db)if not fs.exists(ac)then
-fs.makeDir(ac)end;local bc=fs.open(db,"w")
-bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b
-if cb[da]then for db,_c in ipairs(cb[da])do _c(da,_b)end end;for db,_c in pairs(bb)do
-if _c.computed then _c.value=_c.computeFn(self)if cb[db]then for ac,bc in ipairs(cb[db])do
-bc(db,_c.value)end end end end
-return self end
-function ca:getState(da)local _b=self:getBaseFrame()local ab=_b.get("states")if
-not ab[da]then
-aa.error("State '"..da.."' not initialized")end;if ab[da].computed then
-return ab[da].computeFn(self)end;return ab[da].value end
-function ca:onStateChange(da,_b)local ab=self:getBaseFrame()
-local bb=ab.get("states")[da]if not bb then
-aa.error("Cannot observe state '"..da.."': State not initialized")return self end
-local cb=ab.get("stateObserver")if not cb[da]then cb[da]={}end;table.insert(cb[da],_b)
-return self end
-function ca:removeStateChange(da,_b)local ab=self:getBaseFrame()
-local bb=ab.get("stateObserver")
-if bb[da]then for cb,db in ipairs(bb[da])do
-if db==_b then table.remove(bb[da],cb)break end end end;return self end
-function ca:computed(da,_b)local ab=self:getBaseFrame()local bb=ab.get("states")if bb[da]then
-aa.error(
-"Computed state '"..da.."' already exists")return self end
-bb[da]={computeFn=_b,value=_b(self),computed=true}return self end
-function ca:bind(da,_b)_b=_b or da;local ab=self:getBaseFrame()local bb=false
-if
-self.get(da)~=nil then self.set(da,ab:getState(_b))end
-self:onChange(da,function(cb,db)if bb then return end;bb=true;cb:setState(_b,db)bb=false end)
-self:onStateChange(_b,function(cb,db)if bb then return end;bb=true;if self.get(da)~=nil then
-self.set(da,db)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
 project["plugins/xml.lua"] = function(...) local ab=require("errorManager")local bb=require("log")
 local cb={new=function(ad)
 return
@@ -3347,64 +3451,151 @@ function db.getStats(_c)local ac=da[_c]if not ac then return nil end;return
 {averageTime=ac.totalTime/ac.calls,totalTime=ac.totalTime,calls=ac.calls,minTime=ac.minTime,maxTime=ac.maxTime,lastTime=ac.lastTime}end;function db.clear(_c)da[_c]=nil end;function db.clearAll()for _c,ac in pairs(da)do
 if ac.custom then da[_c]=nil end end end;return
 {BaseElement=bb,Container=cb,API=db} end
-project["elementManager.lua"] = function(...) local ab=table.pack(...)
-local bb=fs.getDir(ab[2]or"basalt")local cb=ab[1]if(bb==nil)then
+project["elementManager.lua"] = function(...) local _c=table.pack(...)
+local ac=fs.getDir(_c[2]or"basalt")local bc=_c[1]if(ac==nil)then
 error("Unable to find directory "..
-ab[2].." please report this bug to our discord.")end
-local db=require("log")local _c=package.path;local ac="path;/path/?.lua;/path/?/init.lua;"
-local bc=ac:gsub("path",bb)local cc={}cc._elements={}cc._plugins={}cc._APIs={}
-local dc=fs.combine(bb,"elements")local _d=fs.combine(bb,"plugins")
-db.info("Loading elements from "..dc)
-if fs.exists(dc)then
-for ad,bd in ipairs(fs.list(dc))do local cd=bd:match("(.+).lua")if cd then db.debug(
-"Found element: "..cd)
-cc._elements[cd]={class=nil,plugins={},loaded=false}end end end;db.info("Loading plugins from ".._d)
+_c[2].." please report this bug to our discord.")end
+local cc=require("log")local dc=package.path;local _d="path;/path/?.lua;/path/?/init.lua;"
+local ad=_d:gsub("path",ac)local bd={}bd._elements={}bd._plugins={}bd._APIs={}
+bd._config={autoLoadMissing=false,allowRemoteLoading=false,allowDiskLoading=true,remoteSources={},diskMounts={},useGlobalCache=false,globalCacheName="_BASALT_ELEMENT_CACHE"}local cd=fs.combine(ac,"elements")
+local dd=fs.combine(ac,"plugins")cc.info("Loading elements from "..cd)
 if
-fs.exists(_d)then
-for ad,bd in ipairs(fs.list(_d))do local cd=bd:match("(.+).lua")
-if cd then
-db.debug("Found plugin: "..cd)local dd=require(fs.combine("plugins",cd))
+fs.exists(cd)then
+for d_a,_aa in ipairs(fs.list(cd))do local aaa=_aa:match("(.+).lua")if aaa then cc.debug(
+"Found element: "..aaa)
+bd._elements[aaa]={class=nil,plugins={},loaded=false,source="local",path=nil}end end end;cc.info("Loading plugins from "..dd)
 if
-type(dd)=="table"then
-for __a,a_a in pairs(dd)do if(__a~="API")then
-if(cc._plugins[__a]==nil)then cc._plugins[__a]={}end;table.insert(cc._plugins[__a],a_a)else
-cc._APIs[cd]=a_a end end end end end end
+fs.exists(dd)then
+for d_a,_aa in ipairs(fs.list(dd))do local aaa=_aa:match("(.+).lua")
+if aaa then cc.debug("Found plugin: "..
+aaa)
+local baa=require(fs.combine("plugins",aaa))
+if type(baa)=="table"then
+for caa,daa in pairs(baa)do
+if(caa~="API")then if(bd._plugins[caa]==nil)then
+bd._plugins[caa]={}end
+table.insert(bd._plugins[caa],daa)else bd._APIs[aaa]=daa end end end end end end
 if(minified)then if(minified_elementDirectory==nil)then
-error("Unable to find minified_elementDirectory please report this bug to our discord.")end;for ad,bd in
+error("Unable to find minified_elementDirectory please report this bug to our discord.")end;for d_a,_aa in
 pairs(minified_elementDirectory)do
-cc._elements[ad:gsub(".lua","")]={class=nil,plugins={},loaded=false}end;if
-(minified_pluginDirectory==nil)then
+bd._elements[d_a:gsub(".lua","")]={class=nil,plugins={},loaded=false,source="local",path=nil}end;if(
+minified_pluginDirectory==nil)then
 error("Unable to find minified_pluginDirectory please report this bug to our discord.")end
-for ad,bd in
-pairs(minified_pluginDirectory)do local cd=ad:gsub(".lua","")
-local dd=require(fs.combine("plugins",cd))
-if type(dd)=="table"then
-for __a,a_a in pairs(dd)do
-if(__a~="API")then if(cc._plugins[__a]==nil)then
-cc._plugins[__a]={}end
-table.insert(cc._plugins[__a],a_a)else cc._APIs[cd]=a_a end end end end end
-function cc.loadElement(ad)
-if not cc._elements[ad].loaded then
-package.path=bc.."rom/?"local bd=require(fs.combine("elements",ad))
-package.path=_c;cc._elements[ad]={class=bd,plugins=bd.plugins,loaded=true}db.debug(
-"Loaded element: "..ad)
-if(cc._plugins[ad]~=nil)then
-for cd,dd in
-pairs(cc._plugins[ad])do if(dd.setup)then dd.setup(bd)end
-if(dd.hooks)then
-for __a,a_a in pairs(dd.hooks)do
-local b_a=bd[__a]if(type(b_a)~="function")then
+for d_a,_aa in
+pairs(minified_pluginDirectory)do local aaa=d_a:gsub(".lua","")
+local baa=require(fs.combine("plugins",aaa))
+if type(baa)=="table"then
+for caa,daa in pairs(baa)do
+if(caa~="API")then if(bd._plugins[caa]==nil)then
+bd._plugins[caa]={}end
+table.insert(bd._plugins[caa],daa)else bd._APIs[aaa]=daa end end end end end
+local function __a(d_a,_aa)if not bd._config.useGlobalCache then return end
+if not
+_G[bd._config.globalCacheName]then _G[bd._config.globalCacheName]={}end;_G[bd._config.globalCacheName][d_a]=_aa;cc.debug(
+"Cached element in _G: "..d_a)end
+local function a_a(d_a)if not bd._config.useGlobalCache then return nil end
+if
+
+_G[bd._config.globalCacheName]and _G[bd._config.globalCacheName][d_a]then
+cc.debug("Loaded element from _G cache: "..d_a)return _G[bd._config.globalCacheName][d_a]end;return nil end
+function bd.configure(d_a)for _aa,aaa in pairs(d_a)do
+if bd._config[_aa]~=nil then bd._config[_aa]=aaa end end end
+function bd.registerDiskMount(d_a)if not fs.exists(d_a)then
+error("Disk mount path does not exist: "..d_a)end
+table.insert(bd._config.diskMounts,d_a)cc.info("Registered disk mount: "..d_a)
+local _aa=fs.combine(d_a,"elements")
+if fs.exists(_aa)then
+for aaa,baa in ipairs(fs.list(_aa))do
+local caa=baa:match("(.+).lua")
+if caa then
+if not bd._elements[caa]then
+cc.debug("Found element on disk: "..caa)
+bd._elements[caa]={class=nil,plugins={},loaded=false,source="disk",path=fs.combine(_aa,baa)}end end end end end
+function bd.registerRemoteSource(d_a,_aa)if not bd._config.allowRemoteLoading then
+error("Remote loading is disabled. Enable with ElementManager.configure({allowRemoteLoading = true})")end
+bd._config.remoteSources[d_a]=_aa
+if not bd._elements[d_a]then
+bd._elements[d_a]={class=nil,plugins={},loaded=false,source="remote",path=_aa}else bd._elements[d_a].source="remote"
+bd._elements[d_a].path=_aa end
+cc.info("Registered remote source for "..d_a..": ".._aa)end
+local function b_a(d_a)if not http then
+error("HTTP API is not available. Enable it in your CC:Tweaked config.")end
+cc.info("Loading element from remote: "..d_a)local _aa=http.get(d_a)if not _aa then
+error("Failed to download from: "..d_a)end;local aaa=_aa.readAll()_aa.close()if
+not aaa or aaa==""then
+error("Empty response from: "..d_a)end;local baa,caa=load(aaa,d_a,"t",_ENV)if not baa then
+error(
+"Failed to load element from "..d_a..": "..tostring(caa))end;local daa=baa()return daa end
+local function c_a(d_a)if not fs.exists(d_a)then
+error("Element file does not exist: "..d_a)end
+cc.info("Loading element from disk: "..d_a)local _aa,aaa=loadfile(d_a)if not _aa then
+error("Failed to load element from "..
+d_a..": "..tostring(aaa))end;local baa=_aa()return baa end
+function bd.tryAutoLoad(d_a)
+if bd._config.allowDiskLoading then
+for _aa,aaa in ipairs(bd._config.diskMounts)do
+local baa=fs.combine(aaa,"elements")local caa=fs.combine(baa,d_a..".lua")
+if fs.exists(caa)then
+bd._elements[d_a]={class=
+nil,plugins={},loaded=false,source="disk",path=caa}bd.loadElement(d_a)return true end end end
+if
+bd._config.allowRemoteLoading and bd._config.remoteSources[d_a]then bd.loadElement(d_a)return true end;return false end
+function bd.loadElement(d_a)
+if not bd._elements[d_a]then
+if bd._config.autoLoadMissing then
+local _aa=bd.tryAutoLoad(d_a)if not _aa then
+error("Element '"..d_a.."' not found and could not be auto-loaded")end else
+error("Element '"..d_a.."' not found")end end
+if not bd._elements[d_a].loaded then local _aa=bd._elements[d_a].source or
+"local"local aaa;local baa=false;aaa=a_a(d_a)
+if aaa then
+baa=true
+cc.info("Loaded element from _G cache: "..d_a)elseif _aa=="local"then package.path=ad.."rom/?"
+aaa=require(fs.combine("elements",d_a))package.path=dc elseif _aa=="disk"then if not bd._config.allowDiskLoading then
+error(
+"Disk loading is disabled for element: "..d_a)end
+aaa=c_a(bd._elements[d_a].path)__a(d_a,aaa)elseif _aa=="remote"then if not bd._config.allowRemoteLoading then
+error(
+"Remote loading is disabled for element: "..d_a)end
+aaa=b_a(bd._elements[d_a].path)__a(d_a,aaa)else
+error("Unknown source type: ".._aa)end
+bd._elements[d_a]={class=aaa,plugins=aaa.plugins,loaded=true,source=baa and"cache"or _aa,path=bd._elements[d_a].path}if not baa then
+cc.debug("Loaded element: "..d_a.." from ".._aa)end
+if(bd._plugins[d_a]~=nil)then
+for caa,daa in
+pairs(bd._plugins[d_a])do if(daa.setup)then daa.setup(aaa)end
+if(daa.hooks)then
+for _ba,aba in pairs(daa.hooks)do
+local bba=aaa[_ba]if(type(bba)~="function")then
 error("Element "..
-ad.." does not have a method "..__a)end
-if(type(a_a)=="function")then
-bd[__a]=function(c_a,...)
-local d_a=b_a(c_a,...)local _aa=a_a(c_a,...)return _aa==nil and d_a or _aa end elseif(type(a_a)=="table")then
-bd[__a]=function(c_a,...)if a_a.pre then a_a.pre(c_a,...)end
-local d_a=b_a(c_a,...)if a_a.post then a_a.post(c_a,...)end;return d_a end end end end;for __a,a_a in pairs(dd)do
-if __a~="setup"and __a~="hooks"then bd[__a]=a_a end end end end end end
-function cc.getElement(ad)if not cc._elements[ad].loaded then
-cc.loadElement(ad)end;return cc._elements[ad].class end;function cc.getElementList()return cc._elements end;function cc.getAPI(ad)
-return cc._APIs[ad]end;return cc end
+d_a.." does not have a method ".._ba)end
+if(type(aba)=="function")then
+aaa[_ba]=function(cba,...)
+local dba=bba(cba,...)local _ca=aba(cba,...)return _ca==nil and dba or _ca end elseif(type(aba)=="table")then
+aaa[_ba]=function(cba,...)if aba.pre then aba.pre(cba,...)end
+local dba=bba(cba,...)if aba.post then aba.post(cba,...)end;return dba end end end end;for _ba,aba in pairs(daa)do
+if _ba~="setup"and _ba~="hooks"then aaa[_ba]=aba end end end end end end
+function bd.getElement(d_a)
+if not bd._elements[d_a]then
+if bd._config.autoLoadMissing then
+local _aa=bd.tryAutoLoad(d_a)if not _aa then
+error("Element '"..d_a.."' not found")end else
+error("Element '"..d_a.."' not found")end end
+if not bd._elements[d_a].loaded then bd.loadElement(d_a)end;return bd._elements[d_a].class end;function bd.getElementList()return bd._elements end;function bd.getAPI(d_a)
+return bd._APIs[d_a]end
+function bd.hasElement(d_a)return bd._elements[d_a]~=nil end
+function bd.isElementLoaded(d_a)return
+bd._elements[d_a]and bd._elements[d_a].loaded or false end
+function bd.clearGlobalCache()if _G[bd._config.globalCacheName]then _G[bd._config.globalCacheName]=
+nil
+cc.info("Cleared global element cache")end end
+function bd.getCacheStats()if not _G[bd._config.globalCacheName]then
+return{size=0,elements={}}end;local d_a={}for _aa,aaa in
+pairs(_G[bd._config.globalCacheName])do table.insert(d_a,_aa)end;return
+{size=#d_a,elements=d_a}end
+function bd.preloadElements(d_a)for _aa,aaa in ipairs(d_a)do
+if bd._elements[aaa]and
+not bd._elements[aaa].loaded then bd.loadElement(aaa)end end end;return bd end
 project["log.lua"] = function(...) local aa={}aa._logs={}aa._enabled=false;aa._logToFile=false
 aa._logFile="basalt.log"fs.delete(aa._logFile)
 aa.LEVEL={DEBUG=1,INFO=2,WARN=3,ERROR=4}
@@ -3441,7 +3632,11 @@ type(cc)~="function"then
 if _c.type=="table"then if cc==nil then
 if not _c.allowNil then ca(2,cc,_c.type)end end else ca(2,cc,_c.type)end end;if
 _c.setter then cc=_c.setter(bc,cc,...)end
-bc:_updateProperty(db,cc)return bc end end
+bc:_updateProperty(db,cc)return bc end
+cb["get"..ac.."State"]=function(bc,cc,...)ca(1,bc,"element")return
+bc.getPropertyState(db,cc,...)end
+cb["set"..ac.."State"]=function(bc,cc,dc,...)ca(1,bc,"element")
+bc.setPropertyState(db,cc,dc,...)return bc end end
 function _b.combineProperties(cb,db,...)local _c={...}for bc,cc in pairs(_c)do
 if not cb._properties[cc]then da.error("Property not found: "..
 cc)end end;local ac=
@@ -3481,7 +3676,7 @@ return ab[cb][dc]end})return bc end
 function _b.createFromBlueprint(cb,db,_c)local ac=cb.new({},_c)
 for bc,cc in pairs(db._values)do if type(cc)=="table"then
 ac._values[bc]=ba(cc)else ac._values[bc]=cc end end;return ac end
-function _b:__init()self._values={}self._observers={}
+function _b:__init()self._values={}self._observers={}self._states={}
 self.set=function(bc,cc,...)
 local dc=self._values[bc]local _d=self._properties[bc]
 if(_d~=nil)then if(_d.setter)then
@@ -3493,7 +3688,30 @@ self.get=function(bc,...)local cc=self._values[bc]local dc=self._properties[bc]
 if
 (dc==nil)then da.error("Property not found: "..bc)return end;if type(cc)=="function"and dc.type~="function"then
 cc=cc(self)end;return
-dc.getter and dc.getter(self,cc,...)or cc end;local cb={}local db=getmetatable(self).__index
+dc.getter and dc.getter(self,cc,...)or cc end
+self.setPropertyState=function(bc,cc,dc,...)local _d=self._properties[bc]
+if(_d~=nil)then if(_d.setter)then
+dc=_d.setter(self,dc,...)end;dc=bb(self,bc,dc,_d)if
+not self._states[cc]then self._states[cc]={}end
+self._states[cc][bc]=dc;local ad=self._values.currentState
+if ad==cc then if _d.canTriggerRender then
+self:updateRender()end
+if self._observers[bc]then for bd,cd in
+ipairs(self._observers[bc])do cd(self,dc,nil)end end end end end
+self.getPropertyState=function(bc,cc,...)local dc=self._states and self._states[cc]and
+self._states[cc][bc]local _d=
+dc~=nil and dc or self._values[bc]
+local ad=self._properties[bc]if(ad==nil)then da.error("Property not found: "..bc)
+return end;if
+type(_d)=="function"and ad.type~="function"then _d=_d(self)end;return
+ad.getter and ad.getter(self,_d,...)or _d end
+self.getResolved=function(bc,...)local cc=self:getCurrentState()local dc
+if
+cc and self._states and
+self._states[cc]and self._states[cc][bc]~=nil then dc=self._states[cc][bc]else dc=self._values[bc]end;local _d=self._properties[bc]if(_d==nil)then
+da.error("Property not found: "..bc)return end;if
+type(dc)=="function"and _d.type~="function"then dc=dc(self)end;return
+_d.getter and _d.getter(self,dc,...)or dc end;local cb={}local db=getmetatable(self).__index
 while db do if
 rawget(db,'_properties')then
 for bc,cc in pairs(db._properties)do if not cb[bc]then cb[bc]=cc end end end;db=getmetatable(db)and
@@ -3529,7 +3747,8 @@ function _b:instanceProperty(cb,db)
 _b.defineProperty(self,cb,db)self._values[cb]=db.default;return self end
 function _b:removeProperty(cb)self._values[cb]=nil;self._properties[cb]=nil;self._observers[cb]=
 nil
-local db=cb:sub(1,1):upper()..cb:sub(2)self["get"..db]=nil;self["set"..db]=nil;return self end
+local db=cb:sub(1,1):upper()..cb:sub(2)self["get"..db]=nil;self["set"..db]=nil;self["get"..db.."State"]=
+nil;self["set"..db.."State"]=nil;return self end
 function _b:getPropertyConfig(cb)return self._properties[cb]end;return _b end
 project["main.lua"] = function(...) local ad=require("elementManager")
 local bd=require("errorManager")local cd=require("propertySystem")
@@ -3623,7 +3842,55 @@ if __a._events[aca]then
 for bca,cca in
 ipairs(__a._events[aca])do local dca,_da=pcall(cca,...)if not dca then bd.header="Basalt Event Callback Error"
 bd.error(
-"Error in event callback for '"..aca.."': "..tostring(_da))end end end end;return __a end
+"Error in event callback for '"..aca.."': "..tostring(_da))end end end end
+function __a.requireElements(aca,bca)if type(aca)=="string"then aca={aca}end
+dd(1,aca,"table")if bca~=nil then dd(2,bca,"boolean")end;local cca={}local dca={}for _da,ada in
+ipairs(aca)do
+if not ad.hasElement(ada)then table.insert(cca,ada)elseif not
+ad.isElementLoaded(ada)then table.insert(dca,ada)end end
+if
+#dca>0 then
+for _da,ada in ipairs(dca)do local bda,cda=pcall(ad.loadElement,ada)
+if not bda then
+__a.LOGGER.warn(
+"Failed to load element "..ada..": "..tostring(cda))table.insert(cca,ada)end end end
+if#cca>0 then
+if bca then local _da={}for ada,bda in ipairs(cca)do local cda=ad.tryAutoLoad(bda)if not cda then
+table.insert(_da,bda)end end
+if
+#_da>0 then
+local ada="Missing required elements: "..table.concat(_da,", ")
+ada=ada.."\n\nThese elements could not be auto-loaded."
+ada=ada.."\nPlease install them or register remote sources."bd.error(ada)end else
+local _da="Missing required elements: "..table.concat(cca,", ")_da=_da.."\n\nSuggestions:"
+_da=_da.."\n  • Use basalt.requireElements({...}, true) to auto-load"
+_da=_da.."\n  • Register remote sources with elementManager.registerRemoteSource()"
+_da=_da.."\n  • Register disk mounts with elementManager.registerDiskMount()"bd.error(_da)end end
+__a.LOGGER.info("All required elements are available: "..table.concat(aca,", "))return true end
+function __a.loadManifest(aca)dd(1,aca,"string")
+if not fs.exists(aca)then bd.error(
+"Manifest file not found: "..aca)end;local bca;local cca,dca=pcall(dofile,aca)if not cca then
+bd.error("Failed to load manifest: "..tostring(dca))end;bca=dca;if type(bca)~="table"then
+bd.error("Manifest must return a table")end
+if bca.config then
+ad.configure(bca.config)__a.LOGGER.debug("Applied manifest config")end;if bca.diskMounts then
+for _da,ada in ipairs(bca.diskMounts)do ad.registerDiskMount(ada)end end;if bca.remoteSources then
+for _da,ada in
+pairs(bca.remoteSources)do ad.registerRemoteSource(_da,ada)end end;if bca.requiredElements then local _da=
+bca.autoLoadMissing~=false
+__a.requireElements(bca.requiredElements,_da)end
+if bca.optionalElements then for _da,ada in
+ipairs(bca.optionalElements)do pcall(ad.loadElement,ada)end end
+if bca.preloadElements then ad.preloadElements(bca.preloadElements)end
+__a.LOGGER.info("Manifest loaded successfully: ".. (bca.name or aca))return bca end
+function __a.install(aca,bca)dd(1,aca,"string")
+if bca~=nil then dd(2,bca,"string")end
+if ad.hasElement(aca)and ad.isElementLoaded(aca)then return true end
+if bca then
+if bca:match("^https?://")then ad.registerRemoteSource(aca,bca)else if not
+fs.exists(bca)then
+bd.error("Source file not found: "..bca)end end end;local cca=ad.tryAutoLoad(aca)if cca then return true else return false end end
+function __a.configure(aca)dd(1,aca,"table")ad.configure(aca)end;return __a end
 project["libraries/colorHex.lua"] = function(...) local b={}for i=0,15 do b[2 ^i]=("%x"):format(i)
 b[("%x"):format(i)]=2 ^i end;return b end
 project["libraries/utils.lua"] = function(...) local d,_a=math.floor,string.len;local aa={}
@@ -3649,6 +3916,42 @@ for db,_c in ipairs(cb)do
 local ac=aa.split(_c," ")local bc=""
 for cc,dc in ipairs(ac)do if#bc==0 then bc=dc elseif#bc+#dc+1 <=ca then bc=bc.." "..dc else
 table.insert(da,bc)bc=dc end end;if#bc>0 then table.insert(da,bc)end end;if ab<#_b then table.insert(da,"")end end end;return da end;return aa end
+project["libraries/collectionentry.lua"] = function(...) local b={}
+b.__index=function(c,d)local _a=rawget(b,d)if _a then return _a end;if c._data[d]~=nil then return
+c._data[d]end;local aa=c._parent[d]if aa then return aa end
+return nil end
+function b.new(c,d)local _a={_parent=c,_data=d}return setmetatable(_a,b)end
+function b:_findIndex()for c,d in ipairs(self._parent:getItems())do
+if d==self then return c end end;return nil end;function b:setText(c)self._data.text=c
+self._parent:updateRender()return self end;function b:getText()
+return self._data.text end
+function b:moveUp(c)local d=self._parent:getItems()
+local _a=self:_findIndex()if not _a then return self end;c=c or 1;local aa=math.max(1,_a-c)if _a~=aa then
+table.remove(d,_a)table.insert(d,aa,self)
+self._parent:updateRender()end;return self end
+function b:moveDown(c)local d=self._parent:getItems()
+local _a=self:_findIndex()if not _a then return self end;c=c or 1;local aa=math.min(#d,_a+c)if _a~=aa then
+table.remove(d,_a)table.insert(d,aa,self)
+self._parent:updateRender()end;return self end
+function b:moveToTop()local c=self._parent:getItems()
+local d=self:_findIndex()if not d or d==1 then return self end;table.remove(c,d)
+table.insert(c,1,self)self._parent:updateRender()return self end
+function b:moveToBottom()local c=self._parent:getItems()
+local d=self:_findIndex()if not d or d==#c then return self end;table.remove(c,d)
+table.insert(c,self)self._parent:updateRender()return self end;function b:getIndex()return self:_findIndex()end
+function b:swapWith(c)
+local d=self._parent:getItems()local _a=self:getIndex()local aa=c:getIndex()
+if _a and aa and _a~=aa then
+d[_a],d[aa]=d[aa],d[_a]self._parent:updateRender()end;return self end
+function b:remove()if self._parent and self._parent.removeItem then
+self._parent:removeItem(self)return true end;return false end
+function b:select()if self._parent and self._parent.selectItem then
+self._parent:selectItem(self)end;return self end
+function b:unselect()if self._parent and self._parent.unselectItem then
+self._parent:unselectItem(self)end end
+function b:isSelected()
+if self._parent and self._parent.getSelectedItem then return
+self._parent:getSelectedItem()==self end;return false end;return b end
 project["libraries/expect.lua"] = function(...) local c=require("errorManager")
 local function d(_a,aa,ba)local ca=type(aa)
 if ba=="element"then if ca=="table"and
