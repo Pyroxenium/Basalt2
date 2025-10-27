@@ -7,7 +7,6 @@ Extends: `List`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|isOpen|boolean|false|Controls the expanded/collapsed state|
 |dropdownHeight|number|5|Maximum visible items when expanded|
 |selectedText|string|""|Text shown when no selection made|
 |dropSymbol|string|"\31"|Indicator for dropdown state|

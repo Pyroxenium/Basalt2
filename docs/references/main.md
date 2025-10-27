@@ -27,6 +27,10 @@ _What this code does is it loads basalt into the project, and you can access it 
 |[basalt.onEvent](#basalt-onevent-eventname-callback)|-|Registers an event callback|
 |[basalt.removeEvent](#basalt-removeevent-eventname-callback)|boolean|Removes an event callback|
 |[basalt.triggerEvent](#basalt-triggerevent-eventname)|-|Triggers a custom event|
+|[basalt.requireElements](#basalt-requireelements-elements-autoload)|-|Requires elements for the application|
+|[basalt.loadManifest](#basalt-loadmanifest-path)|table|Loads an application manifest|
+|[basalt.install](#basalt-install-elementname-source)|-|Installs an element|
+|[basalt.configure](#basalt-configure-config)|-|Configures element loading behavior|
 
 ## basalt.create(type, properties?)
 
@@ -193,4 +197,59 @@ Triggers a custom event and calls all registered callbacks
 ### Usage
 ```lua
 basalt.triggerEvent("custom_event", "data1", "data2")
+```
+
+## basalt.requireElements(elements, autoLoad?)
+
+Requires specific elements and validates they are available
+
+### Parameters
+* `elements` `table|string` List of element names or single element name
+* `autoLoad` *(optional)* `boolean` Whether to automatically load missing elements (default: false)
+
+### Usage
+```lua
+basalt.requireElements({"Button", "Label", "Slider"})
+basalt.requireElements("Button", true)
+```
+
+## basalt.loadManifest(path)
+
+Loads a manifest file that describes element requirements and configuration
+
+### Parameters
+* `path` `string` The path to the manifest file
+
+### Returns
+* `table` `manifest` The loaded manifest data
+
+### Usage
+```lua
+basalt.loadManifest("myapp.manifest")
+```
+
+## basalt.install(elementName, source?)
+
+Installs an element interactively or from a specified source
+
+### Parameters
+* `elementName` `string` The name of the element to install
+* `source` *(optional)* `string` Optional source URL or path
+
+### Usage
+```lua
+basalt.install("Slider")
+basalt.install("Slider", "https://example.com/slider.lua")
+```
+
+## basalt.configure(config)
+
+Configures the ElementManager (shortcut to elementManager.configure)
+
+### Parameters
+* `config` `table` Configuration options
+
+### Usage
+```lua
+basalt.configure({allowRemoteLoading = true, useGlobalCache = true})
 ```

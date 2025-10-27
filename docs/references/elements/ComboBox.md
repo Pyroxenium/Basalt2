@@ -14,8 +14,6 @@ Extends: `DropDown`
 |viewOffset|number|0|Horizontal scroll position for viewing long text|
 |placeholder|string|"..."|Text shown when the input is empty|
 |placeholderColor|color|gray|Color used for placeholder text|
-|focusedBackground|color|blue|Background color when input is focused|
-|focusedForeground|color|white|Text color when input is focused|
 |autoComplete|boolean|false|Enables filtering dropdown items while typing|
 |manuallyOpened|boolean|false|Indicates if dropdown was opened by user action|
 
@@ -24,14 +22,8 @@ Extends: `DropDown`
 |Method|Returns|Description|
 |---|---|---|
 |[ComboBox.new](#combobox-new)|ComboBox|Creates a new ComboBox instance|
-|[ComboBox:setText](#combobox-settext-text)|ComboBox|Sets the text content|
-|[ComboBox:getText](#combobox-gettext)|string|Gets the text content|
-|[ComboBox:setEditable](#combobox-seteditable-editable)|ComboBox|Sets editable state|
 |[ComboBox:char](#combobox-char-char)|-|Handles character input|
 |[ComboBox:key](#combobox-key-key-held)|-|Handles key input|
-|[ComboBox:render](#combobox-render)|-|Renders the ComboBox|
-|[ComboBox:focus](#combobox-focus)|-|Called when gaining focus|
-|[ComboBox:blur](#combobox-blur)|-|Called when losing focus|
 
 ## ComboBox.new()
 
@@ -39,33 +31,6 @@ Creates a new ComboBox instance
 
 ### Returns
 * `ComboBox` `self` The newly created ComboBox instance
-
-## ComboBox:setText(text)
-
-Sets the text content of the ComboBox
-
-### Parameters
-* `text` `string` The text to set
-
-### Returns
-* `ComboBox` self
-
-## ComboBox:getText()
-
-Gets the current text content
-
-### Returns
-* `string` `text` The current text
-
-## ComboBox:setEditable(editable)
-
-Sets whether the ComboBox is editable
-
-### Parameters
-* `editable` `boolean` Whether the ComboBox should be editable
-
-### Returns
-* `ComboBox` self
 
 ## ComboBox:char(char)
 
@@ -81,15 +46,3 @@ Handles key input when editable
 ### Parameters
 * `key` `number` The key code that was pressed
 * `held` `boolean` Whether the key is being held
-
-## ComboBox:render()
-
-Renders the ComboBox
-
-## ComboBox:focus()
-
-Called when the ComboBox gains focus
-
-## ComboBox:blur()
-
-Called when the ComboBox loses focus

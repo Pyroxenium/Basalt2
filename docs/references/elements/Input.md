@@ -13,8 +13,6 @@ Extends: `VisualElement`
 |viewOffset|number|0|The horizontal scroll offset for viewing long text|
 |placeholder|string|...|Text to display when input is empty|
 |placeholderColor|color|gray|Color of the placeholder text|
-|focusedBackground|color|blue|Background color when input is focused|
-|focusedForeground|color|white|Foreground color when input is focused|
 |cursorColor|number|nil|Color of the cursor|
 |replaceChar|string|nil|Character to replace the input with (for password fields)|
 

@@ -12,6 +12,7 @@ Extends: `PropertySystem`
 |name|string|BaseElement|User-defined name for the element|
 |eventCallbacks|table|BaseElement|Collection of registered event handler functions|
 |enabled|boolean|BaseElement|Controls event processing for this element|
+|states|table|{}|Table of currently active states with their priorities|
 
 ## Functions
 
@@ -22,6 +23,14 @@ Extends: `PropertySystem`
 |[BaseElement:isType](#baseelement-istype-type)|boolean|Tests if element is of or inherits given type|
 |[BaseElement:listenEvent](#baseelement-listenevent-eventname-enable)|table|Enables/disables event handling for this element|
 |[BaseElement:registerCallback](#baseelement-registercallback-event-callback)|table|Registers a function to handle specific events|
+|[BaseElement:registerState](#baseelement-registerstate-statename-condition-priority)|BaseElement|Registers a state|
+|[BaseElement:setState](#baseelement-setstate-statename-priority)|BaseElement|Activates a state|
+|[BaseElement:unsetState](#baseelement-unsetstate-statename)|BaseElement|Deactivates a state|
+|[BaseElement:hasState](#baseelement-hasstate-statename)|boolean|Checks if state is active|
+|[BaseElement:getCurrentState](#baseelement-getcurrentstate)|string|nil|Gets current primary state|
+|[BaseElement:getActiveStates](#baseelement-getactivestates)|table|Gets all active states|
+|[BaseElement:updateConditionalStates](#baseelement-updateconditionalstates)|BaseElement|Updates conditional states|
+|[BaseElement:unregisterState](#baseelement-unregisterstate-statename)|BaseElement|Removes state definition|
 |[BaseElement:fireEvent](#baseelement-fireevent-event-any)|table|Triggers event callbacks with provided arguments|
 |[BaseElement:onChange](#baseelement-onchange-property-callback)|table|Watches property changes with callback notification|
 |[BaseElement:getBaseFrame](#baseelement-getbaseframe)|BaseFrame|Retrieves the root frame of this element's tree|
@@ -77,6 +86,80 @@ Adds an event handler function with automatic event registration
 
 ### Returns
 * `table` `self` The BaseElement instance
+
+## BaseElement:registerState(stateName, condition?, priority?)
+
+Registers a new state with optional auto-condition
+
+### Parameters
+* `stateName` `string` The name of the state
+* `condition` *(optional)* `function` Optional: Function that returns true if state is active: function(element) return boolean end
+* `priority` *(optional)* `number` Priority (higher = more important, default: 0)
+
+### Returns
+* `BaseElement` `self` The BaseElement instance
+
+## BaseElement:setState(stateName, priority?)
+
+Manually activates a state
+
+### Parameters
+* `stateName` `string` The state to activate
+* `priority` *(optional)* `number` Optional priority override
+
+### Returns
+* `BaseElement` self
+
+## BaseElement:unsetState(stateName)
+
+Manually deactivates a state
+
+### Parameters
+* `stateName` `string` The state to deactivate
+
+### Returns
+* `BaseElement` self
+
+## BaseElement:hasState(stateName)
+
+Checks if a state is currently active
+
+### Parameters
+* `stateName` `string` The state to check
+
+### Returns
+* `boolean` isActive
+
+## BaseElement:getCurrentState()
+
+Gets the highest priority active state
+
+### Returns
+* `string|nil` `currentState` The state with highest priority
+
+## BaseElement:getActiveStates()
+
+Gets all currently active states sorted by priority
+
+### Returns
+* `table` `states` Array of {name, priority} sorted by priority
+
+## BaseElement:updateConditionalStates()
+
+Updates all states that have auto-conditions
+
+### Returns
+* `BaseElement` self
+
+## BaseElement:unregisterState(stateName)
+
+Removes a state from the registry
+
+### Parameters
+* `stateName` `string` The state to remove
+
+### Returns
+* `BaseElement` self
 
 ## BaseElement:fireEvent(event, any)
 
