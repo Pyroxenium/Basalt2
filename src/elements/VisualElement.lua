@@ -889,10 +889,9 @@ function VisualElement:isFocused()
     return self:hasState("focused")
 end
 
---- Adds or updates a drawable character border around the element using the canvas plugin.
---- The border will automatically adapt to size/background changes because the command
---- reads current properties each render.
--- @param colorOrOptions any Border color or options table
+--- Adds or updates a drawable character border around the element using the canvas plugin. The border will automatically adapt to size/background changes because the command reads current properties each render.
+--- @param colorOrOptions any Border color or options table
+--- @param sideOptions? table Side options table (if color is provided as first argument)
 --- @return VisualElement self
 function VisualElement:addBorder(colorOrOptions, sideOptions)
     local col = nil
@@ -1002,10 +1001,10 @@ end
 
 --- Returns the relative position of the element or the given coordinates.
 --- @shortDescription Returns the relative position of the element
----@param x? number x position
----@param y? number y position
----@return number x The relative x position
----@return number y The relative y position
+--- @param x? number x position
+--- @param y? number y position
+--- @return number x The relative x position
+--- @return number y The relative y position
 function VisualElement:getRelativePosition(x, y)
     if (x == nil) or (y == nil) then
         x, y = self.get("x"), self.get("y")
