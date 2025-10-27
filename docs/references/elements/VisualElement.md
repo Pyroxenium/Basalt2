@@ -68,9 +68,7 @@ Extends: `BaseElement`
 |[VisualElement:setFocused](#visualelement-setfocused-focused-internal)|VisualElement|Sets focus state|
 |[VisualElement:isFocused](#visualelement-isfocused)|boolean|Checks if element is focused|
 |[VisualElement:isFocused](#visualelement-isfocused)|boolean|Checks if element is focused|
-|[VisualElement:addBorder](#visualelement-addborder-colororoptions)|VisualElement|Adds or updates a drawable character border around the element using the canvas plugin.
-The border will automatically adapt to size/background changes because the command
-reads current properties each render.|
+|[VisualElement:addBorder](#visualelement-addborder-colororoptions-sideoptions)|VisualElement|Adds or updates a drawable character border around the element using the canvas plugin. The border will automatically adapt to size/background changes because the command reads current properties each render.|
 |[VisualElement:removeBorder](#visualelement-removeborder)|VisualElement|Removes the previously added border (if any)|
 |[VisualElement:calculatePosition](#visualelement-calculateposition)|number, number|Calculates the position of the element|
 |[VisualElement:getAbsolutePosition](#visualelement-getabsoluteposition-x-y)|number, number|Returns the absolute position of the element|
@@ -424,14 +422,13 @@ Gets whether this element is focused
 ### Returns
 * `boolean` isFocused
 
-## VisualElement:addBorder(colorOrOptions)
+## VisualElement:addBorder(colorOrOptions, sideOptions?)
 
-Adds or updates a drawable character border around the element using the canvas plugin.
-The border will automatically adapt to size/background changes because the command
-reads current properties each render.
+Adds or updates a drawable character border around the element using the canvas plugin. The border will automatically adapt to size/background changes because the command reads current properties each render.
 
 ### Parameters
 * `colorOrOptions` `any` Border color or options table
+* `sideOptions` *(optional)* `table` Side options table (if color is provided as first argument)
 
 ### Returns
 * `VisualElement` self
