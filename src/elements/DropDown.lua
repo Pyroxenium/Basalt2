@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
+local ScrollBar = require("elements/ScrollBar")
 local tHex = require("libraries/colorHex")
 
 ---@configDescription A DropDown menu that shows a list of selectable items
@@ -54,8 +55,6 @@ local tHex = require("libraries/colorHex")
 local DropDown = setmetatable({}, List)
 DropDown.__index = DropDown
 
----@property isOpen boolean false Controls the expanded/collapsed state
-DropDown.defineProperty(DropDown, "isOpen", {default = false, type = "boolean", canTriggerRender = true})
 ---@property dropdownHeight number 5 Maximum visible items when expanded
 DropDown.defineProperty(DropDown, "dropdownHeight", {default = 5, type = "number"})
 ---@property selectedText string "" Text shown when no selection made
@@ -84,6 +83,7 @@ end
 function DropDown:init(props, basalt)
     List.init(self, props, basalt)
     self.set("type", "DropDown")
+    self:registerState("opened", nil, 200)
     return self
 end
 
@@ -97,16 +97,17 @@ function DropDown:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
     local relX, relY = self:getRelativePosition(x, y)
-
+    local isOpen = self:hasState("opened")
     if relY == 1 then
-        self.set("isOpen", not self.get("isOpen"))
-        if not self.get("isOpen") then
+        if isOpen then
             self.set("height", 1)
+            self:unsetState("opened")
         else
             self.set("height", 1 + math.min(self.get("dropdownHeight"), #self.get("items")))
+            self:setState("opened")
         end
         return true
-    elseif self.get("isOpen") and relY > 1 and self.get("selectable") then
+    elseif isOpen and relY > 1 and self.get("selectable") then
         local itemIndex = (relY - 1) + self.get("offset")
         local items = self.get("items")
 
@@ -132,7 +133,8 @@ function DropDown:mouse_click(button, x, y)
             end
 
             self:fireEvent("select", itemIndex, item)
-            self.set("isOpen", false)
+            self:unsetState("opened")
+            self:unsetState("clicked")
             self.set("height", 1)
             self:updateRender()
             return true
@@ -147,6 +149,7 @@ function DropDown:render()
     VisualElement.render(self)
 
     local text = self.get("selectedText")
+    local isOpen = self:hasState("opened")
     local selectedItems = self:getSelectedItems()
     if #selectedItems > 0 then
         local selectedItem = selectedItems[1]
@@ -154,11 +157,11 @@ function DropDown:render()
         text = text:sub(1, self.get("width") - 2)
     end
 
-    self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (self.get("isOpen") and "\31" or "\17"),
-        string.rep(tHex[self.get("foreground")], self.get("width")),
-        string.rep(tHex[self.get("background")], self.get("width")))
+    self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and "\31" or "\17"),
+        string.rep(tHex[self.getResolved("foreground")], self.get("width")),
+        string.rep(tHex[self.getResolved("background")], self.get("width")))
 
-    if self.get("isOpen") then
+    if isOpen then
         local items = self.get("items")
         local height = self.get("height") - 1
         local offset = self.get("offset")
@@ -177,8 +180,8 @@ function DropDown:render()
                 if item.separator then
                     local separatorChar = (item.text or "-"):sub(1,1)
                     local separatorText = string.rep(separatorChar, width)
-                    local fg = item.foreground or self.get("foreground")
-                    local bg = item.background or self.get("background")
+                    local fg = item.fg or self.getResolved("foreground")
+                    local bg = item.bg or self.getResolved("background")
 
                     self:textBg(1, i + 1, string.rep(" ", width), bg)
                     self:textFg(1, i + 1, separatorText, fg)
@@ -188,12 +191,12 @@ function DropDown:render()
                     text = text:sub(1, width)
 
                     local bg = isSelected and 
-                        (item.selectedBackground or self.get("selectedBackground")) or
-                        (item.background or self.get("background"))
+                        (item.selectedBg or self.getResolved("selectedBackground")) or
+                        (item.bg or self.getResolved("background"))
 
                     local fg = isSelected and 
-                        (item.selectedForeground or self.get("selectedForeground")) or
-                        (item.foreground or self.get("foreground"))
+                        (item.selectedFg or self.getResolved("selectedForeground")) or
+                        (item.fg or self.getResolved("foreground"))
 
                     self:textBg(1, i + 1, string.rep(" ", width), bg)
                     self:textFg(1, i + 1, text, fg)
@@ -201,6 +204,24 @@ function DropDown:render()
             end
         end
     end
+end
+
+--- Called when the DropDown gains focus
+--- @shortDescription Called when gaining focus
+--- @protected
+function DropDown:focus()
+    VisualElement.focus(self)
+    self:setState("opened")
+end
+
+--- Called when the DropDown loses focus
+--- @shortDescription Called when losing focus
+--- @protected
+function DropDown:blur()
+    VisualElement.blur(self)
+    self:unsetState("opened")
+    self.set("height", 1)
+    self:updateRender()
 end
 
 return DropDown

@@ -1,28 +1,28 @@
-local VisualElement = require("elements/VisualElement")
+local Collection = require("elements/Collection")
 ---@configDescription A scrollable list of selectable items
 
 --- This is the list class. It provides a scrollable list of selectable items with support for 
 --- custom item rendering, separators, and selection handling.
----@class List : VisualElement
-local List = setmetatable({}, VisualElement)
+---@class List : Collection
+local List = setmetatable({}, Collection)
 List.__index = List
 
----@property items table {} List of items to display. Items can be tables with properties including selected state
-List.defineProperty(List, "items", {default = {}, type = "table", canTriggerRender = true})
----@property selectable boolean true Whether items in the list can be selected
-List.defineProperty(List, "selectable", {default = true, type = "boolean"})
----@property multiSelection boolean false Whether multiple items can be selected at once
-List.defineProperty(List, "multiSelection", {default = false, type = "boolean"})
 ---@property offset number 0 Current scroll offset for viewing long lists
 List.defineProperty(List, "offset", {default = 0, type = "number", canTriggerRender = true})
----@property selectedBackground color blue Background color for selected items
-List.defineProperty(List, "selectedBackground", {default = colors.blue, type = "color"})
----@property selectedForeground color white Text color for selected items
-List.defineProperty(List, "selectedForeground", {default = colors.white, type = "color"})
 
 ---@event onSelect {index number, item table} Fired when an item is selected
 List.defineEvent(List, "mouse_click")
+List.defineEvent(List, "mouse_up")
 List.defineEvent(List, "mouse_scroll")
+
+local entrySchema = {
+    text = { type = "string", default = "Entry" },
+    bg = { type = "number", default = nil },
+    fg = { type = "number", default = nil },
+    selectedBg = { type = "number", default = nil },
+    selectedFg = { type = "number", default = nil },
+    callback = { type = "function", default = nil }
+}
 
 --- Creates a new List instance
 --- @shortDescription Creates a new List instance
@@ -44,73 +44,10 @@ end
 --- @return List self The initialized instance
 --- @protected
 function List:init(props, basalt)
-    VisualElement.init(self, props, basalt)
+    Collection.init(self, props, basalt)
+    self._entrySchema = entrySchema
     self.set("type", "List")
     return self
-end
-
---- Adds an item to the list
---- @shortDescription Adds an item to the list
---- @param text string|table The item to add (string or item table)
---- @return List self The List instance
---- @usage list:addItem("New Item")
---- @usage list:addItem({text="Item", callback=function() end})
-function List:addItem(text)
-    local items = self.get("items")
-    table.insert(items, text)
-    self:updateRender()
-    return self
-end
-
---- Removes an item from the list
---- @shortDescription Removes an item from the list
---- @param index number The index of the item to remove
---- @return List self The List instance
---- @usage list:removeItem(1)
-function List:removeItem(index)
-    local items = self.get("items")
-    table.remove(items, index)
-    self:updateRender()
-    return self
-end
-
---- Clears all items from the list
---- @shortDescription Clears all items from the list
---- @return List self The List instance
---- @usage list:clear()
-function List:clear()
-    self.set("items", {})
-    self:updateRender()
-    return self
-end
-
--- Gets the currently selected items
---- @shortDescription Gets the currently selected items
---- @return table selected List of selected items
---- @usage local selected = list:getSelectedItems()
-function List:getSelectedItems()
-    local selected = {}
-    for i, item in ipairs(self.get("items")) do
-        if type(item) == "table" and item.selected then
-            local selectedItem = item
-            selectedItem.index = i
-            table.insert(selected, selectedItem)
-        end
-    end
-    return selected
-end
-
---- Gets first selected item
---- @shortDescription Gets first selected item
---- @return table? selected The first item
-function List:getSelectedItem()
-    local items = self.get("items")
-    for i, item in ipairs(items) do
-        if type(item) == "table" and item.selected then
-            return item
-        end
-    end
-    return nil
 end
 
 --- @shortDescription Handles mouse click events
@@ -120,18 +57,13 @@ end
 --- @return boolean Whether the event was handled
 --- @protected
 function List:mouse_click(button, x, y)
-    if self:isInBounds(x, y) and self.get("selectable") then
+    if Collection.mouse_click(self, button, x, y) and self.get("selectable") then
         local _, index = self:getRelativePosition(x, y)
         local adjustedIndex = index + self.get("offset")
         local items = self.get("items")
 
         if adjustedIndex <= #items then
             local item = items[adjustedIndex]
-            if type(item) == "string" then
-                item = {text = item}
-                items[adjustedIndex] = item
-            end
-
             if not self.get("multiSelection") then
                 for _, otherItem in ipairs(items) do
                     if type(otherItem) == "table" then
@@ -145,7 +77,6 @@ function List:mouse_click(button, x, y)
             if item.callback then
                 item.callback(self)
             end
-            self:fireEvent("mouse_click", button, x, y)
             self:fireEvent("select", adjustedIndex, item)
             self:updateRender()
         end
@@ -161,13 +92,12 @@ end
 --- @return boolean Whether the event was handled
 --- @protected
 function List:mouse_scroll(direction, x, y)
-    if self:isInBounds(x, y) then
+    if Collection.mouse_scroll(self, direction, x, y) then
         local offset = self.get("offset")
         local maxOffset = math.max(0, #self.get("items") - self.get("height"))
 
         offset = math.min(maxOffset, math.max(0, offset + direction))
         self.set("offset", offset)
-        self:fireEvent("mouse_scroll", direction, x, y)
         return true
     end
     return false
@@ -203,43 +133,38 @@ end
 --- @shortDescription Renders the list
 --- @protected
 function List:render()
-    VisualElement.render(self)
+    Collection.render(self)
 
     local items = self.get("items")
     local height = self.get("height")
     local offset = self.get("offset")
     local width = self.get("width")
+    local listBg = self.getResolved("background")
+    local listFg = self.getResolved("foreground")
 
     for i = 1, height do
         local itemIndex = i + offset
         local item = items[itemIndex]
 
         if item then
-            if type(item) == "string" then
-                item = {text = item}
-                items[itemIndex] = item
-            end
-
             if item.separator then
                 local separatorChar = (item.text or "-"):sub(1,1)
                 local separatorText = string.rep(separatorChar, width)
-                local fg = item.foreground or self.get("foreground")
-                local bg = item.background or self.get("background")
+                local fg = item.fg or listFg
+                local bg = item.bg or listBg
 
                 self:textBg(1, i, string.rep(" ", width), bg)
                 self:textFg(1, i, separatorText:sub(1, width), fg)
             else
                 local text = item.text
                 local isSelected = item.selected
-
                 local bg = isSelected and
-                    (item.selectedBackground or self.get("selectedBackground")) or
-                    (item.background or self.get("background"))
+                    (item.selectedBg or self.getResolved("selectedBackground")) or
+                    (item.bg or listBg)
 
                 local fg = isSelected and
-                    (item.selectedForeground or self.get("selectedForeground")) or
-                    (item.foreground or self.get("foreground"))
-
+                    (item.selectedFg or self.getResolved("selectedForeground")) or
+                    (item.fg or listFg)
                 self:textBg(1, i, string.rep(" ", width), bg)
                 self:textFg(1, i, text:sub(1, width), fg)
             end

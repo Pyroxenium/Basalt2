@@ -535,7 +535,7 @@ local function refreshAutoComplete(self)
         hideAutoComplete(self, true)
         return
     end
-    if not self.get("focused") then
+    if not self:hasState("focused") then
         hideAutoComplete(self, true)
         return
     end
@@ -647,7 +647,7 @@ function TextBox:init(props, basalt)
     self.set("type", "TextBox")
 
     local function refreshIfEnabled()
-        if self.get("autoCompleteEnabled") and self.get("focused") then
+        if self.get("autoCompleteEnabled") and self:hasState("focused") then
             refreshAutoComplete(self)
         end
     end
@@ -666,18 +666,19 @@ function TextBox:init(props, basalt)
     self:observe("autoCompleteEnabled", function(_, value)
         if not value then
             hideAutoComplete(self, true)
-        elseif self.get("focused") then
+        elseif self:hasState("focused") then
             refreshAutoComplete(self)
         end
     end)
 
+    --[[
     self:observe("focused", function(_, focused)
         if focused then
             refreshIfEnabled()
         else
             hideAutoComplete(self, true)
         end
-    end)
+    end)]] -- needs a REWORK
 
     self:observe("foreground", restyle)
     self:observe("background", restyle)
@@ -859,7 +860,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function TextBox:char(char)
-    if not self.get("editable") or not self.get("focused") then return false end
+    if not self.get("editable") or not self:hasState("focused") then return false end
     -- Auto-pair logic only triggers for single characters
     local autoPair = self.get("autoPairEnabled")
     if autoPair and #char == 1 then
@@ -912,7 +913,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function TextBox:key(key)
-    if not self.get("editable") or not self.get("focused") then return false end
+    if not self.get("editable") or not self:hasState("focused") then return false end
     if handleAutoCompleteKey(self, key) then
         return true
     end
@@ -1041,7 +1042,7 @@ end
 --- @shortDescription Handles paste events
 --- @protected
 function TextBox:paste(text)
-    if not self.get("editable") or not self.get("focused") then return false end
+    if not self.get("editable") or not self:hasState("focused") then return false end
 
     for char in text:gmatch(".") do
         if char == "\n" then
@@ -1135,7 +1136,7 @@ function TextBox:render()
         self:blit(1, y, text, colors, string.rep(bg, #text))
     end
 
-    if self.get("focused") then
+    if self:hasState("focused") then
         local relativeX = self.get("cursorX") - scrollX
         local relativeY = self.get("cursorY") - scrollY
         if relativeX >= 1 and relativeX <= width and relativeY >= 1 and relativeY <= height then

@@ -282,7 +282,7 @@ function Program:dispatchEvent(event, ...)
     local result = VisualElement.dispatchEvent(self, event, ...)
     if program then
         program:resume(event, ...)
-        if(self.get("focused"))then
+        if(self:hasState("focused"))then
             local cursorBlink = program.window.getCursorBlink()
             local cursorX, cursorY = program.window.getCursorPos()
             self:setCursor(cursorX, cursorY, cursorBlink, program.window.getTextColor())

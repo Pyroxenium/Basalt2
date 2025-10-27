@@ -18,8 +18,8 @@ local defaultTheme = {
             },
         },
         Button = {
-            background = "{self.clicked and colors.black or colors.cyan}",
-            foreground = "{self.clicked and colors.cyan or colors.black}",
+            background = colors.cyan,
+            foreground = colors.black,
         },
 
         names = {
@@ -27,10 +27,6 @@ local defaultTheme = {
                 background = colors.red,
                 foreground = colors.white
             },
-            test = {
-                background = "{self.clicked and colors.black or colors.green}",
-                foreground = "{self.clicked and colors.green or colors.black}"
-            }
         },
     }
 }

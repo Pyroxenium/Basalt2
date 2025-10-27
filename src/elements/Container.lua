@@ -37,11 +37,11 @@ Container.defineProperty(Container, "focusedChild", {default = nil, type = "tabl
         if oldChild:isType("Container") then
             oldChild.set("focusedChild", nil, true)
         end
-        oldChild.set("focused", false, true)
+        oldChild:setFocused(false, true)
     end
 
     if value and not internal then
-        value.set("focused", true, true)
+        value:setFocused(true, true)
         if self.parent then
             self.parent:setFocusedChild(self)
         end
@@ -428,6 +428,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Container:mouse_up(button, x, y)
+    self:mouse_release(button, x, y)
     if VisualElement.mouse_up(self, button, x, y) then
         local args = convertMousePosition(self, "mouse_up", button, x, y)
         local success, child = self:callChildrenEvent(true, "mouse_up", table.unpack(args))

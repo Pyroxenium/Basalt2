@@ -34,6 +34,13 @@ BaseElement.defineProperty(BaseElement, "eventCallbacks", {default = {}, type = 
 --- @property enabled boolean BaseElement Controls event processing for this element
 BaseElement.defineProperty(BaseElement, "enabled", {default = true, type = "boolean" })
 
+--- @property states table {} Table of currently active states with their priorities
+BaseElement.defineProperty(BaseElement, "states", {
+    default = {},
+    type = "table",
+    canTriggerRender = true
+})
+
 --- Registers a class-level event listener with optional dependency
 --- @shortDescription Registers a new event listener for the element (on class level)
 --- @param class table The class to register
@@ -93,6 +100,7 @@ function BaseElement:init(props, basalt)
     self._values.id = uuid()
     self.basalt = basalt
     self._registeredEvents = {}
+    self._registeredStates = {}
 
     local currentClass = getmetatable(self).__index
 
@@ -194,6 +202,120 @@ function BaseElement:registerCallback(event, callback)
     end
 
     table.insert(self._values.eventCallbacks[event], callback)
+    return self
+end
+
+--- Registers a new state with optional auto-condition
+--- @shortDescription Registers a state
+--- @param stateName string The name of the state
+--- @param condition? function Optional: Function that returns true if state is active: function(element) return boolean end
+--- @param priority? number Priority (higher = more important, default: 0)
+--- @return BaseElement self The BaseElement instance
+function BaseElement:registerState(stateName, condition, priority)
+    self._registeredStates[stateName] = {
+        condition = condition,
+        priority = priority or 0
+    }
+    return self
+end
+
+--- Manually activates a state
+--- @shortDescription Activates a state
+--- @param stateName string The state to activate
+--- @param priority? number Optional priority override
+--- @return BaseElement self
+function BaseElement:setState(stateName, priority)
+    local states = self.get("states")
+
+    if not priority and self._registeredStates[stateName] then
+        priority = self._registeredStates[stateName].priority
+    end
+
+    states[stateName] = priority or 0
+    self.set("states", states)
+    return self
+end
+
+--- Manually deactivates a state
+--- @shortDescription Deactivates a state
+--- @param stateName string The state to deactivate
+--- @return BaseElement self
+function BaseElement:unsetState(stateName)
+    local states = self.get("states")
+    if states[stateName] ~= nil then
+        states[stateName] = nil
+        self.set("states", states)
+    end
+    return self
+end
+
+--- Checks if a state is currently active
+--- @shortDescription Checks if state is active
+--- @param stateName string The state to check
+--- @return boolean isActive
+function BaseElement:hasState(stateName)
+    local states = self.get("states")
+    return states[stateName] ~= nil
+end
+
+--- Gets the highest priority active state
+--- @shortDescription Gets current primary state
+--- @return string|nil currentState The state with highest priority
+function BaseElement:getCurrentState()
+    local states = self.get("states")
+
+    local highestPriority = -math.huge
+    local currentState = nil
+
+    for stateName, priority in pairs(states) do
+        if priority > highestPriority then
+            highestPriority = priority
+            currentState = stateName
+        end
+    end
+
+    return currentState
+end
+
+--- Gets all currently active states sorted by priority
+--- @shortDescription Gets all active states
+--- @return table states Array of {name, priority} sorted by priority
+function BaseElement:getActiveStates()
+    local states = self.get("states")
+    local result = {}
+    
+    for stateName, priority in pairs(states) do
+        table.insert(result, {name = stateName, priority = priority})
+    end
+    
+    table.sort(result, function(a, b) return a.priority > b.priority end)
+    
+    return result
+end
+
+--- Updates all states that have auto-conditions
+--- @shortDescription Updates conditional states
+--- @return BaseElement self
+function BaseElement:updateConditionalStates()
+    for stateName, stateInfo in pairs(self._registeredStates) do
+        if stateInfo.condition then
+            if stateInfo.condition(self) then
+                self:setState(stateName, stateInfo.priority)
+            else
+                self:unsetState(stateName)
+            end
+        end
+    end
+    return self
+end
+
+--- Removes a state from the registry
+--- @shortDescription Removes state definition
+--- @param stateName string The state to remove
+--- @return BaseElement self
+function BaseElement:unregisterState(stateName)
+    self._stateRegistry[stateName] = nil
+    self:unsetState(stateName)
     return self
 end
 

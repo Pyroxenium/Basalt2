@@ -22,6 +22,12 @@ VisualElement.defineProperty(VisualElement, "z", {default = 1, type = "number", 
     return value
 end})
 
+
+VisualElement.defineProperty(VisualElement, "constraints", {
+    default = {},
+    type = "table"
+})
+
 ---@property width number 1 The width of the element
 VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
 ---@property height number 1 The height of the element
@@ -30,10 +36,6 @@ VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "numb
 VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property foreground color white The text/foreground color
 VisualElement.defineProperty(VisualElement, "foreground", {default = colors.white, type = "color", canTriggerRender = true})
----@property clicked boolean false Whether the element is currently clicked
-VisualElement.defineProperty(VisualElement, "clicked", {default = false, type = "boolean"})
----@property hover boolean false Whether the mouse is currently hover over the element (Craftos-PC only)
-VisualElement.defineProperty(VisualElement, "hover", {default = false, type = "boolean"})
 ---@property backgroundEnabled boolean true Whether to render the background
 VisualElement.defineProperty(VisualElement, "backgroundEnabled", {default = true, type = "boolean", canTriggerRender = true})
 ---@property borderTop boolean false Draw top border
@@ -46,26 +48,6 @@ VisualElement.defineProperty(VisualElement, "borderLeft", {default = false, type
 VisualElement.defineProperty(VisualElement, "borderRight", {default = false, type = "boolean", canTriggerRender = true})
 ---@property borderColor color white Border color
 VisualElement.defineProperty(VisualElement, "borderColor", {default = colors.white, type = "color", canTriggerRender = true})
----@property focused boolean false Whether the element has input focus
-VisualElement.defineProperty(VisualElement, "focused", {default = false, type = "boolean", setter = function(self, value, internal)
-    local curValue = self.get("focused")
-    if value == curValue then return value end
-
-    if value then
-        self:focus()
-    else
-        self:blur()
-    end
-
-    if not internal and self.parent then
-        if value then
-            self.parent:setFocusedChild(self)
-        else
-            self.parent:setFocusedChild(nil)
-        end
-    end
-    return value
-end})
 
 ---@property visible boolean true Whether the element is visible
 VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "boolean", canTriggerRender = true, setter=function(self, value)
@@ -74,7 +56,7 @@ VisualElement.defineProperty(VisualElement, "visible", {default = true, type = "
         self.parent.set("childrenEventsSorted", false)
     end
     if(value==false)then
-        self.set("clicked", false)
+        self:unsetState("clicked")
     end
     return value
 end})
@@ -136,6 +118,12 @@ end
 function VisualElement:init(props, basalt)
     BaseElement.init(self, props, basalt)
     self.set("type", "VisualElement")
+    self:registerState("disabled", nil, 1000)
+    self:registerState("clicked", nil, 500)
+    self:registerState("hover", nil, 400)
+    self:registerState("focused", nil, 300)
+    self:registerState("dragging", nil, 600)
+
     self:observe("x", function()
         if self.parent then
             self.parent.set("childrenSorted", false)
@@ -161,6 +149,495 @@ function VisualElement:init(props, basalt)
             self.parent.set("childrenSorted", false)
         end
     end)
+end
+
+--- Sets a constraint on a property relative to another element's property
+--- @shortDescription Sets a constraint on a property relative to another element's property
+--- @param property string The property to constrain (x, y, width, height, left, right, top, bottom, centerX, centerY)
+--- @param targetElement BaseElement|string The target element or "parent"
+--- @param targetProperty string The target property to constrain to (left, right, top, bottom, centerX, centerY, width, height)
+--- @param offset number The offset to apply (negative = inside, positive = outside, fractional = percentage)
+--- @return VisualElement self The element instance
+function VisualElement:setConstraint(property, targetElement, targetProperty, offset)
+    local constraints = self.get("constraints")
+    if constraints[property] then
+        self:_removeConstraintObservers(property, constraints[property])
+    end
+
+    constraints[property] = {
+        element = targetElement,
+        property = targetProperty,
+        offset = offset or 0
+    }
+
+    self.set("constraints", constraints)
+    self:_addConstraintObservers(property, constraints[property])
+
+    self._constraintsDirty = true
+    self:updateRender()
+    return self
+end
+
+--- Resolves all constraints for the element
+--- @shortDescription Resolves all constraints for the element
+--- @return VisualElement self The element instance
+function VisualElement:resolveAllConstraints()
+    if not self._constraintsDirty then return self end
+    local constraints = self.get("constraints")
+    if not constraints or not next(constraints) then return self end
+
+    local order = {"width", "height", "left", "right", "top", "bottom", "x", "y", "centerX", "centerY"}
+
+    for _, property in ipairs(order) do
+        if constraints[property] then
+            local value = self:_resolveConstraint(property, constraints[property])
+            self:_applyConstraintValue(property, value)
+        end
+    end
+    self._constraintsDirty = false
+    return self
+end
+
+--- Applies a resolved constraint value to the appropriate property
+--- @private
+function VisualElement:_applyConstraintValue(property, value)
+    if property == "x" or property == "left" then
+        self.set("x", value)
+    elseif property == "y" or property == "top" then
+        self.set("y", value)
+    elseif property == "right" then
+        local width = self.get("width")
+        self.set("x", value - width + 1)
+    elseif property == "bottom" then
+        local height = self.get("height")
+        self.set("y", value - height + 1)
+    elseif property == "centerX" then
+        local width = self.get("width")
+        self.set("x", value - math.floor(width / 2))
+    elseif property == "centerY" then
+        local height = self.get("height")
+        self.set("y", value - math.floor(height / 2))
+    elseif property == "width" then
+        self.set("width", value)
+    elseif property == "height" then
+        self.set("height", value)
+    end
+end
+
+--- Adds observers for a specific constraint to track changes in the target element
+--- @private
+function VisualElement:_addConstraintObservers(constraintProp, constraint)
+    local targetEl = constraint.element
+    local targetProp = constraint.property
+
+    if targetEl == "parent" then
+        targetEl = self.parent
+    end
+
+    if not targetEl then return end
+
+    local callback = function()
+        self._constraintsDirty = true
+        self:resolveAllConstraints()
+        self:updateRender()
+    end
+
+    if not self._constraintObserverCallbacks then
+        self._constraintObserverCallbacks = {}
+    end
+
+    if not self._constraintObserverCallbacks[constraintProp] then
+        self._constraintObserverCallbacks[constraintProp] = {}
+    end
+
+    local observeProps = {}
+
+    if targetProp == "left" or targetProp == "x" then
+        observeProps = {"x"}
+    elseif targetProp == "right" then
+        observeProps = {"x", "width"}
+    elseif targetProp == "top" or targetProp == "y" then
+        observeProps = {"y"}
+    elseif targetProp == "bottom" then
+        observeProps = {"y", "height"}
+    elseif targetProp == "centerX" then
+        observeProps = {"x", "width"}
+    elseif targetProp == "centerY" then
+        observeProps = {"y", "height"}
+    elseif targetProp == "width" then
+        observeProps = {"width"}
+    elseif targetProp == "height" then
+        observeProps = {"height"}
+    end
+
+    for _, prop in ipairs(observeProps) do
+        targetEl:observe(prop, callback)
+        table.insert(self._constraintObserverCallbacks[constraintProp], {
+            element = targetEl,
+            property = prop,
+            callback = callback
+        })
+    end
+end
+
+--- Removes observers for a specific constraint
+--- @private
+function VisualElement:_removeConstraintObservers(constraintProp, constraint)
+    if not self._constraintObserverCallbacks or not self._constraintObserverCallbacks[constraintProp] then
+        return
+    end
+
+    for _, observer in ipairs(self._constraintObserverCallbacks[constraintProp]) do
+        observer.element:removeObserver(observer.property, observer.callback)
+    end
+
+    self._constraintObserverCallbacks[constraintProp] = nil
+end
+
+--- Removes all constraint observers from the element
+--- @private
+function VisualElement:_removeAllConstraintObservers()
+    if not self._constraintObserverCallbacks then return end
+
+    for constraintProp, observers in pairs(self._constraintObserverCallbacks) do
+        for _, observer in ipairs(observers) do
+            observer.element:removeObserver(observer.property, observer.callback)
+        end
+    end
+
+    self._constraintObserverCallbacks = nil
+end
+
+--- Removes a constraint from the element
+--- @shortDescription Removes a constraint from the element
+--- @param property string The property of the constraint to remove
+--- @return VisualElement self The element instance
+function VisualElement:removeConstraint(property)
+    local constraints = self.get("constraints")
+    constraints[property] = nil
+    self.set("constraints", constraints)
+    self:updateConstraints()
+    return self
+end
+
+--- Updates all constraints, recalculating positions and sizes
+--- @shortDescription Updates all constraints, recalculating positions and sizes
+--- @return VisualElement self The element instance
+function VisualElement:updateConstraints()
+    local constraints = self.get("constraints")
+
+    for property, constraint in pairs(constraints) do
+        local value = self:_resolveConstraint(property, constraint)
+
+        if property == "x" or property == "left" then
+            self.set("x", value)
+        elseif property == "y" or property == "top" then
+            self.set("y", value)
+        elseif property == "right" then
+            local width = self.get("width")
+            self.set("x", value - width + 1)
+        elseif property == "bottom" then
+            local height = self.get("height")
+            self.set("y", value - height + 1)
+        elseif property == "centerX" then
+            local width = self.get("width")
+            self.set("x", value - math.floor(width / 2))
+        elseif property == "centerY" then
+            local height = self.get("height")
+            self.set("y", value - math.floor(height / 2))
+        elseif property == "width" then
+            self.set("width", value)
+        elseif property == "height" then
+            self.set("height", value)
+        end
+    end
+end
+
+--- Resolves a constraint to an absolute value
+--- @private
+function VisualElement:_resolveConstraint(property, constraint)
+    local targetEl = constraint.element
+    local targetProp = constraint.property
+    local offset = constraint.offset
+
+    if targetEl == "parent" then
+        targetEl = self.parent
+    end
+
+    if not targetEl then
+        return self.get(property) or 1
+    end
+
+    local value
+    if targetProp == "left" or targetProp == "x" then
+        value = targetEl.get("x")
+    elseif targetProp == "right" then
+        value = targetEl.get("x") + targetEl.get("width") - 1
+    elseif targetProp == "top" or targetProp == "y" then
+        value = targetEl.get("y")
+    elseif targetProp == "bottom" then
+        value = targetEl.get("y") + targetEl.get("height") - 1
+    elseif targetProp == "centerX" then
+        value = targetEl.get("x") + math.floor(targetEl.get("width") / 2)
+    elseif targetProp == "centerY" then
+        value = targetEl.get("y") + math.floor(targetEl.get("height") / 2)
+    elseif targetProp == "width" then
+        value = targetEl.get("width")
+    elseif targetProp == "height" then
+        value = targetEl.get("height")
+    end
+
+    if type(offset) == "number" then
+        if offset > -1 and offset < 1 and offset ~= 0 then
+            return math.floor(value * offset)
+        else
+            return value + offset
+        end
+    end
+
+    return value
+end
+
+--- Aligns the element's right edge to the target's right edge with optional offset
+--- @shortDescription Aligns the element's right edge to the target's right edge with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset from the edge (negative = inside, positive = outside, default: 0)
+--- @return VisualElement self
+function VisualElement:alignRight(target, offset)
+    offset = offset or 0
+    return self:setConstraint("right", target, "right", offset)
+end
+
+--- Aligns the element's left edge to the target's left edge with optional offset
+--- @shortDescription Aligns the element's left edge to the target's left edge with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset from the edge (negative = inside, positive = outside, default: 0)
+--- @return VisualElement self
+function VisualElement:alignLeft(target, offset)
+    offset = offset or 0
+    return self:setConstraint("left", target, "left", offset)
+end
+
+--- Aligns the element's top edge to the target's top edge with optional offset
+--- @shortDescription Aligns the element's top edge to the target's top edge with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset from the edge (negative = inside, positive = outside, default: 0)
+--- @return VisualElement self
+function VisualElement:alignTop(target, offset)
+    offset = offset or 0
+    return self:setConstraint("top", target, "top", offset)
+end
+
+--- Aligns the element's bottom edge to the target's bottom edge with optional offset
+--- @shortDescription Aligns the element's bottom edge to the target's bottom edge with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset from the edge (negative = inside, positive = outside, default: 0)
+--- @return VisualElement self
+function VisualElement:alignBottom(target, offset)
+    offset = offset or 0
+    return self:setConstraint("bottom", target, "bottom", offset)
+end
+
+--- Centers the element horizontally relative to the target with optional offset
+--- @shortDescription Centers the element horizontally relative to the target with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Horizontal offset from center (default: 0)
+--- @return VisualElement self
+function VisualElement:centerHorizontal(target, offset)
+    offset = offset or 0
+    return self:setConstraint("centerX", target, "centerX", offset)
+end
+
+--- Centers the element vertically relative to the target with optional offset
+--- @shortDescription Centers the element vertically relative to the target with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Vertical offset from center (default: 0)
+--- @return VisualElement self
+function VisualElement:centerVertical(target, offset)
+    offset = offset or 0
+    return self:setConstraint("centerY", target, "centerY", offset)
+end
+
+--- Centers the element both horizontally and vertically relative to the target
+--- @shortDescription Centers the element both horizontally and vertically relative to the target
+--- @param target BaseElement|string The target element or "parent"
+--- @return VisualElement self
+function VisualElement:centerIn(target)
+    return self:centerHorizontal(target):centerVertical(target)
+end
+
+--- Positions the element to the right of the target with optional gap
+--- @shortDescription Positions the element to the right of the target with optional gap
+--- @param target BaseElement|string The target element or "parent"
+--- @param gap? number Gap between elements (default: 0)
+--- @return VisualElement self
+function VisualElement:rightOf(target, gap)
+    gap = gap or 0
+    return self:setConstraint("left", target, "right", gap)
+end
+
+--- Positions the element to the left of the target with optional gap
+--- @shortDescription Positions the element to the left of the target with optional gap
+--- @param target BaseElement|string The target element or "parent"
+--- @param gap? number Gap between elements (default: 0)
+--- @return VisualElement self
+function VisualElement:leftOf(target, gap)
+    gap = gap or 0
+    return self:setConstraint("right", target, "left", -gap)
+end
+
+--- Positions the element below the target with optional gap
+--- @shortDescription Positions the element below the target with optional gap
+--- @param target BaseElement|string The target element or "parent"
+--- @param gap? number Gap between elements (default: 0)
+--- @return VisualElement self
+function VisualElement:below(target, gap)
+    gap = gap or 0
+    return self:setConstraint("top", target, "bottom", gap)
+end
+
+--- Positions the element above the target with optional gap
+--- @shortDescription Positions the element above the target with optional gap
+--- @param target BaseElement|string The target element or "parent"
+--- @param gap? number Gap between elements (default: 0)
+--- @return VisualElement self
+function VisualElement:above(target, gap)
+    gap = gap or 0
+    return self:setConstraint("bottom", target, "top", -gap)
+end
+
+--- Stretches the element to match the target's width with optional margin
+--- @shortDescription Stretches the element to match the target's width with optional margin
+--- @param target BaseElement|string The target element or "parent"
+--- @param margin? number Margin on each side (default: 0)
+--- @return VisualElement self
+function VisualElement:stretchWidth(target, margin)
+    margin = margin or 0
+    return self
+        :setConstraint("left", target, "left", margin)
+        :setConstraint("right", target, "right", -margin)
+end
+
+--- Stretches the element to match the target's height with optional margin
+--- @shortDescription Stretches the element to match the target's height with optional margin
+--- @param target BaseElement|string The target element or "parent"
+--- @param margin? number Margin on top and bottom (default: 0)
+--- @return VisualElement self
+function VisualElement:stretchHeight(target, margin)
+    margin = margin or 0
+    return self
+        :setConstraint("top", target, "top", margin)
+        :setConstraint("bottom", target, "bottom", -margin)
+end
+
+--- Stretches the element to match the target's width and height with optional margin
+--- @shortDescription Stretches the element to match the target's width and height with optional margin
+--- @param target BaseElement|string The target element or "parent"
+--- @param margin? number Margin on all sides (default: 0)
+--- @return VisualElement self
+function VisualElement:stretch(target, margin)
+    return self:stretchWidth(target, margin):stretchHeight(target, margin)
+end
+
+--- Sets the element's width as a percentage of the target's width
+--- @shortDescription Sets the element's width as a percentage of the target's width
+--- @param target BaseElement|string The target element or "parent"
+--- @param percent number Percentage of target's width (0-100)
+--- @return VisualElement self
+function VisualElement:widthPercent(target, percent)
+    return self:setConstraint("width", target, "width", percent / 100)
+end
+
+--- Sets the element's height as a percentage of the target's height
+--- @shortDescription Sets the element's height as a percentage of the target's height
+--- @param target BaseElement|string The target element or "parent"
+--- @param percent number Percentage of target's height (0-100)
+--- @return VisualElement self
+function VisualElement:heightPercent(target, percent)
+    return self:setConstraint("height", target, "height", percent / 100)
+end
+
+--- Matches the element's width to the target's width with optional offset
+--- @shortDescription Matches the element's width to the target's width with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset to add to target's width (default: 0)
+--- @return VisualElement self
+function VisualElement:matchWidth(target, offset)
+    offset = offset or 0
+    return self:setConstraint("width", target, "width", offset)
+end
+
+--- Matches the element's height to the target's height with optional offset
+--- @shortDescription Matches the element's height to the target's height with optional offset
+--- @param target BaseElement|string The target element or "parent"
+--- @param offset? number Offset to add to target's height (default: 0)
+--- @return VisualElement self
+function VisualElement:matchHeight(target, offset)
+    offset = offset or 0
+    return self:setConstraint("height", target, "height", offset)
+end
+
+--- Stretches the element to fill its parent's width and height with optional margin
+--- @shortDescription Stretches the element to fill its parent's width and height with optional margin
+--- @param margin? number Margin on all sides (default: 0)
+--- @return VisualElement self
+function VisualElement:fillParent(margin)
+    return self:stretch("parent", margin)
+end
+
+--- Stretches the element to fill its parent's width with optional margin
+--- @shortDescription Stretches the element to fill its parent's width with optional margin
+--- @param margin? number Margin on left and right (default: 0)
+--- @return VisualElement self
+function VisualElement:fillWidth(margin)
+    return self:stretchWidth("parent", margin)
+end
+
+--- Stretches the element to fill its parent's height with optional margin
+--- @shortDescription Stretches the element to fill its parent's height with optional margin
+--- @param margin? number Margin on top and bottom (default: 0)
+--- @return VisualElement self
+function VisualElement:fillHeight(margin)
+    return self:stretchHeight("parent", margin)
+end
+
+--- Centers the element within its parent both horizontally and vertically
+--- @shortDescription Centers the element within its parent both horizontally and vertically
+--- @return VisualElement self
+function VisualElement:center()
+    return self:centerIn("parent")
+end
+
+--- Aligns the element's right edge to its parent's right edge with optional gap
+--- @shortDescription Aligns the element's right edge to its parent's right edge with optional gap
+--- @param gap? number Gap from the edge (default: 0)
+--- @return VisualElement self
+function VisualElement:toRight(gap)
+    return self:alignRight("parent", -(gap or 0))
+end
+
+--- Aligns the element's left edge to its parent's left edge with optional gap
+--- @shortDescription Aligns the element's left edge to its parent's left edge with optional gap
+--- @param gap? number Gap from the edge (default: 0)
+--- @return VisualElement self
+function VisualElement:toLeft(gap)
+    return self:alignLeft("parent", gap or 0)
+end
+
+--- Aligns the element's top edge to its parent's top edge with optional gap
+--- @shortDescription Aligns the element's top edge to its parent's top edge with optional gap
+--- @param gap? number Gap from the edge (default: 0)
+--- @return VisualElement self
+function VisualElement:toTop(gap)
+    return self:alignTop("parent", gap or 0)
+end
+
+--- Aligns the element's bottom edge to its parent's bottom edge with optional gap
+--- @shortDescription Aligns the element's bottom edge to its parent's bottom edge with optional gap
+--- @param gap? number Gap from the edge (default: 0)
+--- @return VisualElement self
+function VisualElement:toBottom(gap)
+    return self:alignBottom("parent", -(gap or 0))
 end
 
 --- @shortDescription Multi-character drawing with colors
@@ -267,7 +744,7 @@ end
 --- @protected
 function VisualElement:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
-        self.set("clicked", true)
+        self:setState("clicked")
         self:fireEvent("mouse_click", button, self:getRelativePosition(x, y))
         return true
     end
@@ -282,7 +759,8 @@ end
 --- @protected
 function VisualElement:mouse_up(button, x, y)
     if self:isInBounds(x, y) then
-        self.set("clicked", false)
+        self:unsetState("clicked")
+        self:unsetState("dragging")
         self:fireEvent("mouse_up", button, self:getRelativePosition(x, y))
         return true
     end
@@ -296,7 +774,8 @@ end
 --- @protected
 function VisualElement:mouse_release(button, x, y)
     self:fireEvent("mouse_release", button, self:getRelativePosition(x, y))
-    self.set("clicked", false)
+    self:unsetState("clicked")
+    self:unsetState("dragging")
 end
 
 ---@shortDescription Handles a mouse move event
@@ -344,11 +823,49 @@ end
 --- @return boolean drag Whether the element was dragged
 --- @protected
 function VisualElement:mouse_drag(button, x, y)
-    if(self.get("clicked"))then
+    if(self:hasState("clicked"))then
         self:fireEvent("mouse_drag", button, self:getRelativePosition(x, y))
         return true
     end
     return false
+end
+
+--- Sets or removes focus from this element
+--- @shortDescription Sets focus state
+--- @param focused boolean Whether to focus or blur
+--- @param internal? boolean Internal flag to prevent parent notification
+--- @return VisualElement self
+function VisualElement:setFocused(focused, internal)
+    local currentlyFocused = self:hasState("focused")
+
+    if focused == currentlyFocused then
+        return self
+    end
+
+    if focused then
+        self:setState("focused")
+        self:focus()
+
+        if not internal and self.parent then
+            self.parent:setFocusedChild(self)
+        end
+    else
+        self:unsetState("focused")
+        self:blur()
+
+        if not internal and self.parent then
+            self.parent:setFocusedChild(nil)
+        end
+    end
+
+    return self
+end
+
+--- Gets whether this element is focused
+--- @shortDescription Checks if element is focused
+--- @return boolean isFocused
+function VisualElement:isFocused()
+    return self:hasState("focused")
 end
 
 --- @shortDescription Handles a focus event
@@ -362,7 +879,14 @@ end
 function VisualElement:blur()
     self:fireEvent("blur")
     -- Attempt to clear cursor; signature may expect (x,y,blink,fg,bg)
-    pcall(function() self:setCursor(1,1,false, self.get and self.get("foreground")) end)
+    pcall(function() self:setCursor(1,1,false, self.get and self.getResolved("foreground")) end)
+end
+
+--- Gets whether this element is focused
+--- @shortDescription Checks if element is focused
+--- @return boolean isFocused
+function VisualElement:isFocused()
+    return self:hasState("focused")
 end
 
 --- Adds or updates a drawable character border around the element using the canvas plugin.
@@ -410,7 +934,7 @@ end
 --- @param key number The key that was pressed
 --- @protected
 function VisualElement:key(key, held)
-    if(self.get("focused"))then
+    if(self:hasState("focused"))then
         self:fireEvent("key", key, held)
     end
 end
@@ -419,7 +943,7 @@ end
 --- @param key number The key that was released
 --- @protected
 function VisualElement:key_up(key)
-    if(self.get("focused"))then
+    if(self:hasState("focused"))then
         self:fireEvent("key_up", key)
     end
 end
@@ -428,7 +952,7 @@ end
 --- @param char string The character that was pressed
 --- @protected
 function VisualElement:char(char)
-    if(self.get("focused"))then
+    if(self:hasState("focused"))then
         self:fireEvent("char", char)
     end
 end
@@ -438,6 +962,7 @@ end
 --- @return number x The x position
 --- @return number y The y position
 function VisualElement:calculatePosition()
+    self:resolveAllConstraints()
     local x, y = self.get("x"), self.get("y")
     if not self.get("ignoreOffset") then
         if self.parent ~= nil then
@@ -531,31 +1056,36 @@ end
 --- @shortDescription Renders the element
 --- @protected
 function VisualElement:render()
-    if(not self.get("backgroundEnabled"))then return end
+    if(not self.getResolved("backgroundEnabled"))then return end
     local width, height = self.get("width"), self.get("height")
-    local fgHex = tHex[self.get("foreground")]
-    local bgHex = tHex[self.get("background")]
+    local fgHex = tHex[self.getResolved("foreground")]
+    local bgHex = tHex[self.getResolved("background")]
+    local bTop, bBottom, bLeft, bRight =
+        self.getResolved("borderTop"),
+        self.getResolved("borderBottom"),
+        self.getResolved("borderLeft"),
+        self.getResolved("borderRight")
     self:multiBlit(1, 1, width, height, " ", fgHex, bgHex)
-    if (self.get("borderTop") or self.get("borderBottom") or self.get("borderLeft") or self.get("borderRight")) then
-        local bColor = self.get("borderColor") or self.get("foreground")
+    if (bTop or bBottom or bLeft or bRight) then
+        local bColor = self.getResolved("borderColor") or self.getResolved("foreground")
         local bHex = tHex[bColor] or fgHex
-        if self.get("borderTop") then
+        if bTop then
             self:textFg(1,1,("\131"):rep(width), bColor)
         end
-        if self.get("borderBottom") then
+        if bBottom then
             self:multiBlit(1,height,width,1,"\143", bgHex, bHex)
         end
-        if self.get("borderLeft") then
+        if bLeft then
             self:multiBlit(1,1,1,height,"\149", bHex, bgHex)
         end
-        if self.get("borderRight") then
+        if bRight then
             self:multiBlit(width,1,1,height,"\149", bgHex, bHex)
         end
         -- Corners
-        if self.get("borderTop") and self.get("borderLeft") then self:blit(1,1,"\151", bHex, bgHex) end
-        if self.get("borderTop") and self.get("borderRight") then self:blit(width,1,"\148", bgHex, bHex) end
-        if self.get("borderBottom") and self.get("borderLeft") then self:blit(1,height,"\138", bgHex, bHex) end
-        if self.get("borderBottom") and self.get("borderRight") then self:blit(width,height,"\133", bgHex, bHex) end
+        if bTop and bLeft then self:blit(1,1,"\151", bHex, bgHex) end
+        if bTop and bRight then self:blit(width,1,"\148", bgHex, bHex) end
+        if bBottom and bLeft then self:blit(1,height,"\138", bgHex, bHex) end
+        if bBottom and bRight then self:blit(width,height,"\133", bgHex, bHex) end
     end
 end
 
@@ -565,6 +1095,7 @@ function VisualElement:postRender()
 end
 
 function VisualElement:destroy()
+    self:_removeAllConstraintObservers()
     self.set("visible", false)
     BaseElement.destroy(self)
 end

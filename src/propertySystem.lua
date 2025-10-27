@@ -88,6 +88,17 @@ function PropertySystem.defineProperty(class, name, config)
         self:_updateProperty(name, value)
         return self
     end
+
+    class["get" .. capitalizedName .. "State"] = function(self, state, ...)
+        expect(1, self, "element")
+        return self.getPropertyState(name, state, ...)
+    end
+
+    class["set" .. capitalizedName .. "State"] = function(self, state, value, ...)
+        expect(1, self, "element")
+        self.setPropertyState(name, state, value, ...)
+        return self
+    end
 end
 
 --- Combines multiple properties into a single getter and setter
@@ -251,6 +262,7 @@ end
 function PropertySystem:__init()
     self._values = {}
     self._observers = {}
+    self._states = {}
 
     self.set = function(name, value, ...)
         local oldValue = self._values[name]
@@ -273,6 +285,65 @@ function PropertySystem:__init()
 
     self.get = function(name, ...)
         local value = self._values[name]
+        local config = self._properties[name]
+        if(config==nil)then errorManager.error("Property not found: "..name) return end
+        if type(value) == "function" and config.type ~= "function" then
+            value = value(self)
+        end
+        return config.getter and config.getter(self, value, ...) or value
+    end
+
+    self.setPropertyState = function(name, state, value, ...)
+        local config = self._properties[name]
+        if(config~=nil)then
+            if(config.setter) then
+                value = config.setter(self, value, ...)
+            end
+
+            value = applyHooks(self, name, value, config)
+
+            if not self._states[state] then
+                self._states[state] = {}
+            end
+
+            self._states[state][name] = value
+
+            local currentState = self._values.currentState
+            if currentState == state then
+                if config.canTriggerRender then
+                    self:updateRender()
+                end
+                if self._observers[name] then
+                    for _, callback in ipairs(self._observers[name]) do
+                        callback(self, value, nil)
+                    end
+                end
+            end
+        end
+    end
+
+    self.getPropertyState = function(name, state, ...)
+        local stateValue = self._states and self._states[state] and self._states[state][name]
+        local value = stateValue ~= nil and stateValue or self._values[name]
+
+        local config = self._properties[name]
+        if(config==nil)then errorManager.error("Property not found: "..name) return end
+        if type(value) == "function" and config.type ~= "function" then
+            value = value(self)
+        end
+        return config.getter and config.getter(self, value, ...) or value
+    end
+
+    self.getResolved = function(name, ...)
+        local currentState = self:getCurrentState()
+        local value
+
+        if currentState and self._states and self._states[currentState] and self._states[currentState][name] ~= nil then
+            value = self._states[currentState][name]
+        else
+            value = self._values[name]
+        end
+
         local config = self._properties[name]
         if(config==nil)then errorManager.error("Property not found: "..name) return end
         if type(value) == "function" and config.type ~= "function" then
@@ -439,6 +510,8 @@ function PropertySystem:removeProperty(name)
     local capitalizedName = name:sub(1,1):upper() .. name:sub(2)
     self["get" .. capitalizedName] = nil
     self["set" .. capitalizedName] = nil
+    self["get" .. capitalizedName .. "State"] = nil
+    self["set" .. capitalizedName .. "State"] = nil
     return self
 end
 

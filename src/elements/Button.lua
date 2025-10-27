@@ -59,10 +59,10 @@ end
 --- @protected
 function Button:render()
     VisualElement.render(self)
-    local text = self.get("text")
+    local text = self.getResolved("text")
     text = text:sub(1, self.get("width"))
     local xO, yO = getCenteredPosition(text, self.get("width"), self.get("height"))
-    self:textFg(xO, yO, text, self.get("foreground"))
+    self:textFg(xO, yO, text, self.getResolved("foreground"))
 end
 
 return Button

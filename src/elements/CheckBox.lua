@@ -83,12 +83,12 @@ end
 function CheckBox:render()
     VisualElement.render(self)
 
-    local checked = self.get("checked")
-    local defaultText = self.get("text")
-    local checkedText = self.get("checkedText")
+    local checked = self.getResolved("checked")
+    local defaultText = self.getResolved("text")
+    local checkedText = self.getResolved("checkedText")
     local text = string.sub(checked and checkedText or defaultText, 1, self.get("width"))
 
-    self:textFg(1, 1, text, self.get("foreground"))
+    self:textFg(1, 1, text, self.getResolved("foreground"))
 end
 
 return CheckBox

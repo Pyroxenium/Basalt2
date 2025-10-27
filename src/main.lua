@@ -420,7 +420,6 @@ end
 --- @usage basalt.triggerEvent("custom_event", "data1", "data2")
 function basalt.triggerEvent(eventName, ...)
     expect(1, eventName, "string")
-    
     if basalt._events[eventName] then
         for _, callback in ipairs(basalt._events[eventName]) do
             local ok, err = pcall(callback, ...)
@@ -430,6 +429,176 @@ function basalt.triggerEvent(eventName, ...)
             end
         end
     end
+end
+
+--- Requires specific elements and validates they are available
+--- @shortDescription Requires elements for the application
+--- @param elements table|string List of element names or single element name
+--- @param autoLoad? boolean Whether to automatically load missing elements (default: false)
+--- @usage basalt.requireElements({"Button", "Label", "Slider"})
+--- @usage basalt.requireElements("Button", true)
+function basalt.requireElements(elements, autoLoad)
+    if type(elements) == "string" then
+        elements = {elements}
+    end
+
+    expect(1, elements, "table")
+    if autoLoad ~= nil then
+        expect(2, autoLoad, "boolean")
+    end
+
+    local missing = {}
+    local notLoaded = {}
+
+    for _, elementName in ipairs(elements) do
+        if not elementManager.hasElement(elementName) then
+            table.insert(missing, elementName)
+        elseif not elementManager.isElementLoaded(elementName) then
+            table.insert(notLoaded, elementName)
+        end
+    end
+
+    if #notLoaded > 0 then
+        for _, name in ipairs(notLoaded) do
+            local ok, err = pcall(elementManager.loadElement, name)
+            if not ok then
+                basalt.LOGGER.warn("Failed to load element "..name..": "..tostring(err))
+                table.insert(missing, name)
+            end
+        end
+    end
+
+    if #missing > 0 then
+        if autoLoad then
+            local stillMissing = {}
+            for _, name in ipairs(missing) do
+                local ok = elementManager.tryAutoLoad(name)
+                if not ok then
+                    table.insert(stillMissing, name)
+                end
+            end
+
+            if #stillMissing > 0 then
+                local msg = "Missing required elements: " .. table.concat(stillMissing, ", ")
+                msg = msg .. "\n\nThese elements could not be auto-loaded."
+                msg = msg .. "\nPlease install them or register remote sources."
+                errorManager.error(msg)
+            end
+        else
+            local msg = "Missing required elements: " .. table.concat(missing, ", ")
+            msg = msg .. "\n\nSuggestions:"
+            msg = msg .. "\n  • Use basalt.requireElements({...}, true) to auto-load"
+            msg = msg .. "\n  • Register remote sources with elementManager.registerRemoteSource()"
+            msg = msg .. "\n  • Register disk mounts with elementManager.registerDiskMount()"
+            errorManager.error(msg)
+        end
+    end
+
+    basalt.LOGGER.info("All required elements are available: " .. table.concat(elements, ", "))
+    return true
+end
+
+--- Loads a manifest file that describes element requirements and configuration
+--- @shortDescription Loads an application manifest
+--- @param path string The path to the manifest file
+--- @return table manifest The loaded manifest data
+--- @usage basalt.loadManifest("myapp.manifest")
+function basalt.loadManifest(path)
+    expect(1, path, "string")
+
+    if not fs.exists(path) then
+        errorManager.error("Manifest file not found: " .. path)
+    end
+
+    local manifest
+    local ok, result = pcall(dofile, path)
+    if not ok then
+        errorManager.error("Failed to load manifest: " .. tostring(result))
+    end
+    manifest = result
+
+    if type(manifest) ~= "table" then
+        errorManager.error("Manifest must return a table")
+    end
+
+    if manifest.config then
+        elementManager.configure(manifest.config)
+        basalt.LOGGER.debug("Applied manifest config")
+    end
+
+    if manifest.diskMounts then
+        for _, mountPath in ipairs(manifest.diskMounts) do
+            elementManager.registerDiskMount(mountPath)
+        end
+    end
+
+    if manifest.remoteSources then
+        for elementName, url in pairs(manifest.remoteSources) do
+            elementManager.registerRemoteSource(elementName, url)
+        end
+    end
+
+    if manifest.requiredElements then
+        local autoLoad = manifest.autoLoadMissing ~= false
+        basalt.requireElements(manifest.requiredElements, autoLoad)
+    end
+
+    if manifest.optionalElements then
+        for _, name in ipairs(manifest.optionalElements) do
+            pcall(elementManager.loadElement, name)
+        end
+    end
+
+    if manifest.preloadElements then
+        elementManager.preloadElements(manifest.preloadElements)
+    end
+
+    basalt.LOGGER.info("Manifest loaded successfully: " .. (manifest.name or path))
+
+    return manifest
+end
+
+--- Installs an element interactively or from a specified source
+--- @shortDescription Installs an element
+--- @param elementName string The name of the element to install
+--- @param source? string Optional source URL or path
+--- @usage basalt.install("Slider")
+--- @usage basalt.install("Slider", "https://example.com/slider.lua")
+function basalt.install(elementName, source)
+    expect(1, elementName, "string")
+    if source ~= nil then
+        expect(2, source, "string")
+    end
+
+    if elementManager.hasElement(elementName) and elementManager.isElementLoaded(elementName) then
+        return true
+    end
+
+    if source then
+        if source:match("^https?://") then
+            elementManager.registerRemoteSource(elementName, source)
+        else
+            if not fs.exists(source) then
+                errorManager.error("Source file not found: " .. source)
+            end
+        end
+    end
+
+    local ok = elementManager.tryAutoLoad(elementName)
+    if ok then
+        return true
+    else
+        return false
+    end
+end
+
+--- Configures the ElementManager (shortcut to elementManager.configure)
+--- @shortDescription Configures element loading behavior
+--- @param config table Configuration options
+--- @usage basalt.configure({allowRemoteLoading = true, useGlobalCache = true})
+function basalt.configure(config)
+    expect(1, config, "table")
+    elementManager.configure(config)
 end
 
 return basalt

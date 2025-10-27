@@ -20,10 +20,6 @@ Input.defineProperty(Input, "maxLength", {default = nil, type = "number"})
 Input.defineProperty(Input, "placeholder", {default = "...", type = "string"})
 ---@property placeholderColor color gray Color of the placeholder text
 Input.defineProperty(Input, "placeholderColor", {default = colors.gray, type = "color"})
----@property focusedBackground color blue Background color when input is focused
-Input.defineProperty(Input, "focusedBackground", {default = colors.blue, type = "color"})
----@property focusedForeground color white Foreground color when input is focused
-Input.defineProperty(Input, "focusedForeground", {default = colors.white, type = "color"})
 ---@property pattern string? nil Regular expression pattern for input validation
 Input.defineProperty(Input, "pattern", {default = nil, type = "string"})
 ---@property cursorColor number nil Color of the cursor
@@ -32,6 +28,7 @@ Input.defineProperty(Input, "cursorColor", {default = nil, type = "number"})
 Input.defineProperty(Input, "replaceChar", {default = nil, type = "string", canTriggerRender = true})
 
 Input.defineEvent(Input, "mouse_click")
+Input.defineEvent(Input, "mouse_up")
 Input.defineEvent(Input, "key")
 Input.defineEvent(Input, "char")
 Input.defineEvent(Input, "paste")
@@ -74,7 +71,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Input:char(char)
-    if not self.get("focused") then return false end
+    if not self:hasState("focused") then return false end
     local text = self.get("text")
     local pos = self.get("cursorPos")
     local maxLength = self.get("maxLength")
@@ -98,7 +95,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Input:key(key, held)
-    if not self.get("focused") then return false end
+    if not self:hasState("focused") then return false end
     local pos = self.get("cursorPos")
     local text = self.get("text")
     local viewOffset = self.get("viewOffset")
@@ -128,7 +125,7 @@ function Input:key(key, held)
     end
 
     local relativePos = self.get("cursorPos") - self.get("viewOffset")
-    self:setCursor(relativePos, 1, true, self.get("cursorColor") or self.get("foreground"))
+    self:setCursor(relativePos, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     VisualElement.key(self, key, held)
     return true
 end
@@ -150,7 +147,7 @@ function Input:mouse_click(button, x, y)
 
         self.set("cursorPos", targetPos)
         local visualX = targetPos - viewOffset
-        self:setCursor(visualX, 1, true, self.get("cursorColor") or self.get("foreground"))
+        self:setCursor(visualX, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
 
         return true
     end
@@ -181,7 +178,7 @@ end
 --- @protected
 function Input:focus()
     VisualElement.focus(self)
-    self:setCursor(self.get("cursorPos") - self.get("viewOffset"), 1, true, self.get("cursorColor") or self.get("foreground"))
+    self:setCursor(self.get("cursorPos") - self.get("viewOffset"), 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     self:updateRender()
 end
 
@@ -189,14 +186,14 @@ end
 --- @protected
 function Input:blur()
     VisualElement.blur(self)
-    self:setCursor(1, 1, false, self.get("cursorColor") or self.get("foreground"))
+    self:setCursor(1, 1, false, self.getResolved("cursorColor") or self.getResolved("foreground"))
     self:updateRender()
 end
 
 --- @shortDescription Handles paste events
 --- @protected
 function Input:paste(content)
-    if not self.get("focused") then return false end
+    if not self:hasState("focused") then return false end
     local text = self.get("text")
     local pos = self.get("cursorPos")
     local maxLength = self.get("maxLength")
@@ -216,31 +213,28 @@ end
 --- @shortDescription Renders the input element
 --- @protected
 function Input:render()
-    local text = self.get("text")
+    local text = self.getResolved("text")
     local viewOffset = self.get("viewOffset")
-    local width = self.get("width")
-    local placeholder = self.get("placeholder")
-    local focusedBg = self.get("focusedBackground")
-    local focusedFg = self.get("focusedForeground")
-    local focused = self.get("focused")
+    local placeholder = self.getResolved("placeholder")
+    local focused = self:hasState("focused")
     local width, height = self.get("width"), self.get("height")
-    local replaceChar = self.get("replaceChar")
-    self:multiBlit(1, 1, width, height, " ", tHex[focused and focusedFg or self.get("foreground")], tHex[focused and focusedBg or self.get("background")])
+    local replaceChar = self.getResolved("replaceChar")
+    self:multiBlit(1, 1, width, height, " ", tHex[self.getResolved("foreground")], tHex[self.getResolved("background")])
 
-    if #text == 0 and #placeholder ~= 0 and self.get("focused") == false then
-        self:textFg(1, 1, placeholder:sub(1, width), self.get("placeholderColor"))
+    if #text == 0 and #placeholder ~= 0 and not focused then
+        self:textFg(1, 1, placeholder:sub(1, width), self.getResolved("placeholderColor"))
         return
     end
 
     if(focused) then
-        self:setCursor(self.get("cursorPos") - viewOffset, 1, true, self.get("cursorColor") or self.get("foreground"))
+        self:setCursor(self.get("cursorPos") - viewOffset, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     end
 
     local visibleText = text:sub(viewOffset + 1, viewOffset + width)
     if replaceChar and #replaceChar > 0 then
         visibleText = replaceChar:rep(#visibleText)
     end
-    self:textFg(1, 1, visibleText, self.get("foreground"))
+    self:textFg(1, 1, visibleText, self.getResolved("foreground"))
 end
 
 return Input
