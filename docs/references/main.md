@@ -4,6 +4,11 @@ _This is the UI Manager and the starting point for your project. The following f
 _Before you can access Basalt, you need to add the following code on top of your file:_
 _What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt"._
 
+## Usage
+```lua run
+local basalt = require("basalt")
+```
+
 ## Functions
 
 |Method|Returns|Description|
@@ -44,7 +49,7 @@ Creates and returns a new UI element of the specified type.
 * `table` `element` The created element instance
 
 ### Usage
-```lua
+```lua run
 local button = basalt.create("Button")
 ```
 
@@ -172,7 +177,7 @@ Registers a callback function for a specific event
 * `callback` `function` The callback function to execute when the event occurs
 
 ### Usage
-```lua
+```lua run
 basalt.onEvent("mouse_click", function(button, x, y) basalt.debug("Clicked at", x, y) end)
 ```
 
@@ -195,7 +200,7 @@ Triggers a custom event and calls all registered callbacks
 * `eventName` `string` The name of the event to trigger
 
 ### Usage
-```lua
+```lua run
 basalt.triggerEvent("custom_event", "data1", "data2")
 ```
 
@@ -208,8 +213,11 @@ Requires specific elements and validates they are available
 * `autoLoad` *(optional)* `boolean` Whether to automatically load missing elements (default: false)
 
 ### Usage
-```lua
+```lua run
 basalt.requireElements({"Button", "Label", "Slider"})
+```
+
+```lua run
 basalt.requireElements("Button", true)
 ```
 
@@ -224,7 +232,7 @@ Loads a manifest file that describes element requirements and configuration
 * `table` `manifest` The loaded manifest data
 
 ### Usage
-```lua
+```lua run
 basalt.loadManifest("myapp.manifest")
 ```
 
@@ -237,8 +245,11 @@ Installs an element interactively or from a specified source
 * `source` *(optional)* `string` Optional source URL or path
 
 ### Usage
-```lua
+```lua run
 basalt.install("Slider")
+```
+
+```lua run
 basalt.install("Slider", "https://example.com/slider.lua")
 ```
 
@@ -250,6 +261,6 @@ Configures the ElementManager (shortcut to elementManager.configure)
 * `config` `table` Configuration options
 
 ### Usage
-```lua
+```lua run
 basalt.configure({allowRemoteLoading = true, useGlobalCache = true})
 ```

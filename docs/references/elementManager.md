@@ -60,7 +60,7 @@ Loads an element by name. This will load the element and apply any plugins to it
 * `name` `string` The name of the element to load
 
 ### Usage
-```lua
+```lua run
 ElementManager.loadElement("Button")
 ```
 
@@ -116,7 +116,7 @@ Checks if an element is loaded
 Clears the global cache (_G)
 
 ### Usage
-```lua
+```lua run
 ElementManager.clearGlobalCache()
 ```
 

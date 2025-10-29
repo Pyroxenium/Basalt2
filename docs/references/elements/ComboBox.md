@@ -4,6 +4,79 @@ _Supports auto-completion, custom styling, and both single and multi-selection m
 
 Extends: `DropDown`
 
+## Usage
+```lua run
+-- Create a searchable country selector
+```
+
+```lua run
+local combo = main:addComboBox()
+```
+
+```lua run
+:setPosition(5, 5)
+```
+
+```lua run
+:setSize(20, 1)  -- Height will expand when opened
+```
+
+```lua run
+:setItems({
+```
+
+```lua run
+{text = "Germany"},
+```
+
+```lua run
+{text = "France"},
+```
+
+```lua run
+{text = "Spain"},
+```
+
+```lua run
+{text = "Italy"}
+```
+
+```lua run
+})
+```
+
+```lua run
+:setPlaceholder("Select country...")
+```
+
+```lua run
+:setAutoComplete(true)  -- Enable filtering while typing
+```
+
+```lua run
+
+```
+
+```lua run
+-- Handle selection changes
+```
+
+```lua run
+combo:onChange(function(self, value)
+```
+
+```lua run
+-- value will be the selected country
+```
+
+```lua run
+basalt.debug("Selected:", value)
+```
+
+```lua run
+end)
+```
+
 ## Properties
 
 |Property|Type|Default|Description|

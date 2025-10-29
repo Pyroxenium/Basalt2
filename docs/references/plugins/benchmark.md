@@ -42,7 +42,7 @@ Enables benchmarking for a method
 * `BaseElement` `self` The element instance
 
 ### Usage
-```lua
+```lua run
 element:benchmark("render")
 ```
 
@@ -99,7 +99,7 @@ Enables benchmarking for a container and all its children
 * `Container` `self` The container instance
 
 ### Usage
-```lua
+```lua run
 container:benchmarkContainer("render")
 ```
 

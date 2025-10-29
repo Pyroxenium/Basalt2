@@ -25,7 +25,7 @@ Sets if the logger should log
 Sends a debug message to the logger.
 
 ### Usage
-```lua
+```lua run
 Log.debug("This is a debug message")
 ```
 
@@ -34,7 +34,7 @@ Log.debug("This is a debug message")
 Sends an info message to the logger.
 
 ### Usage
-```lua
+```lua run
 Log.info("This is an info message")
 ```
 
@@ -43,7 +43,7 @@ Log.info("This is an info message")
 Sends a warning message to the logger.
 
 ### Usage
-```lua
+```lua run
 Log.warn("This is a warning message")
 ```
 
@@ -52,6 +52,6 @@ Log.warn("This is a warning message")
 Sends an error message to the logger.
 
 ### Usage
-```lua
+```lua run
 Log.error("This is an error message")
 ```

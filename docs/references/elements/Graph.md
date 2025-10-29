@@ -3,6 +3,51 @@ _This is the base class for all graph elements. It is a point based graph._
 
 Extends: `VisualElement`
 
+## Usage
+```lua run
+local graph = main:addGraph()
+```
+
+```lua run
+:addSeries("input", " ", colors.green, colors.green, 10)
+```
+
+```lua run
+:addSeries("output", " ", colors.red, colors.red, 10)
+```
+
+```lua run
+
+```
+
+```lua run
+basalt.schedule(function()
+```
+
+```lua run
+while true do
+```
+
+```lua run
+graph:addPoint("input", math.random(1,100))
+```
+
+```lua run
+graph:addPoint("output", math.random(1,100))
+```
+
+```lua run
+sleep(2)
+```
+
+```lua run
+end
+```
+
+```lua run
+end)
+```
+
 ## Properties
 
 |Property|Type|Default|Description|

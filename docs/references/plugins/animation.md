@@ -74,7 +74,7 @@ Registers a new animation type
 * `handlers` `table` Table containing start, update and complete handlers
 
 ### Usage
-```lua
+```lua run
 Animation.registerAnimation("fade", {start=function(anim) end, update=function(anim,progress) end})
 ```
 

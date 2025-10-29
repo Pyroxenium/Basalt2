@@ -43,8 +43,11 @@ Adds an item to the Collection
 * `Collection` `self` The Collection instance
 
 ### Usage
-```lua
+```lua run
 Collection:addItem("New Item")
+```
+
+```lua run
 Collection:addItem({text="Item", callback=function() end})
 ```
 
@@ -59,7 +62,7 @@ Removes an item from the Collection
 * `Collection` `self` The Collection instance
 
 ### Usage
-```lua
+```lua run
 Collection:removeItem(1)
 ```
 
@@ -71,7 +74,7 @@ Clears all items from the Collection
 * `Collection` `self` The Collection instance
 
 ### Usage
-```lua
+```lua run
 Collection:clear()
 ```
 
@@ -83,7 +86,7 @@ Gets the currently selected items
 * `table` `selected` Collection of selected items
 
 ### Usage
-```lua
+```lua run
 local selected = Collection:getSelectedItems()
 ```
 
@@ -102,7 +105,7 @@ Gets the index of the first selected item
 * `index` `The` index of the first selected item, or nil if none selected
 
 ### Usage
-```lua
+```lua run
 local index = Collection:getSelectedIndex()
 ```
 
@@ -131,6 +134,6 @@ Registers a callback for the select event
 * `Collection` `self` The Collection instance
 
 ### Usage
-```lua
+```lua run
 Collection:onSelect(function(index, item) print("Selected item:", index, item) end)
 ```

@@ -34,6 +34,6 @@ Gets the current value of the slider
 * `number` `value` The current value (0 to max)
 
 ### Usage
-```lua
+```lua run
 local value = slider:getValue()
 ```

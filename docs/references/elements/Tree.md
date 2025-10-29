@@ -10,10 +10,15 @@ Extends: `VisualElement`
 |---|---|---|---|
 |nodes|table|{}|The tree structure containing node objects with {text, children} properties|
 |expandedNodes|table|{}|Table of nodes that are currently expanded|
-|scrollOffset|number|0|Current vertical scroll position|
+|offset|number|0|Current vertical scroll position|
 |horizontalOffset|number|0|Current horizontal scroll position|
 |selectedForegroundColor|color|white|foreground color of selected node|
 |selectedBackgroundColor|color|lightBlue|background color of selected node|
+|showScrollBar|boolean|true|Whether to show the scrollbar when nodes exceed height|
+|scrollBarSymbol|string|"|" Symbol used for the scrollbar handle|
+|scrollBarBackground|string|"\127"|Symbol used for the scrollbar background|
+|scrollBarColor|color|lightGray|Color of the scrollbar handle|
+|scrollBarBackgroundColor|color|gray|Background color of the scrollbar|
 
 ## Functions
 
