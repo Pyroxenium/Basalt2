@@ -11,6 +11,7 @@ minified_elementDirectory["Program"] = {}
 minified_elementDirectory["Image"] = {}
 minified_elementDirectory["BarChart"] = {}
 minified_elementDirectory["ComboBox"] = {}
+minified_elementDirectory["ScrollFrame"] = {}
 minified_elementDirectory["TabControl"] = {}
 minified_elementDirectory["TextBox"] = {}
 minified_elementDirectory["Button"] = {}
@@ -591,6 +592,102 @@ self.get("selectedForeground")or bc;if
 #a_a>_b then a_a=a_a:sub(1,_b)end
 a_a=a_a..string.rep(" ",_b-#a_a)
 self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;return ca end
+project["elements/ScrollFrame.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("Container")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"showScrollBar",{default=true,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"scrollBarSymbol",{default=" ",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"scrollBarBackground",{default="\127",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"scrollBarColor",{default=colors.lightGray,type="color",canTriggerRender=true})
+ca.defineProperty(ca,"scrollBarBackgroundColor",{default=colors.gray,type="color",canTriggerRender=true})
+ca.defineProperty(ca,"contentWidth",{default=0,type="number",getter=function(da)local _b=0;local ab=da.get("children")
+for bb,cb in ipairs(ab)do
+local db=cb.get("x")local _c=cb.get("width")local ac=db+_c-1;if ac>_b then _b=ac end end;return _b end})
+ca.defineProperty(ca,"contentHeight",{default=0,type="number",getter=function(da)local _b=0;local ab=da.get("children")
+for bb,cb in ipairs(ab)do
+local db=cb.get("y")local _c=cb.get("height")local ac=db+_c-1;if ac>_b then _b=ac end end;return _b end})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_drag")ca.defineEvent(ca,"mouse_up")
+ca.defineEvent(ca,"mouse_scroll")function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",20)da.set("height",10)da.set("z",5)
+return da end
+function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","ScrollFrame")return self end
+function ca:mouse_click(da,_b,ab)
+if aa.mouse_click(self,da,_b,ab)then
+local bb,cb=self:getRelativePosition(_b,ab)local db=self.get("width")local _c=self.get("height")
+local ac=self.get("showScrollBar")local bc=self.get("contentWidth")
+local cc=self.get("contentHeight")local dc=ac and bc>db;local _d=dc and _c-1 or _c
+local ad=ac and cc>_d;local bd=ad and db-1 or db
+if
+ad and bb==db and(not dc or cb<_c)then local cd=_d
+local dd=math.max(1,math.floor((_d/cc)*cd))local __a=cc-_d;local a_a=
+__a>0 and(self.get("offsetY")/__a*100)or 0;local b_a=
+math.floor((a_a/100)* (cd-dd))+1
+if cb>=b_a and cb<b_a+dd then
+self._scrollBarDragging=true;self._scrollBarDragOffset=cb-b_a else
+local c_a=( (cb-1)/ (cd-dd))*100;local d_a=math.floor((c_a/100)*__a+0.5)
+self.set("offsetY",math.max(0,math.min(__a,d_a)))end;return true end
+if dc and cb==_c and(not ad or bb<db)then local cd=bd
+local dd=math.max(1,math.floor((bd/bc)*cd))local __a=bc-bd;local a_a=
+__a>0 and(self.get("offsetX")/__a*100)or 0;local b_a=
+math.floor((a_a/100)* (cd-dd))+1
+if bb>=b_a and bb<b_a+dd then
+self._hScrollBarDragging=true;self._hScrollBarDragOffset=bb-b_a else
+local c_a=( (bb-1)/ (cd-dd))*100;local d_a=math.floor((c_a/100)*__a+0.5)
+self.set("offsetX",math.max(0,math.min(__a,d_a)))end;return true end;return true end;return false end
+function ca:mouse_drag(da,_b,ab)
+if self._scrollBarDragging then local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("height")local _c=self.get("contentWidth")
+local ac=self.get("contentHeight")local bc=self.get("width")
+local cc=self.get("showScrollBar")and _c>bc;local dc=cc and db-1 or db;local _d=dc
+local ad=math.max(1,math.floor((dc/ac)*_d))local bd=ac-dc;cb=math.max(1,math.min(_d,cb))local cd=cb- (
+self._scrollBarDragOffset or 0)local dd=
+( (cd-1)/ (_d-ad))*100
+local __a=math.floor((dd/100)*bd+0.5)
+self.set("offsetY",math.max(0,math.min(bd,__a)))return true end
+if self._hScrollBarDragging then local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("width")local _c=self.get("contentWidth")
+local ac=self.get("contentHeight")local bc=self.get("height")
+local cc=self.get("showScrollBar")and _c>db;local dc=cc and bc-1 or bc
+local _d=self.get("showScrollBar")and ac>dc;local ad=_d and db-1 or db;local bd=ad
+local cd=math.max(1,math.floor((ad/_c)*bd))local dd=_c-ad;bb=math.max(1,math.min(bd,bb))local __a=bb- (
+self._hScrollBarDragOffset or 0)local a_a=
+( (__a-1)/ (bd-cd))*100
+local b_a=math.floor((a_a/100)*dd+0.5)
+self.set("offsetX",math.max(0,math.min(dd,b_a)))return true end;return
+aa.mouse_drag and aa.mouse_drag(self,da,_b,ab)or false end
+function ca:mouse_up(da,_b,ab)if self._scrollBarDragging then self._scrollBarDragging=false
+self._scrollBarDragOffset=nil;return true end
+if self._hScrollBarDragging then
+self._hScrollBarDragging=false;self._hScrollBarDragOffset=nil;return true end;return
+aa.mouse_up and aa.mouse_up(self,da,_b,ab)or false end
+function ca:mouse_scroll(da,_b,ab)local bb=self.get("height")local cb=self.get("width")
+local db=self.get("offsetY")local _c=self.get("contentWidth")
+local ac=self.get("contentHeight")local bc=self.get("showScrollBar")and _c>cb;local cc=
+bc and bb-1 or bb;local dc=math.max(0,ac-cc)
+local _d=math.min(dc,math.max(0,db+da))self.set("offsetY",_d)return true end
+function ca:render()aa.render(self)local da=self.get("height")
+local _b=self.get("width")local ab=self.get("offsetY")local bb=self.get("offsetX")
+local cb=self.get("showScrollBar")local db=self.get("contentWidth")
+local _c=self.get("contentHeight")local ac=cb and db>_b;local bc=ac and da-1 or da
+local cc=cb and _c>bc;local dc=cc and _b-1 or _b
+if cc then local _d=bc
+local ad=math.max(1,math.floor((bc/_c)*_d))local bd=_c-bc;local cd=self.get("scrollBarSymbol")
+local dd=self.get("scrollBarBackground")local __a=self.get("scrollBarColor")
+local a_a=self.get("scrollBarBackgroundColor")local b_a=self.get("foreground")
+local c_a=bd>0 and(ab/bd*100)or 0
+local d_a=math.floor((c_a/100)* (_d-ad))+1;for i=1,_d do
+if i>=d_a and i<d_a+ad then
+self:blit(_b,i,cd,ba[__a],ba[a_a])else self:blit(_b,i,dd,ba[b_a],ba[a_a])end end end
+if ac then local _d=dc
+local ad=math.max(1,math.floor((dc/db)*_d))local bd=db-dc;local cd=self.get("scrollBarSymbol")
+local dd=self.get("scrollBarBackground")local __a=self.get("scrollBarColor")
+local a_a=self.get("scrollBarBackgroundColor")local b_a=self.get("foreground")
+local c_a=bd>0 and(bb/bd*100)or 0
+local d_a=math.floor((c_a/100)* (_d-ad))+1;for i=1,_d do
+if i>=d_a and i<d_a+ad then
+self:blit(i,da,cd,ba[__a],ba[a_a])else self:blit(i,da,dd,ba[b_a],ba[a_a])end end end;if cc and ac then local _d=self.get("background")
+self:blit(_b,da," ",ba[_d],ba[_d])end end;return ca end
 project["elements/TabControl.lua"] = function(...) local ba=require("elementManager")
 local ca=require("elements/VisualElement")local da=ba.getElement("Container")
 local _b=require("libraries/colorHex")local ab=require("log")local bb=setmetatable({},da)bb.__index=bb
@@ -1742,65 +1839,141 @@ for bc,cc in
 ipairs(self._values.children)do if cc.destroy then cc:destroy()end end;self:removeAllObservers()ab.destroy(self)return self else
 _b.header="Basalt Error"_b.error("Cannot destroy a BaseFrame.")end end;return db end
 project["elements/Tree.lua"] = function(...) local aa=require("elements/VisualElement")local ba=string.sub
-local ca=require("libraries/colorHex")local da=setmetatable({},aa)da.__index=da
-da.defineProperty(da,"nodes",{default={},type="table",canTriggerRender=true,setter=function(ab,bb)if#bb>0 then
+local ca=require("libraries/colorHex")
+local function da(ab,bb,cb,db)db=db or{}cb=cb or 0;for _c,ac in ipairs(ab)do
+table.insert(db,{node=ac,level=cb})
+if bb[ac]and ac.children then da(ac.children,bb,cb+1,db)end end;return db end;local _b=setmetatable({},aa)_b.__index=_b
+_b.defineProperty(_b,"nodes",{default={},type="table",canTriggerRender=true,setter=function(ab,bb)if#bb>0 then
 ab.get("expandedNodes")[bb[1]]=true end;return bb end})
-da.defineProperty(da,"selectedNode",{default=nil,type="table",canTriggerRender=true})
-da.defineProperty(da,"expandedNodes",{default={},type="table",canTriggerRender=true})
-da.defineProperty(da,"scrollOffset",{default=0,type="number",canTriggerRender=true})
-da.defineProperty(da,"horizontalOffset",{default=0,type="number",canTriggerRender=true})
-da.defineProperty(da,"selectedForegroundColor",{default=colors.white,type="color"})
-da.defineProperty(da,"selectedBackgroundColor",{default=colors.lightBlue,type="color"})da.defineEvent(da,"mouse_click")
-da.defineEvent(da,"mouse_scroll")function da.new()local ab=setmetatable({},da):__init()
-ab.class=da;ab.set("width",30)ab.set("height",10)ab.set("z",5)
+_b.defineProperty(_b,"selectedNode",{default=nil,type="table",canTriggerRender=true})
+_b.defineProperty(_b,"expandedNodes",{default={},type="table",canTriggerRender=true})
+_b.defineProperty(_b,"offset",{default=0,type="number",canTriggerRender=true,setter=function(ab,bb)return math.max(0,bb)end})
+_b.defineProperty(_b,"horizontalOffset",{default=0,type="number",canTriggerRender=true,setter=function(ab,bb)return math.max(0,bb)end})
+_b.defineProperty(_b,"selectedForegroundColor",{default=colors.white,type="color"})
+_b.defineProperty(_b,"selectedBackgroundColor",{default=colors.lightBlue,type="color"})
+_b.defineProperty(_b,"showScrollBar",{default=true,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"scrollBarSymbol",{default=" ",type="string",canTriggerRender=true})
+_b.defineProperty(_b,"scrollBarBackground",{default="\127",type="string",canTriggerRender=true})
+_b.defineProperty(_b,"scrollBarColor",{default=colors.lightGray,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"scrollBarBackgroundColor",{default=colors.gray,type="color",canTriggerRender=true})_b.defineEvent(_b,"mouse_click")
+_b.defineEvent(_b,"mouse_drag")_b.defineEvent(_b,"mouse_up")
+_b.defineEvent(_b,"mouse_scroll")function _b.new()local ab=setmetatable({},_b):__init()
+ab.class=_b;ab.set("width",30)ab.set("height",10)ab.set("z",5)
 return ab end
-function da:init(ab,bb)
-aa.init(self,ab,bb)self.set("type","Tree")return self end;function da:expandNode(ab)self.get("expandedNodes")[ab]=true
+function _b:init(ab,bb)
+aa.init(self,ab,bb)self.set("type","Tree")return self end;function _b:expandNode(ab)self.get("expandedNodes")[ab]=true
 self:updateRender()return self end
-function da:collapseNode(ab)self.get("expandedNodes")[ab]=
-nil;self:updateRender()return self end;function da:toggleNode(ab)if self.get("expandedNodes")[ab]then
+function _b:collapseNode(ab)self.get("expandedNodes")[ab]=
+nil;self:updateRender()return self end;function _b:toggleNode(ab)if self.get("expandedNodes")[ab]then
 self:collapseNode(ab)else self:expandNode(ab)end
 return self end
-local function _b(ab,bb,cb,db)db=db or{}cb=
-cb or 0;for _c,ac in ipairs(ab)do table.insert(db,{node=ac,level=cb})
+function _b:mouse_click(ab,bb,cb)
 if
-bb[ac]and ac.children then _b(ac.children,bb,cb+1,db)end end;return db end
-function da:mouse_click(ab,bb,cb)
-if aa.mouse_click(self,ab,bb,cb)then
-local db,_c=self:getRelativePosition(bb,cb)
-local ac=_b(self.get("nodes"),self.get("expandedNodes"))local bc=_c+self.get("scrollOffset")
-if ac[bc]then local cc=ac[bc]
-local dc=cc.node
-if db<=cc.level*2 +2 then self:toggleNode(dc)end;self.set("selectedNode",dc)
-self:fireEvent("node_select",dc)end;return true end;return false end
-function da:onSelect(ab)self:registerCallback("node_select",ab)return self end
-function da:mouse_scroll(ab,bb,cb)
+aa.mouse_click(self,ab,bb,cb)then local db,_c=self:getRelativePosition(bb,cb)
+local ac=self.get("width")local bc=self.get("height")
+local cc=da(self.get("nodes"),self.get("expandedNodes"))local dc=self.get("showScrollBar")
+local _d,ad=self:getNodeSize()local bd=dc and _d>ac;local cd=bd and bc-1 or bc
+local dd=dc and#cc>cd
+if dd and db==ac and(not bd or _c<bc)then
+local a_a=bd and bc-1 or bc
+local b_a=math.max(1,math.floor((cd/#cc)*a_a))local c_a=#cc-cd;local d_a=
+c_a>0 and(self.get("offset")/c_a*100)or 0;local _aa=
+math.floor((d_a/100)* (a_a-b_a))+1
+if _c>=_aa and _c<_aa+b_a then
+self._scrollBarDragging=true;self._scrollBarDragOffset=_c-_aa else
+local aaa=( (_c-1)/ (a_a-b_a))*100;local baa=math.floor((aaa/100)*c_a+0.5)
+self.set("offset",math.max(0,math.min(c_a,baa)))end;return true end
+if bd and _c==bc and(not dd or db<ac)then
+local a_a=dd and ac-1 or ac
+local b_a=math.max(1,math.floor((a_a/_d)*a_a))local c_a=_d-a_a
+local d_a=c_a>0 and
+(self.get("horizontalOffset")/c_a*100)or 0
+local _aa=math.floor((d_a/100)* (a_a-b_a))+1
+if db>=_aa and db<_aa+b_a then self._hScrollBarDragging=true;self._hScrollBarDragOffset=
+db-_aa else local aaa=( (db-1)/ (a_a-b_a))*100;local baa=math.floor((
+aaa/100)*c_a+0.5)
+self.set("horizontalOffset",math.max(0,math.min(c_a,baa)))end;return true end;local __a=_c+self.get("offset")
+if cc[__a]then local a_a=cc[__a]
+local b_a=a_a.node
+if db<=a_a.level*2 +2 then self:toggleNode(b_a)end;self.set("selectedNode",b_a)
+self:fireEvent("node_select",b_a)end;return true end;return false end
+function _b:onSelect(ab)self:registerCallback("node_select",ab)return self end
+function _b:mouse_drag(ab,bb,cb)
+if self._scrollBarDragging then local db,_c=self:getRelativePosition(bb,cb)
+local ac=da(self.get("nodes"),self.get("expandedNodes"))local bc=self.get("height")local cc,dc=self:getNodeSize()
+local _d=
+self.get("showScrollBar")and cc>self.get("width")local ad=_d and bc-1 or bc;local bd=ad
+local cd=math.max(1,math.floor((ad/#ac)*bd))local dd=#ac-ad;_c=math.max(1,math.min(bd,_c))local __a=_c- (
+self._scrollBarDragOffset or 0)local a_a=
+( (__a-1)/ (bd-cd))*100
+local b_a=math.floor((a_a/100)*dd+0.5)
+self.set("offset",math.max(0,math.min(dd,b_a)))return true end
+if self._hScrollBarDragging then local db,_c=self:getRelativePosition(bb,cb)
+local ac=self.get("width")local bc,cc=self:getNodeSize()
+local dc=da(self.get("nodes"),self.get("expandedNodes"))local _d=self.get("height")
+local ad=self.get("showScrollBar")and bc>ac;local bd=ad and _d-1 or _d
+local cd=self.get("showScrollBar")and#dc>bd;local dd=cd and ac-1 or ac
+local __a=math.max(1,math.floor((dd/bc)*dd))local a_a=bc-dd;db=math.max(1,math.min(dd,db))local b_a=db- (
+self._hScrollBarDragOffset or 0)local c_a=
+( (b_a-1)/ (dd-__a))*100
+local d_a=math.floor((c_a/100)*a_a+0.5)
+self.set("horizontalOffset",math.max(0,math.min(a_a,d_a)))return true end;return
+aa.mouse_drag and aa.mouse_drag(self,ab,bb,cb)or false end
+function _b:mouse_up(ab,bb,cb)if self._scrollBarDragging then self._scrollBarDragging=false
+self._scrollBarDragOffset=nil;return true end
+if self._hScrollBarDragging then
+self._hScrollBarDragging=false;self._hScrollBarDragOffset=nil;return true end;return
+aa.mouse_up and aa.mouse_up(self,ab,bb,cb)or false end
+function _b:mouse_scroll(ab,bb,cb)
 if aa.mouse_scroll(self,ab,bb,cb)then
-local db=_b(self.get("nodes"),self.get("expandedNodes"))
-local _c=math.max(0,#db-self.get("height"))
-local ac=math.min(_c,math.max(0,self.get("scrollOffset")+ab))self.set("scrollOffset",ac)return true end;return false end
-function da:getNodeSize()local ab,bb=0,0
-local cb=_b(self.get("nodes"),self.get("expandedNodes"))for db,_c in ipairs(cb)do
-ab=math.max(ab,_c.level+#_c.node.text)end;bb=#cb;return ab,bb end
-function da:render()aa.render(self)
-local ab=_b(self.get("nodes"),self.get("expandedNodes"))local bb=self.get("height")local cb=self.get("selectedNode")
-local db=self.get("expandedNodes")local _c=self.get("scrollOffset")
-local ac=self.get("horizontalOffset")
-for y=1,bb do local bc=ab[y+_c]
-if bc then local cc=bc.node;local dc=bc.level
-local _d=string.rep("  ",dc)local ad=" "if cc.children and#cc.children>0 then
-ad=db[cc]and"\31"or"\16"end;local bd=cc==cb
-local cd=bd and
+local db=da(self.get("nodes"),self.get("expandedNodes"))local _c=self.get("height")local ac=self.get("width")
+local bc=self.get("showScrollBar")local cc,dc=self:getNodeSize()local _d=bc and cc>ac
+local ad=_d and _c-1 or _c;local bd=math.max(0,#db-ad)
+local cd=math.min(bd,math.max(0,self.get("offset")+ab))self.set("offset",cd)return true end;return false end
+function _b:getNodeSize()local ab,bb=0,0
+local cb=da(self.get("nodes"),self.get("expandedNodes"))local db=self.get("expandedNodes")
+for _c,ac in ipairs(cb)do local bc=ac.node
+local cc=ac.level;local dc=string.rep("  ",cc)local _d=" "if
+bc.children and#bc.children>0 then _d=db[bc]and"\31"or"\16"end
+local ad=dc.._d..
+" ".. (bc.text or"Node")ab=math.max(ab,#ad)end;bb=#cb;return ab,bb end
+function _b:render()aa.render(self)
+local ab=da(self.get("nodes"),self.get("expandedNodes"))local bb=self.get("height")local cb=self.get("width")
+local db=self.get("selectedNode")local _c=self.get("expandedNodes")
+local ac=self.get("offset")local bc=self.get("horizontalOffset")
+local cc=self.get("showScrollBar")local dc,_d=self:getNodeSize()local ad=cc and dc>cb
+local bd=ad and bb-1 or bb;local cd=cc and#ab>bd;local dd=cd and cb-1 or cb
+for y=1,bd do
+local _aa=ab[y+ac]
+if _aa then local aaa=_aa.node;local baa=_aa.level;local caa=string.rep("  ",baa)
+local daa=" "if aaa.children and#aaa.children>0 then
+daa=_c[aaa]and"\31"or"\16"end;local _ba=aaa==db
+local aba=_ba and
 self.get("selectedBackgroundColor")or
-(cc.background or cc.bg or self.get("background"))
-local dd=bd and self.get("selectedForegroundColor")or(
-cc.foreground or cc.fg or self.get("foreground"))
-local __a=_d..ad.." ".. (cc.text or"Node")local a_a=ba(__a,ac+1,ac+self.get("width"))
-local b_a=a_a..string.rep(" ",
-self.get("width")-#a_a)
-local c_a=ca[cd]:rep(#b_a)or ca[colors.black]:rep(#b_a)
-local d_a=ca[dd]:rep(#b_a)or ca[colors.white]:rep(#b_a)self:blit(1,y,b_a,d_a,c_a)else
-self:blit(1,y,string.rep(" ",self.get("width")),ca[self.get("foreground")]:rep(self.get("width")),ca[self.get("background")]:rep(self.get("width")))end end end;return da end
+(aaa.background or aaa.bg or self.get("background"))
+local bba=_ba and self.get("selectedForegroundColor")or(
+aaa.foreground or aaa.fg or self.get("foreground"))
+local cba=caa..daa.." ".. (aaa.text or"Node")local dba=ba(cba,bc+1,bc+dd)
+local _ca=dba..string.rep(" ",dd-#dba)
+local aca=ca[aba]:rep(#_ca)or ca[colors.black]:rep(#_ca)
+local bca=ca[bba]:rep(#_ca)or ca[colors.white]:rep(#_ca)self:blit(1,y,_ca,bca,aca)else
+self:blit(1,y,string.rep(" ",dd),ca[self.get("foreground")]:rep(dd),ca[self.get("background")]:rep(dd))end end;local __a=self.getResolved("scrollBarSymbol")
+local a_a=self.getResolved("scrollBarBackground")local b_a=self.getResolved("scrollBarColor")
+local c_a=self.getResolved("scrollBarBackgroundColor")local d_a=self.getResolved("foreground")
+if cd then
+local _aa=ad and bb-1 or bb
+local aaa=math.max(1,math.floor((bd/#ab)*_aa))local baa=#ab-bd;local caa=baa>0 and(ac/baa*100)or 0
+local daa=math.floor((
+caa/100)* (_aa-aaa))+1
+for i=1,_aa do self:blit(cb,i,a_a,ca[d_a],ca[c_a])end;for i=daa,math.min(_aa,daa+aaa-1)do
+self:blit(cb,i,__a,ca[b_a],ca[c_a])end end
+if ad then local _aa=cd and cb-1 or cb
+local aaa=math.max(1,math.floor((_aa/dc)*_aa))local baa=dc-dd;local caa=baa>0 and(bc/baa*100)or 0
+local daa=math.floor((
+caa/100)* (_aa-aaa))+1
+for i=1,_aa do self:blit(i,bb,a_a,ca[d_a],ca[c_a])end;for i=daa,math.min(_aa,daa+aaa-1)do
+self:blit(i,bb,__a,ca[b_a],ca[c_a])end end;if cd and ad then
+self:blit(cb,bb," ",ca[d_a],ca[self.get("background")])end end;return _b end
 project["elements/DropDown.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
@@ -2143,157 +2316,246 @@ function ab:render()
 if
 (self.get("flexUpdateLayout"))then
 ac(self,self.get("flexDirection"),self.get("flexSpacing"),self.get("flexJustifyContent"),self.get("flexWrap"))end;_b.render(self)end;return ab end
-project["elements/Table.lua"] = function(...) local d=require("elements/VisualElement")
-local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"columns",{default={},type="table",canTriggerRender=true,setter=function(ba,ca)local da={}
-for _b,ab in
-ipairs(ca)do
-if type(ab)=="string"then da[_b]={name=ab,width=#ab+1}elseif type(ab)=="table"then
-da[_b]={name=
-ab.name or"",width=ab.width,minWidth=ab.minWidth or 3,maxWidth=ab.maxWidth or nil}end end;return da end})
-aa.defineProperty(aa,"data",{default={},type="table",canTriggerRender=true,setter=function(ba,ca)ba.set("scrollOffset",0)
-ba.set("selectedRow",nil)ba.set("sortColumn",nil)
-ba.set("sortDirection","asc")return ca end})
-aa.defineProperty(aa,"selectedRow",{default=nil,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"headerColor",{default=colors.blue,type="color"})
-aa.defineProperty(aa,"selectedColor",{default=colors.lightBlue,type="color"})
-aa.defineProperty(aa,"gridColor",{default=colors.gray,type="color"})
-aa.defineProperty(aa,"sortColumn",{default=nil,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"sortDirection",{default="asc",type="string",canTriggerRender=true})
-aa.defineProperty(aa,"scrollOffset",{default=0,type="number",canTriggerRender=true})
-aa.defineProperty(aa,"customSortFunction",{default={},type="table"})aa.defineEvent(aa,"mouse_click")
-aa.defineEvent(aa,"mouse_scroll")function aa.new()local ba=setmetatable({},aa):__init()
-ba.class=aa;ba.set("width",30)ba.set("height",10)ba.set("z",5)
-return ba end
-function aa:init(ba,ca)
-d.init(self,ba,ca)self.set("type","Table")return self end
-function aa:addColumn(ba,ca)local da=self.get("columns")
-table.insert(da,{name=ba,width=ca})self.set("columns",da)return self end;function aa:addData(...)local ba=self.get("data")table.insert(ba,{...})
-self.set("data",ba)return self end
-function aa:setColumnSortFunction(ba,ca)
-local da=self.get("customSortFunction")da[ba]=ca;self.set("customSortFunction",da)return self end
-function aa:setFormattedData(ba,ca)local da={}for _b,ab in ipairs(ba)do local bb={}for cb,db in ipairs(ab)do bb[cb]=db end;if ca and
-ca[_b]then bb._sortValues=ca[_b]end
-table.insert(da,bb)end
-self.set("data",da)return self end
-function aa:setData(ba,ca)if not ca then self.set("data",ba)return self end
-local da={}
-for _b,ab in ipairs(ba)do local bb={}for cb,db in ipairs(ab)do
-if ca[cb]then bb[cb]=ca[cb](db)else bb[cb]=db end end;table.insert(da,bb)end;return self:setFormattedData(da,ba)end
-function aa:calculateColumnWidths(ba,ca)local da={}local _b=ca;local ab={}local bb=0
-for db,_c in ipairs(ba)do
-da[db]={name=_c.name,width=_c.width,minWidth=_c.minWidth or 3,maxWidth=_c.maxWidth}
-if type(_c.width)=="number"then
-da[db].visibleWidth=math.max(_c.width,da[db].minWidth)if da[db].maxWidth then
-da[db].visibleWidth=math.min(da[db].visibleWidth,da[db].maxWidth)end
-_b=_b-da[db].visibleWidth;bb=bb+da[db].visibleWidth elseif type(_c.width)=="string"and
-_c.width:match("%%$")then
-local ac=tonumber(_c.width:match("(%d+)%%"))
-if ac then da[db].visibleWidth=math.floor(ca*ac/100)
-da[db].visibleWidth=math.max(da[db].visibleWidth,da[db].minWidth)if da[db].maxWidth then
-da[db].visibleWidth=math.min(da[db].visibleWidth,da[db].maxWidth)end
-_b=_b-da[db].visibleWidth;bb=bb+da[db].visibleWidth else table.insert(ab,db)end else table.insert(ab,db)end end
-if#ab>0 and _b>0 then local db=math.floor(_b/#ab)
-for _c,ac in ipairs(ab)do
-da[ac].visibleWidth=math.max(db,da[ac].minWidth)if da[ac].maxWidth then
-da[ac].visibleWidth=math.min(da[ac].visibleWidth,da[ac].maxWidth)end end end;local cb=0
-for db,_c in ipairs(da)do cb=cb+ (_c.visibleWidth or 0)end;if cb>ca then local db=ca/cb
-for _c,ac in ipairs(da)do if ac.visibleWidth then
-ac.visibleWidth=math.max(1,math.floor(ac.visibleWidth*db))end end end
+project["elements/Table.lua"] = function(...) local _a=require("elements/Collection")
+local aa=require("libraries/colorHex")local ba=setmetatable({},_a)ba.__index=ba
+ba.defineProperty(ba,"columns",{default={},type="table",canTriggerRender=true,setter=function(da,_b)local ab={}
+for bb,cb in
+ipairs(_b)do
+if type(cb)=="string"then ab[bb]={name=cb,width=#cb+1}elseif type(cb)=="table"then
+ab[bb]={name=
+cb.name or"",width=cb.width,minWidth=cb.minWidth or 3,maxWidth=cb.maxWidth or nil}end end;return ab end})
+ba.defineProperty(ba,"headerColor",{default=colors.blue,type="color"})
+ba.defineProperty(ba,"gridColor",{default=colors.gray,type="color"})
+ba.defineProperty(ba,"sortColumn",{default=nil,type="number",canTriggerRender=true})
+ba.defineProperty(ba,"sortDirection",{default="asc",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"customSortFunction",{default={},type="table"})
+ba.defineProperty(ba,"offset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)local ab=math.max(0,#da.get("items")-
+(da.get("height")-1))return
+math.min(ab,math.max(0,_b))end})
+ba.defineProperty(ba,"showScrollBar",{default=true,type="boolean",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarSymbol",{default=" ",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarBackground",{default="\127",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarColor",{default=colors.lightGray,type="color",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarBackgroundColor",{default=colors.gray,type="color",canTriggerRender=true})ba.defineEvent(ba,"mouse_click")
+ba.defineEvent(ba,"mouse_drag")ba.defineEvent(ba,"mouse_up")
+ba.defineEvent(ba,"mouse_scroll")
+local ca={cells={type="table",default={}},_sortValues={type="table",default={}},selected={type="boolean",default=false},text={type="string",default=""}}function ba.new()local da=setmetatable({},ba):__init()
+da.class=ba;da.set("width",30)da.set("height",10)da.set("z",5)
 return da end
-function aa:sortData(ba,ca)local da=self.get("data")
-local _b=self.get("sortDirection")local ab=self.get("customSortFunction")local bb=ca or ab[ba]
-if bb then
-table.sort(da,function(cb,db)return
-bb(cb,db,_b)end)else
-table.sort(da,function(cb,db)if not cb or not db then return false end;local _c,ac
-if cb._sortValues and
-cb._sortValues[ba]then _c=cb._sortValues[ba]else _c=cb[ba]end;if db._sortValues and db._sortValues[ba]then ac=db._sortValues[ba]else
-ac=db[ba]end
-if type(_c)=="number"and
-type(ac)=="number"then if _b=="asc"then return _c<ac else return _c>ac end else local bc=tostring(
-_c or"")local cc=tostring(ac or"")if _b=="asc"then
-return bc<cc else return bc>cc end end end)end;return self end
-function aa:mouse_click(ba,ca,da)
-if not d.mouse_click(self,ba,ca,da)then return false end;local _b,ab=self:getRelativePosition(ca,da)
-if ab==1 then
-local bb=self.get("columns")local cb=self.get("width")
-local db=self:calculateColumnWidths(bb,cb)local _c=1
-for ac,bc in ipairs(db)do
-local cc=bc.visibleWidth or bc.width or 10
-if _b>=_c and _b<_c+cc then
-if self.get("sortColumn")==ac then
+function ba:init(da,_b)
+_a.init(self,da,_b)self._entrySchema=ca;self.set("type","Table")
+self:observe("sortColumn",function()
+if
+self.get("sortColumn")then self:sortByColumn(self.get("sortColumn"))end end)return self end;function ba:addRow(...)local da={...}
+_a.addItem(self,{cells=da,_sortValues=da,text=table.concat(da," ")})return self end;function ba:removeRow(da)
+local _b=self.get("items")
+if _b[da]then table.remove(_b,da)self.set("items",_b)end;return self end;function ba:getRow(da)
+local _b=self.get("items")return _b[da]end
+function ba:updateCell(da,_b,ab)
+local bb=self.get("items")if bb[da]and bb[da].cells then bb[da].cells[_b]=ab
+self.set("items",bb)end;return self end
+function ba:getSelectedRow()local da=self.get("items")for _b,ab in ipairs(da)do local bb=
+ab._data and ab._data.selected or ab.selected
+if bb then return ab end end;return nil end;function ba:clearData()self.set("items",{})return self end;function ba:addColumn(da,_b)
+local ab=self.get("columns")table.insert(ab,{name=da,width=_b})
+self.set("columns",ab)return self end
+function ba:setColumnSortFunction(da,_b)
+local ab=self.get("customSortFunction")ab[da]=_b;self.set("customSortFunction",ab)return self end
+function ba:setData(da,_b)self:clearData()
+for ab,bb in ipairs(da)do local cb={}local db={}
+for _c,ac in ipairs(bb)do db[_c]=ac;if _b and
+_b[_c]then cb[_c]=_b[_c](ac)else cb[_c]=ac end end
+_a.addItem(self,{cells=cb,_sortValues=db,text=table.concat(cb," ")})end;return self end
+function ba:getData()local da=self.get("items")local _b={}for ab,bb in ipairs(da)do local cb=
+bb._data and bb._data.cells or bb.cells;if cb then
+table.insert(_b,cb)end end
+return _b end
+function ba:calculateColumnWidths(da,_b)local ab={}local bb=_b;local cb={}local db=0
+for ac,bc in ipairs(da)do
+ab[ac]={name=bc.name,width=bc.width,minWidth=bc.minWidth or 3,maxWidth=bc.maxWidth}
+if type(bc.width)=="number"then
+ab[ac].visibleWidth=math.max(bc.width,ab[ac].minWidth)if ab[ac].maxWidth then
+ab[ac].visibleWidth=math.min(ab[ac].visibleWidth,ab[ac].maxWidth)end
+bb=bb-ab[ac].visibleWidth;db=db+ab[ac].visibleWidth elseif type(bc.width)=="string"and
+bc.width:match("%%$")then
+local cc=tonumber(bc.width:match("(%d+)%%"))
+if cc then ab[ac].visibleWidth=math.floor(_b*cc/100)
+ab[ac].visibleWidth=math.max(ab[ac].visibleWidth,ab[ac].minWidth)if ab[ac].maxWidth then
+ab[ac].visibleWidth=math.min(ab[ac].visibleWidth,ab[ac].maxWidth)end
+bb=bb-ab[ac].visibleWidth;db=db+ab[ac].visibleWidth else table.insert(cb,ac)end else table.insert(cb,ac)end end
+if#cb>0 and bb>0 then local ac=math.floor(bb/#cb)
+for bc,cc in ipairs(cb)do
+ab[cc].visibleWidth=math.max(ac,ab[cc].minWidth)if ab[cc].maxWidth then
+ab[cc].visibleWidth=math.min(ab[cc].visibleWidth,ab[cc].maxWidth)end end end;local _c=0
+for ac,bc in ipairs(ab)do _c=_c+ (bc.visibleWidth or 0)end;if _c>_b then local ac=_b/_c
+for bc,cc in ipairs(ab)do if cc.visibleWidth then
+cc.visibleWidth=math.max(1,math.floor(cc.visibleWidth*ac))end end end
+return ab end
+function ba:sortByColumn(da,_b)local ab=self.get("items")
+local bb=self.get("sortDirection")local cb=self.get("customSortFunction")local db=_b or cb[da]
+if db then
+table.sort(ab,function(_c,ac)return
+db(_c,ac,bb)end)else
+table.sort(ab,function(_c,ac)
+local bc=_c._data and _c._data.cells or _c.cells
+local cc=ac._data and ac._data.cells or ac.cells
+local dc=_c._data and _c._data._sortValues or _c._sortValues
+local _d=ac._data and ac._data._sortValues or ac._sortValues
+if not _c or not ac or not bc or not cc then return false end;local ad,bd;if dc and dc[da]then ad=dc[da]else ad=bc[da]end;if _d and _d[da]then
+bd=_d[da]else bd=cc[da]end
+if
+type(ad)=="number"and type(bd)=="number"then if bb=="asc"then return ad<bd else return ad>bd end else
+local cd=tostring(ad or"")local dd=tostring(bd or"")
+if bb=="asc"then return cd<dd else return cd>dd end end end)end;self.set("items",ab)return self end
+function ba:onRowSelect(da)self:registerCallback("rowSelect",da)return self end
+function ba:mouse_click(da,_b,ab)
+if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("width")local _c=self.get("height")local ac=self.get("items")
+local bc=self.get("showScrollBar")local cc=_c-1
+if bc and#ac>cc and bb==db and cb>1 then local dc=_c-1
+local _d=#ac-cc
+local ad=math.max(1,math.floor((cc/#ac)*dc))
+local bd=_d>0 and(self.get("offset")/_d*100)or 0
+local cd=math.floor((bd/100)* (dc-ad))+1;local dd=cb-1
+if dd>=cd and dd<cd+ad then self._scrollBarDragging=true;self._scrollBarDragOffset=
+dd-cd else local __a=( (dd-1)/ (dc-ad))*100;local a_a=math.floor((
+__a/100)*_d+0.5)
+self.set("offset",math.max(0,math.min(_d,a_a)))end;return true end
+if cb==1 then local dc=self.get("columns")
+local _d=self:calculateColumnWidths(dc,db)local ad=1
+for bd,cd in ipairs(_d)do
+local dd=cd.visibleWidth or cd.width or 10
+if bb>=ad and bb<ad+dd then
+if self.get("sortColumn")==bd then
 self.set("sortDirection",
-self.get("sortDirection")=="asc"and"desc"or"asc")else self.set("sortColumn",ac)
-self.set("sortDirection","asc")end;self:sortData(ac)break end;_c=_c+cc end end
-if ab>1 then local bb=ab-2 +self.get("scrollOffset")if bb>=0 and bb<#
-self.get("data")then
-self.set("selectedRow",bb+1)end end;return true end
-function aa:mouse_scroll(ba,ca,da)
-if(d.mouse_scroll(self,ba,ca,da))then local _b=self.get("data")
-local ab=self.get("height")local bb=ab-2;local cb=math.max(0,#_b-bb-1)
-local db=math.min(cb,math.max(0,
-self.get("scrollOffset")+ba))self.set("scrollOffset",db)return true end;return false end
-function aa:render()d.render(self)local ba=self.get("columns")
-local ca=self.get("data")local da=self.get("selectedRow")
-local _b=self.get("sortColumn")local ab=self.get("scrollOffset")local bb=self.get("height")
-local cb=self.get("width")local db=self:calculateColumnWidths(ba,cb)local _c=0;local ac=#db;for cc,dc in
-ipairs(db)do if _c+dc.visibleWidth>cb then ac=cc-1;break end
-_c=_c+dc.visibleWidth end;local bc=1
-for cc,dc in ipairs(db)do
-if cc>ac then break end;local _d=dc.name;if cc==_b then
-_d=_d.. (
+self.get("sortDirection")=="asc"and"desc"or"asc")else self.set("sortColumn",bd)
+self.set("sortDirection","asc")end;self:sortByColumn(bd)self:updateRender()return true end;ad=ad+dd end;return true end
+if cb>1 then local dc=cb-2 +self.get("offset")
+if dc>=0 and dc<#ac then
+local _d=dc+1;for ad,bd in ipairs(ac)do
+if bd._data then bd._data.selected=false else bd.selected=false end end
+if ac[_d]then if ac[_d]._data then
+ac[_d]._data.selected=true else ac[_d].selected=true end
+self:fireEvent("rowSelect",_d,ac[_d])self:updateRender()end end;return true end;return true end
+function ba:mouse_drag(da,_b,ab)
+if self._scrollBarDragging then local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("items")local _c=self.get("height")local ac=_c-1;local bc=_c-1
+local cc=math.max(1,math.floor((ac/#db)*bc))local dc=#db-ac;local _d=cb-1
+_d=math.max(1,math.min(bc,_d))local ad=_d- (self._scrollBarDragOffset or 0)local bd=(
+(ad-1)/ (bc-cc))*100
+local cd=math.floor((bd/100)*dc+0.5)
+self.set("offset",math.max(0,math.min(dc,cd)))return true end;return
+_a.mouse_drag and _a.mouse_drag(self,da,_b,ab)or false end
+function ba:mouse_up(da,_b,ab)if self._scrollBarDragging then self._scrollBarDragging=false
+self._scrollBarDragOffset=nil;return true end
+return _a.mouse_up and
+_a.mouse_up(self,da,_b,ab)or false end
+function ba:mouse_scroll(da,_b,ab)
+if _a.mouse_scroll(self,da,_b,ab)then local bb=self.get("items")
+local cb=self.get("height")local db=cb-1;local _c=math.max(0,#bb-db)
+local ac=math.min(_c,math.max(0,
+self.get("offset")+da))self.set("offset",ac)self:updateRender()return true end;return false end
+function ba:render()_a.render(self)local da=self.getResolved("columns")
+local _b=self.getResolved("items")local ab=self.getResolved("sortColumn")
+local bb=self.getResolved("offset")local cb=self.get("height")local db=self.get("width")
+local _c=self.getResolved("showScrollBar")local ac=cb-1;local bc=_c and#_b>ac;local cc=bc and db-1 or db
+local dc=self:calculateColumnWidths(da,cc)local _d=0;local ad=#dc
+for cd,dd in ipairs(dc)do
+if _d+dd.visibleWidth>cc then ad=cd-1;break end;_d=_d+dd.visibleWidth end;local bd=1
+for cd,dd in ipairs(dc)do if cd>ad then break end;local __a=dd.name;if cd==ab then
+__a=__a.. (
 self.get("sortDirection")=="asc"and"\30"or"\31")end
-self:textFg(bc,1,_d:sub(1,dc.visibleWidth),self.get("headerColor"))bc=bc+dc.visibleWidth end
-for y=2,bb do local cc=y-2 +ab;local dc=ca[cc+1]
-if dc and(cc+1)<=#ca then bc=1
-local _d=(cc+1)==da and
-self.get("selectedColor")or self.get("background")
-for ad,bd in ipairs(db)do if ad>ac then break end;local cd=tostring(dc[ad]or"")local dd=cd..string.rep(" ",
-bd.visibleWidth-#cd)if
-ad<ac then
-dd=string.sub(dd,1,bd.visibleWidth-1).." "end
-local __a=string.sub(dd,1,bd.visibleWidth)
-local a_a=string.rep(_a[self.get("foreground")],bd.visibleWidth)local b_a=string.rep(_a[_d],bd.visibleWidth)
-self:blit(bc,y,__a,a_a,b_a)bc=bc+bd.visibleWidth end else
-self:blit(1,y,string.rep(" ",self.get("width")),string.rep(_a[self.get("foreground")],self.get("width")),string.rep(_a[self.get("background")],self.get("width")))end end end;return aa end
+self:textFg(bd,1,__a:sub(1,dd.visibleWidth),self.get("headerColor"))bd=bd+dd.visibleWidth end;if bd<=cc then
+self:textBg(bd,1,string.rep(" ",cc-bd+1),self.get("background"))end
+for y=2,cb do local cd=y-2 +bb;local dd=_b[cd+1]
+if
+dd then
+local __a=dd._data and dd._data.cells or dd.cells
+local a_a=dd._data and dd._data.selected or dd.selected
+if __a then bd=1;local b_a=a_a and self.get("selectedBackground")or
+self.get("background")
+for c_a,d_a in
+ipairs(dc)do if c_a>ad then break end;local _aa=tostring(__a[c_a]or"")
+local aaa=_aa..string.rep(" ",
+d_a.visibleWidth-#_aa)if c_a<ad then
+aaa=string.sub(aaa,1,d_a.visibleWidth-1).." "end
+local baa=string.sub(aaa,1,d_a.visibleWidth)
+local caa=string.rep(aa[self.get("foreground")],d_a.visibleWidth)local daa=string.rep(aa[b_a],d_a.visibleWidth)
+self:blit(bd,y,baa,caa,daa)bd=bd+d_a.visibleWidth end;if bd<=cc then
+self:textBg(bd,y,string.rep(" ",cc-bd+1),b_a)end end else
+self:blit(1,y,string.rep(" ",cc),string.rep(aa[self.get("foreground")],cc),string.rep(aa[self.get("background")],cc))end end
+if bc then local cd=cb-1
+local dd=math.max(1,math.floor((ac/#_b)*cd))local __a=#_b-ac;local a_a=__a>0 and(bb/__a*100)or 0
+local b_a=math.floor((
+a_a/100)* (cd-dd))+1;local c_a=self.getResolved("scrollBarSymbol")
+local d_a=self.getResolved("scrollBarBackground")local _aa=self.getResolved("scrollBarColor")
+local aaa=self.getResolved("scrollBarBackgroundColor")local baa=self.getResolved("foreground")for i=2,cb do
+self:blit(db,i,d_a,aa[baa],aa[aaa])end;for i=b_a,math.min(cd,b_a+dd-1)do
+self:blit(db,i+1,c_a,aa[_aa],aa[aaa])end end end;return ba end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})
+ca.defineProperty(ca,"spacing",{default=1,type="number",canTriggerRender=true})
+ca.defineProperty(ca,"horizontalOffset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
+local ab=math.max(0,da:getTotalWidth()-da.get("width"))return math.min(ab,math.max(0,_b))end})
+ca.defineProperty(ca,"maxWidth",{default=nil,type="number",canTriggerRender=true})
 function ca.new()local da=setmetatable({},ca):__init()
 da.class=ca;da.set("width",30)da.set("height",1)
 da.set("background",colors.gray)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Menu")return self end
-function ca:setItems(da)local _b={}local ab=0
-for bb,cb in ipairs(da)do
-if cb.separator then
-table.insert(_b,{text=cb.text or"|",selectable=false})ab=ab+1 else local db=" "..cb.text.." "cb.text=db
-table.insert(_b,cb)ab=ab+#db end end;self.set("width",ab)return aa.setItems(self,_b)end
-function ca:render()_a.render(self)local da=1
-for _b,ab in ipairs(self.get("items"))do if type(ab)==
-"string"then ab={text=" "..ab.." "}
-self.get("items")[_b]=ab end;local bb=ab.selected
-local cb=
-ab.selectable==false and self.get("separatorColor")or(bb and(ab.selectedForeground or
-self.get("selectedForeground"))or(ab.foreground or
+function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Menu")
+self:observe("items",function()
+local ab=self.get("maxWidth")if ab then
+self.set("width",math.min(ab,self:getTotalWidth()),true)else
+self.set("width",self:getTotalWidth(),true)end end)return self end
+function ca:getTotalWidth()local da=self.get("items")local _b=self.get("spacing")
+local ab=0;for bb,cb in ipairs(da)do if type(cb)=="table"then ab=ab+#cb.text else ab=
+ab+#tostring(cb)+2 end
+if bb<#da then ab=ab+_b end end;return ab end
+function ca:render()_a.render(self)local da=self.get("width")
+local _b=self.get("spacing")local ab=self.get("horizontalOffset")
+local bb=self.get("items")local cb={}local db=1
+for _c,ac in ipairs(bb)do if type(ac)=="string"then
+ac={text=" "..ac.." "}bb[_c]=ac end
+cb[_c]={startX=db,endX=db+#ac.text-1,text=ac.text,item=ac}db=db+#ac.text;if _c<#bb and _b>0 then db=db+_b end end
+for _c,ac in ipairs(cb)do local bc=ac.item;local cc=ac.startX-ab;local dc=ac.endX-ab
+if cc>da then break end
+if dc>=1 then local _d=math.max(1,cc)local ad=math.min(da,dc)
+local bd=math.max(1,1 -cc+1)
+local cd=math.min(#ac.text,#ac.text- (dc-da))local dd=ac.text:sub(bd,cd)
+if#dd>0 then local __a=bc.selected
+local a_a=
+bc.selectable==false and self.get("separatorColor")or(__a and(bc.selectedForeground or
+self.get("selectedForeground"))or(bc.foreground or
 self.get("foreground")))
-local db=
-bb and(ab.selectedBackground or self.get("selectedBackground"))or(ab.background or self.get("background"))
-self:blit(da,1,ab.text,string.rep(ba[cb],#ab.text),string.rep(ba[db],#ab.text))da=da+#ab.text end end
+local b_a=
+__a and(bc.selectedBackground or self.get("selectedBackground"))or(bc.background or self.get("background"))
+self:blit(_d,1,dd,string.rep(ba[a_a],#dd),string.rep(ba[b_a],#dd))end
+if _c<#bb and _b>0 then local __a=ac.endX+1 -ab;local a_a=__a+_b-1
+if a_a>=1 and
+__a<=da then local b_a=math.max(1,__a)local c_a=math.min(da,a_a)
+local d_a=c_a-b_a+1
+if d_a>0 then local _aa=string.rep(" ",d_a)
+self:blit(b_a,1,_aa,string.rep(ba[self.get("foreground")],d_a),string.rep(ba[self.get("background")],d_a))end end end end end end
 function ca:mouse_click(da,_b,ab)
 if not _a.mouse_click(self,da,_b,ab)then return false end
 if(self.get("selectable")==false)then return false end
-local bb=select(1,self:getRelativePosition(_b,ab))local cb=1
-for db,_c in ipairs(self.get("items"))do
-if
-bb>=cb and bb<cb+#_c.text then
-if _c.selectable~=false then if type(_c)=="string"then _c={text=_c}
-self.get("items")[db]=_c end
-if
-not self.get("multiSelection")then for ac,bc in ipairs(self.get("items"))do
-if type(bc)=="table"then bc.selected=false end end end;_c.selected=not _c.selected
-if _c.callback then _c.callback(self)end;self:fireEvent("select",db,_c)end;return true end;cb=cb+#_c.text end;return false end;return ca end
+local bb=select(1,self:getRelativePosition(_b,ab))local cb=self.get("horizontalOffset")
+local db=self.get("spacing")local _c=self.get("items")local ac=bb+cb;local bc=1
+for cc,dc in ipairs(_c)do local _d=#dc.text
+if ac>=
+bc and ac<bc+_d then
+if dc.selectable~=false then if type(dc)=="string"then
+dc={text=dc}_c[cc]=dc end;if
+not self.get("multiSelection")then
+for ad,bd in ipairs(_c)do if type(bd)=="table"then bd.selected=false end end end
+dc.selected=not dc.selected;if dc.callback then dc.callback(self)end
+self:fireEvent("select",cc,dc)end;return true end;bc=bc+_d;if cc<#_c and db>0 then bc=bc+db end end;return false end
+function ca:mouse_scroll(da,_b,ab)
+if _a.mouse_scroll(self,da,_b,ab)then
+local bb=self.get("horizontalOffset")
+local cb=math.max(0,self:getTotalWidth()-self.get("width"))bb=math.min(cb,math.max(0,bb+ (da*3)))
+self.set("horizontalOffset",bb)return true end;return false end;return ca end
 project["elements/Slider.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"step",{default=1,type="number",canTriggerRender=true})
