@@ -9,6 +9,12 @@ Extends: `Collection`
 |Property|Type|Default|Description|
 |---|---|---|---|
 |offset|number|0|Current scroll offset for viewing long lists|
+|emptyText|string|"No|items" Text to display when the list is empty|
+|showScrollBar|boolean|true|Whether to show the scrollbar when items exceed height|
+|scrollBarSymbol|string|"|" Symbol used for the scrollbar handle|
+|scrollBarBackground|string|"\127"|Symbol used for the scrollbar background|
+|scrollBarColor|color|lightGray|Color of the scrollbar handle|
+|scrollBarBackgroundColor|color|gray|Background color of the scrollbar|
 
 ## Events
 
@@ -23,6 +29,7 @@ Extends: `Collection`
 |[List:onSelect](#list-onselect-callback)|List|Registers a callback for the select event|
 |[List:scrollToBottom](#list-scrolltobottom)|List|Scrolls the list to the bottom|
 |[List:scrollToTop](#list-scrolltotop)|List|Scrolls the list to the top|
+|[List:scrollToItem](#list-scrolltoitem-index)|List|Scrolls to a specific item|
 
 ## List:onSelect(callback)
 
@@ -52,3 +59,18 @@ Scrolls the list to the top
 
 ### Returns
 * `List` `self` The List instance
+
+## List:scrollToItem(index)
+
+Scrolls to make a specific item visible
+
+### Parameters
+* `index` `number` The index of the item to scroll to
+
+### Returns
+* `List` `self` The List instance
+
+### Usage
+```lua
+list:scrollToItem(5)
+```

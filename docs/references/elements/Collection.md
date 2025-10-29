@@ -27,6 +27,9 @@ Extends: `VisualElement`
 |[Collection:clear](#collection-clear)|Collection|Clears all items from the Collection|
 |[Collection:getSelectedItems](#collection-getselecteditems)|table|Gets the currently selected items|
 |[Collection:getSelectedItem](#collection-getselecteditem)|selected|Gets first selected item|
+|[Collection:getSelectedIndex](#collection-getselectedindex)|index|Gets the index of the first selected item|
+|[Collection:selectNext](#collection-selectnext)|Collection|Selects the next item|
+|[Collection:selectPrevious](#collection-selectprevious)|Collection|Selects the previous item|
 |[Collection:onSelect](#collection-onselect-callback)|Collection|Registers a callback for the select event|
 
 ## Collection:addItem(text)
@@ -90,6 +93,32 @@ Gets first selected item
 
 ### Returns
 * `selected` `The` first item
+
+## Collection:getSelectedIndex()
+
+Gets the index of the first selected item
+
+### Returns
+* `index` `The` index of the first selected item, or nil if none selected
+
+### Usage
+```lua
+local index = Collection:getSelectedIndex()
+```
+
+## Collection:selectNext()
+
+Selects the next item in the collection
+
+### Returns
+* `Collection` `self` The Collection instance
+
+## Collection:selectPrevious()
+
+Selects the previous item in the collection
+
+### Returns
+* `Collection` `self` The Collection instance
 
 ## Collection:onSelect(callback)
 
