@@ -1801,62 +1801,53 @@ self.get("width")-#a_a)
 local c_a=ca[cd]:rep(#b_a)or ca[colors.black]:rep(#b_a)
 local d_a=ca[dd]:rep(#b_a)or ca[colors.white]:rep(#b_a)self:blit(1,y,b_a,d_a,c_a)else
 self:blit(1,y,string.rep(" ",self.get("width")),ca[self.get("foreground")]:rep(self.get("width")),ca[self.get("background")]:rep(self.get("width")))end end end;return da end
-project["elements/DropDown.lua"] = function(...) local aa=require("elements/VisualElement")
-local ba=require("elements/List")local ca=require("elements/ScrollBar")
-local da=require("libraries/colorHex")local _b=setmetatable({},ba)_b.__index=_b
-_b.defineProperty(_b,"dropdownHeight",{default=5,type="number"})
-_b.defineProperty(_b,"selectedText",{default="",type="string"})
-_b.defineProperty(_b,"dropSymbol",{default="\31",type="string"})function _b.new()local ab=setmetatable({},_b):__init()
-ab.class=_b;ab.set("width",16)ab.set("height",1)ab.set("z",8)
-return ab end;function _b:init(ab,bb)
-ba.init(self,ab,bb)self.set("type","DropDown")
+project["elements/DropDown.lua"] = function(...) local _a=require("elements/VisualElement")
+local aa=require("elements/List")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
+ca.defineProperty(ca,"selectedText",{default="",type="string"})
+ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
+return da end;function ca:init(da,_b)
+aa.init(self,da,_b)self.set("type","DropDown")
 self:registerState("opened",nil,200)return self end
-function _b:mouse_click(ab,bb,cb)
+function ca:mouse_click(da,_b,ab)
 if
-not aa.mouse_click(self,ab,bb,cb)then return false end;local db,_c=self:getRelativePosition(bb,cb)
-local ac=self:hasState("opened")
-if _c==1 then
-if ac then self.set("height",1)self:unsetState("opened")else
+not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
+local db=self:hasState("opened")
+if cb==1 then
+if db then self.set("height",1)self:unsetState("opened")else
 self.set("height",
 1 +
-math.min(self.get("dropdownHeight"),#self.get("items")))self:setState("opened")end;return true elseif ac and _c>1 and self.get("selectable")then local bc=(_c-1)+
-self.get("offset")local cc=self.get("items")
-if bc<=#cc then
-local dc=cc[bc]if type(dc)=="string"then dc={text=dc}cc[bc]=dc end
-if not
-self.get("multiSelection")then for _d,ad in ipairs(cc)do
-if type(ad)=="table"then ad.selected=false end end end;dc.selected=not dc.selected
-if dc.callback then dc.callback(self)end;self:fireEvent("select",bc,dc)
-self:unsetState("opened")self:unsetState("clicked")self.set("height",1)
-self:updateRender()return true end end;return false end
-function _b:render()aa.render(self)local ab=self.get("selectedText")
-local bb=self:hasState("opened")local cb=self:getSelectedItems()
-if#cb>0 then local db=cb[1]
-ab=db.text or""ab=ab:sub(1,self.get("width")-2)end
-self:blit(1,1,ab..
-string.rep(" ",self.get("width")-#ab-1).. (bb and"\31"or"\17"),string.rep(da[self.getResolved("foreground")],self.get("width")),string.rep(da[self.getResolved("background")],self.get("width")))
-if bb then local db=self.get("items")
-local _c=self.get("height")-1;local ac=self.get("offset")local bc=self.get("width")
-for i=1,_c do local cc=i+ac
-local dc=db[cc]
-if dc then if type(dc)=="string"then dc={text=dc}db[cc]=dc end
+math.min(self.get("dropdownHeight"),#self.get("items")))self:setState("opened")end;return true elseif db and cb>1 then return aa.mouse_click(self,da,_b,ab-1)end;return false end
+function ca:mouse_drag(da,_b,ab)if self:hasState("opened")then
+return aa.mouse_drag(self,da,_b,ab-1)end;return
+_a.mouse_drag and _a.mouse_drag(self,da,_b,ab)or false end
+function ca:mouse_up(da,_b,ab)
+if self:hasState("opened")then
+local bb,cb=self:getRelativePosition(_b,ab)
 if
-dc.separator then local _d=(dc.text or"-"):sub(1,1)
-local ad=string.rep(_d,bc)
-local bd=dc.fg or self.getResolved("foreground")
-local cd=dc.bg or self.getResolved("background")self:textBg(1,i+1,string.rep(" ",bc),cd)self:textFg(1,
-i+1,ad,bd)else local _d=dc.text;local ad=dc.selected
-_d=_d:sub(1,bc)
-local bd=ad and
-(dc.selectedBg or self.getResolved("selectedBackground"))or
-(dc.bg or self.getResolved("background"))
-local cd=ad and
-(dc.selectedFg or self.getResolved("selectedForeground"))or
-(dc.fg or self.getResolved("foreground"))self:textBg(1,i+1,string.rep(" ",bc),bd)self:textFg(1,
-i+1,_d,cd)end end end end end
-function _b:focus()aa.focus(self)self:setState("opened")end
-function _b:blur()aa.blur(self)self:unsetState("opened")
-self.set("height",1)self:updateRender()end;return _b end
+cb>1 and self.get("selectable")and not self._scrollBarDragging then local db=(cb-1)+self.get("offset")
+local _c=self.get("items")
+if db<=#_c then local ac=_c[db]
+if type(ac)=="string"then ac={text=ac}_c[db]=ac end
+if not self.get("multiSelection")then for bc,cc in ipairs(_c)do if type(cc)=="table"then
+cc.selected=false end end end;ac.selected=not ac.selected
+if ac.callback then ac.callback(self)end;self:fireEvent("select",db,ac)
+self:unsetState("opened")self:unsetState("clicked")self.set("height",1)
+self:updateRender()return true end end;aa.mouse_up(self,da,_b,ab-1)
+self:unsetState("clicked")return true end;return
+_a.mouse_up and _a.mouse_up(self,da,_b,ab)or false end
+function ca:render()_a.render(self)local da=self.get("selectedText")
+local _b=self:hasState("opened")local ab=self:getSelectedItems()
+if#ab>0 then local bb=ab[1]
+da=bb.text or""da=da:sub(1,self.get("width")-2)end;if _b then aa.render(self,1)end
+self:blit(1,1,da..
+string.rep(" ",
+self.get("width")-#da-1).. (_b and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],self.get("width")),string.rep(ba[self.getResolved("background")],self.get("width")))end
+function ca:focus()_a.focus(self)self:setState("opened")end
+function ca:blur()_a.blur(self)self:unsetState("opened")
+self.set("height",1)self:updateRender()end;return ca end
 project["elements/Display.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")
 local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
@@ -2788,51 +2779,124 @@ if(self.parent)then self.parent:removeChild(self)end;self._destroyed=true;self:r
 self:setFocused(false)end;function ca:updateRender()
 if
 (self.parent)then self.parent:updateRender()else self._renderUpdate=true end;return self end;return ca end
-project["elements/List.lua"] = function(...) local d=require("elements/Collection")
-local _a=setmetatable({},d)_a.__index=_a
-_a.defineProperty(_a,"offset",{default=0,type="number",canTriggerRender=true})_a.defineEvent(_a,"mouse_click")
-_a.defineEvent(_a,"mouse_up")_a.defineEvent(_a,"mouse_scroll")
-local aa={text={type="string",default="Entry"},bg={type="number",default=
-nil},fg={type="number",default=nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=
-nil}}
-function _a.new()local ba=setmetatable({},_a):__init()
-ba.class=_a;ba.set("width",16)ba.set("height",8)ba.set("z",5)
-ba.set("background",colors.gray)return ba end;function _a:init(ba,ca)d.init(self,ba,ca)self._entrySchema=aa
-self.set("type","List")return self end
-function _a:mouse_click(ba,ca,da)
-if
-d.mouse_click(self,ba,ca,da)and self.get("selectable")then
-local _b,ab=self:getRelativePosition(ca,da)local bb=ab+self.get("offset")
-local cb=self.get("items")
-if bb<=#cb then local db=cb[bb]if not self.get("multiSelection")then
-for _c,ac in ipairs(cb)do if
-type(ac)=="table"then ac.selected=false end end end
-db.selected=not db.selected;if db.callback then db.callback(self)end
-self:fireEvent("select",bb,db)self:updateRender()end;return true end;return false end
-function _a:mouse_scroll(ba,ca,da)
-if d.mouse_scroll(self,ba,ca,da)then local _b=self.get("offset")
+project["elements/List.lua"] = function(...) local _a=require("elements/Collection")
+local aa=require("libraries/colorHex")local ba=setmetatable({},_a)ba.__index=ba
+ba.defineProperty(ba,"offset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
 local ab=math.max(0,#
-self.get("items")-self.get("height"))_b=math.min(ab,math.max(0,_b+ba))
-self.set("offset",_b)return true end;return false end
-function _a:onSelect(ba)self:registerCallback("select",ba)return self end
-function _a:scrollToBottom()
-local ba=math.max(0,#self.get("items")-self.get("height"))self.set("offset",ba)return self end
-function _a:scrollToTop()self.set("offset",0)return self end
-function _a:render()d.render(self)local ba=self.get("items")
-local ca=self.get("height")local da=self.get("offset")local _b=self.get("width")
-local ab=self.getResolved("background")local bb=self.getResolved("foreground")
-for i=1,ca do local cb=i+da;local db=ba[cb]
+da.get("items")-da.get("height"))return math.min(ab,math.max(0,_b))end})
+ba.defineProperty(ba,"emptyText",{default="No items",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"showScrollBar",{default=true,type="boolean",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarSymbol",{default=" ",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarBackground",{default="\127",type="string",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarColor",{default=colors.lightGray,type="color",canTriggerRender=true})
+ba.defineProperty(ba,"scrollBarBackgroundColor",{default=colors.gray,type="color",canTriggerRender=true})ba.defineEvent(ba,"mouse_click")
+ba.defineEvent(ba,"mouse_up")ba.defineEvent(ba,"mouse_drag")
+ba.defineEvent(ba,"mouse_scroll")ba.defineEvent(ba,"key")
+local ca={text={type="string",default="Entry"},bg={type="number",default=nil},fg={type="number",default=
+nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=nil}}
+function ba.new()local da=setmetatable({},ba):__init()
+da.class=ba;da.set("width",16)da.set("height",8)da.set("z",5)
+da.set("background",colors.gray)return da end
+function ba:init(da,_b)_a.init(self,da,_b)self._entrySchema=ca
+self.set("type","List")
+self:observe("items",function()
+local ab=math.max(0,#self.get("items")-self.get("height"))
+if self.get("offset")>ab then self.set("offset",ab)end end)
+self:observe("height",function()
+local ab=math.max(0,#self.get("items")-self.get("height"))
+if self.get("offset")>ab then self.set("offset",ab)end end)return self end
+function ba:mouse_click(da,_b,ab)
+if _a.mouse_click(self,da,_b,ab)then
+local bb,cb=self:getRelativePosition(_b,ab)local db=self.get("width")local _c=self.get("items")
+local ac=self.get("height")local bc=self.get("showScrollBar")
+if bc and#_c>ac and bb==db then local cc=
+#_c-ac
+local dc=math.max(1,math.floor((ac/#_c)*ac))
+local _d=cc>0 and(self.get("offset")/cc*100)or 0
+local ad=math.floor((_d/100)* (ac-dc))+1
+if cb>=ad and cb<ad+dc then self._scrollBarDragging=true
+self._scrollBarDragOffset=cb-ad else local bd=( (cb-1)/ (ac-dc))*100
+local cd=math.floor((bd/100)*cc+0.5)
+self.set("offset",math.max(0,math.min(cc,cd)))end;return true end
+if self.get("selectable")then local cc=cb+self.get("offset")
 if
-db then
-if db.separator then local _c=(db.text or"-"):sub(1,1)
-local ac=string.rep(_c,_b)local bc=db.fg or bb;local cc=db.bg or ab
-self:textBg(1,i,string.rep(" ",_b),cc)self:textFg(1,i,ac:sub(1,_b),bc)else local _c=db.text
-local ac=db.selected
-local bc=ac and
-(db.selectedBg or self.getResolved("selectedBackground"))or(db.bg or ab)
-local cc=ac and
-(db.selectedFg or self.getResolved("selectedForeground"))or(db.fg or bb)self:textBg(1,i,string.rep(" ",_b),bc)
-self:textFg(1,i,_c:sub(1,_b),cc)end end end end;return _a end
+cc<=#_c then local dc=_c[cc]if not self.get("multiSelection")then
+for _d,ad in ipairs(_c)do if
+type(ad)=="table"then ad.selected=false end end end
+dc.selected=not dc.selected;if dc.callback then dc.callback(self)end
+self:fireEvent("select",cc,dc)self:updateRender()end end;return true end;return false end
+function ba:mouse_drag(da,_b,ab)
+if self._scrollBarDragging then local bb,cb=self:getRelativePosition(_b,ab)
+local db=self.get("items")local _c=self.get("height")
+local ac=math.max(1,math.floor((_c/#db)*_c))local bc=#db-_c;cb=math.max(1,math.min(_c,cb))local cc=cb- (
+self._scrollBarDragOffset or 0)local dc=
+( (cc-1)/ (_c-ac))*100
+local _d=math.floor((dc/100)*bc+0.5)
+self.set("offset",math.max(0,math.min(bc,_d)))return true end;return
+_a.mouse_drag and _a.mouse_drag(self,da,_b,ab)or false end
+function ba:mouse_up(da,_b,ab)if self._scrollBarDragging then self._scrollBarDragging=false
+self._scrollBarDragOffset=nil;return true end
+return _a.mouse_up and
+_a.mouse_up(self,da,_b,ab)or false end
+function ba:mouse_scroll(da,_b,ab)
+if _a.mouse_scroll(self,da,_b,ab)then local bb=self.get("offset")
+local cb=math.max(0,
+#self.get("items")-self.get("height"))bb=math.min(cb,math.max(0,bb+da))
+self.set("offset",bb)return true end;return false end
+function ba:onSelect(da)self:registerCallback("select",da)return self end
+function ba:scrollToBottom()
+local da=math.max(0,#self.get("items")-self.get("height"))self.set("offset",da)return self end
+function ba:scrollToTop()self.set("offset",0)return self end
+function ba:scrollToItem(da)local _b=self.get("height")local ab=self.get("offset")
+if da<
+ab+1 then self.set("offset",math.max(0,da-1))elseif da>
+ab+_b then self.set("offset",da-_b)end;return self end
+function ba:key(da)
+if _a.key(self,da)and self.get("selectable")then
+local _b=self.get("items")local ab=self:getSelectedIndex()
+if da==keys.up then
+self:selectPrevious()if ab and ab>1 then self:scrollToItem(ab-1)end
+return true elseif da==keys.down then self:selectNext()if ab and ab<#_b then
+self:scrollToItem(ab+1)end;return true elseif da==keys.home then
+self:clearItemSelection()self:selectItem(1)self:scrollToTop()return true elseif
+da==keys["end"]then self:clearItemSelection()self:selectItem(#_b)
+self:scrollToBottom()return true elseif da==keys.pageUp then local bb=self.get("height")
+local cb=math.max(1,(ab or 1)-bb)self:clearItemSelection()self:selectItem(cb)
+self:scrollToItem(cb)return true elseif da==keys.pageDown then local bb=self.get("height")
+local cb=math.min(#_b,(ab or 1)+bb)self:clearItemSelection()self:selectItem(cb)
+self:scrollToItem(cb)return true end end;return false end
+function ba:render(da)_a.render(self)local _b=self.get("items")
+local ab=self.get("height")local bb=self.get("offset")local cb=self.get("width")
+local db=self.getResolved("background")local _c=self.getResolved("foreground")
+local ac=self.get("showScrollBar")local bc=ac and#_b>ab;local cc=bc and cb-1 or cb
+if#_b==0 then
+local dc=self.get("emptyText")local _d=math.floor(ab/2)+da;local ad=math.max(1,
+math.floor((cb-#dc)/2)+1)for i=1,ab do
+self:textBg(1,i,string.rep(" ",cb),db)end;if _d>=1 and _d<=ab then
+self:textFg(ad,_d+da,dc,colors.gray)end;return end
+for i=1,ab do local dc=i+bb;local _d=_b[dc]
+if _d then
+if _d.separator then
+local ad=(
+(_d.text or"-")~=""and _d.text or"-"):sub(1,1)local bd=string.rep(ad,cc)local cd=_d.fg or _c;local dd=_d.bg or db;self:textBg(1,
+i+da,string.rep(" ",cc),dd)self:textFg(1,i+
+da,bd,cd)else local ad=_d.text or""local bd=_d.selected
+local cd=
+bd and(
+_d.selectedBg or self.getResolved("selectedBackground"))or(_d.bg or db)
+local dd=bd and
+(_d.selectedFg or self.getResolved("selectedForeground"))or(_d.fg or _c)local __a=ad
+if#__a>cc then __a=__a:sub(1,cc-3).."..."else __a=__a..string.rep(" ",cc-
+#__a)end;self:textBg(1,i+da,string.rep(" ",cc),cd)self:textFg(1,
+i+da,__a,dd)end else self:textBg(1,i+da,string.rep(" ",cc),db)end end
+if bc then
+local dc=math.max(1,math.floor((ab/#_b)*ab))local _d=#_b-ab;local ad=_d>0 and(bb/_d*100)or 0;local bd=math.floor((ad/
+100)* (ab-dc))+1
+local cd=self.getResolved("scrollBarSymbol")local dd=self.getResolved("scrollBarBackground")
+local __a=self.getResolved("scrollBarColor")local a_a=self.getResolved("scrollBarBackgroundColor")
+for i=1,ab do self:blit(cb,
+i+da,dd,aa[_c],aa[a_a])end;for i=bd,math.min(ab,bd+dc-1)do
+self:blit(cb,i+da,cd,aa[__a],aa[a_a])end end end;return ba end
 project["elements/Collection.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/collectionentry")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"items",{default={},type="table"})
@@ -2868,9 +2932,23 @@ if type(ba)=="number"then
 if ca[ba]and
 type(ca[ba])=="table"then ca[ba].selected=false end else
 for da,_b in pairs(ca)do if _b==ba then
-if type(ca[da])=="table"then ca[da].selected=false end;break end end end;self:updateRender()return self end;function aa:clearItemSelection()local ba=self.get("items")
-for ca,da in ipairs(ba)do da.selected=false end;return self end;function aa:onSelect(ba)
-self:registerCallback("select",ba)return self end;return aa end
+if type(ca[da])=="table"then ca[da].selected=false end;break end end end;self:updateRender()return self end
+function aa:clearItemSelection()local ba=self.get("items")
+for ca,da in ipairs(ba)do da.selected=false end;self:updateRender()return self end
+function aa:getSelectedIndex()local ba=self.get("items")
+for ca,da in ipairs(ba)do if type(da)=="table"and
+da.selected then return ca end end;return nil end
+function aa:selectNext()local ba=self.get("items")
+local ca=self:getSelectedIndex()
+if not ca then if#ba>0 then self:selectItem(1)end elseif ca<#ba then
+if not
+self.get("multiSelection")then self:clearItemSelection()end;self:selectItem(ca+1)end;self:updateRender()return self end
+function aa:selectPrevious()local ba=self.get("items")
+local ca=self:getSelectedIndex()
+if not ca then if#ba>0 then self:selectItem(#ba)end elseif ca>1 then
+if not
+self.get("multiSelection")then self:clearItemSelection()end;self:selectItem(ca-1)end;self:updateRender()return self end
+function aa:onSelect(ba)self:registerCallback("select",ba)return self end;return aa end
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
 function da.new(cb)
@@ -3082,96 +3160,127 @@ bd.hooks={destroy=function(cd)
 if _d[cd]then
 for dd,__a in pairs(_d[cd])do for a_a,b_a in ipairs(__a)do
 b_a.target:removeObserver(b_a.property,b_a.callback)end end;_d[cd]=nil;dc[cd]=nil end end}return{BaseElement=bd} end
-project["plugins/xml.lua"] = function(...) local ab=require("errorManager")local bb=require("log")
-local cb={new=function(ad)
+project["plugins/xml.lua"] = function(...) local bb=require("errorManager")local cb=require("log")
+local db={new=function(cd)
 return
-{tag=ad,value=nil,attributes={},children={},addChild=function(bd,cd)
-table.insert(bd.children,cd)end,addAttribute=function(bd,cd,dd)bd.attributes[cd]=dd end}end}
-local db=function(ad,bd)
-local cd,dd=string.gsub(bd,"(%w+)=([\"'])(.-)%2",function(b_a,c_a,d_a)
-ad:addAttribute(b_a,"\""..d_a.."\"")end)
-local __a,a_a=string.gsub(bd,"(%w+)={(.-)}",function(b_a,c_a)ad:addAttribute(b_a,c_a)end)end
-local _c={parseText=function(ad)local bd={}local cd=cb.new()table.insert(bd,cd)local dd,__a,a_a,b_a,c_a;local d_a,_aa=1,1
-while
-true do
-dd,_aa,__a,a_a,b_a,c_a=string.find(ad,"<(%/?)([%w_:]+)(.-)(%/?)>",d_a)if not dd then break end;local aaa=string.sub(ad,d_a,dd-1)if not
-string.find(aaa,"^%s*$")then local baa=(cd.value or"")..aaa
-bd[#bd].value=baa end
-if c_a=="/"then local baa=cb.new(a_a)
-db(baa,b_a)cd:addChild(baa)elseif __a==""then local baa=cb.new(a_a)db(baa,b_a)
-table.insert(bd,baa)cd=baa else local baa=table.remove(bd)cd=bd[#bd]
-if#bd<1 then ab.error(
-"XMLParser: nothing to close with "..a_a)end;if baa.tag~=a_a then
-ab.error("XMLParser: trying to close "..baa.tag.." with "..a_a)end;cd:addChild(baa)end;d_a=_aa+1 end;if#bd>1 then
-error("XMLParser: unclosed "..bd[#bd].tag)end;return cd.children end}
-local function ac(ad)local bd={}local cd=1
-while true do local dd,__a,a_a=ad:find("%${([^}]+)}",cd)
-if not dd then break end
-table.insert(bd,{start=dd,ending=__a,expression=a_a,raw=ad:sub(dd,__a)})cd=__a+1 end;return bd end
-local function bc(ad,bd)if not ad then return ad end;if
-ad:sub(1,1)=="\""and ad:sub(-1)=="\""then ad=ad:sub(2,-2)end;local cd=ac(ad)
-for dd,__a in ipairs(cd)do
-local a_a=__a.expression;local b_a=__a.start-1;local c_a=__a.ending+1;if bd[a_a]then ad=ad:sub(1,b_a)..
-tostring(bd[a_a])..ad:sub(c_a)else
-ab.error(
-"XMLParser: variable '"..a_a.."' not found in scope")end end
-if ad:match("^%s*<!%[CDATA%[.*%]%]>%s*$")then
-local dd=ad:match("<!%[CDATA%[(.*)%]%]>")local __a=_ENV;for a_a,b_a in pairs(bd)do __a[a_a]=b_a end;return
-load("return "..dd,nil,"bt",__a)()end
-if ad=="true"then return true elseif ad=="false"then return false elseif colors[ad]then return colors[ad]elseif tonumber(ad)then return
-tonumber(ad)else return ad end end
-local function cc(ad,bd)local cd={}
-for dd,__a in pairs(ad.children)do
-if __a.tag=="item"or __a.tag=="entry"then
-local a_a={}
-for b_a,c_a in pairs(__a.attributes)do a_a[b_a]=bc(c_a,bd)end;for b_a,c_a in pairs(__a.children)do
-if c_a.value then a_a[c_a.tag]=bc(c_a.value,bd)elseif#
-c_a.children>0 then a_a[c_a.tag]=cc(c_a)end end
-table.insert(cd,a_a)else if __a.value then cd[__a.tag]=bc(__a.value,bd)elseif#__a.children>0 then
-cd[__a.tag]=cc(__a)end end end;return cd end;local dc={}function dc.setup(ad)
-ad.defineProperty(ad,"customXML",{default={attributes={},children={}},type="table"})end
-function dc:fromXML(ad,bd)
-if(ad.attributes)then
-for cd,dd in
-pairs(ad.attributes)do
-if(self._properties[cd])then self.set(cd,bc(dd,bd))elseif self[cd]then
-if(
-cd:sub(1,2)=="on")then local __a=dd:gsub("\"","")
-if(bd[__a])then if
-(type(bd[__a])~="function")then
-ab.error("XMLParser: variable '"..__a..
-"' is not a function for element '"..self:getType().."' "..cd)end
-self[cd](self,bd[__a])else
-ab.error("XMLParser: variable '"..__a.."' not found in scope")end else
-ab.error("XMLParser: property '"..cd..
-"' not found in element '"..self:getType().."'")end else local __a=self.get("customXML")
-__a.attributes[cd]=bc(dd,bd)end end end
-if(ad.children)then
-for cd,dd in pairs(ad.children)do
-if(self._properties[dd.tag])then if(
-self._properties[dd.tag].type=="table")then self.set(dd.tag,cc(dd,bd))else
-self.set(dd.tag,bc(dd.value,bd))end else local __a={}
-if(dd.children)then
-for a_a,b_a in
-pairs(dd.children)do
-if(b_a.tag=="param")then
-table.insert(__a,bc(b_a.value,bd))elseif(b_a.tag=="table")then table.insert(__a,cc(b_a,bd))end end end
-if(self[dd.tag])then if(#__a>0)then
-self[dd.tag](self,table.unpack(__a))elseif(dd.value)then self[dd.tag](self,bc(dd.value,bd))else
-self[dd.tag](self)end else
-local a_a=self.get("customXML")dd.value=bc(dd.value,bd)a_a.children[dd.tag]=dd end end end end;return self end;local _d={}
-function _d:loadXML(ad,bd)bd=bd or{}local cd=_c.parseText(ad)
-self:fromXML(cd,bd)
-if(cd)then
-for dd,__a in ipairs(cd)do
-local a_a=__a.tag:sub(1,1):upper()..__a.tag:sub(2)if self["add"..a_a]then local b_a=self["add"..a_a](self)
-b_a:fromXML(__a,bd)end end end;return self end
-function _d:fromXML(ad,bd)dc.fromXML(self,ad,bd)
-if(ad.children)then
-for cd,dd in ipairs(ad.children)do local __a=
-dd.tag:sub(1,1):upper()..dd.tag:sub(2)
-if
-self["add"..__a]then local a_a=self["add"..__a](self)a_a:fromXML(dd,bd)end end end;return self end;return{API=_c,Container=_d,BaseElement=dc} end
+{tag=cd,value=nil,attributes={},children={},addChild=function(dd,__a)
+table.insert(dd.children,__a)end,addAttribute=function(dd,__a,a_a)dd.attributes[__a]=a_a end}end}
+local _c=function(cd,dd)
+local __a,a_a=string.gsub(dd,"([%w:]+)=([\"'])(.-)%2",function(d_a,_aa,aaa)
+cd:addAttribute(d_a,"\""..aaa.."\"")end)
+local b_a,c_a=string.gsub(dd,"([%w:]+)={(.-)}",function(d_a,_aa)cd:addAttribute(d_a,_aa)end)end;local ac={}
+ac={_customTagHandlers={},registerTagHandler=function(cd,dd)ac._customTagHandlers[cd]=dd
+cb.info(
+"XMLParser: Registered custom tag handler for '"..cd.."'")end,unregisterTagHandler=function(cd)ac._customTagHandlers[cd]=
+nil
+cb.info("XMLParser: Unregistered custom tag handler for '"..cd.."'")end,getTagHandler=function(cd)return
+ac._customTagHandlers[cd]end,parseText=function(cd)local dd={}local __a=db.new()
+table.insert(dd,__a)local a_a,b_a,c_a,d_a,_aa;local aaa,baa=1,1
+while true do
+a_a,baa,b_a,c_a,d_a,_aa=string.find(cd,"<(%/?)([%w_:]+)(.-)(%/?)>",aaa)if not a_a then break end;local caa=string.sub(cd,aaa,a_a-1)if not
+string.find(caa,"^%s*$")then local daa=(__a.value or"")..caa
+dd[#dd].value=daa end
+if _aa=="/"then local daa=db.new(c_a)
+_c(daa,d_a)__a:addChild(daa)elseif b_a==""then local daa=db.new(c_a)_c(daa,d_a)
+table.insert(dd,daa)__a=daa else local daa=table.remove(dd)__a=dd[#dd]
+if#dd<1 then bb.error(
+"XMLParser: nothing to close with "..c_a)end;if daa.tag~=c_a then
+bb.error("XMLParser: trying to close "..daa.tag.." with "..c_a)end;__a:addChild(daa)end;aaa=baa+1 end;if#dd>1 then
+error("XMLParser: unclosed "..dd[#dd].tag)end;return __a.children end}
+local function bc(cd)local dd={}local __a=1
+while true do local a_a,b_a,c_a=cd:find("%${([^}]+)}",__a)
+if not a_a then break end
+table.insert(dd,{start=a_a,ending=b_a,expression=c_a,raw=cd:sub(a_a,b_a)})__a=b_a+1 end;return dd end
+local function cc(cd,dd)if not cd then return cd end;if
+cd:sub(1,1)=="\""and cd:sub(-1)=="\""then cd=cd:sub(2,-2)end;local __a=bc(cd)
+for a_a,b_a in ipairs(__a)do
+local c_a=b_a.expression;local d_a=b_a.start-1;local _aa=b_a.ending+1;if dd[c_a]then cd=cd:sub(1,d_a)..
+tostring(dd[c_a])..cd:sub(_aa)else
+bb.error(
+"XMLParser: variable '"..c_a.."' not found in scope")end end
+if cd:match("^%s*<!%[CDATA%[.*%]%]>%s*$")then
+local a_a=cd:match("<!%[CDATA%[(.*)%]%]>")local b_a=_ENV;for baa,caa in pairs(dd)do b_a[baa]=caa end
+local c_a,d_a=load("return "..a_a,nil,"bt",b_a)if not c_a then
+bb.error("XMLParser: CDATA syntax error: "..tostring(d_a))end;local _aa,aaa=pcall(c_a)if not _aa then
+bb.error(
+"XMLParser: CDATA execution error: "..tostring(aaa))end;return aaa end
+if cd=="true"then return true elseif cd=="false"then return false elseif colors[cd]then return colors[cd]elseif tonumber(cd)then return
+tonumber(cd)else return cd end end
+local function dc(cd,dd)local __a={}
+for a_a,b_a in pairs(cd.children)do
+if b_a.tag=="item"or b_a.tag=="entry"then
+local c_a={}
+for d_a,_aa in pairs(b_a.attributes)do c_a[d_a]=cc(_aa,dd)end;for d_a,_aa in pairs(b_a.children)do
+if _aa.value then c_a[_aa.tag]=cc(_aa.value,dd)elseif#
+_aa.children>0 then c_a[_aa.tag]=dc(_aa)end end
+table.insert(__a,c_a)else if b_a.value then __a[b_a.tag]=cc(b_a.value,dd)elseif#b_a.children>0 then
+__a[b_a.tag]=dc(b_a)end end end;return __a end
+local function _d(cd,dd,__a,a_a)local b_a,c_a=dd:match("^(.+)State:(.+)$")
+if b_a and c_a then
+c_a=c_a:gsub("^\"",""):gsub("\"$","")
+local d_a=b_a:sub(1,1):upper()..b_a:sub(2)local _aa="set"..d_a.."State"
+if cd[_aa]then
+cd[_aa](cd,c_a,cc(__a,a_a))return true else
+cb.warn("XMLParser: State method '".._aa..
+"' not found for element '"..cd:getType().."'")return true end end;return false end;local ad={}function ad.setup(cd)
+cd.defineProperty(cd,"customXML",{default={attributes={},children={}},type="table"})end
+function ad:fromXML(cd,dd)
+if(cd.attributes)then
+for __a,a_a in
+pairs(cd.attributes)do
+if not _d(self,__a,a_a,dd)then
+if(self._properties[__a])then
+self.set(__a,cc(a_a,dd))elseif self[__a]then
+if(__a:sub(1,2)=="on")then local b_a=a_a:gsub("\"","")
+if(dd[b_a])then if(
+type(dd[b_a])~="function")then
+bb.error("XMLParser: variable '"..
+b_a.."' is not a function for element '"..self:getType()..
+"' "..__a)end
+self[__a](self,dd[b_a])else
+bb.error("XMLParser: variable '"..b_a.."' not found in scope")end else
+bb.error("XMLParser: property '"..__a..
+"' not found in element '"..self:getType().."'")end else local b_a=self.get("customXML")
+b_a.attributes[__a]=cc(a_a,dd)end end end end
+if(cd.children)then
+for __a,a_a in pairs(cd.children)do
+if a_a.tag=="state"then
+local b_a=a_a.attributes and a_a.attributes.name;if not b_a then
+bb.error("XMLParser: <state> tag requires 'name' attribute")end
+b_a=b_a:gsub("^\"",""):gsub("\"$","")
+if a_a.children then
+for c_a,d_a in ipairs(a_a.children)do local _aa=d_a.tag;local aaa=cc(d_a.value,dd)local baa=
+_aa:sub(1,1):upper().._aa:sub(2)
+local caa="set"..baa.."State"if self[caa]then self[caa](self,b_a,aaa)else
+cb.warn("XMLParser: State method '"..
+caa..
+"' not found for element '"..self:getType().."'")end end end elseif(self._properties[a_a.tag])then if
+(self._properties[a_a.tag].type=="table")then self.set(a_a.tag,dc(a_a,dd))else
+self.set(a_a.tag,cc(a_a.value,dd))end else local b_a={}
+if(a_a.children)then
+for c_a,d_a in
+pairs(a_a.children)do
+if(d_a.tag=="param")then
+table.insert(b_a,cc(d_a.value,dd))elseif(d_a.tag=="table")then table.insert(b_a,dc(d_a,dd))end end end
+if(self[a_a.tag])then if(#b_a>0)then
+self[a_a.tag](self,table.unpack(b_a))elseif(a_a.value)then self[a_a.tag](self,cc(a_a.value,dd))else
+self[a_a.tag](self)end else
+local c_a=self.get("customXML")a_a.value=cc(a_a.value,dd)c_a.children[a_a.tag]=a_a end end end end;return self end;local bd={}
+function bd:loadXML(cd,dd)dd=dd or{}local __a=ac.parseText(cd)
+self:fromXML(__a,dd)
+if(__a)then
+for a_a,b_a in ipairs(__a)do
+local c_a=b_a.tag:sub(1,1):upper()..b_a.tag:sub(2)if self["add"..c_a]then local d_a=self["add"..c_a](self)
+d_a:fromXML(b_a,dd)end end end;return self end
+function bd:fromXML(cd,dd)ad.fromXML(self,cd,dd)
+if(cd.children)then
+for __a,a_a in ipairs(cd.children)do local b_a=
+a_a.tag:sub(1,1):upper()..a_a.tag:sub(2)
+local c_a=ac.getTagHandler(a_a.tag)
+if c_a then local d_a=c_a(a_a,self,dd)elseif self["add"..b_a]then
+local d_a=self["add"..b_a](self)d_a:fromXML(a_a,dd)else
+cb.warn("XMLParser: Unknown tag '"..
+a_a.tag.."' - no handler or element found")end end end;return self end;return{API=ac,Container=bd,BaseElement=ad} end
 project["plugins/debug.lua"] = function(...) local _b=require("log")local ab=require("libraries/colorHex")
 local bb=10;local cb=false;local db={ERROR=1,WARN=2,INFO=3,DEBUG=4}
 local function _c(dc)
