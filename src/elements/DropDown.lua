@@ -1,6 +1,5 @@
 local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
-local ScrollBar = require("elements/ScrollBar")
 local tHex = require("libraries/colorHex")
 
 ---@configDescription A DropDown menu that shows a list of selectable items
@@ -107,40 +106,78 @@ function DropDown:mouse_click(button, x, y)
             self:setState("opened")
         end
         return true
-    elseif isOpen and relY > 1 and self.get("selectable") then
-        local itemIndex = (relY - 1) + self.get("offset")
-        local items = self.get("items")
-
-        if itemIndex <= #items then
-            local item = items[itemIndex]
-            if type(item) == "string" then
-                item = {text = item}
-                items[itemIndex] = item
-            end
-
-            if not self.get("multiSelection") then
-                for _, otherItem in ipairs(items) do
-                    if type(otherItem) == "table" then
-                        otherItem.selected = false
-                    end
-                end
-            end
-
-            item.selected = not item.selected
-
-            if item.callback then
-                item.callback(self)
-            end
-
-            self:fireEvent("select", itemIndex, item)
-            self:unsetState("opened")
-            self:unsetState("clicked")
-            self.set("height", 1)
-            self:updateRender()
-            return true
-        end
+    elseif isOpen and relY > 1 then
+        -- Forward to List handler for scrollbar handling
+        return List.mouse_click(self, button, x, y - 1)
     end
     return false
+end
+
+--- @shortDescription Handles mouse drag events for scrollbar
+--- @param button number The mouse button being dragged
+--- @param x number The x-coordinate of the drag
+--- @param y number The y-coordinate of the drag
+--- @return boolean Whether the event was handled
+--- @protected
+function DropDown:mouse_drag(button, x, y)
+    if self:hasState("opened") then
+        return List.mouse_drag(self, button, x, y - 1)
+    end
+    return VisualElement.mouse_drag and VisualElement.mouse_drag(self, button, x, y) or false
+end
+
+--- @shortDescription Handles mouse up events to stop scrollbar dragging
+--- @param button number The mouse button that was released
+--- @param x number The x-coordinate of the release
+--- @param y number The y-coordinate of the release
+--- @return boolean Whether the event was handled
+--- @protected
+function DropDown:mouse_up(button, x, y)
+    if self:hasState("opened") then
+        local relX, relY = self:getRelativePosition(x, y)
+        
+        -- Only handle item selection in mouse_up (relY > 1 = list area)
+        if relY > 1 and self.get("selectable") and not self._scrollBarDragging then
+            local itemIndex = (relY - 1) + self.get("offset")
+            local items = self.get("items")
+            
+            if itemIndex <= #items then
+                local item = items[itemIndex]
+                if type(item) == "string" then
+                    item = {text = item}
+                    items[itemIndex] = item
+                end
+                
+                if not self.get("multiSelection") then
+                    for _, otherItem in ipairs(items) do
+                        if type(otherItem) == "table" then
+                            otherItem.selected = false
+                        end
+                    end
+                end
+                
+                item.selected = not item.selected
+                
+                if item.callback then
+                    item.callback(self)
+                end
+                
+                self:fireEvent("select", itemIndex, item)
+                self:unsetState("opened")
+                self:unsetState("clicked")
+                self.set("height", 1)
+                self:updateRender()
+                
+                return true
+            end
+        end
+        
+        -- Always forward to List for cleanup and unset clicked state
+        List.mouse_up(self, button, x, y - 1)
+        self:unsetState("clicked")
+        return true
+    end
+    return VisualElement.mouse_up and VisualElement.mouse_up(self, button, x, y) or false
 end
 
 --- @shortDescription Renders the DropDown
@@ -157,53 +194,13 @@ function DropDown:render()
         text = text:sub(1, self.get("width") - 2)
     end
 
+    if isOpen then
+        List.render(self, 1)
+    end
+
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and "\31" or "\17"),
         string.rep(tHex[self.getResolved("foreground")], self.get("width")),
         string.rep(tHex[self.getResolved("background")], self.get("width")))
-
-    if isOpen then
-        local items = self.get("items")
-        local height = self.get("height") - 1
-        local offset = self.get("offset")
-        local width = self.get("width")
-
-        for i = 1, height do
-            local itemIndex = i + offset
-            local item = items[itemIndex]
-
-            if item then
-                if type(item) == "string" then
-                    item = {text = item}
-                    items[itemIndex] = item
-                end
-
-                if item.separator then
-                    local separatorChar = (item.text or "-"):sub(1,1)
-                    local separatorText = string.rep(separatorChar, width)
-                    local fg = item.fg or self.getResolved("foreground")
-                    local bg = item.bg or self.getResolved("background")
-
-                    self:textBg(1, i + 1, string.rep(" ", width), bg)
-                    self:textFg(1, i + 1, separatorText, fg)
-                else
-                    local text = item.text
-                    local isSelected = item.selected
-                    text = text:sub(1, width)
-
-                    local bg = isSelected and 
-                        (item.selectedBg or self.getResolved("selectedBackground")) or
-                        (item.bg or self.getResolved("background"))
-
-                    local fg = isSelected and 
-                        (item.selectedFg or self.getResolved("selectedForeground")) or
-                        (item.fg or self.getResolved("foreground"))
-
-                    self:textBg(1, i + 1, string.rep(" ", width), bg)
-                    self:textFg(1, i + 1, text, fg)
-                end
-            end
-        end
-    end
 end
 
 --- Called when the DropDown gains focus

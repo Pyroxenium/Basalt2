@@ -20,15 +20,40 @@ local XMLNode = {
 }
 
 local parseAttributes = function(node, s)
-    local _, _ = string.gsub(s, "(%w+)=([\"'])(.-)%2", function(attribute, _, value)
+    local _, _ = string.gsub(s, "([%w:]+)=([\"'])(.-)%2", function(attribute, _, value)
         node:addAttribute(attribute, "\"" .. value .. "\"")
     end)
-    local _, _ = string.gsub(s, "(%w+)={(.-)}", function(attribute, expression)
+    local _, _ = string.gsub(s, "([%w:]+)={(.-)}", function(attribute, expression)
         node:addAttribute(attribute, expression)
     end)
 end
 
-local XMLParser = {
+local XMLParser = {}
+XMLParser = {
+    _customTagHandlers = {},
+
+    --- Registers a custom tag handler
+    --- @param tagName string The name of the custom tag
+    --- @param handler function The handler function(node, parent, scope)
+    registerTagHandler = function(tagName, handler)
+        XMLParser._customTagHandlers[tagName] = handler
+        log.info("XMLParser: Registered custom tag handler for '" .. tagName .. "'")
+    end,
+
+    --- Unregisters a custom tag handler
+    --- @param tagName string The name of the custom tag
+    unregisterTagHandler = function(tagName)
+        XMLParser._customTagHandlers[tagName] = nil
+        log.info("XMLParser: Unregistered custom tag handler for '" .. tagName .. "'")
+    end,
+
+    --- Gets a custom tag handler
+    --- @param tagName string The name of the custom tag
+    --- @return function|nil handler The handler function or nil
+    getTagHandler = function(tagName)
+        return XMLParser._customTagHandlers[tagName]
+    end,
+
     parseText = function(xmlText)
         local stack = {}
         local top = XMLNode.new()
@@ -120,7 +145,15 @@ local function convertValue(value, scope)
         for k,v in pairs(scope) do
             env[k] = v
         end
-        return load("return " .. cdata, nil, "bt", env)()
+        local fn, err = load("return " .. cdata, nil, "bt", env)
+        if not fn then
+            errorManager.error("XMLParser: CDATA syntax error: " .. tostring(err))
+        end
+        local success, result = pcall(fn)
+        if not success then
+            errorManager.error("XMLParser: CDATA execution error: " .. tostring(result))
+        end
+        return result
     end
 
     if value == "true" then
@@ -168,6 +201,25 @@ local function createTableFromNode(node, scope)
     return list
 end
 
+local function parseStateAttribute(self, attribute, value, scope)
+    local propName, stateName = attribute:match("^(.+)State:(.+)$")
+    if propName and stateName then
+        stateName = stateName:gsub("^\"", ""):gsub("\"$", "")
+
+        local capitalizedName = propName:sub(1,1):upper() .. propName:sub(2)
+        local methodName = "set"..capitalizedName.."State"
+
+        if self[methodName] then
+            self[methodName](self, stateName, convertValue(value, scope))
+            return true
+        else
+            log.warn("XMLParser: State method '" .. methodName .. "' not found for element '" .. self:getType() .. "'")
+            return true
+        end
+    end
+    return false
+end
+
 local BaseElement = {}
 
 function BaseElement.setup(element)
@@ -183,32 +235,56 @@ end
 function BaseElement:fromXML(node, scope)
     if(node.attributes)then
         for k, v in pairs(node.attributes) do
-            if(self._properties[k])then
-                self.set(k, convertValue(v, scope))
-            elseif self[k] then
-                if(k:sub(1,2)=="on")then
-                    local val = v:gsub("\"", "")
-                    if(scope[val])then
-                        if(type(scope[val]) ~= "function")then
-                            errorManager.error("XMLParser: variable '" .. val .. "' is not a function for element '" .. self:getType() .. "' "..k)
+            if not parseStateAttribute(self, k, v, scope) then
+                if(self._properties[k])then
+                    self.set(k, convertValue(v, scope))
+                elseif self[k] then
+                    if(k:sub(1,2)=="on")then
+                        local val = v:gsub("\"", "")
+                        if(scope[val])then
+                            if(type(scope[val]) ~= "function")then
+                                errorManager.error("XMLParser: variable '" .. val .. "' is not a function for element '" .. self:getType() .. "' "..k)
+                            end
+                            self[k](self, scope[val])
+                        else
+                            errorManager.error("XMLParser: variable '" .. val .. "' not found in scope")
                         end
-                        self[k](self, scope[val])
                     else
-                        errorManager.error("XMLParser: variable '" .. val .. "' not found in scope")
+                        errorManager.error("XMLParser: property '" .. k .. "' not found in element '" .. self:getType() .. "'")
                     end
                 else
-                    errorManager.error("XMLParser: property '" .. k .. "' not found in element '" .. self:getType() .. "'")
+                    local customXML = self.get("customXML")
+                    customXML.attributes[k] = convertValue(v, scope)
                 end
-            else
-                local customXML = self.get("customXML")
-                customXML.attributes[k] = convertValue(v, scope)
             end
         end
     end
 
     if(node.children)then
         for _, child in pairs(node.children) do
-            if(self._properties[child.tag])then
+            if child.tag == "state" then
+                local stateName = child.attributes and child.attributes.name
+                if not stateName then
+                    errorManager.error("XMLParser: <state> tag requires 'name' attribute")
+                end
+
+                stateName = stateName:gsub("^\"", ""):gsub("\"$", "")
+
+                if child.children then
+                    for _, stateChild in ipairs(child.children) do
+                        local propName = stateChild.tag
+                        local value = convertValue(stateChild.value, scope)
+                        local capitalizedName = propName:sub(1,1):upper() .. propName:sub(2)
+                        local methodName = "set"..capitalizedName.."State"
+
+                        if self[methodName] then
+                            self[methodName](self, stateName, value)
+                        else
+                            log.warn("XMLParser: State method '" .. methodName .. "' not found for element '" .. self:getType() .. "'")
+                        end
+                    end
+                end
+            elseif(self._properties[child.tag])then
                 if(self._properties[child.tag].type == "table")then
                     self.set(child.tag, createTableFromNode(child, scope))
                 else
@@ -280,9 +356,15 @@ function Container:fromXML(nodes, scope)
     if(nodes.children)then
         for _, node in ipairs(nodes.children) do
             local capitalizedName = node.tag:sub(1,1):upper() .. node.tag:sub(2)
-            if self["add"..capitalizedName] then
+
+            local customHandler = XMLParser.getTagHandler(node.tag)
+            if customHandler then
+                local result = customHandler(node, self, scope)
+            elseif self["add"..capitalizedName] then
                 local element = self["add"..capitalizedName](self)
                 element:fromXML(node, scope)
+            else
+                log.warn("XMLParser: Unknown tag '" .. node.tag .. "' - no handler or element found")
             end
         end
     end

@@ -166,6 +166,65 @@ function Collection:clearItemSelection()
     for i, item in ipairs(items) do
         item.selected = false
     end
+    self:updateRender()
+    return self
+end
+
+--- Gets the index of the first selected item
+--- @shortDescription Gets the index of the first selected item
+--- @return number? index The index of the first selected item, or nil if none selected
+--- @usage local index = Collection:getSelectedIndex()
+function Collection:getSelectedIndex()
+    local items = self.get("items")
+    for i, item in ipairs(items) do
+        if type(item) == "table" and item.selected then
+            return i
+        end
+    end
+    return nil
+end
+
+--- Selects the next item in the collection
+--- @shortDescription Selects the next item
+--- @return Collection self The Collection instance
+function Collection:selectNext()
+    local items = self.get("items")
+    local currentIndex = self:getSelectedIndex()
+
+    if not currentIndex then
+        if #items > 0 then
+            self:selectItem(1)
+        end
+    elseif currentIndex < #items then
+        if not self.get("multiSelection") then
+            self:clearItemSelection()
+        end
+        self:selectItem(currentIndex + 1)
+    end
+
+    self:updateRender()
+    return self
+end
+
+--- Selects the previous item in the collection
+--- @shortDescription Selects the previous item
+--- @return Collection self The Collection instance
+function Collection:selectPrevious()
+    local items = self.get("items")
+    local currentIndex = self:getSelectedIndex()
+
+    if not currentIndex then
+        if #items > 0 then
+            self:selectItem(#items)
+        end
+    elseif currentIndex > 1 then
+        if not self.get("multiSelection") then
+            self:clearItemSelection()
+        end
+        self:selectItem(currentIndex - 1)
+    end
+
+    self:updateRender()
     return self
 end
 
