@@ -41,6 +41,163 @@ main:loadXML([[
 ]], scope)
 ```
 
+## State Management
+
+Basalt's state system integrates seamlessly with XML, allowing you to bind element properties to reactive states.
+
+### Inline State Binding
+
+Use the `State:` suffix on any attribute to bind it to a state:
+
+```lua
+local scope = {}
+
+main:loadXML([[
+    <button 
+        textState:clicked="Clicked me!"
+        backgroundState:clicked="gray"
+    />
+]], scope)
+```
+
+This automatically calls `setTextState("clicked", "Click me!")` and `setBackgroundState("clicked", "gray")`.
+
+### Nested State Configuration
+
+For more complex state setups, use the `<state>` tag:
+
+```lua
+main:loadXML([[
+    <button>
+        <state name="hover">
+            <background>lightGray</background>
+            <foreground>black</foreground>
+        </state>
+        <state name="clicked">
+            <background>blue</background>
+            <foreground>white</foreground>
+        </state>
+    </button>
+]], scope)
+```
+## Custom XML Tags
+
+You can register custom tags to create reusable components or handle special logic.
+
+### Registering a Custom Tag
+
+```lua
+local XMLParser = basalt.getXMLParser()
+
+XMLParser.registerTagHandler("card", function(node, parent, scope)
+    -- Create a frame container
+    local card = parent:addFrame()
+    card:setBackground(colors.gray)
+    card:setSize(20, 10)
+    
+    -- Parse title attribute
+    if node.attributes.title then
+        local title = node.attributes.title:gsub("^\"", ""):gsub("\"$", "")
+        local titleLabel = card:addLabel()
+        titleLabel:setText(title)
+        titleLabel:setPosition(2, 1)
+    end
+    
+    -- Process children inside the card
+    if node.children then
+        for _, child in ipairs(node.children) do
+            local childTag = child.tag:sub(1,1):upper() .. child.tag:sub(2)
+            if card["add" .. childTag] then
+                local element = card["add" .. childTag](card)
+                element:fromXML(child, scope)
+            end
+        end
+    end
+    
+    return card
+end)
+```
+
+### Using Custom Tags
+
+```lua
+main:loadXML([[
+    <card title="User Info">
+        <label x="2" y="3" text="Name: John"/>
+        <label x="2" y="4" text="Age: 25"/>
+    </card>
+]])
+```
+
+### Advanced Custom Tag Example
+
+Create a reusable dialog component:
+
+```lua
+XMLParser.registerTagHandler("dialog", function(node, parent, scope)
+    local dialog = parent:addFrame()
+    dialog:setSize(30, 15)
+    dialog:setBackground(colors.black)
+    dialog:addBorder({left=true, right=true, top=true, bottom=true})
+    dialog:center()
+    
+    -- Title bar
+    if node.attributes.title then
+        local title = node.attributes.title:gsub("^\"", ""):gsub("\"$", "")
+        local titleBar = dialog:addLabel()
+        titleBar:setText(title)
+        titleBar:setPosition(2, 1)
+        titleBar:setForeground(colors.white)
+    end
+    
+    -- Close button
+    local closeBtn = dialog:addButton()
+    closeBtn:setText("X")
+    closeBtn:setPosition(28, 1)
+    closeBtn:setSize(2, 1)
+    closeBtn:onClick(function()
+        dialog:remove()
+    end)
+    
+    -- Content area (process children)
+    if node.children then
+        for _, child in ipairs(node.children) do
+            local childTag = child.tag:sub(1,1):upper() .. child.tag:sub(2)
+            if dialog["add" .. childTag] then
+                local element = dialog["add" .. childTag](dialog)
+                element:fromXML(child, scope)
+            end
+        end
+    end
+    
+    return dialog
+end)
+
+-- Usage
+main:loadXML([[
+    <dialog title="Settings">
+        <label x="2" y="3" text="Volume:"/>
+        <slider x="2" y="4" width="20"/>
+        <button x="2" y="6" text="Save"/>
+    </dialog>
+]])
+```
+
+### Unregistering Custom Tags
+
+```lua
+XMLParser.unregisterTagHandler("card")
+```
+
+### Checking for Custom Tags
+
+```lua
+local handler = XMLParser.getTagHandler("card")
+if handler then
+    -- Handler exists
+end
+```
+
 ## Event Handlers
 
 There are two ways to define event handlers:
@@ -84,6 +241,27 @@ The XML parser automatically converts values based on the property type:
 />
 ```
 
+## Custom Attributes
+
+Elements can store custom XML data that isn't a standard property:
+
+```lua
+main:loadXML([[
+    <button customId="btn1" customData="test">
+        <onClick>
+            <![CDATA[
+                function(self)
+                    local custom = self:getCustomXML()
+                    basalt.debug(custom.attributes.customId)
+                end
+            ]]>
+        </onClick>
+    </button>
+]])
+```
+
+Custom attributes and children are stored in the `customXML` property and can be accessed via `getCustomXML()`.
+
 ## Important Notes
 
 1. **Scope Variables**
@@ -101,41 +279,74 @@ The XML parser automatically converts values based on the property type:
    - Expressions have access to scope variables
    - Complex logic should be in Lua code
 
-## Example with Multiple Features
+4. **State Bindings**
+   - State names are automatically extracted from attribute names
+   - Use `propertyState:stateName` format for inline binding
+   - Nested `<state>` tags provide better organization
+
+5. **Custom Tags**
+   - Custom handlers have full access to parent, node, and scope
+   - Must manually process child nodes if needed
+   - Can return elements for further manipulation
+
+## Complete Example
 
 ```lua
+local XMLParser = basalt.getAPI("xml")
+
+-- Register custom card component
+XMLParser.registerTagHandler("card", function(node, parent, scope)
+    local card = parent:addFrame()
+    card:setBackground(colors.gray)
+    card:setSize(25, 8)
+    
+    if node.attributes.title then
+        local title = node.attributes.title:gsub("^\"", ""):gsub("\"$", "")
+        card:addLabel():setText(title):setPosition(2, 1)
+    end
+    
+    if node.children then
+        for _, child in ipairs(node.children) do
+            local childTag = child.tag:sub(1,1):upper() .. child.tag:sub(2)
+            if card["add" .. childTag] then
+                local element = card["add" .. childTag](card)
+                element:fromXML(child, scope)
+            end
+        end
+    end
+    
+    return card
+end)
+
+-- Setup scope
 local scope = {
     appTitle = "My App",
     colors = colors,
+    hoverColor = colors.lightGray,
     handleSubmit = function(self)
-        -- handle submission
+        basalt.debug("Submitted!")
     end
 }
 
-local xmlFile = fs.open("example.xml", "r")
-main:loadXML(xmlFile.readAll(), scope)
-xmlFile.close()
-```
-
-```xml
-<frame background="${colors.gray}">
-    <label 
-        x="2" y="2"
-        text="${appTitle}"
-    />
-    <button 
-        x="2" y="4"
-        text="Submit"
-        onClick="handleSubmit"
-    />
-    <button x="2" y="6">
-        <onClick>
-            <![CDATA[
-                function(self)
-                    self:getParent():remove()
-                end
-            ]]>
-        </onClick>
-    </button>
-</frame>
+-- Load XML
+main:loadXML([[
+    <frame background="${colors.gray}">
+        <label 
+            x="2" y="2"
+            text="${appTitle}"
+        />
+        
+        <card title="User Profile" x="2" y="4">
+            <label x="2" y="2" text="Name:"/>
+            <input x="8" y="2" width="15"/>
+            
+            <button 
+                x="2" y="4" 
+                text="Submit"
+                onClick="handleSubmit"
+                backgroundState:hover="${hoverColor}"
+            />
+        </card>
+    </frame>
+]], scope)
 ```

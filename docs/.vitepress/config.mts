@@ -116,6 +116,8 @@ export default defineConfig({
               items: [
                 { text: 'BaseFrame', link: 'references/elements/BaseFrame' },
                 { text: 'Frame', link: 'references/elements/Frame' },
+                { text: 'ScrollFrame', link: 'references/elements/ScrollFrame' },
+                { text: 'SideNav', link: 'references/elements/SideNav' },
                 { text: 'TabControl', link: 'references/elements/TabControl' },
               ],
             },
@@ -133,11 +135,13 @@ export default defineConfig({
             { text: 'Input', link: 'references/elements/Input' },
             { text: 'Label', link: 'references/elements/Label' },
             {
-              text: 'List',
-              link: 'references/elements/List',
+              text: 'Collection',
+              link: 'references/elements/Collection',
               collapsed: true,
               items: [
+                { text: 'ComboBox', link: 'references/elements/ComboBox' },
                 { text: 'DropDown', link: 'references/elements/DropDown' },
+                { text: 'List', link: 'references/elements/List' },
                 { text: 'Menu', link: 'references/elements/Menu' },
               ],
             },
