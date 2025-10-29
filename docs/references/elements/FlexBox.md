@@ -4,6 +4,35 @@ _The flexbox element adds the following properties to its children:_
 
 Extends: `Container`
 
+## Usage
+```lua
+local flex = main:addFlexbox({background=colors.black, width=30, height=10})
+```
+
+```lua
+flex:addButton():setFlexGrow(1)
+```
+
+```lua
+flex:addButton():setFlexGrow(1)
+```
+
+```lua
+flex:addButton():setFlexGrow(1)
+```
+
+```lua
+flex:addButton():setFlexGrow(1) -- The flex-grow property defines the ability for a flex item to grow if necessary.
+```
+
+```lua
+flex:addButton():setFlexShrink(1) -- The flex-shrink property defines the ability for a flex item to shrink if necessary.
+```
+
+```lua
+flex:addButton():setFlexBasis(1) -- The flex-basis property defines the default size of an element before the remaining space is distributed.
+```
+
 ## Properties
 
 |Property|Type|Default|Description|

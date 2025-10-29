@@ -4,6 +4,19 @@ _with optional percentage display and customizable colors._
 
 Extends: `VisualElement`
 
+## Usage
+```lua
+local progressBar = main:addProgressBar()
+```
+
+```lua
+progressBar:setDirection("up") 
+```
+
+```lua
+progressBar:setProgress(50)
+```
+
 ## Properties
 
 |Property|Type|Default|Description|

@@ -1,32 +1,123 @@
 # Display
-_The Display is a special element where you can use the window (term) API to draw on the display, useful when you need to use external APIs._
+_A specialized element that provides direct access to ComputerCraft's Window API. _
+_It acts as a canvas where you can use standard CC terminal operations, making it ideal for:_
+_- Integration with existing CC programs and APIs_
+_- Custom drawing operations_
+_- Terminal emulation_
+_- Complex text manipulation_
+_The Display maintains its own terminal buffer and can be manipulated using familiar CC terminal methods._
 
 Extends: `VisualElement`
+
+## Usage
+```lua
+-- Create a display for a custom terminal
+```
+
+```lua
+local display = main:addDisplay()
+```
+
+```lua
+:setSize(30, 10)
+```
+
+```lua
+:setPosition(2, 2)
+```
+
+```lua
+
+```
+
+```lua
+-- Get the window object for CC API operations
+```
+
+```lua
+local win = display:getWindow()
+```
+
+```lua
+
+```
+
+```lua
+-- Use standard CC terminal operations
+```
+
+```lua
+win.setTextColor(colors.yellow)
+```
+
+```lua
+win.setBackgroundColor(colors.blue)
+```
+
+```lua
+win.clear()
+```
+
+```lua
+win.setCursorPos(1, 1)
+```
+
+```lua
+win.write("Hello World!")
+```
+
+```lua
+
+```
+
+```lua
+-- Or use the helper method
+```
+
+```lua
+display:write(1, 2, "Direct write", colors.red, colors.black)
+```
+
+```lua
+
+```
+
+```lua
+-- Useful for external APIs
+```
+
+```lua
+local paintutils = require("paintutils")
+```
+
+```lua
+paintutils.drawLine(1, 1, 10, 1, colors.red, win)
+```
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Display:getWindow](#display-getwindow)|table|Returns the current window object|
-|[Display:write](#display-write-x-y-text-fg-bg)|Display|Writes text to the display|
+|[Display:getWindow](#display-getwindow)|table|Gets the CC window instance|
+|[Display:write](#display-write-x-y-text-fg-bg)|Display|Writes colored text to the display|
 
 ## Display:getWindow()
 
-Returns the current window object
+Retrieves the underlying ComputerCraft window object
 
 ### Returns
-* `table` `window` The current window object
+* `table` `window` A CC window object with all standard terminal methods
 
 ## Display:write(x, y, text, fg?, bg?)
 
-Writes text to the display at the given position with the given foreground and background colors
+Writes text directly to the display with optional colors
 
 ### Parameters
-* `x` `number` The x position to write to
-* `y` `number` The y position to write to
-* `text` `string` The text to write
-* `fg` *(optional)* `colors` The foreground color (optional)
-* `bg` *(optional)* `colors` The background color (optional)
+* `x` `number` X position (1-based)
+* `y` `number` Y position (1-based)
+* `text` `string` Text to write
+* `fg` *(optional)* `colors` Foreground color (optional)
+* `bg` *(optional)* `colors` Background color (optional)
 
 ### Returns
-* `Display` `self` The display instance
+* `Display` `self` For method chaining

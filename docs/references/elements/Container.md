@@ -1,5 +1,11 @@
 # Container
-_The Container class serves as a fundamental building block for organizing UI elements. It acts as a parent element that can hold and manage child elements._
+_A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, _
+_rendering hierarchy, and coordinate space management. They serve as the backbone of Basalt's UI structure by providing:_
+_- Child element management and organization_
+_- Event bubbling and distribution_
+_- Visibility calculations and clipping_
+_- Focus management_
+_- Coordinate space transformation_
 
 Extends: `VisualElement`
 
@@ -7,67 +13,67 @@ Extends: `VisualElement`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|children|table|{}|The children of the container|
-|childrenSorted|boolean|true|Whether the children are sorted|
-|childrenEventsSorted|boolean|true|Whether the children events are sorted|
-|childrenEvents|table|{}|The children events of the container|
-|eventListenerCount|table|{}|The event listener count of the container|
-|focusedChild|table|nil|The focused child of the container|
-|visibleChildren|table|{}|The visible children of the container|
-|visibleChildrenEvents|table|{}|The visible children events of the container|
-|offsetX|number|0|Horizontal content offset|
-|offsetY|number|0|Vertical content offset|
+|children|table|{}|Collection of all child elements|
+|childrenSorted|boolean|true|Indicates if children are sorted by z-index|
+|childrenEventsSorted|boolean|true|Indicates if event handlers are properly sorted|
+|childrenEvents|table|{}|Registered event handlers for all children|
+|eventListenerCount|table|{}|Number of listeners per event type|
+|focusedChild|table|nil|Currently focused child element (receives keyboard events)|
+|visibleChildren|table|{}|Currently visible child elements (calculated based on viewport)|
+|visibleChildrenEvents|table|{}|Event handlers for currently visible children|
+|offsetX|number|0|Horizontal scroll/content offset|
+|offsetY|number|0|Vertical scroll/content offset|
 
 ## Functions
 
 |Method|Returns|Description|
 |---|---|---|
-|[Container:isChildVisible](#container-ischildvisible-child)|boolean|Returns whether a child is visible|
-|[Container:addChild](#container-addchild-child)|Container|Adds a child to the container|
-|[Container:clear](#container-clear)|Container|Clears the container|
-|[Container:sortChildren](#container-sortchildren)|Container|Sorts the children of the container|
+|[Container:isChildVisible](#container-ischildvisible-child)|boolean|Checks if a child element is visible|
+|[Container:addChild](#container-addchild-child)|Container|Adds a child element to the container|
+|[Container:clear](#container-clear)|Container|Removes all children and resets container|
+|[Container:sortChildren](#container-sortchildren)|Container|Updates child element ordering|
 |[Container:sortChildrenEvents](#container-sortchildrenevents-eventname)|Container|Sorts the children events of the container|
 |[Container:registerChildrenEvents](#container-registerchildrenevents-child)|Container|Registers the children events of the container|
-|[Container:registerChildEvent](#container-registerchildevent-child-eventname)|Container|Registers the children events of the container|
+|[Container:registerChildEvent](#container-registerchildevent-child-eventname)|Container|Sets up event handling for a child|
 |[Container:removeChildrenEvents](#container-removechildrenevents-child)|Container|Unregisters the children events of the container|
 |[Container:unregisterChildEvent](#container-unregisterchildevent-child-eventname)|Container|Unregisters the children events of the container|
-|[Container:removeChild](#container-removechild-child)|Container|Removes a child from the container|
-|[Container:getChild](#container-getchild-path)|self|Removes a child from the container|
+|[Container:removeChild](#container-removechild-child)|Container|Removes a child element from the container|
+|[Container:getChild](#container-getchild-path)|child|Finds a child element by its path|
 |[Container:callChildrenEvent](#container-callchildrenevent-visibleonly-event)|boolean, child|Calls a event on all children|
 
 ## Container:isChildVisible(child)
 
-Returns whether a child is visible
+Tests whether a child element is currently visible within the container's viewport
 
 ### Parameters
-* `child` `table` The child to check
+* `child` `table` The child element to check
 
 ### Returns
-* `boolean` `boolean` the child is visible
+* `boolean` `isVisible` Whether the child is within view bounds
 
 ## Container:addChild(child)
 
-Adds a child to the container
+Adds a new element to this container's hierarchy
 
 ### Parameters
-* `child` `table` The child to add
+* `child` `table` The element to add as a child
 
 ### Returns
-* `Container` `self` The container instance
+* `Container` `self` For method chaining
 
 ## Container:clear()
 
-Clears the container
+Removes all child elements and resets the container's state
 
 ### Returns
-* `Container` `self` The container instance
+* `Container` `self` For method chaining
 
 ## Container:sortChildren()
 
-Sorts the children of the container
+Re-sorts children by their z-index and updates visibility
 
 ### Returns
-* `Container` `self` The container instance
+* `Container` `self` For method chaining
 
 ## Container:sortChildrenEvents(eventName)
 
@@ -91,14 +97,14 @@ Registers the children events of the container
 
 ## Container:registerChildEvent(child, eventName)
 
-Registers the children events of the container
+Registers an event handler for a specific child element
 
 ### Parameters
-* `child` `table` The child to register events for
-* `eventName` `string` The event name to register
+* `child` `table` The child element to register events for
+* `eventName` `string` The name of the event to register
 
 ### Returns
-* `Container` `self` The container instance
+* `Container` `self` For method chaining
 
 ## Container:removeChildrenEvents(child)
 
@@ -123,23 +129,23 @@ Unregisters the children events of the container
 
 ## Container:removeChild(child)
 
-Removes a child from the container
+Removes an element from this container's hierarchy and cleans up its events
 
 ### Parameters
-* `child` `table` The child to remove
+* `child` `table` The element to remove
 
 ### Returns
-* `Container` `self` The container instance
+* `Container` `self` For method chaining
 
 ## Container:getChild(path)
 
-Removes a child from the container
+Locates a child element using a path-like syntax (e.g. "panel/button1")
 
 ### Parameters
-* `path` `string` The path to the child to remove
+* `path` `string` Path to the child (e.g. "panel/button1", "header/title")
 
 ### Returns
-* `self` `The` container instance
+* `child` `The` found element or nil if not found
 
 ## Container:callChildrenEvent(visibleOnly, event)
 

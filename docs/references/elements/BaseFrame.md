@@ -1,5 +1,5 @@
 # BaseFrame
-_This is the base frame class. It is the root element of all elements and the only element without a parent._
+_This is the root frame class that serves as the foundation for the UI hierarchy. It manages the rendering context and acts as the top-level container for all other elements. Unlike other elements, it renders directly to a terminal or monitor and does not require a parent element._
 
 Extends: `Container`
 
