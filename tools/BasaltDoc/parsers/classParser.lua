@@ -17,6 +17,7 @@ function classParser.parse(annotations, line)
         properties = {},
         events = {},
         functions = {},
+        tableTypes = {},
         skip = false
     }
 

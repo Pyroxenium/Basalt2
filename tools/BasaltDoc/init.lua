@@ -23,6 +23,8 @@ local eventParser = require("parsers.eventParser")
 
 local globalParser = require("parsers.globalParser")
 
+local helper = require("utils.helper")
+
 local markdownGenerator = require("utils.markdownGenerator")
 
 BasaltDoc.annotationHandlers = {}
@@ -145,6 +147,31 @@ BasaltDoc.registerAnnotation("@globalDescription", function(target, args)
     end
 end)
 
+BasaltDoc.registerAnnotation("@tableType", function(target, args)
+    if not target.tableTypes then target.tableTypes = {} end
+    local tableName = args:match("^%s*(%S+)")
+    if tableName then
+        target._currentTableType = {
+            name = tableName,
+            fields = {}
+        }
+        table.insert(target.tableTypes, target._currentTableType)
+    end
+end)
+
+BasaltDoc.registerAnnotation("@tableField", function(target, args)
+    if target._currentTableType then
+        local fieldName, fieldType, fieldDesc = args:match("^%s*([%w_]+)%s+([%w_|]+)%s+(.*)")
+        if fieldName and fieldType then
+            table.insert(target._currentTableType.fields, {
+                name = fieldName,
+                type = fieldType,
+                description = fieldDesc or ""
+            })
+        end
+    end
+end)
+
 if classParser then classParser.setHandlers(BasaltDoc.annotationHandlers) end
 if functionParser then functionParser.setHandlers(BasaltDoc.annotationHandlers) end
 if propertyParser then propertyParser.setHandlers(BasaltDoc.annotationHandlers) end
@@ -192,12 +219,14 @@ function BasaltDoc.parse(content)
     local annotationBuffer = {}
     local currentClass = nil
     local firstTag = nil
+    local pendingTableTypes = {}
 
     local blockStartTags = {
         ["@class"] = true,
         ["@property"] = true, 
         ["@event"] = true,
-        ["@skip"] = true
+        ["@skip"] = true,
+        ["@tableType"] = true
     }
 
     local i = 1
@@ -225,8 +254,24 @@ function BasaltDoc.parse(content)
                 if firstTag == "@class" and classParser then
                     local class = classParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))
                     if class and not class.skip then
+                        if #pendingTableTypes > 0 then
+                            for _, tableType in ipairs(pendingTableTypes) do
+                                table.insert(class.tableTypes, tableType)
+                            end
+                            pendingTableTypes = {}
+                        end
                         table.insert(ast.classes, class)
                         currentClass = class
+                    end
+                elseif firstTag == "@tableType" then
+                    local tempTarget = {tableTypes = {}}
+                    if classParser and classParser.handlers then
+                        helper.applyAnnotations(annotationBuffer, tempTarget, classParser.handlers)
+                    end
+                    if tempTarget.tableTypes and #tempTarget.tableTypes > 0 then
+                        for _, tt in ipairs(tempTarget.tableTypes) do
+                            table.insert(pendingTableTypes, tt)
+                        end
                     end
                 elseif firstTag == "@property" and currentClass and propertyParser then
                     local prop = propertyParser.parse(annotationBuffer, table.concat(annotationBuffer, "\n"))

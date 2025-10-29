@@ -889,7 +889,7 @@ function VisualElement:isFocused()
     return self:hasState("focused")
 end
 
---- Adds or updates a drawable character border around the element using the canvas plugin. The border will automatically adapt to size/background changes because the command reads current properties each render.
+--- Adds or updates a drawable character border around the element. The border will automatically adapt to size/background changes because the command reads current properties each render.
 --- @param colorOrOptions any Border color or options table
 --- @param sideOptions? table Side options table (if color is provided as first argument)
 --- @return VisualElement self

@@ -1,13 +1,12 @@
-local VisualElement = require("elements/VisualElement")
+local Collection = require("elements/Collection")
 local tHex = require("libraries/colorHex")
 
---- This is the table class. It provides a sortable data grid with customizable columns,
---- row selection, and scrolling capabilities.
+--- This is the table class. It provides a sortable data grid with customizable columns, row selection, and scrolling capabilities. Built on Collection for consistent item management.
 --- @usage local people = container:addTable():setWidth(40)
 --- @usage people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
---- @usage people:setData({{"Alice", 30, "USA"}, {"Bob", 25, "UK"}})
----@class Table : VisualElement
-local Table = setmetatable({}, VisualElement)
+--- @usage people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
+---@class Table : Collection
+local Table = setmetatable({}, Collection)
 Table.__index = Table
 
 ---@property columns table {} List of column definitions with {name, width} properties
@@ -27,33 +26,54 @@ Table.defineProperty(Table, "columns", {default = {}, type = "table", canTrigger
     end
     return t
 end})
----@property data table {} The table data as array of row arrays
-Table.defineProperty(Table, "data", {default = {}, type = "table", canTriggerRender = true, setter=function(self, value)
-    self.set("scrollOffset", 0)
-    self.set("selectedRow", nil)
-    self.set("sortColumn", nil)
-    self.set("sortDirection", "asc")
-    return value
-end})
----@property selectedRow number? nil Currently selected row index
-Table.defineProperty(Table, "selectedRow", {default = nil, type = "number", canTriggerRender = true})
 ---@property headerColor color blue Color of the column headers
 Table.defineProperty(Table, "headerColor", {default = colors.blue, type = "color"})
----@property selectedColor color lightBlue Background color of selected row
-Table.defineProperty(Table, "selectedColor", {default = colors.lightBlue, type = "color"})
 ---@property gridColor color gray Color of grid lines
 Table.defineProperty(Table, "gridColor", {default = colors.gray, type = "color"})
 ---@property sortColumn number? nil Currently sorted column index
 Table.defineProperty(Table, "sortColumn", {default = nil, type = "number", canTriggerRender = true})
 ---@property sortDirection string "asc" Sort direction ("asc" or "desc")
 Table.defineProperty(Table, "sortDirection", {default = "asc", type = "string", canTriggerRender = true})
----@property scrollOffset number 0 Current scroll position
-Table.defineProperty(Table, "scrollOffset", {default = 0, type = "number", canTriggerRender = true})
 ---@property customSortFunction table {} Custom sort functions for columns
 Table.defineProperty(Table, "customSortFunction", {default = {}, type = "table"})
+---@property offset number 0 Scroll offset for vertical scrolling
+Table.defineProperty(Table, "offset", {
+    default = 0,
+    type = "number",
+    canTriggerRender = true,
+    setter = function(self, value)
+        local maxOffset = math.max(0, #self.get("items") - (self.get("height") - 1))
+        return math.min(maxOffset, math.max(0, value))
+    end
+})
 
+---@property showScrollBar boolean true Whether to show the scrollbar when items exceed height
+Table.defineProperty(Table, "showScrollBar", {default = true, type = "boolean", canTriggerRender = true})
+
+---@property scrollBarSymbol string " " Symbol used for the scrollbar handle
+Table.defineProperty(Table, "scrollBarSymbol", {default = " ", type = "string", canTriggerRender = true})
+
+---@property scrollBarBackground string "\127" Symbol used for the scrollbar background
+Table.defineProperty(Table, "scrollBarBackground", {default = "\127", type = "string", canTriggerRender = true})
+
+---@property scrollBarColor color lightGray Color of the scrollbar handle
+Table.defineProperty(Table, "scrollBarColor", {default = colors.lightGray, type = "color", canTriggerRender = true})
+
+---@property scrollBarBackgroundColor color gray Background color of the scrollbar
+Table.defineProperty(Table, "scrollBarBackgroundColor", {default = colors.gray, type = "color", canTriggerRender = true})
+
+---@event onRowSelect {rowIndex number, row table} Fired when a row is selected
 Table.defineEvent(Table, "mouse_click")
+Table.defineEvent(Table, "mouse_drag")
+Table.defineEvent(Table, "mouse_up")
 Table.defineEvent(Table, "mouse_scroll")
+
+local entrySchema = {
+    cells = { type = "table", default = {} },
+    _sortValues = { type = "table", default = {} },
+    selected = { type = "boolean", default = false },
+    text = { type = "string", default = "" }
+}
 
 --- Creates a new Table instance
 --- @shortDescription Creates a new Table instance
@@ -74,31 +94,102 @@ end
 --- @return Table self The initialized instance
 --- @protected
 function Table:init(props, basalt)
-    VisualElement.init(self, props, basalt)
+    Collection.init(self, props, basalt)
+    self._entrySchema = entrySchema
     self.set("type", "Table")
+
+    self:observe("sortColumn", function()
+        if self.get("sortColumn") then
+            self:sortByColumn(self.get("sortColumn"))
+        end
+    end)
+
+    return self
+end
+
+--- Adds a new row to the table
+--- @shortDescription Adds a new row with cell values
+--- @param ... any The cell values for the new row
+--- @return Table self The Table instance
+--- @usage table:addRow("Alice", 30, "USA")
+function Table:addRow(...)
+    local cells = {...}
+    Collection.addItem(self, {
+        cells = cells,
+        _sortValues = cells, -- Store original values for sorting
+        text = table.concat(cells, " ") -- For compatibility if needed
+    })
+    return self
+end
+
+--- Removes a row by index
+--- @shortDescription Removes a row at the specified index
+--- @param rowIndex number The index of the row to remove
+--- @return Table self The Table instance
+function Table:removeRow(rowIndex)
+    local items = self.get("items")
+    if items[rowIndex] then
+        table.remove(items, rowIndex)
+        self.set("items", items)
+    end
+    return self
+end
+
+--- Gets a row by index
+--- @shortDescription Gets the row data at the specified index
+--- @param rowIndex number The index of the row
+--- @return table? row The row data or nil
+function Table:getRow(rowIndex)
+    local items = self.get("items")
+    return items[rowIndex]
+end
+
+--- Updates a specific cell value
+--- @shortDescription Updates a cell value at row and column
+--- @param rowIndex number The row index
+--- @param colIndex number The column index
+--- @param value any The new value
+--- @return Table self The Table instance
+function Table:updateCell(rowIndex, colIndex, value)
+    local items = self.get("items")
+    if items[rowIndex] and items[rowIndex].cells then
+        items[rowIndex].cells[colIndex] = value
+        self.set("items", items)
+    end
+    return self
+end
+
+--- Gets the currently selected row
+--- @shortDescription Gets the currently selected row data
+--- @return table? row The selected row or nil
+function Table:getSelectedRow()
+    local items = self.get("items")
+    for _, item in ipairs(items) do
+        local isSelected = item._data and item._data.selected or item.selected
+        if isSelected then
+            return item
+        end
+    end
+    return nil
+end
+
+--- Clears all table data
+--- @shortDescription Removes all rows from the table
+--- @return Table self The Table instance
+function Table:clearData()
+    self.set("items", {})
     return self
 end
 
 --- Adds a new column to the table
 --- @shortDescription Adds a new column to the table
 --- @param name string The name of the column
---- @param width number The width of the column
+--- @param width number|string The width of the column (number, "auto", or "30%")
 --- @return Table self The Table instance
 function Table:addColumn(name, width)
     local columns = self.get("columns")
     table.insert(columns, {name = name, width = width})
     self.set("columns", columns)
-    return self
-end
-
---- Adds a new row of data to the table
---- @shortDescription Adds a new row of data to the table
---- @param ... any The data for the new row
---- @return Table self The Table instance
-function Table:addData(...)
-    local data = self.get("data")
-    table.insert(data, {...})
-    self.set("data", data)
     return self
 end
 
@@ -114,56 +205,54 @@ function Table:setColumnSortFunction(columnIndex, sortFn)
     return self
 end
 
---- Adds data with both display and sort values
---- @shortDescription Adds formatted data with raw sort values
---- @param displayData table The formatted data for display
---- @param sortData table The raw data for sorting (optional)
+--- Set data with automatic formatting
+--- @shortDescription Sets table data with optional column formatters
+--- @param rawData table The raw data array (array of row arrays)
+--- @param formatters table? Optional formatter functions for columns {[2] = function(value) return value end}
 --- @return Table self The Table instance
-function Table:setFormattedData(displayData, sortData)
-    local enrichedData = {}
+--- @usage table:setData({{...}}, {[1] = tostring, [2] = function(age) return age.."y" end})
+function Table:setData(rawData, formatters)
+    self:clearData()
 
-    for i, row in ipairs(displayData) do
-        local enrichedRow = {}
-        for j, cell in ipairs(row) do
-            enrichedRow[j] = cell
+    for _, row in ipairs(rawData) do
+        local cells = {}
+        local sortValues = {}
+
+        for j, cellValue in ipairs(row) do
+            sortValues[j] = cellValue
+
+            if formatters and formatters[j] then
+                cells[j] = formatters[j](cellValue)
+            else
+                cells[j] = cellValue
+            end
         end
 
-        if sortData and sortData[i] then
-            enrichedRow._sortValues = sortData[i]
-        end
-
-        table.insert(enrichedData, enrichedRow)
+        Collection.addItem(self, {
+            cells = cells,
+            _sortValues = sortValues,
+            text = table.concat(cells, " ")
+        })
     end
 
-    self.set("data", enrichedData)
     return self
 end
 
---- Set data with automatic formatting
---- @shortDescription Sets table data with optional column formatters
---- @param rawData table The raw data array
---- @param formatters table Optional formatter functions for columns {[2] = function(value) return value end}
---- @return Table self The Table instance
-function Table:setData(rawData, formatters)
-    if not formatters then
-        self.set("data", rawData)
-        return self
-    end
+--- Gets all table data
+--- @shortDescription Gets all rows as array of cell arrays
+--- @return table data Array of row cell arrays
+function Table:getData()
+    local items = self.get("items")
+    local data = {}
 
-    local formattedData = {}
-    for i, row in ipairs(rawData) do
-        local formattedRow = {}
-        for j, cell in ipairs(row) do
-            if formatters[j] then
-                formattedRow[j] = formatters[j](cell)
-            else
-                formattedRow[j] = cell
-            end
+    for _, item in ipairs(items) do
+        local cells = item._data and item._data.cells or item.cells
+        if cells then
+            table.insert(data, cells)
         end
-        table.insert(formattedData, formattedRow)
     end
 
-    return self:setFormattedData(formattedData, rawData)
+    return data
 end
 
 --- @shortDescription Calculates column widths for rendering
@@ -241,33 +330,38 @@ end
 --- @param columnIndex number The index of the column to sort by
 --- @param fn function? Optional custom sorting function
 --- @return Table self The Table instance
-function Table:sortData(columnIndex, fn)
-    local data = self.get("data")
+function Table:sortByColumn(columnIndex, fn)
+    local items = self.get("items")
     local direction = self.get("sortDirection")
     local customSorts = self.get("customSortFunction")
 
     local sortFn = fn or customSorts[columnIndex]
 
     if sortFn then
-        table.sort(data, function(a, b)
+        table.sort(items, function(a, b)
             return sortFn(a, b, direction)
         end)
     else
-        table.sort(data, function(a, b)
-            if not a or not b then return false end
+        table.sort(items, function(a, b)
+            local aCells = a._data and a._data.cells or a.cells
+            local bCells = b._data and b._data.cells or b.cells
+            local aSortValues = a._data and a._data._sortValues or a._sortValues
+            local bSortValues = b._data and b._data._sortValues or b._sortValues
+
+            if not a or not b or not aCells or not bCells then return false end
 
             local valueA, valueB
 
-            if a._sortValues and a._sortValues[columnIndex] then
-                valueA = a._sortValues[columnIndex]
+            if aSortValues and aSortValues[columnIndex] then
+                valueA = aSortValues[columnIndex]
             else
-                valueA = a[columnIndex]
+                valueA = aCells[columnIndex]
             end
 
-            if b._sortValues and b._sortValues[columnIndex] then
-                valueB = b._sortValues[columnIndex]
+            if bSortValues and bSortValues[columnIndex] then
+                valueB = bSortValues[columnIndex]
             else
-                valueB = b[columnIndex]
+                valueB = bCells[columnIndex]
             end
 
             if type(valueA) == "number" and type(valueB) == "number" then
@@ -287,23 +381,55 @@ function Table:sortData(columnIndex, fn)
             end
         end)
     end
+
+    self.set("items", items)
+    return self
+end
+
+--- Registers callback for row selection
+--- @shortDescription Registers a callback when a row is selected
+--- @param callback function The callback function(rowIndex, row)
+--- @return Table self The Table instance
+function Table:onRowSelect(callback)
+    self:registerCallback("rowSelect", callback)
     return self
 end
 
 --- @shortDescription Handles header clicks for sorting and row selection
---- @param button number The button that was clicked
---- @param x number The x position of the click
---- @param y number The y position of the click
---- @return boolean handled Whether the event was handled
 --- @protected
 function Table:mouse_click(button, x, y)
-    if not VisualElement.mouse_click(self, button, x, y) then return false end
+    if not Collection.mouse_click(self, button, x, y) then return false end
 
     local relX, relY = self:getRelativePosition(x, y)
+    local width = self.get("width")
+    local height = self.get("height")
+    local items = self.get("items")
+    local showScrollBar = self.get("showScrollBar")
+    local visibleRows = height - 1
+
+    if showScrollBar and #items > visibleRows and relX == width and relY > 1 then
+        local scrollBarHeight = height - 1
+        local maxOffset = #items - visibleRows
+        local handleSize = math.max(1, math.floor((visibleRows / #items) * scrollBarHeight))
+
+        local currentPercent = maxOffset > 0 and (self.get("offset") / maxOffset * 100) or 0
+        local handlePos = math.floor((currentPercent / 100) * (scrollBarHeight - handleSize)) + 1
+
+        local scrollBarRelY = relY - 1
+
+        if scrollBarRelY >= handlePos and scrollBarRelY < handlePos + handleSize then
+            self._scrollBarDragging = true
+            self._scrollBarDragOffset = scrollBarRelY - handlePos
+        else
+            local newPercent = ((scrollBarRelY - 1) / (scrollBarHeight - handleSize)) * 100
+            local newOffset = math.floor((newPercent / 100) * maxOffset + 0.5)
+            self.set("offset", math.max(0, math.min(maxOffset, newOffset)))
+        end
+        return true
+    end
 
     if relY == 1 then
         local columns = self.get("columns")
-        local width = self.get("width")
         local calculatedColumns = self:calculateColumnWidths(columns, width)
 
         local currentX = 1
@@ -316,38 +442,93 @@ function Table:mouse_click(button, x, y)
                     self.set("sortColumn", i)
                     self.set("sortDirection", "asc")
                 end
-                self:sortData(i)
-                break
+                self:sortByColumn(i)
+                self:updateRender()
+                return true
             end
             currentX = currentX + colWidth
         end
+        return true
     end
 
     if relY > 1 then
-        local rowIndex = relY - 2 + self.get("scrollOffset")
-        if rowIndex >= 0 and rowIndex < #self.get("data") then
-            self.set("selectedRow", rowIndex + 1)
+        local rowIndex = relY - 2 + self.get("offset")
+
+        if rowIndex >= 0 and rowIndex < #items then
+            local actualIndex = rowIndex + 1
+
+            for _, item in ipairs(items) do
+                if item._data then
+                    item._data.selected = false
+                else
+                    item.selected = false
+                end
+            end
+
+            if items[actualIndex] then
+                if items[actualIndex]._data then
+                    items[actualIndex]._data.selected = true
+                else
+                    items[actualIndex].selected = true
+                end
+                self:fireEvent("rowSelect", actualIndex, items[actualIndex])
+                self:updateRender()
+            end
         end
+        return true
     end
 
     return true
 end
 
+--- @shortDescription Handles mouse drag events for scrollbar
+--- @protected
+function Table:mouse_drag(button, x, y)
+    if self._scrollBarDragging then
+        local _, relY = self:getRelativePosition(x, y)
+        local items = self.get("items")
+        local height = self.get("height")
+        local visibleRows = height - 1
+        local scrollBarHeight = height - 1
+        local handleSize = math.max(1, math.floor((visibleRows / #items) * scrollBarHeight))
+        local maxOffset = #items - visibleRows
+
+        local scrollBarRelY = relY - 1
+        scrollBarRelY = math.max(1, math.min(scrollBarHeight, scrollBarRelY))
+
+        local newPos = scrollBarRelY - (self._scrollBarDragOffset or 0)
+        local newPercent = ((newPos - 1) / (scrollBarHeight - handleSize)) * 100
+        local newOffset = math.floor((newPercent / 100) * maxOffset + 0.5)
+
+        self.set("offset", math.max(0, math.min(maxOffset, newOffset)))
+        return true
+    end
+    return Collection.mouse_drag and Collection.mouse_drag(self, button, x, y) or false
+end
+
+--- @shortDescription Handles mouse up events to stop scrollbar dragging
+--- @protected
+function Table:mouse_up(button, x, y)
+    if self._scrollBarDragging then
+        self._scrollBarDragging = false
+        self._scrollBarDragOffset = nil
+        return true
+    end
+    return Collection.mouse_up and Collection.mouse_up(self, button, x, y) or false
+end
+
 --- @shortDescription Handles scrolling through the table data
---- @param direction number The scroll direction (-1 up, 1 down)
---- @param x number The x position of the scroll
---- @param y number The y position of the scroll
---- @return boolean handled Whether the event was handled
 --- @protected
 function Table:mouse_scroll(direction, x, y)
-    if(VisualElement.mouse_scroll(self, direction, x, y))then
-        local data = self.get("data")
+    if Collection.mouse_scroll(self, direction, x, y) then
+        local items = self.get("items")
         local height = self.get("height")
-        local visibleRows = height - 2
-        local maxScroll = math.max(0, #data - visibleRows - 1)
-        local newOffset = math.min(maxScroll, math.max(0, self.get("scrollOffset") + direction))
+        local visibleRows = height - 1  -- Subtract header
+        local maxOffset = math.max(0, #items - visibleRows)
+        local newOffset = math.min(maxOffset, math.max(0, self.get("offset") + direction))
 
-        self.set("scrollOffset", newOffset)
+        self.set("offset", newOffset)
+        self:updateRender()
         return true
     end
     return false
@@ -356,21 +537,25 @@ end
 --- @shortDescription Renders the table with headers, data and scrollbar
 --- @protected
 function Table:render()
-    VisualElement.render(self)
-    local columns = self.get("columns")
-    local data = self.get("data")
-    local selected = self.get("selectedRow")
-    local sortCol = self.get("sortColumn")
-    local scrollOffset = self.get("scrollOffset")
+    Collection.render(self)
+    local columns = self.getResolved("columns")
+    local items = self.getResolved("items")
+    local sortCol = self.getResolved("sortColumn")
+    local offset = self.getResolved("offset")
     local height = self.get("height")
     local width = self.get("width")
+    local showScrollBar = self.getResolved("showScrollBar")
+    local visibleRows = height - 1
 
-    local calculatedColumns = self:calculateColumnWidths(columns, width)
+    local needsScrollBar = showScrollBar and #items > visibleRows
+    local contentWidth = needsScrollBar and width - 1 or width
+
+    local calculatedColumns = self:calculateColumnWidths(columns, contentWidth)
 
     local totalWidth = 0
     local lastVisibleColumn = #calculatedColumns
     for i, col in ipairs(calculatedColumns) do
-        if totalWidth + col.visibleWidth > width then
+        if totalWidth + col.visibleWidth > contentWidth then
             lastVisibleColumn = i - 1
             break
         end
@@ -388,32 +573,68 @@ function Table:render()
         currentX = currentX + col.visibleWidth
     end
 
+    if currentX <= contentWidth then
+        self:textBg(currentX, 1, string.rep(" ", contentWidth - currentX + 1), self.get("background"))
+    end
+
     for y = 2, height do
-        local rowIndex = y - 2 + scrollOffset
-        local rowData = data[rowIndex + 1]
+        local rowIndex = y - 2 + offset
+        local item = items[rowIndex + 1]
 
-        if rowData and (rowIndex + 1) <= #data then
-            currentX = 1
-            local bg = (rowIndex + 1) == selected and self.get("selectedColor") or self.get("background")
+        if item then
+            local cells = item._data and item._data.cells or item.cells
+            local isSelected = item._data and item._data.selected or item.selected
 
-            for i, col in ipairs(calculatedColumns) do
-                if i > lastVisibleColumn then break end
-                local cellText = tostring(rowData[i] or "")
-                local paddedText = cellText .. string.rep(" ", col.visibleWidth - #cellText)
-                if i < lastVisibleColumn then
-                    paddedText = string.sub(paddedText, 1, col.visibleWidth - 1) .. " "
+            if cells then
+                currentX = 1
+                local bg = isSelected and self.get("selectedBackground") or self.get("background")
+
+                for i, col in ipairs(calculatedColumns) do
+                    if i > lastVisibleColumn then break end
+                    local cellText = tostring(cells[i] or "")
+                    local paddedText = cellText .. string.rep(" ", col.visibleWidth - #cellText)
+                    if i < lastVisibleColumn then
+                        paddedText = string.sub(paddedText, 1, col.visibleWidth - 1) .. " "
+                    end
+                    local finalText = string.sub(paddedText, 1, col.visibleWidth)
+                    local finalForeground = string.rep(tHex[self.get("foreground")], col.visibleWidth)
+                    local finalBackground = string.rep(tHex[bg], col.visibleWidth)
+
+                    self:blit(currentX, y, finalText, finalForeground, finalBackground)
+                    currentX = currentX + col.visibleWidth
                 end
-                local finalText = string.sub(paddedText, 1, col.visibleWidth)
-                local finalForeground = string.rep(tHex[self.get("foreground")], col.visibleWidth)
-                local finalBackground = string.rep(tHex[bg], col.visibleWidth)
 
-                self:blit(currentX, y, finalText, finalForeground, finalBackground)
-                currentX = currentX + col.visibleWidth
+                if currentX <= contentWidth then
+                    self:textBg(currentX, y, string.rep(" ", contentWidth - currentX + 1), bg)
+                end
             end
         else
-            self:blit(1, y, string.rep(" ", self.get("width")),
-                string.rep(tHex[self.get("foreground")], self.get("width")),
-                string.rep(tHex[self.get("background")], self.get("width")))
+            self:blit(1, y, string.rep(" ", contentWidth),
+                string.rep(tHex[self.get("foreground")], contentWidth),
+                string.rep(tHex[self.get("background")], contentWidth))
+        end
+    end
+
+    if needsScrollBar then
+        local scrollBarHeight = height - 1
+        local handleSize = math.max(1, math.floor((visibleRows / #items) * scrollBarHeight))
+        local maxOffset = #items - visibleRows
+
+        local currentPercent = maxOffset > 0 and (offset / maxOffset * 100) or 0
+        local handlePos = math.floor((currentPercent / 100) * (scrollBarHeight - handleSize)) + 1
+
+        local scrollBarSymbol = self.getResolved("scrollBarSymbol")
+        local scrollBarBg = self.getResolved("scrollBarBackground")
+        local scrollBarColor = self.getResolved("scrollBarColor")
+        local scrollBarBgColor = self.getResolved("scrollBarBackgroundColor")
+        local foreground = self.getResolved("foreground")
+
+        for i = 2, height do
+            self:blit(width, i, scrollBarBg, tHex[foreground], tHex[scrollBarBgColor])
+        end
+
+        for i = handlePos, math.min(scrollBarHeight, handlePos + handleSize - 1) do
+            self:blit(width, i + 1, scrollBarSymbol, tHex[scrollBarColor], tHex[scrollBarBgColor])
         end
     end
 end

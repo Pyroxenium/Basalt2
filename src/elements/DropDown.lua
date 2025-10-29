@@ -5,51 +5,50 @@ local tHex = require("libraries/colorHex")
 ---@configDescription A DropDown menu that shows a list of selectable items
 ---@configDefault false
 
---- Item Properties:
---- Property|Type|Description
---- -------|------|-------------
---- text|string|The display text for the item
---- separator|boolean|Makes item a divider line
---- callback|function|Function called when selected
---- foreground|color|Normal text color
---- background|color|Normal background color
---- selectedForeground|color|Text color when selected
---- selectedBackground|color|Background when selected
+---@tableType ItemTable
+---@tableField text string The display text for the item
+---@tableField callback function Function called when selected
+---@tableField fg color Normal text color
+---@tableField bg color Normal background color
+---@tableField selectedFg color Text color when selected
+---@tableField selectedBg color Background when selected
 
 --- A collapsible selection menu that expands to show multiple options when clicked. Supports single and multi-selection modes, custom item styling, separators, and item callbacks.
---- @usage -- Create a styled dropdown menu
---- @usage local dropdown = main:addDropDown()
---- @usage     :setPosition(5, 5)
---- @usage     :setSize(20, 1)  -- Height expands when opened
---- @usage     :setSelectedText("Select an option...")
---- @usage 
---- @usage -- Add items with different styles and callbacks
---- @usage dropdown:setItems({
---- @usage     {
---- @usage         text = "Category A",
---- @usage         background = colors.blue,
---- @usage         foreground = colors.white
---- @usage     },
---- @usage     { separator = true, text = "-" },  -- Add a separator
---- @usage     {
---- @usage         text = "Option 1",
---- @usage         callback = function(self)
---- @usage             -- Handle selection
---- @usage             basalt.debug("Selected Option 1")
---- @usage         end
---- @usage     },
---- @usage     {
---- @usage         text = "Option 2",
---- @usage         -- Custom colors when selected
---- @usage         selectedBackground = colors.green,
---- @usage         selectedForeground = colors.white
---- @usage     }
---- @usage })
---- @usage
---- @usage -- Listen for selections
---- @usage dropdown:onChange(function(self, value)
---- @usage     basalt.debug("Selected:", value)
---- @usage end)
+--- @usage [[
+--- -- Create a styled dropdown menu
+--- local dropdown = main:addDropDown()
+---     :setPosition(5, 5)
+---     :setSize(20, 1)  -- Height expands when opened
+---     :setSelectedText("Select an option...")
+--- 
+--- -- Add items with different styles and callbacks
+--- dropdown:setItems({
+---     {
+---         text = "Category A",
+---         background = colors.blue,
+---         foreground = colors.white
+---     },
+---     { separator = true, text = "-" },  -- Add a separator
+---     {
+---         text = "Option 1",
+---         callback = function(self)
+---             -- Handle selection
+---             basalt.debug("Selected Option 1")
+---         end
+---     },
+---     {
+---         text = "Option 2",
+---         -- Custom colors when selected
+---         selectedBackground = colors.green,
+---         selectedForeground = colors.white
+---     }
+--- })
+---
+--- -- Listen for selections
+--- dropdown:onChange(function(self, value)
+---     basalt.debug("Selected:", value)
+--- end)
+--- ]]
 ---@class DropDown : List
 local DropDown = setmetatable({}, List)
 DropDown.__index = DropDown
@@ -107,7 +106,6 @@ function DropDown:mouse_click(button, x, y)
         end
         return true
     elseif isOpen and relY > 1 then
-        -- Forward to List handler for scrollbar handling
         return List.mouse_click(self, button, x, y - 1)
     end
     return false
@@ -135,19 +133,18 @@ end
 function DropDown:mouse_up(button, x, y)
     if self:hasState("opened") then
         local relX, relY = self:getRelativePosition(x, y)
-        
-        -- Only handle item selection in mouse_up (relY > 1 = list area)
+
         if relY > 1 and self.get("selectable") and not self._scrollBarDragging then
             local itemIndex = (relY - 1) + self.get("offset")
             local items = self.get("items")
-            
+
             if itemIndex <= #items then
                 local item = items[itemIndex]
                 if type(item) == "string" then
                     item = {text = item}
                     items[itemIndex] = item
                 end
-                
+
                 if not self.get("multiSelection") then
                     for _, otherItem in ipairs(items) do
                         if type(otherItem) == "table" then
@@ -155,24 +152,23 @@ function DropDown:mouse_up(button, x, y)
                         end
                     end
                 end
-                
+
                 item.selected = not item.selected
-                
+
                 if item.callback then
                     item.callback(self)
                 end
-                
+
                 self:fireEvent("select", itemIndex, item)
                 self:unsetState("opened")
                 self:unsetState("clicked")
                 self.set("height", 1)
                 self:updateRender()
-                
+
                 return true
             end
         end
-        
-        -- Always forward to List for cleanup and unset clicked state
+
         List.mouse_up(self, button, x, y - 1)
         self:unsetState("clicked")
         return true

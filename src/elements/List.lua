@@ -44,6 +44,14 @@ List.defineEvent(List, "mouse_drag")
 List.defineEvent(List, "mouse_scroll")
 List.defineEvent(List, "key")
 
+---@tableType ItemTable
+---@tableField text string The display text for the item
+---@tableField callback function Function called when selected
+---@tableField fg color Normal text color
+---@tableField bg color Normal background color
+---@tableField selectedFg color Text color when selected
+---@tableField selectedBg color Background when selected
+
 local entrySchema = {
     text = { type = "string", default = "Entry" },
     bg = { type = "number", default = nil },
@@ -265,7 +273,7 @@ function List:key(keyCode)
     if Collection.key(self, keyCode) and self.get("selectable") then
         local items = self.get("items")
         local currentIndex = self:getSelectedIndex()
-        
+
         if keyCode == keys.up then
             self:selectPrevious()
             if currentIndex and currentIndex > 1 then

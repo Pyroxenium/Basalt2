@@ -72,16 +72,21 @@ local function generateFunctionMarkdown(class, functions)
 
         if f.usage then
             table.insert(md, "### Usage")
-            table.insert(md, "```lua")
-            for _, usage in ipairs(f.usage) do
-                if usage == "" then
-                    table.insert(md, "")
-                else
-                    table.insert(md, usage)
+            for _, usageBlock in ipairs(f.usage) do
+                table.insert(md, "```lua run")
+                -- Check if usageBlock is already multi-line
+                if type(usageBlock) == "string" then
+                    if usageBlock:match("\n") then
+                        -- Multi-line block
+                        table.insert(md, usageBlock)
+                    else
+                        -- Single line
+                        table.insert(md, usageBlock)
+                    end
                 end
+                table.insert(md, "```")
+                table.insert(md, "")
             end
-            table.insert(md, "```")
-            table.insert(md, "")
         end
 
         if f.run then
@@ -156,6 +161,38 @@ function markdownGenerator.generate(ast)
                 table.insert(md, "Extends: `" .. class.extends .. "`")
             end
             table.insert(md, "")
+
+            if class.usage then
+                table.insert(md, "## Usage")
+                for _, usageBlock in ipairs(class.usage) do
+                    table.insert(md, "```lua run")
+                    if type(usageBlock) == "string" then
+                        table.insert(md, usageBlock)
+                    end
+                    table.insert(md, "```")
+                    table.insert(md, "")
+                end
+            end
+
+            if #class.tableTypes > 0 then
+                table.insert(md, "## Table Types")
+                table.insert(md, "")
+                for _, tableType in ipairs(class.tableTypes) do
+                    table.insert(md, "### " .. tableType.name)
+                    table.insert(md, "")
+                    if #tableType.fields > 0 then
+                        table.insert(md, "|Property|Type|Description|")
+                        table.insert(md, "|---|---|---|")
+                        for _, field in ipairs(tableType.fields) do
+                            table.insert(md, string.format("|%s|%s|%s|",
+                                field.name or "",
+                                field.type or "any",
+                                field.description or ""))
+                        end
+                        table.insert(md, "")
+                    end
+                end
+            end
 
             if not class.skipPropertyList and #class.properties > 0 then
                 table.insert(md, "## Properties")
