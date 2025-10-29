@@ -6,21 +6,23 @@ local tHex = require("libraries/colorHex")
 --- @configDefault false
 
 --- A data visualization element that represents numeric data through vertical bars. Each bar's height corresponds to its value, making it ideal for comparing quantities across categories or showing data changes over time. Supports multiple data series with customizable colors and styles.
---- @usage -- Create a bar chart
---- @usage local chart = main:addBarChart()
---- @usage 
---- @usage -- Add two data series with different colors
---- @usage chart:addSeries("input", " ", colors.green, colors.green, 5)
---- @usage chart:addSeries("output", " ", colors.red, colors.red, 5)
---- @usage 
---- @usage -- Continuously update the chart with random data
---- @usage basalt.schedule(function()
---- @usage     while true do
---- @usage         chart:addPoint("input", math.random(1,100))
---- @usage         chart:addPoint("output", math.random(1,100))
---- @usage         sleep(2)
---- @usage     end
---- @usage end)
+--- @usage [[
+--- -- Create a bar chart
+--- local chart = main:addBarChart()
+--- 
+--- -- Add two data series with different colors
+--- chart:addSeries("input", " ", colors.green, colors.green, 5)
+--- chart:addSeries("output", " ", colors.red, colors.red, 5)
+--- 
+--- -- Continuously update the chart with random data
+--- basalt.schedule(function()
+---     while true do
+---         chart:addPoint("input", math.random(1,100))
+---         chart:addPoint("output", math.random(1,100))
+---         sleep(2)
+---      end
+--- end)
+--- ]]
 --- @class BarChart : Graph
 local BarChart = setmetatable({}, BaseGraph)
 BarChart.__index = BarChart

@@ -3,9 +3,11 @@ local tHex = require("libraries/colorHex")
 
 --- This is the progress bar class. It provides a visual representation of progress
 --- with optional percentage display and customizable colors.
---- @usage local progressBar = main:addProgressBar()
---- @usage progressBar:setDirection("up") 
---- @usage progressBar:setProgress(50)
+--- @usage [[ 
+--- local progressBar = main:addProgressBar()
+--- progressBar:setDirection("up") 
+--- progressBar:setProgress(50)
+--- ]]
 ---@class ProgressBar : VisualElement
 local ProgressBar = setmetatable({}, VisualElement)
 ProgressBar.__index = ProgressBar

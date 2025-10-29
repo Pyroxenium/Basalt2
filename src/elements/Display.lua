@@ -13,27 +13,29 @@ local colorHex = require("libraries/colorHex")
 --- - Terminal emulation
 --- - Complex text manipulation
 --- The Display maintains its own terminal buffer and can be manipulated using familiar CC terminal methods.
---- @usage -- Create a display for a custom terminal
---- @usage local display = main:addDisplay()
---- @usage     :setSize(30, 10)
---- @usage     :setPosition(2, 2)
---- @usage
---- @usage -- Get the window object for CC API operations
---- @usage local win = display:getWindow()
---- @usage
---- @usage -- Use standard CC terminal operations
---- @usage win.setTextColor(colors.yellow)
---- @usage win.setBackgroundColor(colors.blue)
---- @usage win.clear()
---- @usage win.setCursorPos(1, 1)
---- @usage win.write("Hello World!")
---- @usage
---- @usage -- Or use the helper method
---- @usage display:write(1, 2, "Direct write", colors.red, colors.black)
---- @usage
---- @usage -- Useful for external APIs
---- @usage local paintutils = require("paintutils")
---- @usage paintutils.drawLine(1, 1, 10, 1, colors.red, win)
+--- @usage [[
+--- -- Create a display for a custom terminal
+--- local display = main:addDisplay()
+---     :setSize(30, 10)
+---     :setPosition(2, 2)
+---
+--- -- Get the window object for CC API operations
+--- local win = display:getWindow()
+---
+--- -- Use standard CC terminal operations
+--- win.setTextColor(colors.yellow)
+--- win.setBackgroundColor(colors.blue)
+--- win.clear()
+--- win.setCursorPos(1, 1)
+--- win.write("Hello World!")
+---
+--- -- Or use the helper method
+--- display:write(1, 2, "Direct write", colors.red, colors.black)
+---
+--- -- Useful for external APIs
+--- local paintutils = require("paintutils")
+--- paintutils.drawLine(1, 1, 10, 1, colors.red, win)
+--- ]]
 ---@class Display : VisualElement
 local Display = setmetatable({}, VisualElement)
 Display.__index = Display

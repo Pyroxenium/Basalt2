@@ -2,18 +2,20 @@ local VisualElement = require("elements/VisualElement")
 ---@configDescription This is a checkbox. It is a visual element that can be checked.
 
 --- A toggleable UI element that can be checked or unchecked. Displays different text based on its state and supports automatic sizing. Commonly used in forms and settings interfaces for boolean options.
---- @usage -- Create a checkbox for a setting
---- @usage local checkbox = parent:addCheckBox()
---- @usage     :setText("Enable Feature")
---- @usage     :setCheckedText("✓")
---- @usage     :onChange("checked", function(self, checked)
---- @usage         -- React to checkbox state changes
---- @usage         if checked then
---- @usage             -- Handle enabled state
---- @usage         else
---- @usage             -- Handle disabled state
---- @usage         end
---- @usage     end)
+--- @usage [[
+--- -- Create a checkbox for a setting
+--- local checkbox = parent:addCheckBox()
+---     :setText("Enable Feature")
+---     :setCheckedText("✓")
+---     :onChange("checked", function(self, checked)
+---         -- React to checkbox state changes
+---         if checked then
+---             -- Handle enabled state
+---         else
+---             -- Handle disabled state
+---         end
+---     end)
+--- ]]
 --- @class CheckBox : VisualElement
 local CheckBox = setmetatable({}, VisualElement)
 CheckBox.__index = CheckBox

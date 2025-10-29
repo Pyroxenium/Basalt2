@@ -7,24 +7,26 @@ local tHex = require("libraries/colorHex")
 
 --- A hybrid input element that combines a text input field with a dropdown list. Users can either type directly or select from predefined options. 
 --- Supports auto-completion, custom styling, and both single and multi-selection modes.
---- @usage -- Create a searchable country selector
---- @usage local combo = main:addComboBox()
---- @usage     :setPosition(5, 5)
---- @usage     :setSize(20, 1)  -- Height will expand when opened
---- @usage     :setItems({
---- @usage         {text = "Germany"},
---- @usage         {text = "France"},
---- @usage         {text = "Spain"},
---- @usage         {text = "Italy"}
---- @usage     })
---- @usage     :setPlaceholder("Select country...")
---- @usage     :setAutoComplete(true)  -- Enable filtering while typing
---- @usage 
---- @usage -- Handle selection changes
---- @usage combo:onChange(function(self, value)
---- @usage     -- value will be the selected country
---- @usage     basalt.debug("Selected:", value)
---- @usage end)
+--- @usage [[
+--- -- Create a searchable country selector
+--- local combo = main:addComboBox()
+---     :setPosition(5, 5)
+---     :setSize(20, 1)  -- Height will expand when opened
+---     :setItems({
+---         {text = "Germany"},
+---         {text = "France"},
+---         {text = "Spain"},
+---         {text = "Italy"}
+---     })
+---     :setPlaceholder("Select country...")
+---     :setAutoComplete(true)  -- Enable filtering while typing
+--- 
+--- -- Handle selection changes
+--- combo:onChange(function(self, value)
+---     -- value will be the selected country
+---     basalt.debug("Selected:", value)
+--- end)
+--- ]]
 ---@class ComboBox : DropDown
 local ComboBox = setmetatable({}, DropDown)
 ComboBox.__index = ComboBox

@@ -2,9 +2,11 @@ local Collection = require("elements/Collection")
 local tHex = require("libraries/colorHex")
 
 --- This is the table class. It provides a sortable data grid with customizable columns, row selection, and scrolling capabilities. Built on Collection for consistent item management.
---- @usage local people = container:addTable():setWidth(40)
---- @usage people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
---- @usage people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
+--- @usage [[
+--- local people = container:addTable():setWidth(40)
+--- people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
+--- people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
+--- ]]
 ---@class Table : Collection
 local Table = setmetatable({}, Collection)
 Table.__index = Table

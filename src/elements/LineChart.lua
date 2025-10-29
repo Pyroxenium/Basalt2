@@ -6,17 +6,19 @@ local tHex = require("libraries/colorHex")
 ---@configDefault false
 
 --- The Line Chart element visualizes data series as connected line graphs. It plots points on a coordinate system and connects them with lines.
---- @usage local chart = main:addLineChart()
---- @usage :addSeries("input", " ", colors.green, colors.green, 10)
---- @usage :addSeries("output", " ", colors.red, colors.red, 10)
---- @usage 
---- @usage basalt.schedule(function()
---- @usage     while true do
---- @usage         chart:addPoint("input", math.random(1,100))
---- @usage         chart:addPoint("output", math.random(1,100))
---- @usage         sleep(2)
---- @usage     end
---- @usage end)
+--- @usage [[
+--- local chart = main:addLineChart()
+--- :addSeries("input", " ", colors.green, colors.green, 10)
+--- :addSeries("output", " ", colors.red, colors.red, 10)
+--- 
+--- basalt.schedule(function()
+---     while true do
+---         chart:addPoint("input", math.random(1,100))
+---         chart:addPoint("output", math.random(1,100))
+---         sleep(2)
+---     end
+--- end)
+--- ]]
 --- @class LineChart : Graph
 local LineChart = setmetatable({}, Graph)
 LineChart.__index = LineChart

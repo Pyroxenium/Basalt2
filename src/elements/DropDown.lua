@@ -15,6 +15,9 @@ local tHex = require("libraries/colorHex")
 
 --- A collapsible selection menu that expands to show multiple options when clicked. Supports single and multi-selection modes, custom item styling, separators, and item callbacks.
 --- @run [[
+--- local basalt = require("basalt")
+--- local main = basalt.getMainFrame()
+--- 
 --- -- Create a styled dropdown menu
 --- local dropdown = main:addDropDown()
 ---     :setPosition(5, 5)
@@ -48,6 +51,8 @@ local tHex = require("libraries/colorHex")
 --- dropdown:onChange(function(self, value)
 ---     basalt.debug("Selected:", value)
 --- end)
+--- 
+--- basalt.run()
 --- ]]
 ---@class DropDown : List
 local DropDown = setmetatable({}, List)

@@ -146,23 +146,25 @@ local VisualElement = elementManager.getElement("VisualElement")
 ---@configDefault false
 
 --- A specialized text element that renders characters in larger sizes using Wojbie's BigFont API. Supports multiple font sizes and custom colors while maintaining the pixel-art style of ComputerCraft. Ideal for headers, titles, and emphasis text.
---- @usage -- Create a large welcome message
---- @usage local main = basalt.getMainFrame()
---- @usage local title = main:addBigFont()
---- @usage     :setPosition(3, 3)
---- @usage     :setFontSize(2)  -- Makes text twice as large
---- @usage     :setText("Welcome!")
---- @usage     :setForeground(colors.yellow)  -- Make text yellow
---- @usage
---- @usage -- For animated text
---- @usage basalt.schedule(function()
---- @usage     while true do
---- @usage         title:setForeground(colors.yellow)
---- @usage         sleep(0.5)
---- @usage         title:setForeground(colors.orange)
---- @usage         sleep(0.5)
---- @usage     end
---- @usage end)
+--- @usage [[
+--- -- Create a large welcome message
+--- local main = basalt.getMainFrame()
+--- local title = main:addBigFont()
+---     :setPosition(3, 3)
+---     :setFontSize(2)  -- Makes text twice as large
+---     :setText("Welcome!")
+---     :setForeground(colors.yellow)  -- Make text yellow
+---
+--- -- For animated text
+--- basalt.schedule(function()
+---     while true do
+---         title:setForeground(colors.yellow)
+---         sleep(0.5)
+---         title:setForeground(colors.orange)
+---         sleep(0.5)
+---     end
+--- end)
+--- ]]
 ---@class BigFont : VisualElement
 local BigFont = setmetatable({}, VisualElement)
 BigFont.__index = BigFont

@@ -5,17 +5,19 @@ local tHex = require("libraries/colorHex")
 ---@configDefault false
 
 --- This is the base class for all graph elements. It is a point based graph.
---- @usage local graph = main:addGraph()
---- @usage :addSeries("input", " ", colors.green, colors.green, 10)
---- @usage :addSeries("output", " ", colors.red, colors.red, 10)
---- @usage 
---- @usage basalt.schedule(function()
---- @usage     while true do
---- @usage         graph:addPoint("input", math.random(1,100))
---- @usage         graph:addPoint("output", math.random(1,100))
---- @usage         sleep(2)
---- @usage     end
---- @usage end)
+--- @usage [[
+--- local graph = main:addGraph()
+--- :addSeries("input", " ", colors.green, colors.green, 10)
+--- :addSeries("output", " ", colors.red, colors.red, 10)
+--- 
+--- basalt.schedule(function()
+---     while true do
+---         graph:addPoint("input", math.random(1,100))
+---         graph:addPoint("output", math.random(1,100))
+---         sleep(2)
+---     end
+--- end)
+--- ]]
 --- @class Graph : VisualElement
 local Graph = setmetatable({}, VisualElement)
 Graph.__index = Graph
