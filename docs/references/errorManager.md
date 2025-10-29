@@ -15,6 +15,6 @@ Handles an error
 * `errMsg` `string` The error message
 
 ### Usage
-```lua run
+```lua
 errorHandler.error("An error occurred")
 ```

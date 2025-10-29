@@ -5,15 +5,15 @@ _with optional percentage display and customizable colors._
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 local progressBar = main:addProgressBar()
 ```
 
-```lua run
+```lua
 progressBar:setDirection("up") 
 ```
 
-```lua run
+```lua
 progressBar:setProgress(50)
 ```
 

@@ -5,7 +5,7 @@ _Before you can access Basalt, you need to add the following code on top of your
 _What this code does is it loads basalt into the project, and you can access it by using the variable defined as "basalt"._
 
 ## Usage
-```lua run
+```lua
 local basalt = require("basalt")
 ```
 
@@ -49,7 +49,7 @@ Creates and returns a new UI element of the specified type.
 * `table` `element` The created element instance
 
 ### Usage
-```lua run
+```lua
 local button = basalt.create("Button")
 ```
 
@@ -177,7 +177,7 @@ Registers a callback function for a specific event
 * `callback` `function` The callback function to execute when the event occurs
 
 ### Usage
-```lua run
+```lua
 basalt.onEvent("mouse_click", function(button, x, y) basalt.debug("Clicked at", x, y) end)
 ```
 
@@ -200,7 +200,7 @@ Triggers a custom event and calls all registered callbacks
 * `eventName` `string` The name of the event to trigger
 
 ### Usage
-```lua run
+```lua
 basalt.triggerEvent("custom_event", "data1", "data2")
 ```
 
@@ -213,11 +213,11 @@ Requires specific elements and validates they are available
 * `autoLoad` *(optional)* `boolean` Whether to automatically load missing elements (default: false)
 
 ### Usage
-```lua run
+```lua
 basalt.requireElements({"Button", "Label", "Slider"})
 ```
 
-```lua run
+```lua
 basalt.requireElements("Button", true)
 ```
 
@@ -232,7 +232,7 @@ Loads a manifest file that describes element requirements and configuration
 * `table` `manifest` The loaded manifest data
 
 ### Usage
-```lua run
+```lua
 basalt.loadManifest("myapp.manifest")
 ```
 
@@ -245,11 +245,11 @@ Installs an element interactively or from a specified source
 * `source` *(optional)* `string` Optional source URL or path
 
 ### Usage
-```lua run
+```lua
 basalt.install("Slider")
 ```
 
-```lua run
+```lua
 basalt.install("Slider", "https://example.com/slider.lua")
 ```
 
@@ -261,6 +261,6 @@ Configures the ElementManager (shortcut to elementManager.configure)
 * `config` `table` Configuration options
 
 ### Usage
-```lua run
+```lua
 basalt.configure({allowRemoteLoading = true, useGlobalCache = true})
 ```

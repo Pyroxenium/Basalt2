@@ -4,83 +4,83 @@ _A clickable interface element that triggers actions when pressed. Supports text
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 -- Create a simple action button
 ```
 
-```lua run
+```lua
 local button = parent:addButton()
 ```
 
-```lua run
+```lua
 :setPosition(5, 5)
 ```
 
-```lua run
+```lua
 :setText("Click me!")
 ```
 
-```lua run
+```lua
 :setBackground(colors.blue)
 ```
 
-```lua run
+```lua
 :setForeground(colors.white)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Add click handling
 ```
 
-```lua run
+```lua
 button:onClick(function(self, button, x, y)
 ```
 
-```lua run
+```lua
 -- Change appearance when clicked
 ```
 
-```lua run
+```lua
 self:setBackground(colors.green)
 ```
 
-```lua run
+```lua
 self:setText("Success!")
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Revert after delay
 ```
 
-```lua run
+```lua
 basalt.schedule(function()
 ```
 
-```lua run
+```lua
 sleep(1)
 ```
 
-```lua run
+```lua
 self:setBackground(colors.blue)
 ```
 
-```lua run
+```lua
 self:setText("Click me!")
 ```
 
-```lua run
+```lua
 end)
 ```
 
-```lua run
+```lua
 end)
 ```
 

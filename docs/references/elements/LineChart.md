@@ -4,46 +4,46 @@ _The Line Chart element visualizes data series as connected line graphs. It plot
 Extends: `Graph`
 
 ## Usage
-```lua run
+```lua
 local chart = main:addLineChart()
 ```
 
-```lua run
+```lua
 :addSeries("input", " ", colors.green, colors.green, 10)
 ```
 
-```lua run
+```lua
 :addSeries("output", " ", colors.red, colors.red, 10)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 basalt.schedule(function()
 ```
 
-```lua run
+```lua
 while true do
 ```
 
-```lua run
+```lua
 chart:addPoint("input", math.random(1,100))
 ```
 
-```lua run
+```lua
 chart:addPoint("output", math.random(1,100))
 ```
 
-```lua run
+```lua
 sleep(2)
 ```
 
-```lua run
+```lua
 end
 ```
 
-```lua run
+```lua
 end)
 ```

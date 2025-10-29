@@ -3,18 +3,18 @@ _This module provides reactive functionality for elements, it adds no new functi
 _It is used to evaluate expressions in property values and update the element when the expression changes._
 
 ## Usage
-```lua run
+```lua
 local button = main:addButton({text="Exit"})
 ```
 
-```lua run
+```lua
 button:setX("{parent.x - 12}")
 ```
 
-```lua run
+```lua
 button:setBackground("{self.clicked and colors.red or colors.green}")
 ```
 
-```lua run
+```lua
 button:setWidth("{#self.text + 2}")
 ```

@@ -4,62 +4,62 @@ _A data visualization element that represents numeric data through vertical bars
 Extends: `Graph`
 
 ## Usage
-```lua run
+```lua
 -- Create a bar chart
 ```
 
-```lua run
+```lua
 local chart = main:addBarChart()
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Add two data series with different colors
 ```
 
-```lua run
+```lua
 chart:addSeries("input", " ", colors.green, colors.green, 5)
 ```
 
-```lua run
+```lua
 chart:addSeries("output", " ", colors.red, colors.red, 5)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Continuously update the chart with random data
 ```
 
-```lua run
+```lua
 basalt.schedule(function()
 ```
 
-```lua run
+```lua
 while true do
 ```
 
-```lua run
+```lua
 chart:addPoint("input", math.random(1,100))
 ```
 
-```lua run
+```lua
 chart:addPoint("output", math.random(1,100))
 ```
 
-```lua run
+```lua
 sleep(2)
 ```
 
-```lua run
+```lua
 end
 ```
 
-```lua run
+```lua
 end)
 ```

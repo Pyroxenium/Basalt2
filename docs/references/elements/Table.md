@@ -4,15 +4,15 @@ _This is the table class. It provides a sortable data grid with customizable col
 Extends: `Collection`
 
 ## Usage
-```lua run
+```lua
 local people = container:addTable():setWidth(40)
 ```
 
-```lua run
+```lua
 people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
 ```
 
-```lua run
+```lua
 people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
 ```
 
@@ -66,7 +66,7 @@ Adds a new row to the table
 * `Table` `self` The Table instance
 
 ### Usage
-```lua run
+```lua
 table:addRow("Alice", 30, "USA")
 ```
 
@@ -150,7 +150,7 @@ Set data with automatic formatting
 * `Table` `self` The Table instance
 
 ### Usage
-```lua run
+```lua
 table:setData({{...}}, {[1] = tostring, [2] = function(age) return age.."y" end})
 ```
 

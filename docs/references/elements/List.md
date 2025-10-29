@@ -42,7 +42,7 @@ Registers a callback for the select event
 * `List` `self` The List instance
 
 ### Usage
-```lua run
+```lua
 list:onSelect(function(index, item) print("Selected item:", index, item) end)
 ```
 
@@ -71,6 +71,6 @@ Scrolls to make a specific item visible
 * `List` `self` The List instance
 
 ### Usage
-```lua run
+```lua
 list:scrollToItem(5)
 ```

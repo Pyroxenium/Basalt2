@@ -4,47 +4,47 @@ _This is the base class for all graph elements. It is a point based graph._
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 local graph = main:addGraph()
 ```
 
-```lua run
+```lua
 :addSeries("input", " ", colors.green, colors.green, 10)
 ```
 
-```lua run
+```lua
 :addSeries("output", " ", colors.red, colors.red, 10)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 basalt.schedule(function()
 ```
 
-```lua run
+```lua
 while true do
 ```
 
-```lua run
+```lua
 graph:addPoint("input", math.random(1,100))
 ```
 
-```lua run
+```lua
 graph:addPoint("output", math.random(1,100))
 ```
 
-```lua run
+```lua
 sleep(2)
 ```
 
-```lua run
+```lua
 end
 ```
 
-```lua run
+```lua
 end)
 ```
 

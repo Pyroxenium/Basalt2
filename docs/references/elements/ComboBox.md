@@ -5,75 +5,75 @@ _Supports auto-completion, custom styling, and both single and multi-selection m
 Extends: `DropDown`
 
 ## Usage
-```lua run
+```lua
 -- Create a searchable country selector
 ```
 
-```lua run
+```lua
 local combo = main:addComboBox()
 ```
 
-```lua run
+```lua
 :setPosition(5, 5)
 ```
 
-```lua run
+```lua
 :setSize(20, 1)  -- Height will expand when opened
 ```
 
-```lua run
+```lua
 :setItems({
 ```
 
-```lua run
+```lua
 {text = "Germany"},
 ```
 
-```lua run
+```lua
 {text = "France"},
 ```
 
-```lua run
+```lua
 {text = "Spain"},
 ```
 
-```lua run
+```lua
 {text = "Italy"}
 ```
 
-```lua run
+```lua
 })
 ```
 
-```lua run
+```lua
 :setPlaceholder("Select country...")
 ```
 
-```lua run
+```lua
 :setAutoComplete(true)  -- Enable filtering while typing
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Handle selection changes
 ```
 
-```lua run
+```lua
 combo:onChange(function(self, value)
 ```
 
-```lua run
+```lua
 -- value will be the selected country
 ```
 
-```lua run
+```lua
 basalt.debug("Selected:", value)
 ```
 
-```lua run
+```lua
 end)
 ```
 

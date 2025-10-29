@@ -10,87 +10,87 @@ _The Display maintains its own terminal buffer and can be manipulated using fami
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 -- Create a display for a custom terminal
 ```
 
-```lua run
+```lua
 local display = main:addDisplay()
 ```
 
-```lua run
+```lua
 :setSize(30, 10)
 ```
 
-```lua run
+```lua
 :setPosition(2, 2)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Get the window object for CC API operations
 ```
 
-```lua run
+```lua
 local win = display:getWindow()
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Use standard CC terminal operations
 ```
 
-```lua run
+```lua
 win.setTextColor(colors.yellow)
 ```
 
-```lua run
+```lua
 win.setBackgroundColor(colors.blue)
 ```
 
-```lua run
+```lua
 win.clear()
 ```
 
-```lua run
+```lua
 win.setCursorPos(1, 1)
 ```
 
-```lua run
+```lua
 win.write("Hello World!")
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Or use the helper method
 ```
 
-```lua run
+```lua
 display:write(1, 2, "Direct write", colors.red, colors.black)
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- Useful for external APIs
 ```
 
-```lua run
+```lua
 local paintutils = require("paintutils")
 ```
 
-```lua run
+```lua
 paintutils.drawLine(1, 1, 10, 1, colors.red, win)
 ```
 

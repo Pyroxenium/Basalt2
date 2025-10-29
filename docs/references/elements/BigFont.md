@@ -4,71 +4,71 @@ _A specialized text element that renders characters in larger sizes using Wojbie
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 -- Create a large welcome message
 ```
 
-```lua run
+```lua
 local main = basalt.getMainFrame()
 ```
 
-```lua run
+```lua
 local title = main:addBigFont()
 ```
 
-```lua run
+```lua
 :setPosition(3, 3)
 ```
 
-```lua run
+```lua
 :setFontSize(2)  -- Makes text twice as large
 ```
 
-```lua run
+```lua
 :setText("Welcome!")
 ```
 
-```lua run
+```lua
 :setForeground(colors.yellow)  -- Make text yellow
 ```
 
-```lua run
+```lua
 
 ```
 
-```lua run
+```lua
 -- For animated text
 ```
 
-```lua run
+```lua
 basalt.schedule(function()
 ```
 
-```lua run
+```lua
 while true do
 ```
 
-```lua run
+```lua
 title:setForeground(colors.yellow)
 ```
 
-```lua run
+```lua
 sleep(0.5)
 ```
 
-```lua run
+```lua
 title:setForeground(colors.orange)
 ```
 
-```lua run
+```lua
 sleep(0.5)
 ```
 
-```lua run
+```lua
 end
 ```
 
-```lua run
+```lua
 end)
 ```
 

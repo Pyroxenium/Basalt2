@@ -4,51 +4,51 @@ _A toggleable UI element that can be checked or unchecked. Displays different te
 Extends: `VisualElement`
 
 ## Usage
-```lua run
+```lua
 -- Create a checkbox for a setting
 ```
 
-```lua run
+```lua
 local checkbox = parent:addCheckBox()
 ```
 
-```lua run
+```lua
 :setText("Enable Feature")
 ```
 
-```lua run
+```lua
 :setCheckedText("✓")
 ```
 
-```lua run
+```lua
 :onChange("checked", function(self, checked)
 ```
 
-```lua run
+```lua
 -- React to checkbox state changes
 ```
 
-```lua run
+```lua
 if checked then
 ```
 
-```lua run
+```lua
 -- Handle enabled state
 ```
 
-```lua run
+```lua
 else
 ```
 
-```lua run
+```lua
 -- Handle disabled state
 ```
 
-```lua run
+```lua
 end
 ```
 
-```lua run
+```lua
 end)
 ```
 

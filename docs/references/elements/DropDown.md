@@ -3,7 +3,7 @@ _A collapsible selection menu that expands to show multiple options when clicked
 
 Extends: `List`
 
-## Usage
+## Examples (Executable)
 ```lua run
 -- Create a styled dropdown menu
 local dropdown = main:addDropDown()
