@@ -6,49 +6,16 @@ Extends: `VisualElement`
 ## Usage
 ```lua
 -- Create a checkbox for a setting
-```
-
-```lua
 local checkbox = parent:addCheckBox()
-```
-
-```lua
 :setText("Enable Feature")
-```
-
-```lua
 :setCheckedText("✓")
-```
-
-```lua
 :onChange("checked", function(self, checked)
-```
-
-```lua
 -- React to checkbox state changes
-```
-
-```lua
 if checked then
-```
-
-```lua
 -- Handle enabled state
-```
-
-```lua
 else
-```
-
-```lua
 -- Handle disabled state
-```
-
-```lua
 end
-```
-
-```lua
 end)
 ```
 

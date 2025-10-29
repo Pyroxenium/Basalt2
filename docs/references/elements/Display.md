@@ -12,85 +12,25 @@ Extends: `VisualElement`
 ## Usage
 ```lua
 -- Create a display for a custom terminal
-```
-
-```lua
 local display = main:addDisplay()
-```
-
-```lua
 :setSize(30, 10)
-```
-
-```lua
 :setPosition(2, 2)
-```
 
-```lua
-
-```
-
-```lua
 -- Get the window object for CC API operations
-```
-
-```lua
 local win = display:getWindow()
-```
 
-```lua
-
-```
-
-```lua
 -- Use standard CC terminal operations
-```
-
-```lua
 win.setTextColor(colors.yellow)
-```
-
-```lua
 win.setBackgroundColor(colors.blue)
-```
-
-```lua
 win.clear()
-```
-
-```lua
 win.setCursorPos(1, 1)
-```
-
-```lua
 win.write("Hello World!")
-```
 
-```lua
-
-```
-
-```lua
 -- Or use the helper method
-```
-
-```lua
 display:write(1, 2, "Direct write", colors.red, colors.black)
-```
 
-```lua
-
-```
-
-```lua
 -- Useful for external APIs
-```
-
-```lua
 local paintutils = require("paintutils")
-```
-
-```lua
 paintutils.drawLine(1, 1, 10, 1, colors.red, win)
 ```
 

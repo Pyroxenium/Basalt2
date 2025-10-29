@@ -5,6 +5,9 @@ Extends: `List`
 
 ## Examples (Executable)
 ```lua run
+local basalt = require("basalt")
+local main = basalt.getMainFrame()
+
 -- Create a styled dropdown menu
 local dropdown = main:addDropDown()
 :setPosition(5, 5)
@@ -38,6 +41,8 @@ selectedForeground = colors.white
 dropdown:onChange(function(self, value)
 basalt.debug("Selected:", value)
 end)
+
+basalt.run()
 ```
 
 ## Table Types

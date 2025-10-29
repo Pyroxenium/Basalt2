@@ -6,13 +6,7 @@ Extends: `Collection`
 ## Usage
 ```lua
 local people = container:addTable():setWidth(40)
-```
-
-```lua
 people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
-```
-
-```lua
 people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
 ```
 

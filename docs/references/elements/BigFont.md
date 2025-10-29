@@ -6,69 +6,21 @@ Extends: `VisualElement`
 ## Usage
 ```lua
 -- Create a large welcome message
-```
-
-```lua
 local main = basalt.getMainFrame()
-```
-
-```lua
 local title = main:addBigFont()
-```
-
-```lua
 :setPosition(3, 3)
-```
-
-```lua
 :setFontSize(2)  -- Makes text twice as large
-```
-
-```lua
 :setText("Welcome!")
-```
-
-```lua
 :setForeground(colors.yellow)  -- Make text yellow
-```
 
-```lua
-
-```
-
-```lua
 -- For animated text
-```
-
-```lua
 basalt.schedule(function()
-```
-
-```lua
 while true do
-```
-
-```lua
 title:setForeground(colors.yellow)
-```
-
-```lua
 sleep(0.5)
-```
-
-```lua
 title:setForeground(colors.orange)
-```
-
-```lua
 sleep(0.5)
-```
-
-```lua
 end
-```
-
-```lua
 end)
 ```
 

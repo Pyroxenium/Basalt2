@@ -7,13 +7,7 @@ Extends: `VisualElement`
 ## Usage
 ```lua
 local progressBar = main:addProgressBar()
-```
-
-```lua
 progressBar:setDirection("up") 
-```
-
-```lua
 progressBar:setProgress(50)
 ```
 

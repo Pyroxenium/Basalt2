@@ -6,81 +6,24 @@ Extends: `VisualElement`
 ## Usage
 ```lua
 -- Create a simple action button
-```
-
-```lua
 local button = parent:addButton()
-```
-
-```lua
 :setPosition(5, 5)
-```
-
-```lua
 :setText("Click me!")
-```
-
-```lua
 :setBackground(colors.blue)
-```
-
-```lua
 :setForeground(colors.white)
-```
 
-```lua
-
-```
-
-```lua
 -- Add click handling
-```
-
-```lua
 button:onClick(function(self, button, x, y)
-```
-
-```lua
 -- Change appearance when clicked
-```
-
-```lua
 self:setBackground(colors.green)
-```
-
-```lua
 self:setText("Success!")
-```
 
-```lua
-
-```
-
-```lua
 -- Revert after delay
-```
-
-```lua
 basalt.schedule(function()
-```
-
-```lua
 sleep(1)
-```
-
-```lua
 self:setBackground(colors.blue)
-```
-
-```lua
 self:setText("Click me!")
-```
-
-```lua
 end)
-```
-
-```lua
 end)
 ```
 

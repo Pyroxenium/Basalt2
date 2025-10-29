@@ -6,60 +6,18 @@ Extends: `Graph`
 ## Usage
 ```lua
 -- Create a bar chart
-```
-
-```lua
 local chart = main:addBarChart()
-```
 
-```lua
-
-```
-
-```lua
 -- Add two data series with different colors
-```
-
-```lua
 chart:addSeries("input", " ", colors.green, colors.green, 5)
-```
-
-```lua
 chart:addSeries("output", " ", colors.red, colors.red, 5)
-```
 
-```lua
-
-```
-
-```lua
 -- Continuously update the chart with random data
-```
-
-```lua
 basalt.schedule(function()
-```
-
-```lua
 while true do
-```
-
-```lua
 chart:addPoint("input", math.random(1,100))
-```
-
-```lua
 chart:addPoint("output", math.random(1,100))
-```
-
-```lua
 sleep(2)
-```
-
-```lua
 end
-```
-
-```lua
 end)
 ```
