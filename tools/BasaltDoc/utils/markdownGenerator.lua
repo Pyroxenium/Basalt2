@@ -73,14 +73,11 @@ local function generateFunctionMarkdown(class, functions)
         if f.usage then
             table.insert(md, "### Usage")
             for _, usageBlock in ipairs(f.usage) do
-                table.insert(md, "```lua run")
-                -- Check if usageBlock is already multi-line
+                table.insert(md, "```lua")
                 if type(usageBlock) == "string" then
                     if usageBlock:match("\n") then
-                        -- Multi-line block
                         table.insert(md, usageBlock)
                     else
-                        -- Single line
                         table.insert(md, usageBlock)
                     end
                 end
@@ -165,11 +162,30 @@ function markdownGenerator.generate(ast)
             if class.usage then
                 table.insert(md, "## Usage")
                 for _, usageBlock in ipairs(class.usage) do
-                    table.insert(md, "```lua run")
+                    table.insert(md, "```lua")
                     if type(usageBlock) == "string" then
                         table.insert(md, usageBlock)
                     end
                     table.insert(md, "```")
+                    table.insert(md, "")
+                end
+            end
+
+            if class.run then
+                table.insert(md, "## Examples (Executable)")
+                for _, runBlock in ipairs(class.run) do
+                    table.insert(md, "```lua run")
+                    if type(runBlock) == "string" then
+                        table.insert(md, runBlock)
+                    end
+                    table.insert(md, "```")
+                    table.insert(md, "")
+                end
+            end
+
+            if class.notes then
+                for _, note in ipairs(class.notes) do
+                    table.insert(md, "> **Note:** " .. note)
                     table.insert(md, "")
                 end
             end

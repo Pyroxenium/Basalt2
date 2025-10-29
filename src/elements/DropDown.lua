@@ -14,7 +14,7 @@ local tHex = require("libraries/colorHex")
 ---@tableField selectedBg color Background when selected
 
 --- A collapsible selection menu that expands to show multiple options when clicked. Supports single and multi-selection modes, custom item styling, separators, and item callbacks.
---- @usage [[
+--- @run [[
 --- -- Create a styled dropdown menu
 --- local dropdown = main:addDropDown()
 ---     :setPosition(5, 5)

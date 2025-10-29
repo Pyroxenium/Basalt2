@@ -141,6 +141,11 @@ BasaltDoc.registerAnnotation("@skip", function(target, args)
     target.skip = true
 end)
 
+BasaltDoc.registerAnnotation("@note", function(target, args)
+    if not target.notes then target.notes = {} end
+    table.insert(target.notes, args)
+end)
+
 BasaltDoc.registerAnnotation("@globalDescription", function(target, args)
     if args and args ~= "" then
         target.description = args
