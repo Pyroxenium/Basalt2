@@ -3531,12 +3531,16 @@ local b_a=a_a.attributes and a_a.attributes.name;if not b_a then
 bb.error("XMLParser: <state> tag requires 'name' attribute")end
 b_a=b_a:gsub("^\"",""):gsub("\"$","")
 if a_a.children then
-for c_a,d_a in ipairs(a_a.children)do local _aa=d_a.tag;local aaa=cc(d_a.value,dd)local baa=
-_aa:sub(1,1):upper().._aa:sub(2)
-local caa="set"..baa.."State"if self[caa]then self[caa](self,b_a,aaa)else
-cb.warn("XMLParser: State method '"..
-caa..
-"' not found for element '"..self:getType().."'")end end end elseif(self._properties[a_a.tag])then if
+for c_a,d_a in ipairs(a_a.children)do local _aa=d_a.tag;local aaa
+if
+d_a.attributes and d_a.attributes.value then aaa=cc(d_a.attributes.value,dd)elseif d_a.value then
+aaa=cc(d_a.value,dd)else
+cb.warn("XMLParser: State property '".._aa.."' has no value")aaa=nil end
+if aaa~=nil then
+local baa=_aa:sub(1,1):upper().._aa:sub(2)local caa="set"..baa.."State"if self[caa]then
+self[caa](self,b_a,aaa)else
+cb.warn("XMLParser: State method '"..caa..
+"' not found for element '"..self:getType().."'")end end end end elseif(self._properties[a_a.tag])then if
 (self._properties[a_a.tag].type=="table")then self.set(a_a.tag,dc(a_a,dd))else
 self.set(a_a.tag,cc(a_a.value,dd))end else local b_a={}
 if(a_a.children)then
