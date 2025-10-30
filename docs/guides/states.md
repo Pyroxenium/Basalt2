@@ -1,149 +1,236 @@
 # State Management in Basalt
 
-States provide a new way to manage data and UI synchronization in your Basalt applications.
+Basalt provides a powerful state management system that allows elements to respond to different interaction states (hover, clicked, focused, etc.) with automatic property changes. This system makes it easy to create interactive UIs without manual event handling.
 
-## Detailed State Methods
+## Understanding States
 
-### initializeState
+States are named conditions that elements can be in. When a state becomes active, the element can automatically change its appearance or behavior. States have priorities, allowing you to control which state takes precedence when multiple states are active.
+
+## Core State Methods
+
+### registerState
 ```lua
-BaseFrame:initializeState("name", defaultValue, persistent, path?)
+element:registerState(stateName, condition?, priority?)
 ```
-Creates a new state in a BaseFrame:
-- `name`: Name of the state (string)
-- `defaultValue`: Initial value of the state (any type)
-- `persistent?`: Boolean that determines if the state should be stored into a file
-- `path?`: The path the state should be stored to (default: states/BaseFrameNAME.state)
+Registers a new state with optional auto-activation condition:
+- `stateName`: Name of the state (string)
+- `condition?`: Optional function that returns true when state should be active: `function(element) return boolean end`
+- `priority?`: Priority value (higher = more important, default: 0)
 - Returns: self (for method chaining)
 
 ### setState
 ```lua
-element:setState("name", newValue)
+element:setState(stateName, priority?)
 ```
-Updates an existing state's value:
-- `name`: Name of the state to update
-- `newValue`: New value to set
-- Automatically triggers UI updates if triggerRender=true
+Manually activates a state:
+- `stateName`: Name of the state to activate
+- `priority?`: Optional priority override
 - Returns: self (for method chaining)
 
-### getState
+**Example:**
 ```lua
-local value = element:getState("name")
+button:setState("clicked")
+button:setState("error", 300) -- High priority error state
 ```
-Retrieves the current value of a state:
-- `name`: Name of the state to get
-- Returns: Current value of the state
 
-### computed
+### unsetState
 ```lua
-element:computed("name", function(self)
-    local otherState = self:getState("otherState")
-    return someCalculation(otherState)
-end)
+element:unsetState(stateName)
 ```
-Creates a computed state that depends on other states:
-- `name`: Name of the computed state
-- `function`: Function that calculates the value
-- Automatically recalculates when dependent states change
+Deactivates a state:
+- `stateName`: Name of the state to deactivate
 - Returns: self (for method chaining)
 
-### onStateChange
+**Example:**
 ```lua
-element:onStateChange("name", function(self, newValue)
-    -- React to changes
-    self:someAction(newValue)
-end)
+button:unsetState("clicked")
 ```
-Registers a listener for state changes:
-- `name`: Name of the state to watch
-- `function`: Callback function receiving the new value
-- Executes whenever the state changes
+
+### hasState
+```lua
+local isActive = element:hasState(stateName)
+```
+Checks if a state is currently active:
+- `stateName`: Name of the state to check
+- Returns: boolean
+
+**Example:**
+```lua
+if button:hasState("hover") then
+    basalt.LOGGER.debug("Button is being hovered!")
+end
+```
+
+### getCurrentState
+```lua
+local state = element:getCurrentState()
+```
+Gets the state with highest priority:
+- Returns: string (state name) or nil
+
+**Example:**
+```lua
+local currentState = button:getCurrentState()
+-- Returns "clicked" if clicked state has highest priority
+```
+
+### getActiveStates
+```lua
+local states = element:getActiveStates()
+```
+Gets all active states sorted by priority:
+- Returns: array of `{name, priority}` tables
+
+**Example:**
+```lua
+local states = button:getActiveStates()
+-- Returns: {{name="clicked", priority=200}, {name="hover", priority=100}}
+```
+
+### updateConditionalStates
+```lua
+element:updateConditionalStates()
+```
+Updates all states that have auto-conditions:
+- Evaluates condition functions for all registered states
+- Automatically activates/deactivates states based on conditions
 - Returns: self (for method chaining)
 
-### bind
+### unregisterState
 ```lua
-local name = form:addInput():bind("text", "name")
+element:unregisterState(stateName)
 ```
-Binds a property to a state
-- `propertyName`: The name of the property
-- `stateName`: The name of the state
+Removes a state from the registry:
+- `stateName`: Name of the state to remove
+- Also deactivates the state if currently active
 - Returns: self (for method chaining)
 
-## Example: Form Validation
+## State-Bound Properties
 
-Here's a comprehensive example showing state management in a form:
+Properties can be bound to states, allowing automatic property changes when states activate.
+
+### Setting State Properties
+
+Use the `set<Property>State` methods to define property values for specific states:
 
 ```lua
-local main = basalt.getMainFrame()
-    -- Initialize form states
-    :initializeState("username", "", true) -- make them persistent
-    :initializeState("password", "", true) -- make them persistent
-    :initializeState("confirmPassword", "", true) -- make them persistent
+-- Set background color for different states
+button:setBackgroundState("clicked", colors.blue)
 
-local form = main:addFrame()
-    :setSize("{parent.width - 4}", "{parent.height - 4}")
-    :setPosition(3, 3)
-
--- Add computed validation state
-form:computed("isValid", function(self)
-    local username = self:getState("username")
-    local password = self:getState("password")
-    local confirmPass = self:getState("confirmPassword")
-    return #username >= 3 and #password >= 6 and password == confirmPass
-end)
-
--- Create labels
-form:addLabel({text="Username:", x = 2, y = 2, foreground = colors.lightGray})
-form:addLabel({text="Password:", x = 2, y = 4, foreground = colors.lightGray})
-form:addLabel({text="Confirm:", x = 2, y = 6, foreground = colors.lightGray})
-
-local userInput = form:addInput({x = 11, y = 2, width = 20, height = 1}):bind("text", "username")
-local passwordInput = form:addInput({x = 11, y = 4, width = 20, height = 1}):bind("text", "password")
-local confirmInput = form:addInput({x = 11, y = 6, width = 20, height = 1}):bind("text", "confirmPassword")
-
--- Submit button
-local submitBtn = form:addButton()
-    :setText("Submit")
-    :setPosition(2, 8)
-    :setSize(29, 1)
-
--- Status label
-local statusLabel = form:addLabel()
-    :setPosition(2, 10)
-    :setSize(29, 1)
-
-
-form:onStateChange("isValid", function(self, isValid)
-    if isValid then
-        statusLabel:setText("Form is valid!")
-            :setForeground(colors.green)
-        submitBtn:setBackground(colors.green)
-    else
-        statusLabel:setText("Please fill all fields correctly")
-            :setForeground(colors.red)
-        submitBtn:setBackground(colors.red)
-    end
-end)
+-- Set text for different states
+button:setText("Click Me")
+button:setTextState("clicked", "Clicked!")
 ```
 
-## Tips
+### Getting State Properties
 
-1. **State Initialization**
-   - Always initialize states at component creation
-   - Use descriptive state names
-   - Consider carefully whether updates should trigger renders
+```lua
+local value = element:get<Property>State(stateName)
+```
 
-2. **Computed States**
-   - Use for values derived from other states
-   - Keep calculations simple and performant
-   - Avoid circular dependencies
+**Example:**
+```lua
+local clickedBg = button:getBackgroundState("clicked")
+```
 
-3. **State Updates**
-   - Only modify states through setState
-   - Use onStateChange for side effects
-   - Batch multiple updates when possible
+### How State Properties Work
 
-4. **Common Patterns**
-   - Form validation
-   - UI state management
-   - Data synchronization
-   - Component communication
+1. When a state activates, the element looks for bound properties
+2. The property automatically changes to the state-bound value
+3. When the state deactivates, the property returns to its base value (or next highest priority state)
+4. Higher priority states override lower priority states
+
+## Built-in Interactive States
+
+Many elements automatically register common interaction states:
+
+### Button States
+- `hover` (priority: 100) - Mouse is over the button
+- `clicked` (priority: 200) - Button is being clicked
+
+### Input States
+- `focused` (priority: 100) - Input has focus
+
+### Custom States
+You can create any custom state names for your own logic:
+```lua
+button:registerState("loading")
+button:registerState("success")
+button:registerState("error")
+```
+
+## Using States with Reactive Expressions
+
+States integrate seamlessly with the reactive system:
+
+```lua
+-- State values can be used in expressions
+label:setText("{parent.clicked and 'Clicked!' or 'Click Me'}")
+```
+
+## Complete Examples
+
+### Example: Interactive Button
+
+```lua
+local button = main:addButton()
+    :setText("Click Me!")
+    :setPosition(10, 5)
+    :setSize(20, 3)
+
+-- Register states (they're auto-registered by Button, but shown for clarity)
+button:registerState("clicked", nil, 200)
+
+-- Set appearance for each state
+button:setBackgroundState("clicked", colors.blue)
+button:setForegroundState("clicked", colors.white)
+button:setTextState("clicked", "Clicked!")
+
+-- Normal state
+button:setBackground(colors.gray)
+button:setForeground(colors.black)
+```
+
+## State Priorities
+
+When multiple states are active, the highest priority wins:
+
+```lua
+button:registerState("hover", nil, 100)
+button:registerState("clicked", nil, 200)
+button:registerState("disabled", nil, 300)
+
+-- Set different backgrounds
+button:setBackgroundState("hover", colors.lightGray)
+button:setBackgroundState("clicked", colors.blue)
+button:setBackgroundState("disabled", colors.gray)
+
+-- If both hover and clicked are active, clicked wins (higher priority)
+-- If disabled is active, it always wins (highest priority)
+```
+
+## State Integration with XML
+
+States can be configured in XML:
+
+```xml
+<button text="Click Me">
+    <state name="hover">
+        <background>lightGray</background>
+        <foreground>white</foreground>
+    </state>
+    <state name="clicked">
+        <background value="blue" />
+        <text value="Clicked!" />
+    </state>
+</button>
+```
+
+Or using inline attributes:
+```xml
+<button 
+    text="Click Me"
+    backgroundState:hover="lightGray"
+    textState:clicked="Clicked!"
+/>
+```
