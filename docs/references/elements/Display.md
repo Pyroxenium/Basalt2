@@ -1,11 +1,5 @@
 # Display
-_A specialized element that provides direct access to ComputerCraft's Window API. _
-_It acts as a canvas where you can use standard CC terminal operations, making it ideal for:_
-_- Integration with existing CC programs and APIs_
-_- Custom drawing operations_
-_- Terminal emulation_
-_- Complex text manipulation_
-_The Display maintains its own terminal buffer and can be manipulated using familiar CC terminal methods._
+_A specialized element that provides direct access to ComputerCraft's Window API. It acts as a canvas where you can use standard CC terminal operations._
 
 Extends: `VisualElement`
 

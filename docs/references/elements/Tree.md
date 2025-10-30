@@ -5,7 +5,7 @@ Extends: `VisualElement`
 
 ## Examples (Executable)
 ```lua run
-local basaltg = require("basalt")
+local basalt = require("basalt")
 local main = basalt.getMainFrame()
 
 local fileTree = main:addTree()

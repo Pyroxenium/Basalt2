@@ -1,5 +1,96 @@
 # TabControl
-_The TabControl is a container that provides tabbed interface functionality_
+_local main = basalt.getMainFrame()_
+
+_-- Create a simple TabControl_
+_local tabControl = main:addTabControl({_
+_x = 2,_
+_y = 2,_
+_width = 46,_
+_height = 15,_
+_})_
+
+_-- Tab 1: Home_
+_local homeTab = tabControl:newTab("Home")_
+
+_homeTab:addLabel({_
+_x = 2,_
+_y = 2,_
+_text = "Welcome!",_
+_foreground = colors.yellow_
+_})_
+
+_homeTab:addLabel({_
+_x = 2,_
+_y = 4,_
+_text = "This is a TabControl",_
+_foreground = colors.white_
+_})_
+
+_homeTab:addLabel({_
+_x = 2,_
+_y = 5,_
+_text = "example with tabs.",_
+_foreground = colors.white_
+_})_
+
+_-- Tab 2: Counter_
+_local counterTab = tabControl:newTab("Counter")_
+
+_local counterLabel = counterTab:addLabel({_
+_x = 2,_
+_y = 2,_
+_text = "Count: 0",_
+_foreground = colors.lime_
+_})_
+
+_local count = 0_
+_counterTab:addButton({_
+_x = 2,_
+_y = 4,_
+_width = 12,_
+_height = 3,_
+_text = "Click Me",_
+_background = colors.blue_
+_})_
+_:setBackgroundState("clicked", colors.lightBlue)_
+_:onClick(function()_
+_count = count + 1_
+_counterLabel:setText("Count: " .. count)_
+_end)_
+
+_-- Tab 3: Info_
+_local infoTab = tabControl:newTab("Info")_
+
+_infoTab:addLabel({_
+_x = 2,_
+_y = 2,_
+_text = "TabControl Features:",_
+_foreground = colors.orange_
+_})_
+
+_infoTab:addLabel({_
+_x = 2,_
+_y = 4,_
+_text = "- Horizontal tabs",_
+_foreground = colors.gray_
+_})_
+
+_infoTab:addLabel({_
+_x = 2,_
+_y = 5,_
+_text = "- Easy navigation",_
+_foreground = colors.gray_
+_})_
+
+_infoTab:addLabel({_
+_x = 2,_
+_y = 6,_
+_text = "- Content per tab",_
+_foreground = colors.gray_
+_})_
+
+_basalt.run()_
+_]]_
 
 Extends: `Container`
 

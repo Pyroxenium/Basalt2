@@ -3,6 +3,102 @@ _The SideNav is a container that provides sidebar navigation functionality_
 
 Extends: `Container`
 
+## Examples (Executable)
+```lua run
+local basalt = require("basalt")
+local main = basalt.getMainFrame()
+
+-- Create a simple SideNav
+local sideNav = main:addSideNav({
+x = 1,
+y = 1,
+sidebarWidth = 12,
+width = 48
+})
+
+-- Tab 1: Home
+local homeTab = sideNav:newTab("Home")
+
+homeTab:addLabel({
+x = 2,
+y = 2,
+text = "Welcome!",
+foreground = colors.yellow
+})
+
+homeTab:addLabel({
+x = 2,
+y = 4,
+text = "This is a simple",
+foreground = colors.white
+})
+
+homeTab:addLabel({
+x = 2,
+y = 5,
+text = "SideNav example.",
+foreground = colors.white
+})
+
+-- Tab 2: Counter
+local counterTab = sideNav:newTab("Counter")
+
+local counterLabel = counterTab:addLabel({
+x = 2,
+y = 2,
+text = "Count: 0",
+foreground = colors.lime
+})
+
+local count = 0
+counterTab:addButton({
+x = 2,
+y = 4,
+width = 12,
+height = 3,
+text = "Click Me",
+background = colors.blue
+})
+:setBackgroundState("clicked", colors.lightBlue)
+:onClick(function()
+count = count + 1
+counterLabel:setText("Count: " .. count)
+end)
+
+-- Tab 3: Info
+local infoTab = sideNav:newTab("Info")
+
+infoTab:addLabel({
+x = 2,
+y = 2,
+text = "SideNav Features:",
+foreground = colors.orange
+})
+
+infoTab:addLabel({
+x = 2,
+y = 4,
+text = "- Multiple tabs",
+foreground = colors.gray
+})
+
+infoTab:addLabel({
+x = 2,
+y = 5,
+text = "- Easy navigation",
+foreground = colors.gray
+})
+
+infoTab:addLabel({
+x = 2,
+y = 6,
+text = "- Content per tab",
+foreground = colors.gray
+})
+
+basalt.run()
+```
+
 ## Properties
 
 |Property|Type|Default|Description|
