@@ -18,13 +18,16 @@ minified_elementDirectory["Button"] = {}
 minified_elementDirectory["Label"] = {}
 minified_elementDirectory["SideNav"] = {}
 minified_elementDirectory["Input"] = {}
+minified_elementDirectory["Toast"] = {}
 minified_elementDirectory["BigFont"] = {}
 minified_elementDirectory["Switch"] = {}
 minified_elementDirectory["Frame"] = {}
 minified_elementDirectory["Container"] = {}
+minified_elementDirectory["Dialog"] = {}
 minified_elementDirectory["Tree"] = {}
 minified_elementDirectory["DropDown"] = {}
 minified_elementDirectory["Display"] = {}
+minified_elementDirectory["Breadcrumb"] = {}
 minified_elementDirectory["LineChart"] = {}
 minified_elementDirectory["Graph"] = {}
 minified_elementDirectory["FlexBox"] = {}
@@ -36,8 +39,10 @@ minified_elementDirectory["VisualElement"] = {}
 minified_elementDirectory["ProgressBar"] = {}
 minified_elementDirectory["CheckBox"] = {}
 minified_elementDirectory["BaseElement"] = {}
+minified_elementDirectory["ContextMenu"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Collection"] = {}
+minified_elementDirectory["Accordion"] = {}
 minified_pluginDirectory["canvas"] = {}
 minified_pluginDirectory["theme"] = {}
 minified_pluginDirectory["reactive"] = {}
@@ -1501,6 +1506,51 @@ self.get("cursorPos")-ca,1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))end
 local db=ba:sub(ca+1,ca+ab)if cb and#cb>0 then db=cb:rep(#db)end
 self:textFg(1,1,db,self.getResolved("foreground"))end;return aa end
+project["elements/Toast.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"title",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"message",{default="",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"duration",{default=3,type="number"})
+ca.defineProperty(ca,"toastType",{default="default",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"autoHide",{default=true,type="boolean"})
+ca.defineProperty(ca,"active",{default=false,type="boolean",canTriggerRender=true})
+ca.defineProperty(ca,"colorMap",{default={success=colors.green,error=colors.red,warning=colors.orange,info=colors.lightBlue,default=colors.gray},type="table"})ca.defineEvent(ca,"timer")function ca.new()
+local da=setmetatable({},ca):__init()da.class=ca;da.set("width",30)da.set("height",3)
+da.set("z",100)return da end;function ca:init(da,_b)
+aa.init(self,da,_b)return self end
+function ca:show(da,_b,ab)local bb,cb,db
+if type(_b)=="string"then bb=da
+cb=_b;db=ab or self.get("duration")elseif type(_b)=="number"then bb=""
+cb=da;db=_b else bb=""cb=da;db=self.get("duration")end;self.set("title",bb)self.set("message",cb)
+self.set("active",true)if self._hideTimerId then os.cancelTimer(self._hideTimerId)
+self._hideTimerId=nil end
+if
+self.get("autoHide")and db>0 then self._hideTimerId=os.startTimer(db)end;return self end
+function ca:hide()self.set("active",false)self.set("title","")
+self.set("message","")if self._hideTimerId then os.cancelTimer(self._hideTimerId)
+self._hideTimerId=nil end;return self end;function ca:success(da,_b,ab)self.set("toastType","success")
+return self:show(da,_b,ab)end;function ca:error(da,_b,ab)
+self.set("toastType","error")return self:show(da,_b,ab)end
+function ca:warning(da,_b,ab)
+self.set("toastType","warning")return self:show(da,_b,ab)end;function ca:info(da,_b,ab)self.set("toastType","info")
+return self:show(da,_b,ab)end
+function ca:dispatchEvent(da,...)
+aa.dispatchEvent(self,da,...)if da=="timer"then local _b=select(1,...)
+if _b==self._hideTimerId then self:hide()end end end
+function ca:render()aa.render(self)
+if not self.get("active")then return end;local da=self.get("width")local _b=self.get("height")
+local ab=self.getResolved("title")local bb=self.getResolved("message")
+local cb=self.getResolved("toastType")local db=self.getResolved("colorMap")
+local _c=db[cb]or db.default;local ac=self.getResolved("foreground")local bc=1;local cc=1
+if ab~=""then local dc=ab:sub(1,
+da-bc+1)self:textFg(bc,cc,dc,_c)cc=cc+1 end
+if bb~=""and cc<=_b then local dc=da-bc+1;local _d={}for bd in bb:gmatch("%S+")do
+table.insert(_d,bd)end;local ad=""
+for bd,cd in ipairs(_d)do if#ad+#cd+1 >dc then if cc<=_b then
+self:textFg(bc,cc,ad,ac)cc=cc+1;ad=cd else break end else
+ad=ad==""and cd or ad.." "..cd end end
+if ad~=""and cc<=_b then self:textFg(bc,cc,ad,ac)end end end;return ca end
 project["elements/BigFont.lua"] = function(...) local _b=require("libraries/colorHex")
 local ab={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local bb={}local cb={}
 do local dc=0;local _d=#ab[1]local ad=#ab[1][1]
@@ -1836,6 +1886,70 @@ if not self:isType("BaseFrame")then
 for bc,cc in
 ipairs(self._values.children)do if cc.destroy then cc:destroy()end end;self:removeAllObservers()ab.destroy(self)return self else
 _b.header="Basalt Error"_b.error("Cannot destroy a BaseFrame.")end end;return db end
+project["elements/Dialog.lua"] = function(...) local d=require("elementManager")
+local _a=d.getElement("Frame")local aa=setmetatable({},_a)aa.__index=aa
+aa.defineProperty(aa,"title",{default="",type="string",canTriggerRender=true})
+aa.defineProperty(aa,"primaryColor",{default=colors.lime,type="color"})
+aa.defineProperty(aa,"secondaryColor",{default=colors.lightGray,type="color"})
+aa.defineProperty(aa,"buttonForeground",{default=colors.black,type="color"})
+aa.defineProperty(aa,"modal",{default=true,type="boolean"})aa.defineEvent(aa,"mouse_click")
+aa.defineEvent(aa,"close")
+function aa.new()local ba=setmetatable({},aa):__init()
+ba.class=aa;ba.set("z",100)ba.set("width",30)
+ba.set("height",10)ba.set("background",colors.gray)
+ba.set("foreground",colors.white)ba.set("borderColor",colors.cyan)return ba end
+function aa:init(ba,ca)_a.init(self,ba,ca)
+self:addBorder({left=true,right=true,top=true,bottom=true})self.set("type","Dialog")return self end
+function aa:show()self:center()self.set("visible",true)if
+self.get("modal")then self:setFocused(true)end;return self end;function aa:close()self.set("visible",false)
+self:fireEvent("close")return self end
+function aa:alert(ba,ca,da)self:clear()
+self.set("title",ba)self.set("height",8)
+self:addLabel({text=ca,x=2,y=3,width=self.get("width")-3,height=3,foreground=colors.white})local _b=10
+local ab=math.floor((self.get("width")-_b)/2)+1
+self:addButton({text="OK",x=ab,y=self.get("height")-2,width=_b,height=1,background=self.get("primaryColor"),foreground=self.get("buttonForeground")}):onClick(function()if
+da then da()end;self:close()end)return self:show()end
+function aa:confirm(ba,ca,da)self:clear()self.set("title",ba)
+self.set("height",8)
+self:addLabel({text=ca,x=2,y=3,width=self.get("width")-3,height=3,foreground=colors.white})local _b=10;local ab=2;local bb=_b*2 +ab;local cb=
+math.floor((self.get("width")-bb)/2)+1
+self:addButton({text="Cancel",x=cb,y=
+self.get("height")-2,width=_b,height=1,background=self.get("secondaryColor"),foreground=self.get("buttonForeground")}):onClick(function()if
+da then da(false)end;self:close()end)
+self:addButton({text="OK",x=cb+_b+ab,y=self.get("height")-2,width=_b,height=1,background=self.get("primaryColor"),foreground=self.get("buttonForeground")}):onClick(function()if
+da then da(true)end;self:close()end)return self:show()end
+function aa:prompt(ba,ca,da,_b)self:clear()self.set("title",ba)
+self.set("height",11)
+self:addLabel({text=ca,x=2,y=3,foreground=colors.white})
+local ab=self:addInput({x=2,y=5,width=self.get("width")-3,height=1,defaultText=da or"",background=colors.white,foreground=colors.black})local bb=10;local cb=2;local db=bb*2 +cb;local _c=
+math.floor((self.get("width")-db)/2)+1
+self:addButton({text="Cancel",x=_c,y=
+self.get("height")-2,width=bb,height=1,background=self.get("secondaryColor"),foreground=self.get("buttonForeground")}):onClick(function()if
+_b then _b(nil)end;self:close()end)
+self:addButton({text="OK",x=_c+bb+cb,y=self.get("height")-2,width=bb,height=1,background=self.get("primaryColor"),foreground=self.get("buttonForeground")}):onClick(function()if
+_b then _b(ab.get("text")or"")end
+self:close()end)return self:show()end
+function aa:render()_a.render(self)local ba=self.get("title")if ba~=""then
+local ca=self.get("width")local da=ba:sub(1,ca-4)
+self:textFg(2,2,da,colors.white)end end
+function aa:mouse_click(ba,ca,da)
+if self.get("modal")then if self:isInBounds(ca,da)then return
+_a.mouse_click(self,ba,ca,da)end;return true end;return _a.mouse_click(self,ba,ca,da)end
+function aa:mouse_drag(ba,ca,da)
+if self.get("modal")then if self:isInBounds(ca,da)then
+return _a.mouse_drag and
+_a.mouse_drag(self,ba,ca,da)or false end;return true end;return
+_a.mouse_drag and _a.mouse_drag(self,ba,ca,da)or false end
+function aa:mouse_up(ba,ca,da)
+if self.get("modal")then if self:isInBounds(ca,da)then
+return _a.mouse_up and
+_a.mouse_up(self,ba,ca,da)or false end;return true end;return
+_a.mouse_up and _a.mouse_up(self,ba,ca,da)or false end
+function aa:mouse_scroll(ba,ca,da)
+if self.get("modal")then if self:isInBounds(ca,da)then
+return _a.mouse_scroll and
+_a.mouse_scroll(self,ba,ca,da)or false end;return true end;return
+_a.mouse_scroll and _a.mouse_scroll(self,ba,ca,da)or false end;return aa end
 project["elements/Tree.lua"] = function(...) local aa=require("elements/VisualElement")local ba=string.sub
 local ca=require("libraries/colorHex")
 local function da(ab,bb,cb,db)db=db or{}cb=cb or 0;for _c,ac in ipairs(ab)do
@@ -2047,6 +2161,38 @@ cc.setCursorPos(cb,db)cc.write(_c)end;self:updateRender()return self end
 function bb:render()ca.render(self)local cb=self._window;local db,_c=cb.getSize()
 if cb then for y=1,_c do
 local ac,bc,cc=cb.getLine(y)self:blit(1,y,ac,bc,cc)end end end;return bb end
+project["elements/Breadcrumb.lua"] = function(...) local _a=require("elementManager")
+local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
+local ca=setmetatable({},aa)ca.__index=ca
+ca.defineProperty(ca,"path",{default={},type="table",canTriggerRender=true})
+ca.defineProperty(ca,"separator",{default=" > ",type="string",canTriggerRender=true})
+ca.defineProperty(ca,"clickable",{default=true,type="boolean"})
+ca.defineProperty(ca,"autoSize",{default=true,type="boolean"})ca.defineEvent(ca,"mouse_click")
+ca.defineEvent(ca,"mouse_up")
+function ca.new()local da=setmetatable({},ca):__init()
+da.class=ca;da.set("z",5)da.set("height",1)
+da.set("backgroundEnabled",false)return da end;function ca:init(da,_b)aa.init(self,da,_b)
+self.set("type","Breadcrumb")end
+function ca:mouse_click(da,_b,ab)if
+not self.get("clickable")then return false end
+if aa.mouse_click(self,da,_b,ab)then
+local bb=self.get("path")local cb=self.get("separator")local db=1
+for _c,ac in ipairs(bb)do local bc=#ac;if
+_b>=db and _b<db+bc then
+self:fireEvent("select",_c,{table.unpack(bb,1,_c)})return true end;db=db+bc;if _c<#bb then
+db=db+#cb end end end;return false end
+function ca:onSelect(da)self:registerCallback("select",da)return self end
+function ca:render()local da=self.get("path")local _b=self.get("separator")
+local ab=self.get("foreground")local bb=self.get("clickable")local cb=self.get("width")local db=""
+for bc,cc in
+ipairs(da)do db=db..cc;if bc<#da then db=db.._b end end
+if self.get("autoSize")then self.set("width",#db)else if#db>cb then local bc="... > "local cc=cb-
+#bc
+if cc>0 then db=bc..db:sub(-cc)else db=bc:sub(1,cb)end end end;local _c=1;local ac
+for bc in db:gmatch("[^".._b.."]+")do ac=ab
+self:textFg(_c,1,bc,ac)_c=_c+#bc;local cc=db:find(_b,_c,true)if cc then
+self:textFg(_c,1,_b,bb and colors.gray or
+colors.lightGray)_c=_c+#_b end end end;return ca end
 project["elements/LineChart.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")local da=ba.getElement("Graph")
 local _b=require("libraries/colorHex")local ab=setmetatable({},da)ab.__index=ab;function ab.new()
@@ -3039,6 +3185,69 @@ if(self.parent)then self.parent:removeChild(self)end;self._destroyed=true;self:r
 self:setFocused(false)end;function ca:updateRender()
 if
 (self.parent)then self.parent:updateRender()else self._renderUpdate=true end;return self end;return ca end
+project["elements/ContextMenu.lua"] = function(...) local aa=require("elementManager")
+local ba=require("elements/VisualElement")local ca=aa.getElement("Container")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"items",{default={},type="table",canTriggerRender=true})
+_b.defineProperty(_b,"isOpen",{default=false,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"openSubmenu",{default=nil,type="table",allowNil=true})
+_b.defineProperty(_b,"itemHeight",{default=1,type="number",canTriggerRender=true})_b.defineEvent(_b,"mouse_click")
+function _b.new()
+local ab=setmetatable({},_b):__init()ab.class=_b;ab.set("width",10)ab.set("height",10)
+ab.set("visible",false)return ab end;function _b:init(ab,bb)ca.init(self,ab,bb)
+self.set("type","ContextMenu")end
+function _b:setItems(ab)
+self.set("items",ab or{})self:calculateSize()return self end
+function _b:calculateSize()local ab=self.get("items")
+local bb=self.get("itemHeight")
+if#ab==0 then self.set("width",10)self.set("height",2)return end;local cb=8
+for _c,ac in ipairs(ab)do if ac.label then local bc=#ac.label;local cc=bc+3
+if ac.submenu then cc=cc+1 end;if cc>cb then cb=cc end end end;local db=#ab*bb;self.set("width",cb)
+self.set("height",db)end;function _b:open()self.set("isOpen",true)
+self.set("visible",true)self:updateRender()self:dispatchEvent("opened")
+return self end
+function _b:close()
+self.set("isOpen",false)self.set("visible",false)
+local ab=self.get("openSubmenu")if ab and ab.menu then ab.menu:close()end
+self.set("openSubmenu",nil)self:updateRender()self:dispatchEvent("closed")
+return self end;function _b:closeAll()local ab=self;while ab.parentMenu do ab=ab.parentMenu end
+ab:close()return self end
+function _b:getItemAt(ab)
+local bb=self.get("items")local cb=self.get("itemHeight")
+local db=math.floor((ab-1)/cb)+1;if db>=1 and db<=#bb then return db,bb[db]end;return nil,nil end
+function _b:createSubmenu(ab,bb)local cb=self.parent:addContextMenu()
+cb:setItems(ab)
+cb.set("background",self.get("background"))
+cb.set("foreground",self.get("foreground"))cb.parentMenu=self;local db=self.get("x")local _c=self.get("y")
+local ac=self.get("width")local bc=self.get("itemHeight")local cc=bb._index or 1
+cb.set("x",db+ac)cb.set("y",_c+ (cc-1)*bc)
+cb.set("z",self.get("z")+1)return cb end
+function _b:mouse_click(ab,bb,cb)if not ba.mouse_click(self,ab,bb,cb)then self:close()
+return false end
+local db,_c=ba.getRelativePosition(self,bb,cb)local ac,bc=self:getItemAt(_c)
+if bc then if bc.disabled then return true end
+if bc.submenu then
+local cc=self.get("openSubmenu")
+if cc and cc.index==ac then cc.menu:close()
+self.set("openSubmenu",nil)else if cc and cc.menu then cc.menu:close()end;bc._index=ac
+local dc=self:createSubmenu(bc.submenu,bc)dc:open()
+self.set("openSubmenu",{index=ac,menu=dc})end;return true end;if bc.onClick then bc.onClick(bc)end;self:closeAll()
+return true end;return true end
+function _b:render()local ab=self.get("items")local bb=self.get("width")
+local cb=self.get("height")local db=self.get("itemHeight")
+local _c=self.get("background")local ac=self.get("foreground")
+for bc,cc in ipairs(ab)do local dc=(bc-1)*db+1;local _d=
+cc.background or _c;local ad=cc.foreground or ac;local bd=da[_d]
+local cd=da[ad]local dd=string.rep(" ",bb)local __a=string.rep(bd,bb)
+local a_a=string.rep(cd,bb)self:blit(1,dc,dd,a_a,__a)local b_a=cc.label or""if#b_a>bb-3 then b_a=b_a:sub(1,
+bb-3)end
+self:textFg(2,dc,b_a,ad)if cc.submenu then self:textFg(bb-1,dc,">",ad)end end
+if not self.get("childrenSorted")then self:sortChildren()end
+if not self.get("childrenEventsSorted")then for bc in pairs(self._values.childrenEvents or
+{})do
+self:sortChildrenEvents(bc)end end
+for bc,cc in ipairs(self.get("visibleChildren")or{})do if cc==self then
+error("CIRCULAR REFERENCE DETECTED!")return end;cc:render()cc:postRender()end end;return _b end
 project["elements/List.lua"] = function(...) local _a=require("elements/Collection")
 local aa=require("libraries/colorHex")local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"offset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
@@ -3209,6 +3418,99 @@ if not ca then if#ba>0 then self:selectItem(#ba)end elseif ca>1 then
 if not
 self.get("multiSelection")then self:clearItemSelection()end;self:selectItem(ca-1)end;self:updateRender()return self end
 function aa:onSelect(ba)self:registerCallback("select",ba)return self end;return aa end
+project["elements/Accordion.lua"] = function(...) local aa=require("elementManager")
+local ba=require("elements/VisualElement")local ca=aa.getElement("Container")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"panels",{default={},type="table"})
+_b.defineProperty(_b,"panelHeaderHeight",{default=1,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"allowMultiple",{default=false,type="boolean"})
+_b.defineProperty(_b,"headerBackground",{default=colors.gray,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"headerTextColor",{default=colors.white,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"expandedHeaderBackground",{default=colors.lightGray,type="color",canTriggerRender=true})
+_b.defineProperty(_b,"expandedHeaderTextColor",{default=colors.black,type="color",canTriggerRender=true})_b.defineEvent(_b,"mouse_click")
+_b.defineEvent(_b,"mouse_up")function _b.new()local ab=setmetatable({},_b):__init()
+ab.class=_b;ab.set("width",20)ab.set("height",10)ab.set("z",10)return
+ab end
+function _b:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","Accordion")end
+function _b:newPanel(ab,bb)local cb=self.get("panels")or{}local db=#cb+1
+local _c=self:addContainer()_c.set("x",1)_c.set("y",1)
+_c.set("width",self.get("width"))_c.set("height",self.get("height"))
+_c.set("visible",bb or false)_c.set("ignoreOffset",true)
+table.insert(cb,{id=db,title=tostring(ab or("Panel "..db)),expanded=
+bb or false,container=_c})self.set("panels",cb)self:updatePanelLayout()return _c end;_b.addPanel=_b.newPanel
+function _b:updatePanelLayout()
+local ab=self.get("panels")or{}local bb=self.get("panelHeaderHeight")or 1;local cb=1
+local db=self.get("width")local _c=self.get("height")
+for dc,_d in ipairs(ab)do local ad=cb+bb
+_d.container.set("x",1)_d.container.set("y",ad)
+_d.container.set("width",db)_d.container.set("visible",_d.expanded)
+_d.container.set("ignoreOffset",false)cb=cb+bb
+if _d.expanded then local bd=0
+for dd,__a in
+ipairs(_d.container._values.children or{})do
+if not __a._destroyed then local a_a=__a.get("y")local b_a=__a.get("height")local c_a=
+a_a+b_a-1;if c_a>bd then bd=c_a end end end;local cd=math.max(1,bd)_d.container.set("height",cd)cb=
+cb+cd end end;local ac=cb-1;local bc=math.max(0,ac-_c)
+local cc=self.get("offsetY")if cc>bc then self.set("offsetY",bc)end
+self:updateRender()end
+function _b:togglePanel(ab)local bb=self.get("panels")or{}
+local cb=self.get("allowMultiple")
+for db,_c in ipairs(bb)do
+if _c.id==ab then _c.expanded=not _c.expanded
+if not cb and _c.expanded then for ac,bc in
+ipairs(bb)do if ac~=db then bc.expanded=false end end end;self:updatePanelLayout()
+self:dispatchEvent("panelToggled",ab,_c.expanded)break end end;return self end
+function _b:expandPanel(ab)local bb=self.get("panels")or{}
+local cb=self.get("allowMultiple")
+for db,_c in ipairs(bb)do
+if _c.id==ab then
+if not _c.expanded then _c.expanded=true
+if not cb then for ac,bc in ipairs(bb)do if ac~=db then
+bc.expanded=false end end end;self:updatePanelLayout()
+self:dispatchEvent("panelToggled",ab,true)end;break end end;return self end
+function _b:collapsePanel(ab)local bb=self.get("panels")or{}
+for cb,db in ipairs(bb)do
+if db.id==ab then if
+db.expanded then db.expanded=false;self:updatePanelLayout()
+self:dispatchEvent("panelToggled",ab,false)end;break end end;return self end
+function _b:getPanel(ab)local bb=self.get("panels")or{}for cb,db in ipairs(bb)do if db.id==ab then return
+db.container end end;return nil end
+function _b:_getPanelMetrics()local ab=self.get("panels")or{}local bb=
+self.get("panelHeaderHeight")or 1;local cb={}local db=1
+for _c,ac in ipairs(ab)do
+table.insert(cb,{id=ac.id,title=ac.title,expanded=ac.expanded,headerY=db,headerHeight=bb})db=db+bb;if ac.expanded then
+db=db+ac.container.get("height")end end;return{positions=cb,totalHeight=db-1}end
+function _b:mouse_click(ab,bb,cb)
+if not ba.mouse_click(self,ab,bb,cb)then return false end;local db,_c=ba.getRelativePosition(self,bb,cb)
+local ac=self.get("offsetY")local bc=_c+ac;local cc=self:_getPanelMetrics()
+for dc,_d in ipairs(cc.positions)do local ad=
+_d.headerY+_d.headerHeight-1;if
+bc>=_d.headerY and bc<=ad then self:togglePanel(_d.id)
+self.set("focusedChild",nil)return true end end;return ca.mouse_click(self,ab,bb,cb)end
+function _b:mouse_scroll(ab,bb,cb)
+if ba.mouse_scroll(self,ab,bb,cb)then
+local db=self:_getPanelMetrics()local _c=self.get("height")local ac=db.totalHeight
+local bc=math.max(0,ac-_c)
+if bc>0 then local cc=self.get("offsetY")local dc=cc+ab
+dc=math.max(0,math.min(bc,dc))self.set("offsetY",dc)return true end;return ca.mouse_scroll(self,ab,bb,cb)end;return false end
+function _b:render()ba.render(self)local ab=self.get("width")
+local bb=self.get("offsetY")local cb=self:_getPanelMetrics()
+for db,_c in ipairs(cb.positions)do
+local ac=_c.expanded and
+self.get("expandedHeaderBackground")or self.get("headerBackground")
+local bc=_c.expanded and self.get("expandedHeaderTextColor")or
+self.get("headerTextColor")local cc=_c.headerY-bb
+if
+cc>=1 and cc<=self.get("height")then
+ba.multiBlit(self,1,cc,ab,_c.headerHeight," ",da[bc],da[ac])local dc=_c.expanded and"v"or">"
+local _d=dc.." ".._c.title;ba.textFg(self,1,cc,_d,bc)end end
+if not self.get("childrenSorted")then self:sortChildren()end
+if not self.get("childrenEventsSorted")then for db in pairs(self._values.childrenEvents or
+{})do
+self:sortChildrenEvents(db)end end
+for db,_c in ipairs(self.get("visibleChildren")or{})do if _c==self then
+error("CIRCULAR REFERENCE DETECTED!")return end;_c:render()_c:postRender()end end;return _b end
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
 function da.new(cb)
