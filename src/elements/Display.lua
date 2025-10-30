@@ -6,13 +6,7 @@ local colorHex = require("libraries/colorHex")
 ---@configDescription The Display is a special element which uses the CC Window API which you can use.
 ---@configDefault false
 
---- A specialized element that provides direct access to ComputerCraft's Window API. 
---- It acts as a canvas where you can use standard CC terminal operations, making it ideal for:
---- - Integration with existing CC programs and APIs
---- - Custom drawing operations
---- - Terminal emulation
---- - Complex text manipulation
---- The Display maintains its own terminal buffer and can be manipulated using familiar CC terminal methods.
+--- A specialized element that provides direct access to ComputerCraft's Window API. It acts as a canvas where you can use standard CC terminal operations.
 --- @usage [[
 --- -- Create a display for a custom terminal
 --- local display = main:addDisplay()

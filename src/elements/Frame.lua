@@ -117,7 +117,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_drag(button, x, y)
-    if self:hasState("clicked") and self.dragging then
+    if self.dragging then
         local newX = x - self.dragStartX
         local newY = y - self.dragStartY
 
@@ -125,10 +125,7 @@ function Frame:mouse_drag(button, x, y)
         self.set("y", newY)
         return true
     end
-    if not self.dragging then
-        return Container.mouse_drag(self, button, x, y)
-    end
-    return false
+    return Container.mouse_drag(self, button, x, y)
 end
 
 --- @shortDescription Calculates the total height of all children elements

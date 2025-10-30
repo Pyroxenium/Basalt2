@@ -6,6 +6,101 @@ local log = require("log")
 ---@configDescription A TabControl element that provides tabbed interface with multiple content areas.
 
 --- The TabControl is a container that provides tabbed interface functionality
+--- @run [[
+--- local basalt = require("basalt")
+
+--- local main = basalt.getMainFrame()
+--- 
+--- -- Create a simple TabControl
+--- local tabControl = main:addTabControl({
+---     x = 2,
+---     y = 2,
+---     width = 46,
+---     height = 15,
+--- })
+--- 
+--- -- Tab 1: Home
+--- local homeTab = tabControl:newTab("Home")
+--- 
+--- homeTab:addLabel({
+---     x = 2,
+---     y = 2,
+---     text = "Welcome!",
+---     foreground = colors.yellow
+--- })
+--- 
+--- homeTab:addLabel({
+---     x = 2,
+---     y = 4,
+---     text = "This is a TabControl",
+---     foreground = colors.white
+--- })
+--- 
+--- homeTab:addLabel({
+---     x = 2,
+---     y = 5,
+---     text = "example with tabs.",
+---     foreground = colors.white
+--- })
+--- 
+--- -- Tab 2: Counter
+--- local counterTab = tabControl:newTab("Counter")
+--- 
+--- local counterLabel = counterTab:addLabel({
+---     x = 2,
+---     y = 2,
+---     text = "Count: 0",
+---     foreground = colors.lime
+--- })
+--- 
+--- local count = 0
+--- counterTab:addButton({
+---     x = 2,
+---     y = 4,
+---     width = 12,
+---     height = 3,
+---     text = "Click Me",
+---     background = colors.blue
+--- })
+--- :setBackgroundState("clicked", colors.lightBlue)
+--- :onClick(function()
+---     count = count + 1
+---     counterLabel:setText("Count: " .. count)
+--- end)
+--- 
+--- -- Tab 3: Info
+--- local infoTab = tabControl:newTab("Info")
+--- 
+--- infoTab:addLabel({
+---     x = 2,
+---     y = 2,
+---     text = "TabControl Features:",
+---     foreground = colors.orange
+--- })
+--- 
+--- infoTab:addLabel({
+---     x = 2,
+---     y = 4,
+---     text = "- Horizontal tabs",
+---     foreground = colors.gray
+--- })
+--- 
+--- infoTab:addLabel({
+---     x = 2,
+---     y = 5,
+---     text = "- Easy navigation",
+---     foreground = colors.gray
+--- })
+--- 
+--- infoTab:addLabel({
+---     x = 2,
+---     y = 6,
+---     text = "- Content per tab",
+---     foreground = colors.gray
+--- })
+--- 
+--- basalt.run()
+--- ]]
 ---@class TabControl : Container
 local TabControl = setmetatable({}, Container)
 TabControl.__index = TabControl

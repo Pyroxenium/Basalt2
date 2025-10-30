@@ -18,7 +18,7 @@ end
 
 --- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
 --- @run [[
---- local basaltg = require("basalt")
+--- local basalt = require("basalt")
 --- local main = basalt.getMainFrame()
 --- 
 --- local fileTree = main:addTree()
