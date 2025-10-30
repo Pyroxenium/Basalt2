@@ -1623,7 +1623,7 @@ function ca:mouse_up(da,_b,ab)if self.dragging then self.dragging=false;self.dra
 self.dragStartY=nil;return true end;return
 ba.mouse_up(self,da,_b,ab)end
 function ca:mouse_drag(da,_b,ab)
-if self.get("clicked")and self.dragging then
+if self:hasState("clicked")and self.dragging then
 local bb=_b-self.dragStartX;local cb=ab-self.dragStartY;self.set("x",bb)
 self.set("y",cb)return true end
 if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end
@@ -3127,7 +3127,7 @@ local cb=math.max(1,(ab or 1)-bb)self:clearItemSelection()self:selectItem(cb)
 self:scrollToItem(cb)return true elseif da==keys.pageDown then local bb=self.get("height")
 local cb=math.min(#_b,(ab or 1)+bb)self:clearItemSelection()self:selectItem(cb)
 self:scrollToItem(cb)return true end end;return false end
-function ba:render(da)_a.render(self)local _b=self.get("items")
+function ba:render(da)da=da or 0;_a.render(self)local _b=self.get("items")
 local ab=self.get("height")local bb=self.get("offset")local cb=self.get("width")
 local db=self.getResolved("background")local _c=self.getResolved("foreground")
 local ac=self.get("showScrollBar")local bc=ac and#_b>ab;local cc=bc and cb-1 or cb
