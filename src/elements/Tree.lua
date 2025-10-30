@@ -17,7 +17,7 @@ local function flattenTree(nodes, expandedNodes, level, result)
 end
 
 --- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
----run [[
+--- @run [[
 --- local basaltg = require("basalt")
 --- local main = basalt.getMainFrame()
 --- 

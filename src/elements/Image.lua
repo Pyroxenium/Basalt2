@@ -4,9 +4,7 @@ local tHex = require("libraries/colorHex")
 ---@configDescription An element that displays an image in bimg format
 ---@configDefault false
 
---- This is the Image element class which can be used to display bimg formatted images.
---- Bimg is a universal ComputerCraft image format.
---- See: https://github.com/SkyTheCodeMaster/bimg
+--- This is the Image element class which can be used to display bimg formatted images. Bimg is a universal ComputerCraft image format. See: https://github.com/SkyTheCodeMaster/bimg
 ---@class Image : VisualElement
 local Image = setmetatable({}, VisualElement)
 Image.__index = Image
