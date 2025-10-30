@@ -8,7 +8,7 @@ local log = require("log")
 --- The TabControl is a container that provides tabbed interface functionality
 --- @run [[
 --- local basalt = require("basalt")
-
+---
 --- local main = basalt.getMainFrame()
 --- 
 --- -- Create a simple TabControl
