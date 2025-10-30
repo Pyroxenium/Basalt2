@@ -3371,11 +3371,27 @@ local baa=dd:getBaseFrame():getChild(_aa)if not baa then bb.header="Reactive eva
 bb.error("Could not find element: ".._aa)return nil end;return
 baa:getState(aaa).value end,__getProperty=function(_aa,aaa)if
 tonumber(_aa)then return nil end
-if _aa=="self"then return dd.get(aaa)elseif _aa=="parent"then return
-dd.parent.get(aaa)else local baa=dd.parent:getChild(_aa)if not baa then
+if _aa=="self"then
+if dd._properties[aaa]then return dd.get(aaa)end;if dd._registeredStates and dd._registeredStates[aaa]then return
+dd:hasState(aaa)end
+local baa=dd.get("states")if baa and baa[aaa]~=nil then return true end
 bb.header="Reactive evaluation error"
-bb.error("Could not find element: ".._aa)return nil end
-return baa.get(aaa)end end},{__index=_c})if(dd._properties[__a].type=="string")then
+bb.error("Property or state '"..
+aaa.."' not found in element '"..dd:getType().."'")return nil elseif _aa=="parent"then if dd.parent._properties[aaa]then
+return dd.parent.get(aaa)end
+if dd.parent._registeredStates and
+dd.parent._registeredStates[aaa]then return dd.parent:hasState(aaa)end;local baa=dd.parent.get("states")if baa and baa[aaa]~=nil then
+return true end;bb.header="Reactive evaluation error"
+bb.error(
+"Property or state '"..aaa.."' not found in parent element")return nil else local baa=dd.parent:getChild(_aa)if not baa then
+bb.header="Reactive evaluation error"
+bb.error("Could not find element: ".._aa)return nil end;if
+baa._properties[aaa]then return baa.get(aaa)end
+if baa._registeredStates and
+baa._registeredStates[aaa]then return baa:hasState(aaa)end;local caa=baa.get("states")
+if caa and caa[aaa]~=nil then return true end;bb.header="Reactive evaluation error"
+bb.error("Property or state '"..aaa..
+"' not found in element '".._aa.."'")return nil end end},{__index=_c})if(dd._properties[__a].type=="string")then
 cd="tostring("..cd..")"elseif(dd._properties[__a].type=="number")then
 cd="tonumber("..cd..")"end;local c_a,d_a=load(
 "return "..cd,"reactive","t",b_a)
@@ -3400,9 +3416,13 @@ for c_a,d_a in dd:gmatch("([%w_]+)%.([%w_]+)")do
 if not db[c_a]then local _aa
 if
 c_a=="self"and a_a.self then _aa=cd elseif c_a=="parent"and a_a.parent then _aa=cd.parent elseif a_a.other then
-_aa=cd:getBaseFrame():getChild(c_a)end;if _aa then
-local aaa={target=_aa,property=d_a,callback=function()cd:updateRender()end}_aa:observe(d_a,aaa.callback)
-table.insert(b_a,aaa)end end end;_d[cd][__a]=b_a end
+_aa=cd:getBaseFrame():getChild(c_a)end
+if _aa then local aaa=false
+if _aa._properties[d_a]then aaa=false elseif _aa._registeredStates and
+_aa._registeredStates[d_a]then aaa=true else local caa=_aa.get("states")if caa and
+caa[d_a]~=nil then aaa=true end end
+local baa={target=_aa,property=aaa and"states"or d_a,callback=function()cd:updateRender()end}_aa:observe(baa.property,baa.callback)
+table.insert(b_a,baa)end end end;_d[cd][__a]=b_a end
 cb.addSetterHook(function(cd,dd,__a,a_a)
 if type(__a)=="string"and __a:match("^{.+}$")then
 local b_a=__a:gsub("^{(.+)}$","%1")local c_a=ac(b_a)
