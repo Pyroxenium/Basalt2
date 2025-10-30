@@ -30,13 +30,13 @@ end
 
 local function parseExpression(expr, element, propName)
     local deps = analyzeDependencies(expr)
-    
+
     if deps.parent and not element.parent then
         errorManager.header = "Reactive evaluation error"
         errorManager.error("Expression uses parent but no parent available")
         return function() return nil end
     end
-    
+
     expr = expr:gsub("^{(.+)}$", "%1")
 
     expr = expr:gsub("([%w_]+)%$([%w_]+)", function(obj, prop)
@@ -87,9 +87,34 @@ local function parseExpression(expr, element, propName)
                 return nil
             end
             if objName == "self" then
-                return element.get(propName)
+                -- Check if property exists
+                if element._properties[propName] then
+                    return element.get(propName)
+                end
+                if element._registeredStates and element._registeredStates[propName] then
+                    return element:hasState(propName)
+                end
+                local states = element.get("states")
+                if states and states[propName] ~= nil then
+                    return true
+                end
+                errorManager.header = "Reactive evaluation error"
+                errorManager.error("Property or state '" .. propName .. "' not found in element '" .. element:getType() .. "'")
+                return nil
             elseif objName == "parent" then
-                return element.parent.get(propName)
+                if element.parent._properties[propName] then
+                    return element.parent.get(propName)
+                end
+                if element.parent._registeredStates and element.parent._registeredStates[propName] then
+                    return element.parent:hasState(propName)
+                end
+                local states = element.parent.get("states")
+                if states and states[propName] ~= nil then
+                    return true
+                end
+                errorManager.header = "Reactive evaluation error"
+                errorManager.error("Property or state '" .. propName .. "' not found in parent element")
+                return nil
             else
                 local target = element.parent:getChild(objName)
                 if not target then
@@ -98,7 +123,19 @@ local function parseExpression(expr, element, propName)
                     return nil
                 end
 
-                return target.get(propName)
+                if target._properties[propName] then
+                    return target.get(propName)
+                end
+                if target._registeredStates and target._registeredStates[propName] then
+                    return target:hasState(propName)
+                end
+                local states = target.get("states")
+                if states and states[propName] ~= nil then
+                    return true
+                end
+                errorManager.header = "Reactive evaluation error"
+                errorManager.error("Property or state '" .. propName .. "' not found in element '" .. objName .. "'")
+                return nil
             end
         end
     }, { __index = mathEnv })
@@ -176,14 +213,26 @@ local function setupObservers(element, expr, propertyName)
             end
 
             if target then
+                local isState = false
+                if target._properties[prop] then
+                    isState = false
+                elseif target._registeredStates and target._registeredStates[prop] then
+                    isState = true
+                else
+                    local states = target.get("states")
+                    if states and states[prop] ~= nil then
+                        isState = true
+                    end
+                end
+
                 local observer = {
                     target = target,
-                    property = prop,
+                    property = isState and "states" or prop,
                     callback = function()
                         element:updateRender()
                     end
                 }
-                target:observe(prop, observer.callback)
+                target:observe(observer.property, observer.callback)
                 table.insert(observers, observer)
             end
         end
@@ -196,7 +245,7 @@ PropertySystem.addSetterHook(function(element, propertyName, value, config)
     if type(value) == "string" and value:match("^{.+}$") then
         local expr = value:gsub("^{(.+)}$", "%1")
         local deps = analyzeDependencies(expr)
-        
+
         if deps.parent and not element.parent then
             return config.default
         end

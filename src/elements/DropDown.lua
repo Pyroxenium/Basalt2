@@ -36,7 +36,7 @@ local tHex = require("libraries/colorHex")
 ---         text = "Option 1",
 ---         callback = function(self)
 ---             -- Handle selection
----             basalt.debug("Selected Option 1")
+---             basalt.LOGGER.debug("Selected Option 1")
 ---         end
 ---     },
 ---     {
@@ -49,7 +49,7 @@ local tHex = require("libraries/colorHex")
 ---
 --- -- Listen for selections
 --- dropdown:onChange(function(self, value)
----     basalt.debug("Selected:", value)
+---     basalt.LOGGER.debug("Selected:", value)
 --- end)
 --- 
 --- basalt.run()
