@@ -16,6 +16,13 @@ local function processDescription(description)
     return table.concat(lines, "\n")
 end
 
+local function escapeInlineCode(text)
+    if not text then return text end
+    text = text:gsub("({%b[]})", "`%1`")
+    text = text:gsub("(%b[]%s*=%s*[^%s,}]+)", "`%1`")
+    return text
+end
+
 local function generateFunctionMarkdown(class, functions)
     local md = {}
 
@@ -48,7 +55,7 @@ local function generateFunctionMarkdown(class, functions)
                 if p.optional then paramLine = paramLine .. " *(optional)*" end
                 paramLine = paramLine .. " `" .. p.type .. "`"
                 if p.description and p.description ~= "" then
-                    paramLine = paramLine .. " " .. p.description
+                    paramLine = paramLine .. " " .. escapeInlineCode(p.description)
                 end
                 table.insert(md, paramLine)
             end
@@ -63,7 +70,7 @@ local function generateFunctionMarkdown(class, functions)
                     returnLine = returnLine .. " `" .. r.name .. "`"
                 end
                 if r.description and r.description ~= "" then
-                    returnLine = returnLine .. " " .. r.description
+                    returnLine = returnLine .. " " .. escapeInlineCode(r.description)
                 end
                 table.insert(md, returnLine)
             end
