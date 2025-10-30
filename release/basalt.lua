@@ -1623,10 +1623,8 @@ function ca:mouse_up(da,_b,ab)if self.dragging then self.dragging=false;self.dra
 self.dragStartY=nil;return true end;return
 ba.mouse_up(self,da,_b,ab)end
 function ca:mouse_drag(da,_b,ab)
-if self:hasState("clicked")and self.dragging then
-local bb=_b-self.dragStartX;local cb=ab-self.dragStartY;self.set("x",bb)
-self.set("y",cb)return true end
-if not self.dragging then return ba.mouse_drag(self,da,_b,ab)end;return false end
+if self.dragging then local bb=_b-self.dragStartX
+local cb=ab-self.dragStartY;self.set("x",bb)self.set("y",cb)return true end;return ba.mouse_drag(self,da,_b,ab)end
 function ca:getChildrenHeight()local da=0;local _b=self.get("children")
 for ab,bb in ipairs(_b)do if
 bb.get("visible")then local cb=bb.get("y")local db=bb.get("height")local _c=cb+db-1
