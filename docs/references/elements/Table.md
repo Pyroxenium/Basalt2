@@ -138,7 +138,7 @@ Set data with automatic formatting
 
 ### Parameters
 * `rawData` `table` The raw data array (array of row arrays)
-* `formatters` `table` ? Optional formatter functions for columns {[2] = function(value) return value end}
+* `formatters` `table` ? Optional formatter functions for columns `{[2] = function(value) return value end}`
 
 ### Returns
 * `Table` `self` The Table instance
