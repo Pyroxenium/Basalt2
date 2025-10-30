@@ -117,7 +117,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_drag(button, x, y)
-    if self.get("clicked") and self.dragging then
+    if self:hasState("clicked") and self.dragging then
         local newX = x - self.dragStartX
         local newY = y - self.dragStartY
 

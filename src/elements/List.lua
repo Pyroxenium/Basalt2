@@ -318,6 +318,7 @@ end
 --- @shortDescription Renders the list
 --- @protected
 function List:render(vOffset)
+    vOffset = vOffset or 0
     Collection.render(self)
 
     local items = self.get("items")
