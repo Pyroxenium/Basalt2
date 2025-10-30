@@ -1,111 +1,113 @@
 # Tree
 _This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling._
-_run [[_
-_local basaltg = require("basalt")_
-_local main = basalt.getMainFrame()_
-
-_local fileTree = main:addTree()_
-_:setPosition(2, 2)_
-_:setSize(15, 15)_
-_:setBackground(colors.black)_
-_:setForeground(colors.white)_
-_:setSelectedBackgroundColor(colors.blue)_
-_:setSelectedForegroundColor(colors.white)_
-_:setScrollBarColor(colors.lightGray)_
-_:setScrollBarBackgroundColor(colors.gray)_
-
-_-- Build a file system-like tree structure_
-_local treeData = {_
-_{_
-_text = "Root",_
-_children = {_
-_{_
-_text = "Documents",_
-_children = {_
-_{text = "report.txt"},_
-_{text = "notes.txt"},_
-_{text = "todo.txt"}_
-_}_
-_},_
-_{_
-_text = "Pictures",_
-_children = {_
-_{text = "vacation.png"},_
-_{text = "family.jpg"},_
-_{_
-_text = "Archive",_
-_children = {_
-_{text = "old_photo1.jpg"},_
-_{text = "old_photo2.jpg"},_
-_{text = "old_photo3.jpg"}_
-_}_
-_}_
-_}_
-_},_
-_{_
-_text = "Music",_
-_children = {_
-_{text = "song1.mp3"},_
-_{text = "song2.mp3"},_
-_{text = "song3.mp3"},_
-_{text = "song4.mp3"}_
-_}_
-_},_
-_{_
-_text = "Videos",_
-_children = {_
-_{text = "movie1.mp4"},_
-_{text = "movie2.mp4"}_
-_}_
-_},_
-_{_
-_text = "Projects",_
-_children = {_
-_{_
-_text = "ProjectA",_
-_children = {_
-_{text = "src"},_
-_{text = "tests"},_
-_{text = "README.md"}_
-_}_
-_},_
-_{_
-_text = "ProjectB",_
-_children = {_
-_{text = "main.lua"},_
-_{text = "config.lua"}_
-_}_
-_}_
-_}_
-_}_
-_}_
-_}_
-_}_
-
-_fileTree:setNodes(treeData)_
-_local textLabel = main:addLabel()_
-_:setPosition(2, 18)_
-_:setForeground(colors.yellow)_
-_:setText("Selected: None")_
-
-_-- Handle node selection_
-_fileTree:onSelect(function(self, node)_
-_textLabel_
-_:setText("Selected: " .. node.text)_
-_:setPosition(2, 18)_
-_:setForeground(colors.yellow)_
-_end)_
-
-_-- Info label_
-_main:addLabel()_
-_:setText("Click nodes to expand/collapse | Scroll to navigate")_
-_:setPosition(2, 1)_
-_:setForeground(colors.lightGray)_
-
-_basalt.run()_
-_]]_
 
 Extends: `VisualElement`
+
+## Examples (Executable)
+```lua run
+local basaltg = require("basalt")
+local main = basalt.getMainFrame()
+
+local fileTree = main:addTree()
+:setPosition(2, 2)
+:setSize(15, 15)
+:setBackground(colors.black)
+:setForeground(colors.white)
+:setSelectedBackgroundColor(colors.blue)
+:setSelectedForegroundColor(colors.white)
+:setScrollBarColor(colors.lightGray)
+:setScrollBarBackgroundColor(colors.gray)
+
+-- Build a file system-like tree structure
+local treeData = {
+{
+text = "Root",
+children = {
+{
+text = "Documents",
+children = {
+{text = "report.txt"},
+{text = "notes.txt"},
+{text = "todo.txt"}
+}
+},
+{
+text = "Pictures",
+children = {
+{text = "vacation.png"},
+{text = "family.jpg"},
+{
+text = "Archive",
+children = {
+{text = "old_photo1.jpg"},
+{text = "old_photo2.jpg"},
+{text = "old_photo3.jpg"}
+}
+}
+}
+},
+{
+text = "Music",
+children = {
+{text = "song1.mp3"},
+{text = "song2.mp3"},
+{text = "song3.mp3"},
+{text = "song4.mp3"}
+}
+},
+{
+text = "Videos",
+children = {
+{text = "movie1.mp4"},
+{text = "movie2.mp4"}
+}
+},
+{
+text = "Projects",
+children = {
+{
+text = "ProjectA",
+children = {
+{text = "src"},
+{text = "tests"},
+{text = "README.md"}
+}
+},
+{
+text = "ProjectB",
+children = {
+{text = "main.lua"},
+{text = "config.lua"}
+}
+}
+}
+}
+}
+}
+}
+
+fileTree:setNodes(treeData)
+local textLabel = main:addLabel()
+:setPosition(2, 18)
+:setForeground(colors.yellow)
+:setText("Selected: None")
+
+-- Handle node selection
+fileTree:onSelect(function(self, node)
+textLabel
+:setText("Selected: " .. node.text)
+:setPosition(2, 18)
+:setForeground(colors.yellow)
+end)
+
+-- Info label
+main:addLabel()
+:setText("Click nodes to expand/collapse | Scroll to navigate")
+:setPosition(2, 1)
+:setForeground(colors.lightGray)
+
+basalt.run()
+```
 
 ## Properties
 

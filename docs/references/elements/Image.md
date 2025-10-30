@@ -1,7 +1,5 @@
 # Image
-_This is the Image element class which can be used to display bimg formatted images._
-_Bimg is a universal ComputerCraft image format._
-_See: [https://github.com/SkyTheCodeMaster/bimg](https://github.com/SkyTheCodeMaster/bimg)_
+_This is the Image element class which can be used to display bimg formatted images. Bimg is a universal ComputerCraft image format. See: [https://github.com/SkyTheCodeMaster/bimg](https://github.com/SkyTheCodeMaster/bimg)_
 
 Extends: `VisualElement`
 
