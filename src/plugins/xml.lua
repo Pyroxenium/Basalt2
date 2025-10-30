@@ -273,14 +273,26 @@ function BaseElement:fromXML(node, scope)
                 if child.children then
                     for _, stateChild in ipairs(child.children) do
                         local propName = stateChild.tag
-                        local value = convertValue(stateChild.value, scope)
-                        local capitalizedName = propName:sub(1,1):upper() .. propName:sub(2)
-                        local methodName = "set"..capitalizedName.."State"
+                        local value
 
-                        if self[methodName] then
-                            self[methodName](self, stateName, value)
+                        if stateChild.attributes and stateChild.attributes.value then
+                            value = convertValue(stateChild.attributes.value, scope)
+                        elseif stateChild.value then
+                            value = convertValue(stateChild.value, scope)
                         else
-                            log.warn("XMLParser: State method '" .. methodName .. "' not found for element '" .. self:getType() .. "'")
+                            log.warn("XMLParser: State property '" .. propName .. "' has no value")
+                            value = nil
+                        end
+
+                        if value ~= nil then
+                            local capitalizedName = propName:sub(1,1):upper() .. propName:sub(2)
+                            local methodName = "set"..capitalizedName.."State"
+
+                            if self[methodName] then
+                                self[methodName](self, stateName, value)
+                            else
+                                log.warn("XMLParser: State method '" .. methodName .. "' not found for element '" .. self:getType() .. "'")
+                            end
                         end
                     end
                 end
