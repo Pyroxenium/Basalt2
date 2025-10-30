@@ -1,11 +1,5 @@
 # Container
-_A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, _
-_rendering hierarchy, and coordinate space management. They serve as the backbone of Basalt's UI structure by providing:_
-_- Child element management and organization_
-_- Event bubbling and distribution_
-_- Visibility calculations and clipping_
-_- Focus management_
-_- Coordinate space transformation_
+_A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, rendering hierarchy, and coordinate space management._
 
 Extends: `VisualElement`
 

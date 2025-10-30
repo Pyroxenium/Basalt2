@@ -5,9 +5,33 @@ Extends: `Collection`
 
 ## Usage
 ```lua
-local people = container:addTable():setWidth(40)
-people:setColumns({{name="Name",width=12}, {name="Age",width=10}, {name="Country",width=15}})
-people:addRow("Alice", 30, "USA"):addRow("Bob", 25, "UK")
+local peopleTable = main:addTable()
+:setPosition(1, 2)
+:setSize(49, 10)
+:setColumns({
+{name = "Name", width = 15},
+{name = "Age", width = 8},
+{name = "Country", width = 12},
+{name = "Score", width = 10}
+})
+:setBackground(colors.black)
+:setForeground(colors.white)
+
+peopleTable:addRow("Alice", 30, "USA", 95)
+peopleTable:addRow("Bob", 25, "UK", 87)
+peopleTable:addRow("Charlie", 35, "Germany", 92)
+peopleTable:addRow("Diana", 28, "France", 88)
+peopleTable:addRow("Eve", 32, "Spain", 90)
+peopleTable:addRow("Frank", 27, "Italy", 85)
+peopleTable:addRow("Grace", 29, "Canada", 93)
+peopleTable:addRow("Heidi", 31, "Australia", 89)
+peopleTable:addRow("Ivan", 26, "Russia", 91)
+peopleTable:addRow("Judy", 33, "Brazil", 86)
+peopleTable:addRow("Karl", 34, "Sweden", 84)
+peopleTable:addRow("Laura", 24, "Norway", 82)
+peopleTable:addRow("Mallory", 36, "Netherlands", 83)
+peopleTable:addRow("Niaj", 23, "Switzerland", 81)
+peopleTable:addRow("Olivia", 38, "Denmark", 80)
 ```
 
 ## Properties
@@ -138,7 +162,7 @@ Set data with automatic formatting
 
 ### Parameters
 * `rawData` `table` The raw data array (array of row arrays)
-* `formatters` `table` ? Optional formatter functions for columns `{[2] = function(value) return value end}`
+* `formatters` `table` ? Optional formatter functions for columns {`[2] = function(value)` return value end}
 
 ### Returns
 * `Table` `self` The Table instance
