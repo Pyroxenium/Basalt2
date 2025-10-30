@@ -6,13 +6,7 @@ local split = require("libraries/utils").split
 ---@configDescription The container class. It is a visual element that can contain other elements. It is the base class for all containers
 ---@configDefault true
 
---- A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, 
---- rendering hierarchy, and coordinate space management. They serve as the backbone of Basalt's UI structure by providing:
---- - Child element management and organization
---- - Event bubbling and distribution
---- - Visibility calculations and clipping
---- - Focus management
---- - Coordinate space transformation
+--- A fundamental layout element that manages child UI components. Containers handle element organization, event propagation, rendering hierarchy, and coordinate space management.
 ---@class Container : VisualElement
 local Container = setmetatable({}, VisualElement)
 Container.__index = Container

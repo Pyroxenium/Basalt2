@@ -16,8 +16,111 @@ local function flattenTree(nodes, expandedNodes, level, result)
     return result
 end
 
---- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed,
---- with support for selection and scrolling.
+--- This is the tree class. It provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
+---run [[
+--- local basaltg = require("basalt")
+--- local main = basalt.getMainFrame()
+--- 
+--- local fileTree = main:addTree()
+---     :setPosition(2, 2)
+---     :setSize(15, 15)
+---     :setBackground(colors.black)
+---     :setForeground(colors.white)
+---     :setSelectedBackgroundColor(colors.blue)
+---     :setSelectedForegroundColor(colors.white)
+---     :setScrollBarColor(colors.lightGray)
+---     :setScrollBarBackgroundColor(colors.gray)
+--- 
+--- -- Build a file system-like tree structure
+--- local treeData = {
+---     {
+---         text = "Root",
+---         children = {
+---             {
+---                 text = "Documents",
+---                 children = {
+---                     {text = "report.txt"},
+---                     {text = "notes.txt"},
+---                     {text = "todo.txt"}
+---                 }
+---             },
+---             {
+---                 text = "Pictures",
+---                 children = {
+---                     {text = "vacation.png"},
+---                     {text = "family.jpg"},
+---                     {
+---                         text = "Archive",
+---                         children = {
+---                             {text = "old_photo1.jpg"},
+---                             {text = "old_photo2.jpg"},
+---                             {text = "old_photo3.jpg"}
+---                         }
+---                     }
+---                 }
+---             },
+---             {
+---                 text = "Music",
+---                 children = {
+---                     {text = "song1.mp3"},
+---                     {text = "song2.mp3"},
+---                     {text = "song3.mp3"},
+---                     {text = "song4.mp3"}
+---                 }
+---             },
+---             {
+---                 text = "Videos",
+---                 children = {
+---                     {text = "movie1.mp4"},
+---                     {text = "movie2.mp4"}
+---                 }
+---             },
+---             {
+---                 text = "Projects",
+---                 children = {
+---                     {
+---                         text = "ProjectA",
+---                         children = {
+---                             {text = "src"},
+---                             {text = "tests"},
+---                             {text = "README.md"}
+---                         }
+---                     },
+---                     {
+---                         text = "ProjectB",
+---                         children = {
+---                             {text = "main.lua"},
+---                             {text = "config.lua"}
+---                         }
+---                     }
+---                 }
+---             }
+---         }
+---     }
+--- }
+--- 
+--- fileTree:setNodes(treeData)
+--- local textLabel = main:addLabel()
+---     :setPosition(2, 18)
+---     :setForeground(colors.yellow)
+---     :setText("Selected: None")
+--- 
+--- -- Handle node selection
+--- fileTree:onSelect(function(self, node)
+---     textLabel
+---         :setText("Selected: " .. node.text)
+---         :setPosition(2, 18)
+---         :setForeground(colors.yellow)
+--- end)
+---
+--- -- Info label
+--- main:addLabel()
+---     :setText("Click nodes to expand/collapse | Scroll to navigate")
+---     :setPosition(2, 1)
+---     :setForeground(colors.lightGray)
+--- 
+--- basalt.run()
+---]]
 ---@class Tree : VisualElement
 local Tree = setmetatable({}, VisualElement)
 Tree.__index = Tree
