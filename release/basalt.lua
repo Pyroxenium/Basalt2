@@ -1641,52 +1641,55 @@ self.get("offBackground")
 self:multiBlit(1,1,ab,bb," ",ba[self.get("foreground")],ba[cb])local db=math.floor(ab/2)local _c=da and(ab-db+1)or 1
 self:multiBlit(_c,1,db,bb," ",ba[self.get("foreground")],ba[self.get("background")])if _b~=""then
 self:textFg(ab+2,1,_b,self.get("foreground"))end end;return ca end
-project["elements/Frame.lua"] = function(...) local _a=require("elementManager")
-local aa=_a.getElement("VisualElement")local ba=_a.getElement("Container")local ca=setmetatable({},ba)
-ca.__index=ca
-ca.defineProperty(ca,"draggable",{default=false,type="boolean",setter=function(da,_b)
-if _b then da:listenEvent("mouse_click",true)
-da:listenEvent("mouse_up",true)da:listenEvent("mouse_drag",true)end;return _b end})
-ca.defineProperty(ca,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
-ca.defineProperty(ca,"scrollable",{default=false,type="boolean",setter=function(da,_b)if _b then
-da:listenEvent("mouse_scroll",true)end;return _b end})
-function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",12)da.set("height",6)
-da.set("background",colors.gray)da.set("z",10)return da end;function ca:init(da,_b)ba.init(self,da,_b)self.set("type","Frame")
+project["elements/Frame.lua"] = function(...) local aa=require("elementManager")
+local ba=aa.getElement("VisualElement")local ca=aa.getElement("Container")local da=setmetatable({},ca)
+da.__index=da
+da.defineProperty(da,"draggable",{default=false,type="boolean"})
+da.defineProperty(da,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
+da.defineProperty(da,"scrollable",{default=false,type="boolean"})da.defineEvent(da,"mouse_click")
+da.defineEvent(da,"mouse_drag")da.defineEvent(da,"mouse_up")
+da.defineEvent(da,"mouse_scroll")
+function da.new()local ab=setmetatable({},da):__init()
+ab.class=da;ab.set("width",12)ab.set("height",6)
+ab.set("background",colors.gray)ab.set("z",10)return ab end;function da:init(ab,bb)ca.init(self,ab,bb)self.set("type","Frame")
 return self end
-function ca:mouse_click(da,_b,ab)
+function da:mouse_click(ab,bb,cb)
+if self:isInBounds(bb,cb)then
 if
-aa.mouse_click(self,da,_b,ab)then
-if self.get("draggable")then local bb,cb=self:getRelativePosition(_b,ab)
-local db=self.get("draggingMap")
-for _c,ac in ipairs(db)do local bc=ac.width or 1;local cc=ac.height or 1;if
-type(bc)=="string"and bc=="width"then bc=self.get("width")elseif
-type(bc)=="function"then bc=bc(self)end
-if type(cc)==
-"string"and cc=="height"then cc=self.get("height")elseif
-type(cc)=="function"then cc=cc(self)end;local dc=ac.y or 1
+self.get("draggable")then local db,_c=self:getRelativePosition(bb,cb)
+local ac=self.get("draggingMap")
+for bc,cc in ipairs(ac)do local dc=cc.width or 1;local _d=cc.height or 1;if
+type(dc)=="string"and dc=="width"then dc=self.get("width")elseif
+type(dc)=="function"then dc=dc(self)end
+if type(_d)==
+"string"and _d=="height"then _d=self.get("height")elseif
+type(_d)=="function"then _d=_d(self)end;local ad=cc.y or 1
 if
-bb>=ac.x and bb<=ac.x+bc-1 and cb>=dc and cb<=dc+cc-1 then
-self.dragStartX=_b-self.get("x")self.dragStartY=ab-self.get("y")self.dragging=true
-return true end end end;return ba.mouse_click(self,da,_b,ab)end;return false end
-function ca:mouse_up(da,_b,ab)if self.dragging then self.dragging=false;self.dragStartX=nil
+db>=cc.x and db<=cc.x+dc-1 and _c>=ad and _c<=ad+_d-1 then
+self.dragStartX=bb-self.get("x")self.dragStartY=cb-self.get("y")self.dragging=true
+return true end end end;return ca.mouse_click(self,ab,bb,cb)end;return false end
+function da:mouse_up(ab,bb,cb)if self.dragging then self.dragging=false;self.dragStartX=nil
 self.dragStartY=nil;return true end;return
-ba.mouse_up(self,da,_b,ab)end
-function ca:mouse_drag(da,_b,ab)
-if self.dragging then local bb=_b-self.dragStartX
-local cb=ab-self.dragStartY;self.set("x",bb)self.set("y",cb)return true end;return ba.mouse_drag(self,da,_b,ab)end
-function ca:getChildrenHeight()local da=0;local _b=self.get("children")
-for ab,bb in ipairs(_b)do if
-bb.get("visible")then local cb=bb.get("y")local db=bb.get("height")local _c=cb+db-1
-if _c>da then da=_c end end end;return da end
-function ca:mouse_scroll(da,_b,ab)if ba.mouse_scroll(self,da,_b,ab)then return true end
-if
-self.get("scrollable")then local bb,cb=self:getRelativePosition(_b,ab)
-local db=self.get("width")local _c=self.get("height")
-if
-bb>=1 and bb<=db and cb>=1 and cb<=_c then local ac=self:getChildrenHeight()
-local bc=self.get("offsetY")local cc=math.max(0,ac-_c)local dc=bc+da
-dc=math.max(0,math.min(cc,dc))self.set("offsetY",dc)return true end end;return false end;return ca end
+ca.mouse_up(self,ab,bb,cb)end
+function da:mouse_drag(ab,bb,cb)
+if self.dragging then local db=bb-self.dragStartX
+local _c=cb-self.dragStartY;self.set("x",db)self.set("y",_c)return true end;return ca.mouse_drag(self,ab,bb,cb)end
+function da:getChildrenHeight()local ab=0;local bb=self.get("children")
+for cb,db in ipairs(bb)do if
+db.get("visible")then local _c=db.get("y")local ac=db.get("height")local bc=_c+ac-1
+if bc>ab then ab=bc end end end;return ab end
+local function _b(ab,bb,...)local cb={...}
+if bb and bb:find("mouse_")then local db,_c,ac=...
+local bc,cc=ab.get("offsetX"),ab.get("offsetY")local dc,_d=ab:getRelativePosition(_c+bc,ac+cc)
+cb={db,dc,_d}end;return cb end
+function da:mouse_scroll(ab,bb,cb)
+if(ba.mouse_scroll(self,ab,bb,cb))then
+local db=_b(self,"mouse_scroll",ab,bb,cb)
+local _c,ac=self:callChildrenEvent(true,"mouse_scroll",table.unpack(db))if _c then return true end
+if self.get("scrollable")then
+local bc=self.get("height")local cc=self:getChildrenHeight()
+local dc=self.get("offsetY")local _d=math.max(0,cc-bc)local ad=dc+ab
+ad=math.max(0,math.min(_d,ad))self.set("offsetY",ad)return true end end;return false end;return da end
 project["elements/Container.lua"] = function(...) local da=require("elementManager")
 local _b=require("errorManager")local ab=da.getElement("VisualElement")
 local bb=require("libraries/expect")local cb=require("libraries/utils").split
@@ -1713,7 +1716,7 @@ for bc,cc in pairs(da:getElementList())do
 local dc=bc:sub(1,1):upper()..bc:sub(2)
 if dc~="BaseFrame"then
 db["add"..dc]=function(_d,...)bb(1,_d,"table")
-local ad=_d.basalt.create(bc,...)_d:addChild(ad)ad:postInit()return ad end
+local ad=_d.basalt.create(bc,...)_d:addChild(ad)return ad end
 db["addDelayed"..dc]=function(_d,ad)bb(1,_d,"table")
 local bd=_d.basalt.create(bc,ad,true,_d)return bd end end end;function db.new()local bc=setmetatable({},db):__init()
 bc.class=db;return bc end
@@ -1777,8 +1780,7 @@ self._values.eventListenerCount[cc]-1
 if
 self._values.eventListenerCount[cc]<=0 then
 self._values.childrenEvents[cc]=nil;self._values.eventListenerCount[cc]=nil;if self.parent then
-self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)
-self:updateRender()break end end end;return self end
+self.parent:unregisterChildEvent(self,cc)end end;self.set("childrenEventsSorted",false)break end end end;return self end
 function db:removeChild(bc)if bc==nil then return self end
 for cc,dc in ipairs(self._values.children)do if
 dc.get("id")==bc.get("id")then
@@ -1794,7 +1796,10 @@ local function ac(bc,cc,...)local dc={...}
 if cc and cc:find("mouse_")then local _d,ad,bd=...
 local cd,dd=bc.get("offsetX"),bc.get("offsetY")local __a,a_a=bc:getRelativePosition(ad+cd,bd+dd)
 dc={_d,__a,a_a}end;return dc end
-function db:callChildrenEvent(bc,cc,...)local dc=bc and self.get("visibleChildrenEvents")or
+function db:callChildrenEvent(bc,cc,...)
+if
+bc and not self.get("childrenEventsSorted")then for _d in pairs(self._values.childrenEvents)do
+self:sortChildrenEvents(_d)end end;local dc=bc and self.get("visibleChildrenEvents")or
 self.get("childrenEvents")
 if
 dc[cc]then local _d=dc[cc]for i=#_d,1,-1 do local ad=_d[i]
@@ -1826,7 +1831,7 @@ local ad,bd=self:callChildrenEvent(true,"mouse_drag",table.unpack(_d))if(ad)then
 function db:mouse_scroll(bc,cc,dc)
 if(ab.mouse_scroll(self,bc,cc,dc))then
 local _d=ac(self,"mouse_scroll",bc,cc,dc)
-local ad,bd=self:callChildrenEvent(true,"mouse_scroll",table.unpack(_d))return ad end;return false end;function db:key(bc)if self.get("focusedChild")then return
+local ad,bd=self:callChildrenEvent(true,"mouse_scroll",table.unpack(_d))return true end;return false end;function db:key(bc)if self.get("focusedChild")then return
 self.get("focusedChild"):dispatchEvent("key",bc)end
 return true end
 function db:char(bc)if
@@ -3173,8 +3178,8 @@ self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end
 self:unsetState(da)return self end
 function ca:fireEvent(da,...)
 if
-self.get("eventCallbacks")[da]then for _b,ab in ipairs(self.get("eventCallbacks")[da])do
-local bb=ab(self,...)return bb end end;return self end
+self.get("eventCallbacks")[da]then local _b;for ab,bb in ipairs(self.get("eventCallbacks")[da])do
+_b=bb(self,...)end;return _b end;return self end
 function ca:dispatchEvent(da,...)
 if self.get("enabled")==false then return false end;if self[da]then return self[da](self,...)end;return
 self:handleEvent(da,...)end;function ca:handleEvent(da,...)return false end;function ca:onChange(da,_b)
@@ -3368,11 +3373,11 @@ i+da,dd,aa[_c],aa[a_a])end;for i=bd,math.min(ab,bd+dc-1)do
 self:blit(cb,i+da,cd,aa[__a],aa[a_a])end end end;return ba end
 project["elements/Collection.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/collectionentry")local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"items",{default={},type="table"})
+aa.defineProperty(aa,"items",{default={},type="table",canTriggerRender=true})
 aa.defineProperty(aa,"selectable",{default=true,type="boolean"})
 aa.defineProperty(aa,"multiSelection",{default=false,type="boolean"})
-aa.defineProperty(aa,"selectedBackground",{default=colors.blue,type="color"})
-aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color"})function aa.new()local ba=setmetatable({},aa):__init()
+aa.defineProperty(aa,"selectedBackground",{default=colors.blue,type="color",canTriggerRender=true})
+aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color",canTriggerRender=true})function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;return ba end
 function aa:init(ba,ca)
 d.init(self,ba,ca)self._entrySchema={}self.set("type","Collection")return self end
