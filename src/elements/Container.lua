@@ -72,7 +72,7 @@ for k, _ in pairs(elementManager:getElementList()) do
             expect(1, self, "table")
             local element = self.basalt.create(k, ...)
             self:addChild(element)
-            element:postInit()
+            --element:postInit()
             return element
         end
         Container["addDelayed"..capitalizedName] = function(self, prop)
@@ -294,7 +294,6 @@ function Container:unregisterChildEvent(child, eventName)
                     end
                 end
                 self.set("childrenEventsSorted", false)
-                self:updateRender()
                 break
             end
         end
@@ -362,6 +361,12 @@ end
 --- @return boolean handled Whether the event was handled
 --- @return table? child The child that handled the event
 function Container:callChildrenEvent(visibleOnly, event, ...)
+    if visibleOnly and not self.get("childrenEventsSorted") then
+        for evt in pairs(self._values.childrenEvents) do
+            self:sortChildrenEvents(evt)
+        end
+    end
+
     local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
     if children[event] then
         local events = children[event]
@@ -488,7 +493,7 @@ function Container:mouse_scroll(direction, x, y)
     if(VisualElement.mouse_scroll(self, direction, x, y))then
         local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
         local success, child = self:callChildrenEvent(true, "mouse_scroll", table.unpack(args))
-        return success
+        return true
     end
     return false
 end

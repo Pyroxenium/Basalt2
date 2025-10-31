@@ -72,7 +72,7 @@ VisualElement.combineProperties(VisualElement, "size", "width", "height")
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
 ---@event onClick {button string, x number, y number} Fired on mouse click
----@event onMouseUp {button, x, y} Fired on mouse button release
+---@event onClickUp {button, x, y} Fired on mouse button release
 ---@event onRelease {button, x, y} Fired when mouse leaves while clicked
 ---@event onDrag {button, x, y} Fired when mouse moves while clicked
 ---@event onScroll {direction, x, y} Fired on mouse scroll

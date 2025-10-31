@@ -7,15 +7,15 @@ local CollectionEntry = require("libraries/collectionentry")
 local Collection = setmetatable({}, VisualElement)
 Collection.__index = Collection
 
-Collection.defineProperty(Collection, "items", {default={}, type = "table"})
+Collection.defineProperty(Collection, "items", {default={}, type = "table", canTriggerRender = true})
 ---@property selectable boolean true Whether items can be selected
 Collection.defineProperty(Collection, "selectable", {default = true, type = "boolean"})
 ---@property multiSelection boolean false Whether multiple items can be selected at once
 Collection.defineProperty(Collection, "multiSelection", {default = false, type = "boolean"})
 ---@property selectedBackground color blue Background color for selected items
-Collection.defineProperty(Collection, "selectedBackground", {default = colors.blue, type = "color"})
+Collection.defineProperty(Collection, "selectedBackground", {default = colors.blue, type = "color", canTriggerRender = true})
 ---@property selectedForeground color white Text color for selected items
-Collection.defineProperty(Collection, "selectedForeground", {default = colors.white, type = "color"})
+Collection.defineProperty(Collection, "selectedForeground", {default = colors.white, type = "color", canTriggerRender = true})
 
 ---@event onSelect {index number, item table} Fired when an item is selected
 

@@ -9,23 +9,16 @@ local Frame = setmetatable({}, Container)
 Frame.__index = Frame
 
 ---@property draggable boolean false Whether the frame is draggable
-Frame.defineProperty(Frame, "draggable", {default = false, type = "boolean", setter=function(self, value)
-    if value then
-        self:listenEvent("mouse_click", true)
-        self:listenEvent("mouse_up", true)
-        self:listenEvent("mouse_drag", true)
-    end
-    return value
-end})
+Frame.defineProperty(Frame, "draggable", {default = false, type = "boolean"})
 ---@property draggingMap table {} The map of dragging positions
 Frame.defineProperty(Frame, "draggingMap", {default = {{x=1, y=1, width="width", height=1}}, type = "table"})
 ---@property scrollable boolean false Whether the frame is scrollable
-Frame.defineProperty(Frame, "scrollable", {default = false, type = "boolean", setter=function(self, value)
-    if value then
-        self:listenEvent("mouse_scroll", true)
-    end
-    return value
-end})
+Frame.defineProperty(Frame, "scrollable", {default = false, type = "boolean"})
+
+Frame.defineEvent(Frame, "mouse_click")
+Frame.defineEvent(Frame, "mouse_drag")
+Frame.defineEvent(Frame, "mouse_up")
+Frame.defineEvent(Frame, "mouse_scroll")
 
 --- Creates a new Frame instance
 --- @shortDescription Creates a new Frame instance
@@ -59,7 +52,7 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_click(button, x, y)
-    if VisualElement.mouse_click(self, button, x, y) then
+    if self:isInBounds(x, y) then
         if self.get("draggable") then
             local relX, relY = self:getRelativePosition(x, y)
             local draggingMap = self.get("draggingMap")
@@ -150,6 +143,17 @@ function Frame:getChildrenHeight()
     return maxHeight
 end
 
+local function convertMousePosition(self, event, ...)
+    local args = {...}
+    if event and event:find("mouse_") then
+        local button, absX, absY = ...
+        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
+        args = {button, relX, relY}
+    end
+    return args
+end
+
 --- @shortDescription Handles mouse scroll events
 --- @param direction number The scroll direction
 --- @param x number The x position of the scroll
@@ -157,16 +161,15 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Frame:mouse_scroll(direction, x, y)
-    if Container.mouse_scroll(self, direction, x, y) then
-        return true
-    end
+    if(VisualElement.mouse_scroll(self, direction, x, y))then
+        local args = convertMousePosition(self, "mouse_scroll", direction, x, y)
+        local success, child = self:callChildrenEvent(true, "mouse_scroll", table.unpack(args))
+        if success then
+            return true
+        end
+        if self.get("scrollable") then
+            local height = self.get("height")
 
-    if self.get("scrollable") then
-        local relX, relY = self:getRelativePosition(x, y)
-        local width = self.get("width")
-        local height = self.get("height")
-
-        if relX >= 1 and relX <= width and relY >= 1 and relY <= height then
             local childrenHeight = self:getChildrenHeight()
             local currentOffset = self.get("offsetY")
             local maxScroll = math.max(0, childrenHeight - height)
@@ -178,7 +181,6 @@ function Frame:mouse_scroll(direction, x, y)
             return true
         end
     end
-    
     return false
 end
 

@@ -283,13 +283,13 @@ end
 function BaseElement:getActiveStates()
     local states = self.get("states")
     local result = {}
-    
+
     for stateName, priority in pairs(states) do
         table.insert(result, {name = stateName, priority = priority})
     end
-    
+
     table.sort(result, function(a, b) return a.priority > b.priority end)
-    
+
     return result
 end
 
@@ -326,10 +326,11 @@ end
 --- @return table self The BaseElement instance
 function BaseElement:fireEvent(event, ...)
     if self.get("eventCallbacks")[event] then
+        local lastResult
         for _, callback in ipairs(self.get("eventCallbacks")[event]) do
-            local result = callback(self, ...)
-            return result
+            lastResult = callback(self, ...)
         end
+        return lastResult
     end
     return self
 end
