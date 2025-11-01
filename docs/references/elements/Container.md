@@ -34,6 +34,9 @@ Extends: `VisualElement`
 |[Container:removeChild](#container-removechild-child)|Container|Removes a child element from the container|
 |[Container:getChild](#container-getchild-path)|child|Finds a child element by its path|
 |[Container:callChildrenEvent](#container-callchildrenevent-visibleonly-event)|boolean, child|Calls a event on all children|
+|[Container:applyLayout](#container-applylayout-layoutpath-options)|Container|Applies a layout to the container|
+|[Container:updateLayout](#container-updatelayout)|Container|Updates the layout|
+|[Container:clearLayout](#container-clearlayout)|Container|Clears the layout|
 
 ## Container:isChildVisible(child)
 
@@ -152,3 +155,28 @@ Calls a event on all children
 ### Returns
 * `boolean` `handled` Whether the event was handled
 * `child` `The` child that handled the event
+
+## Container:applyLayout(layoutPath, options?)
+
+Applies a layout from a file to this container
+
+### Parameters
+* `layoutPath` `string` Path to the layout file (e.g. "layouts/grid")
+* `options` *(optional)* `table` Optional layout-specific options
+
+### Returns
+* `Container` `self` For method chaining
+
+## Container:updateLayout()
+
+Updates the current layout (recalculates positions)
+
+### Returns
+* `Container` `self` For method chaining
+
+## Container:clearLayout()
+
+Removes the current layout
+
+### Returns
+* `Container` `self` For method chaining

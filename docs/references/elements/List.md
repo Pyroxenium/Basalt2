@@ -20,7 +20,7 @@ Extends: `Collection`
 
 |Event|Parameters|Description|
 |---|---|---|
-|onSelect|`index number, item table`|Fired when an item is selected|
+|onSelect|`List self, index number, item table`|Fired when an item is selected|
 
 ## Functions
 
