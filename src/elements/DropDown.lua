@@ -209,6 +209,7 @@ end
 --- @protected
 function DropDown:focus()
     VisualElement.focus(self)
+    self:prioritize()
     self:setState("opened")
 end
 
