@@ -2134,10 +2134,10 @@ if#ab>0 then local bb=ab[1]
 da=bb.text or""da=da:sub(1,self.get("width")-2)end;if _b then aa.render(self,1)end
 self:blit(1,1,da..
 string.rep(" ",
-self.get("width")-#da-1).. (_b and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],self.get("width")),string.rep(ba[self.getResolved("background")],self.get("width")))end
-function ca:focus()_a.focus(self)self:setState("opened")end
-function ca:blur()_a.blur(self)self:unsetState("opened")
-self.set("height",1)self:updateRender()end;return ca end
+self.get("width")-#da-1).. (_b and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],self.get("width")),string.rep(ba[self.getResolved("background")],self.get("width")))end;function ca:focus()_a.focus(self)self:prioritize()
+self:setState("opened")end
+function ca:blur()_a.blur(self)
+self:unsetState("opened")self.set("height",1)self:updateRender()end;return ca end
 project["elements/Display.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("VisualElement")
 local da=require("libraries/utils").getCenteredPosition;local _b=require("libraries/utils").deepcopy
