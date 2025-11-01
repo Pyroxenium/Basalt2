@@ -85,16 +85,13 @@ local function collectAllClassNames(folder)
 end
 
 local function getParentProperties(parentClass, allClasses)
-    -- Rekursiv alle Properties der Elternklasse(n) holen
     local properties = {}
     if parentClass then
         for _, classContent in pairs(allClasses) do
             if classContent.name == parentClass then
-                -- Properties der Elternklasse kopieren
                 for _, prop in ipairs(classContent.properties) do
                     table.insert(properties, prop)
                 end
-                -- Auch von der Elternklasse der Elternklasse holen
                 if classContent.parent then
                     local parentProps = getParentProperties(classContent.parent, allClasses)
                     for _, prop in ipairs(parentProps) do

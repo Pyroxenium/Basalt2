@@ -37,7 +37,7 @@ List.defineProperty(List, "scrollBarColor", {default = colors.lightGray, type = 
 ---@property scrollBarBackgroundColor color gray Background color of the scrollbar
 List.defineProperty(List, "scrollBarBackgroundColor", {default = colors.gray, type = "color", canTriggerRender = true})
 
----@event onSelect {index number, item table} Fired when an item is selected
+---@event onSelect {List self, index number, item table} Fired when an item is selected
 List.defineEvent(List, "mouse_click")
 List.defineEvent(List, "mouse_up")
 List.defineEvent(List, "mouse_drag")

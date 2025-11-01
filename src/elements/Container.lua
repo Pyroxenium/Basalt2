@@ -205,6 +205,9 @@ end
 function Container:sortChildren()
     self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
     self.set("childrenSorted", true)
+    if self._layoutInstance then
+        self:updateLayout()
+    end
     return self
 end
 
@@ -683,6 +686,49 @@ function Container:render()
         child:render()
         child:postRender()
     end
+end
+
+--- Applies a layout from a file to this container
+--- @shortDescription Applies a layout to the container
+--- @param layoutPath string Path to the layout file (e.g. "layouts/grid")
+--- @param options? table Optional layout-specific options
+--- @return Container self For method chaining
+function Container:applyLayout(layoutPath, options)
+    local LayoutManager = require("layoutManager")
+
+    if self._layoutInstance then
+        LayoutManager.destroy(self._layoutInstance)
+    end
+
+    self._layoutInstance = LayoutManager.apply(self, layoutPath)
+    if options then
+        self._layoutInstance.options = options
+    end
+
+    return self
+end
+
+--- Updates the current layout (recalculates positions)
+--- @shortDescription Updates the layout
+--- @return Container self For method chaining
+function Container:updateLayout()
+    if self._layoutInstance then
+        local LayoutManager = require("layoutManager")
+        LayoutManager.update(self._layoutInstance)
+    end
+    return self
+end
+
+--- Removes the current layout
+--- @shortDescription Clears the layout
+--- @return Container self For method chaining
+function Container:clearLayout()
+    if self._layoutInstance then
+        local LayoutManager = require("layoutManager")
+        LayoutManager.destroy(self._layoutInstance)
+        self._layoutInstance = nil
+    end
+    return self
 end
 
 
