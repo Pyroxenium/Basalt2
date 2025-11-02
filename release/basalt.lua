@@ -488,114 +488,124 @@ local dd=cd.data[groupIndex]
 if dd then local __a=ad+ (bd-1)local a_a=(dd-cb)/ (db-cb)
 local b_a=math.floor(bb- (a_a* (bb-1)))b_a=math.max(1,math.min(b_a,bb))for barY=b_a,bb do
 self:blit(__a,barY,cd.symbol,da[cd.fgColor],da[cd.bgColor])end end end end end;return _b end
-project["elements/ComboBox.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("elements/DropDown")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"editable",{default=true,type="boolean",canTriggerRender=true})
-ca.defineProperty(ca,"text",{default="",type="string",canTriggerRender=true,seetter=function(da,_b)
-da.set("cursorPos",#da.get("text")+1)da:updateViewport()end})
-ca.defineProperty(ca,"cursorPos",{default=1,type="number"})
-ca.defineProperty(ca,"viewOffset",{default=0,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"placeholder",{default="...",type="string"})
-ca.defineProperty(ca,"placeholderColor",{default=colors.gray,type="color"})
-ca.defineProperty(ca,"autoComplete",{default=false,type="boolean"})
-ca.defineProperty(ca,"manuallyOpened",{default=false,type="boolean"})function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
-return da end
-function ca:init(da,_b)
-aa.init(self,da,_b)self.set("type","ComboBox")
+project["elements/ComboBox.lua"] = function(...) local aa=require("elements/VisualElement")
+local ba=require("elements/List")local ca=require("elements/DropDown")
+local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b
+_b.defineProperty(_b,"editable",{default=true,type="boolean",canTriggerRender=true})
+_b.defineProperty(_b,"text",{default="",type="string",canTriggerRender=true,setter=function(ab,bb)ab.set("cursorPos",#bb+1)
+ab:updateViewport()return bb end})
+_b.defineProperty(_b,"cursorPos",{default=1,type="number"})
+_b.defineProperty(_b,"viewOffset",{default=0,type="number",canTriggerRender=true})
+_b.defineProperty(_b,"autoComplete",{default=false,type="boolean"})
+_b.defineProperty(_b,"manuallyOpened",{default=false,type="boolean"})function _b.new()local ab=setmetatable({},_b):__init()
+ab.class=_b;ab.set("width",16)ab.set("height",1)ab.set("z",8)
+return ab end
+function _b:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","ComboBox")
 self.set("cursorPos",1)self.set("viewOffset",0)return self end
-function ca:getFilteredItems()local da=self.get("items")or{}
-local _b=self.get("text"):lower()
-if not self.get("autoComplete")or#_b==0 then return da end;local ab={}
-for bb,cb in ipairs(da)do local db=""
-if type(cb)=="string"then db=cb:lower()elseif
-type(cb)=="table"and cb.text then db=cb.text:lower()end;if db:find(_b,1,true)then table.insert(ab,cb)end end;return ab end
-function ca:updateFilteredDropdown()
-if not self.get("autoComplete")then return end;local da=self:getFilteredItems()local _b=#da>0 and
+function _b:getFilteredItems()local ab=self.get("items")or{}
+local bb=self.get("text"):lower()
+if not self.get("autoComplete")or#bb==0 then return ab end;local cb={}
+for db,_c in ipairs(ab)do local ac=""
+if type(_c)=="string"then ac=_c:lower()elseif
+type(_c)=="table"and _c.text then ac=_c.text:lower()end;if ac:find(bb,1,true)then table.insert(cb,_c)end end;return cb end
+function _b:updateFilteredDropdown()
+if not self.get("autoComplete")then return end;local ab=self:getFilteredItems()local bb=#ab>0 and
 #self.get("text")>0
-if _b then self:setState("opened")
-self.set("manuallyOpened",false)local ab=self.get("dropdownHeight")or 5
-local bb=math.min(ab,#da)self.set("height",1 +bb)else
+if bb then self:setState("opened")
+self.set("manuallyOpened",false)local cb=self.get("dropdownHeight")or 5
+local db=math.min(cb,#ab)self.set("height",1 +db)else
 self:unsetState("opened")self.set("manuallyOpened",false)
 self.set("height",1)end;self:updateRender()end
-function ca:updateViewport()local da=self.get("text")
-local _b=self.get("cursorPos")local ab=self.get("width")local bb=self.get("dropSymbol")
-local cb=ab-#bb;if cb<1 then cb=1 end;local db=self.get("viewOffset")if _b-db>cb then db=_b-cb elseif
-_b-1 <db then db=math.max(0,_b-1)end
-self.set("viewOffset",db)end
-function ca:char(da)if not self.get("editable")then return end;if not
-self:hasState("focused")then return end;local _b=self.get("text")
-local ab=self.get("cursorPos")local bb=_b:sub(1,ab-1)..da.._b:sub(ab)
-self.set("text",bb)self.set("cursorPos",ab+1)self:updateViewport()
+function _b:updateViewport()local ab=self.get("text")
+local bb=self.get("cursorPos")local cb=self.get("width")local db=self.get("dropSymbol")
+local _c=cb-#db;if _c<1 then _c=1 end;local ac=self.get("viewOffset")if bb-ac>_c then ac=bb-_c elseif
+bb-1 <ac then ac=math.max(0,bb-1)end
+self.set("viewOffset",ac)end
+function _b:char(ab)if not self.get("editable")then return end;if not
+self:hasState("focused")then return end;local bb=self.get("text")
+local cb=self.get("cursorPos")local db=bb:sub(1,cb-1)..ab..bb:sub(cb)
+self.set("text",db)self.set("cursorPos",cb+1)self:updateViewport()
 if
 self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end
-function ca:key(da,_b)if not self.get("editable")then return end;if not
-self:hasState("focused")then return end;local ab=self.get("text")
-local bb=self.get("cursorPos")
-if da==keys.left then
-self.set("cursorPos",math.max(1,bb-1))self:updateViewport()elseif da==keys.right then
-self.set("cursorPos",math.min(#ab+1,bb+1))self:updateViewport()elseif da==keys.backspace then
-if bb>1 then local cb=ab:sub(1,bb-2)..
-ab:sub(bb)self.set("text",cb)
-self.set("cursorPos",bb-1)self:updateViewport()if self.get("autoComplete")then
-self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.delete then
-if bb<=#ab then
-local cb=ab:sub(1,bb-1)..ab:sub(bb+1)self.set("text",cb)self:updateViewport()
+function _b:key(ab,bb)if not self.get("editable")then return end;if not
+self:hasState("focused")then return end;local cb=self.get("text")
+local db=self.get("cursorPos")
+if ab==keys.left then
+self.set("cursorPos",math.max(1,db-1))self:updateViewport()elseif ab==keys.right then
+self.set("cursorPos",math.min(#cb+1,db+1))self:updateViewport()elseif ab==keys.backspace then
+if db>1 then local _c=cb:sub(1,db-2)..
+cb:sub(db)self.set("text",_c)
+self.set("cursorPos",db-1)self:updateViewport()if self.get("autoComplete")then
+self:updateFilteredDropdown()else self:updateRender()end end elseif ab==keys.delete then
+if db<=#cb then
+local _c=cb:sub(1,db-1)..cb:sub(db+1)self.set("text",_c)self:updateViewport()
 if
-self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif da==keys.home then self.set("cursorPos",1)
-self:updateViewport()elseif da==keys["end"]then self.set("cursorPos",#ab+1)
-self:updateViewport()elseif da==keys.enter then
+self.get("autoComplete")then self:updateFilteredDropdown()else self:updateRender()end end elseif ab==keys.home then self.set("cursorPos",1)
+self:updateViewport()elseif ab==keys["end"]then self.set("cursorPos",#cb+1)
+self:updateViewport()elseif ab==keys.enter then
 if self:hasState("opened")then
 self:unsetState("opened")else self:setState("opened")end;self:updateRender()end end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end;local bb,cb=self:getRelativePosition(_b,ab)
-local db=self.get("width")local _c=self.get("dropSymbol")
-local ac=self:hasState("opened")
-if cb==1 then
-if bb>=db-#_c+1 and bb<=db then if ac then
-self:unsetState("opened")else self:setState("opened")end
-if not ac then local bc=
-self.get("items")or{}
-local cc=self.get("dropdownHeight")or 5;local dc=math.min(cc,#bc)self.set("height",1 +dc)
-self.set("manuallyOpened",true)else self.set("height",1)
-self.set("manuallyOpened",false)end;self:updateRender()return true end
-if bb<=db-#_c and self.get("editable")then
-local bc=self.get("text")local cc=self.get("viewOffset")local dc=#bc+1
-local _d=math.min(dc,cc+bb)self.set("cursorPos",_d)self:updateRender()return true end;return true elseif ac and cb>1 and self.get("selectable")then local bc=(cb-1)+
-self.get("offset")local cc=self.get("items")
-if bc<=#cc then
-local dc=cc[bc]if type(dc)=="string"then dc={text=dc}cc[bc]=dc end
-if not
-self.get("multiSelection")then for _d,ad in ipairs(cc)do
-if type(ad)=="table"then ad.selected=false end end end;dc.selected=true;if dc.text then self:setText(dc.text)end
-self:unsetState("opened")self.set("height",1)self:updateRender()return true end end;return false end
-function ca:render()_a.render(self)local da=self.getResolved("text")
-local _b=self.get("width")local ab=self.getResolved("dropSymbol")
-local bb=self:hasState("focused")local cb=self:hasState("opened")
-local db=self.get("viewOffset")local _c=self.getResolved("placeholder")
-local ac=self.getResolved("background")local bc=self.getResolved("foreground")local cc=da;local dc=_b-#ab;if
-#da==0 and not bb and#_c>0 then cc=_c
-bc=self.get("placeholderColor")end;if#cc>0 then
-cc=cc:sub(db+1,db+dc)end;cc=cc..string.rep(" ",dc-#cc)local _d=
-cc.. (cb and"\31"or"\17")
-self:blit(1,1,_d,string.rep(ba[bc],_b),string.rep(ba[ac],_b))if bb and self.get("editable")then local ad=self.get("cursorPos")
-local bd=ad-db
-if bd>=1 and bd<=dc then self:setCursor(bd,1,true,bc)end end
-if cb then
-local ad
+function _b:mouse_click(ab,bb,cb)
+if not aa.mouse_click(self,ab,bb,cb)then return false end;local db,_c=self:getRelativePosition(bb,cb)
+local ac=self.get("width")local bc=self.get("dropSymbol")
+local cc=self:hasState("opened")
+if _c==1 then
+if db>=ac-#bc+1 and db<=ac then
+if cc then
+self:unsetState("opened")self.set("height",1)
+self.set("manuallyOpened",false)else self:setState("opened")
+local dc=self.get("items")or{}local _d=self.get("dropdownHeight")or 5
+local ad=math.min(_d,#dc)self.set("height",1 +ad)
+self.set("manuallyOpened",true)end;self:updateRender()return true end
+if db<=ac-#bc and self.get("editable")then
+local dc=self.get("text")local _d=self.get("viewOffset")local ad=#dc+1
+local bd=math.min(ad,_d+db)self.set("cursorPos",bd)
+if not cc then
+self:setState("opened")local cd=self.get("items")or{}
+local dd=self.get("dropdownHeight")or 5;local __a=math.min(dd,#cd)self.set("height",1 +__a)
+self.set("manuallyOpened",true)end;self:updateRender()return true end;return true elseif cc and _c>1 then return ca.mouse_click(self,ab,bb,cb)end;return false end
+function _b:mouse_up(ab,bb,cb)
+if self:hasState("opened")then
+local db,_c=self:getRelativePosition(bb,cb)
 if
-self.get("autoComplete")and not self.get("manuallyOpened")then ad=self:getFilteredItems()else ad=self.get("items")end
-local bd=math.min(self.get("dropdownHeight"),#ad)
-if bd>0 then local cd=self.get("offset")
-for i=1,bd do local dd=i+cd
-if ad[dd]then local __a=ad[dd]
-local a_a=__a.text or""local b_a=__a.selected or false;local c_a=
-b_a and self.get("selectedBackground")or ac;local d_a=b_a and
-self.get("selectedForeground")or bc;if
-#a_a>_b then a_a=a_a:sub(1,_b)end
-a_a=a_a..string.rep(" ",_b-#a_a)
-self:blit(1,i+1,a_a,string.rep(ba[d_a],_b),string.rep(ba[c_a],_b))end end end end end;return ca end
+_c>1 and self.get("selectable")and not self._scrollBarDragging then local ac=(_c-1)+self.get("offset")local bc
+if
+self.get("autoComplete")and not self.get("manuallyOpened")then
+bc=self:getFilteredItems()else bc=self.get("items")end
+if ac<=#bc then local cc=bc[ac]
+if type(cc)=="string"then cc={text=cc}bc[ac]=cc end;if not self.get("multiSelection")then
+for dc,_d in
+ipairs(self.get("items"))do if type(_d)=="table"then _d.selected=false end end end
+cc.selected=true
+if cc.text then self.set("text",cc.text)
+self.set("cursorPos",#cc.text+1)self:updateViewport()end;if cc.callback then cc.callback(self)end
+self:fireEvent("select",ac,cc)self:unsetState("opened")
+self:unsetState("clicked")self.set("height",1)
+self.set("manuallyOpened",false)self:updateRender()return true end end;return ca.mouse_up(self,ab,bb,cb)end;return
+aa.mouse_up and aa.mouse_up(self,ab,bb,cb)or false end
+function _b:render()aa.render(self)local ab=self.get("text")
+local bb=self.get("width")local cb=self.get("dropSymbol")
+local db=self:hasState("focused")local _c=self:hasState("opened")
+local ac=self.get("viewOffset")local bc=self.getResolved("selectedText")
+local cc=self.getResolved("background")local dc=self.getResolved("foreground")local _d=ab;local ad=bb-#cb
+if
+#ab==0 and not db and#bc>0 then _d=bc;dc=colors.gray end;if#_d>0 then _d=_d:sub(ac+1,ac+ad)end;_d=_d..
+string.rep(" ",ad-#_d)
+local bd=_d.. (_c and"\31"or"\17")
+self:blit(1,1,bd,string.rep(da[dc],bb),string.rep(da[cc],bb))if db and self.get("editable")then local cd=self.get("cursorPos")
+local dd=cd-ac
+if dd>=1 and dd<=ad then self:setCursor(dd,1,true,dc)end end
+if _c then
+local cd=self.get("height")local dd=self.get("items")if self.get("autoComplete")and not
+self.get("manuallyOpened")then
+dd=self:getFilteredItems()end;local __a=math.min(self.get("dropdownHeight"),
+#dd)
+local a_a=self._values.items;self._values.items=dd;self.set("height",__a)
+ba.render(self,1)self._values.items=a_a;self.set("height",cd)
+self:blit(1,1,bd,string.rep(da[dc],bb),string.rep(da[cc],bb))if db and self.get("editable")then local b_a=self.get("cursorPos")local c_a=b_a-
+ac
+if c_a>=1 and c_a<=ad then self:setCursor(c_a,1,true,dc)end end end end;return _b end
 project["elements/ScrollFrame.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("Container")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
@@ -2139,10 +2149,12 @@ _a.mouse_up and _a.mouse_up(self,da,_b,ab)or false end
 function ca:render()_a.render(self)local da=self.get("selectedText")
 local _b=self:hasState("opened")local ab=self:getSelectedItems()
 if#ab>0 then local bb=ab[1]
-da=bb.text or""da=da:sub(1,self.get("width")-2)end;if _b then aa.render(self,1)end
+da=bb.text or""da=da:sub(1,self.get("width")-2)end
+if _b then local bb=self.get("height")local cb=math.min(self.get("dropdownHeight"),#
+self.get("items"))
+self.set("height",cb)aa.render(self,1)self.set("height",bb)end
 self:blit(1,1,da..
-string.rep(" ",
-self.get("width")-#da-1).. (_b and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],self.get("width")),string.rep(ba[self.getResolved("background")],self.get("width")))end;function ca:focus()_a.focus(self)self:prioritize()
+string.rep(" ",self.get("width")-#da-1).. (_b and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],self.get("width")),string.rep(ba[self.getResolved("background")],self.get("width")))end;function ca:focus()_a.focus(self)self:prioritize()
 self:setState("opened")end
 function ca:blur()_a.blur(self)
 self:unsetState("opened")self.set("height",1)self:updateRender()end;return ca end
