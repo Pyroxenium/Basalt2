@@ -191,9 +191,17 @@ local observerCache = setmetatable({}, {
     end
 })
 
+local valueCache = setmetatable({}, {
+    __mode = "k",
+    __index = function(t, k)
+        t[k] = {}
+        return t[k]
+    end
+})
+
 local function setupObservers(element, expr, propertyName)
     local deps = analyzeDependencies(expr)
-    
+
     if observerCache[element][propertyName] then
         for _, observer in ipairs(observerCache[element][propertyName]) do
             observer.target:removeObserver(observer.property, observer.callback)
@@ -229,7 +237,20 @@ local function setupObservers(element, expr, propertyName)
                     target = target,
                     property = isState and "states" or prop,
                     callback = function()
-                        element:updateRender()
+                        local oldValue = valueCache[element][propertyName]
+                        local newValue = element.get(propertyName)
+
+                        if oldValue ~= newValue then
+                            valueCache[element][propertyName] = newValue
+
+                            if element._observers and element._observers[propertyName] then
+                                for _, obs in ipairs(element._observers[propertyName]) do
+                                    obs()
+                                end
+                            end
+
+                            element:updateRender()
+                        end
                     end
                 }
                 target:observe(observer.property, observer.callback)
@@ -281,6 +302,8 @@ PropertySystem.addSetterHook(function(element, propertyName, value, config)
                 end
                 return config.default
             end
+
+            valueCache[element][propertyName] = result
             return result
         end
     end
@@ -304,6 +327,7 @@ BaseElement.hooks = {
                 end
             end
             observerCache[self] = nil
+            valueCache[self] = nil
             functionCache[self] = nil
         end
     end

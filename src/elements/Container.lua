@@ -103,10 +103,12 @@ function Container:init(props, basalt)
     self:observe("width", function()
         self.set("childrenSorted", false)
         self.set("childrenEventsSorted", false)
+        self:updateRender()
     end)
     self:observe("height", function()
         self.set("childrenSorted", false)
         self.set("childrenEventsSorted", false)
+        self:updateRender()
     end)
 end
 
@@ -203,11 +205,12 @@ end
 --- @shortDescription Updates child element ordering
 --- @return Container self For method chaining
 function Container:sortChildren()
-    self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
     self.set("childrenSorted", true)
     if self._layoutInstance then
         self:updateLayout()
     end
+
+    self.set("visibleChildren", sortAndFilterChildren(self, self._values.children))
     return self
 end
 
@@ -546,7 +549,7 @@ end
 --- @protected
 function Container:multiBlit(x, y, width, height, text, fg, bg)
     local w, h = self.get("width"), self.get("height")
-    
+
     width = x < 1 and math.min(width + x - 1, w) or math.min(width, math.max(0, w - x + 1))
     height = y < 1 and math.min(height + y - 1, h) or math.min(height, math.max(0, h - y + 1))
 

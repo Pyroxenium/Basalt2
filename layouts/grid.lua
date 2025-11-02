@@ -22,6 +22,11 @@ function grid.calculate(instance)
     local columns = options.columns
 
     local childCount = #children
+    if childCount == 0 then
+        instance._positions = {}
+        return
+    end
+
     if not rows and not columns then
         columns = math.ceil(math.sqrt(childCount))
         rows = math.ceil(childCount / columns)
@@ -31,10 +36,20 @@ function grid.calculate(instance)
         rows = math.ceil(childCount / columns)
     end
 
+    if columns <= 0 then columns = 1 end
+    if rows <= 0 then rows = 1 end
+
     local availableWidth = containerWidth - (2 * padding) - ((columns - 1) * spacing)
     local availableHeight = containerHeight - (2 * padding) - ((rows - 1) * spacing)
+
+    if availableWidth < 1 then availableWidth = 1 end
+    if availableHeight < 1 then availableHeight = 1 end
+
     local cellWidth = math.floor(availableWidth / columns)
     local cellHeight = math.floor(availableHeight / rows)
+
+    if cellWidth < 1 then cellWidth = 1 end
+    if cellHeight < 1 then cellHeight = 1 end
 
     local positions = {}
 
