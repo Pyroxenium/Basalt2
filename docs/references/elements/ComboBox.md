@@ -16,7 +16,7 @@ local combo = main:addComboBox()
 {text = "Spain"},
 {text = "Italy"}
 })
-:setPlaceholder("Select country...")
+:setSelectedText("Select country...")  -- Placeholder text
 :setAutoComplete(true)  -- Enable filtering while typing
 
 -- Handle selection changes
@@ -34,8 +34,6 @@ end)
 |text|string|""|The current text value of the input field|
 |cursorPos|number|1|Current cursor position in the text input|
 |viewOffset|number|0|Horizontal scroll position for viewing long text|
-|placeholder|string|"..."|Text shown when the input is empty|
-|placeholderColor|color|gray|Color used for placeholder text|
 |autoComplete|boolean|false|Enables filtering dropdown items while typing|
 |manuallyOpened|boolean|false|Indicates if dropdown was opened by user action|
 
