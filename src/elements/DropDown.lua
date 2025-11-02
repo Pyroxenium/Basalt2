@@ -196,7 +196,11 @@ function DropDown:render()
     end
 
     if isOpen then
+        local actualHeight = self.get("height")
+        local dropdownHeight = math.min(self.get("dropdownHeight"), #self.get("items"))
+        self.set("height", dropdownHeight)
         List.render(self, 1)
+        self.set("height", actualHeight)
     end
 
     self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and "\31" or "\17"),

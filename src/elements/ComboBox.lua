@@ -1,4 +1,5 @@
 local VisualElement = require("elements/VisualElement")
+local List = require("elements/List")
 local DropDown = require("elements/DropDown")
 local tHex = require("libraries/colorHex")
 
@@ -18,7 +19,7 @@ local tHex = require("libraries/colorHex")
 ---         {text = "Spain"},
 ---         {text = "Italy"}
 ---     })
----     :setPlaceholder("Select country...")
+---     :setSelectedText("Select country...")  -- Placeholder text
 ---     :setAutoComplete(true)  -- Enable filtering while typing
 --- 
 --- -- Handle selection changes
@@ -34,18 +35,15 @@ ComboBox.__index = ComboBox
 ---@property editable boolean true Enables direct text input in the field
 ComboBox.defineProperty(ComboBox, "editable", {default = true, type = "boolean", canTriggerRender = true})
 ---@property text string "" The current text value of the input field
-ComboBox.defineProperty(ComboBox, "text", {default = "", type = "string", canTriggerRender = true, seetter = function(self, value)
-    self.set("cursorPos", #self.get("text") + 1)
+ComboBox.defineProperty(ComboBox, "text", {default = "", type = "string", canTriggerRender = true, setter = function(self, value)
+    self.set("cursorPos", #value + 1)
     self:updateViewport()
+    return value
 end})
 ---@property cursorPos number 1 Current cursor position in the text input
 ComboBox.defineProperty(ComboBox, "cursorPos", {default = 1, type = "number"})
 ---@property viewOffset number 0 Horizontal scroll position for viewing long text
 ComboBox.defineProperty(ComboBox, "viewOffset", {default = 0, type = "number", canTriggerRender = true})
----@property placeholder string "..." Text shown when the input is empty
-ComboBox.defineProperty(ComboBox, "placeholder", {default = "...", type = "string"})
----@property placeholderColor color gray Color used for placeholder text
-ComboBox.defineProperty(ComboBox, "placeholderColor", {default = colors.gray, type = "color"})
 ---@property autoComplete boolean false Enables filtering dropdown items while typing
 ComboBox.defineProperty(ComboBox, "autoComplete", {default = false, type = "boolean"})
 ---@property manuallyOpened boolean false Indicates if dropdown was opened by user action
@@ -247,22 +245,17 @@ function ComboBox:mouse_click(button, x, y)
 
     if relY == 1 then
         if relX >= width - #dropSymbol + 1 and relX <= width then
-
             if isOpen then
                 self:unsetState("opened")
+                self.set("height", 1)
+                self.set("manuallyOpened", false)
             else
                 self:setState("opened")
-            end
-
-            if not isOpen then
                 local allItems = self.get("items") or {}
                 local dropdownHeight = self.get("dropdownHeight") or 5
                 local actualHeight = math.min(dropdownHeight, #allItems)
                 self.set("height", 1 + actualHeight)
                 self.set("manuallyOpened", true)
-            else
-                self.set("height", 1)
-                self.set("manuallyOpened", false)
             end
             self:updateRender()
             return true
@@ -275,44 +268,88 @@ function ComboBox:mouse_click(button, x, y)
             local targetPos = math.min(maxPos, viewOffset + relX)
 
             self.set("cursorPos", targetPos)
+            if not isOpen then
+                self:setState("opened")
+                local allItems = self.get("items") or {}
+                local dropdownHeight = self.get("dropdownHeight") or 5
+                local actualHeight = math.min(dropdownHeight, #allItems)
+                self.set("height", 1 + actualHeight)
+                self.set("manuallyOpened", true)
+            end
+
             self:updateRender()
             return true
         end
 
         return true
-    elseif isOpen and relY > 1 and self.get("selectable") then
-        local itemIndex = (relY - 1) + self.get("offset")
-        local items = self.get("items")
-
-        if itemIndex <= #items then
-            local item = items[itemIndex]
-            if type(item) == "string" then
-                item = {text = item}
-                items[itemIndex] = item
-            end
-
-            if not self.get("multiSelection") then
-                for _, otherItem in ipairs(items) do
-                    if type(otherItem) == "table" then
-                        otherItem.selected = false
-                    end
-                end
-            end
-
-            item.selected = true
-
-            if item.text then
-                self:setText(item.text)
-            end
-            self:unsetState("opened")
-            self.set("height", 1)
-            self:updateRender()
-
-            return true
-        end
+    elseif isOpen and relY > 1 then
+        return DropDown.mouse_click(self, button, x, y)
     end
 
     return false
+end
+
+--- Handles mouse up events for item selection
+--- @shortDescription Handles mouse up for selection
+--- @param button number The mouse button that was released
+--- @param x number The x-coordinate of the release
+--- @param y number The y-coordinate of the release
+--- @return boolean handled Whether the event was handled
+--- @protected
+function ComboBox:mouse_up(button, x, y)
+    if self:hasState("opened") then
+        local relX, relY = self:getRelativePosition(x, y)
+
+        if relY > 1 and self.get("selectable") and not self._scrollBarDragging then
+            local itemIndex = (relY - 1) + self.get("offset")
+
+            local items
+            if self.get("autoComplete") and not self.get("manuallyOpened") then
+                items = self:getFilteredItems()
+            else
+                items = self.get("items")
+            end
+
+            if itemIndex <= #items then
+                local item = items[itemIndex]
+                if type(item) == "string" then
+                    item = {text = item}
+                    items[itemIndex] = item
+                end
+
+                if not self.get("multiSelection") then
+                    for _, otherItem in ipairs(self.get("items")) do
+                        if type(otherItem) == "table" then
+                            otherItem.selected = false
+                        end
+                    end
+                end
+
+                item.selected = true
+                if item.text then
+                    self.set("text", item.text)
+                    self.set("cursorPos", #item.text + 1)
+                    self:updateViewport()
+                end
+
+                if item.callback then
+                    item.callback(self)
+                end
+
+                self:fireEvent("select", itemIndex, item)
+                self:unsetState("opened")
+                self:unsetState("clicked")
+                self.set("height", 1)
+                self.set("manuallyOpened", false)
+                self:updateRender()
+
+                return true
+            end
+        end
+
+        return DropDown.mouse_up(self, button, x, y)
+    end
+    return VisualElement.mouse_up and VisualElement.mouse_up(self, button, x, y) or false
 end
 
 --- Renders the ComboBox
@@ -321,22 +358,22 @@ end
 function ComboBox:render()
     VisualElement.render(self)
 
-    local text = self.getResolved("text")
+    local text = self.get("text")
     local width = self.get("width")
-    local dropSymbol = self.getResolved("dropSymbol")
+    local dropSymbol = self.get("dropSymbol")
     local isFocused = self:hasState("focused")
     local isOpen = self:hasState("opened")
     local viewOffset = self.get("viewOffset")
-    local placeholder = self.getResolved("placeholder")
+    local selectedText = self.getResolved("selectedText")
     local bg = self.getResolved("background")
     local fg = self.getResolved("foreground")
 
     local displayText = text
     local textWidth = width - #dropSymbol
 
-    if #text == 0 and not isFocused and #placeholder > 0 then
-        displayText = placeholder
-        fg = self.get("placeholderColor")
+    if #text == 0 and not isFocused and #selectedText > 0 then
+        displayText = selectedText
+        fg = colors.gray
     end
 
     if #displayText > 0 then
@@ -360,36 +397,33 @@ function ComboBox:render()
     end
 
     if isOpen then
-        local items
+        local actualHeight = self.get("height")
+        local items = self.get("items")
+
         if self.get("autoComplete") and not self.get("manuallyOpened") then
             items = self:getFilteredItems()
-        else
-            items = self.get("items")
         end
 
         local dropdownHeight = math.min(self.get("dropdownHeight"), #items)
-        if dropdownHeight > 0 then
-            local offset = self.get("offset")
 
-            for i = 1, dropdownHeight do
-                local itemIndex = i + offset
-                if items[itemIndex] then
-                    local item = items[itemIndex]
-                    local itemText = item.text or ""
-                    local isSelected = item.selected or false
+        local originalItems = self._values.items
+        self._values.items = items
+        self.set("height", dropdownHeight)
 
-                    local itemBg = isSelected and self.get("selectedBackground") or bg
-                    local itemFg = isSelected and self.get("selectedForeground") or fg
+        List.render(self, 1)
 
-                    if #itemText > width then
-                        itemText = itemText:sub(1, width)
-                    end
+        self._values.items = originalItems
+        self.set("height", actualHeight)
 
-                    itemText = itemText .. string.rep(" ", width - #itemText)
-                    self:blit(1, i + 1, itemText,
-                        string.rep(tHex[itemFg], width),
-                        string.rep(tHex[itemBg], width))
-                end
+        self:blit(1, 1, fullText,
+            string.rep(tHex[fg], width),
+            string.rep(tHex[bg], width))
+
+        if isFocused and self.get("editable") then
+            local cursorPos = self.get("cursorPos")
+            local cursorX = cursorPos - viewOffset
+            if cursorX >= 1 and cursorX <= textWidth then
+                self:setCursor(cursorX, 1, true, fg)
             end
         end
     end
