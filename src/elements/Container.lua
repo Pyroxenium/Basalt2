@@ -1,6 +1,7 @@
 local elementManager = require("elementManager")
 local errorManager = require("errorManager")
 local VisualElement = elementManager.getElement("VisualElement")
+local LayoutManager = require("layoutManager")
 local expect = require("libraries/expect")
 local split = require("libraries/utils").split
 ---@configDescription The container class. It is a visual element that can contain other elements. It is the base class for all containers
@@ -697,7 +698,6 @@ end
 --- @param options? table Optional layout-specific options
 --- @return Container self For method chaining
 function Container:applyLayout(layoutPath, options)
-    local LayoutManager = require("layoutManager")
 
     if self._layoutInstance then
         LayoutManager.destroy(self._layoutInstance)
@@ -716,7 +716,6 @@ end
 --- @return Container self For method chaining
 function Container:updateLayout()
     if self._layoutInstance then
-        local LayoutManager = require("layoutManager")
         LayoutManager.update(self._layoutInstance)
     end
     return self

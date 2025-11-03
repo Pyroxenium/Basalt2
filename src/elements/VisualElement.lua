@@ -64,6 +64,9 @@ end})
 ---@property ignoreOffset boolean false Whether to ignore the parent's offset
 VisualElement.defineProperty(VisualElement, "ignoreOffset", {default = false, type = "boolean"})
 
+---@property layoutConfig table {} Configuration for layout systems (grow, shrink, alignSelf, etc.)
+VisualElement.defineProperty(VisualElement, "layoutConfig", {default = {}, type = "table"})
+
 ---@combinedProperty position {x number, y number} Combined x, y position
 VisualElement.combineProperties(VisualElement, "position", "x", "y")
 ---@combinedProperty size {width number, height number} Combined width, height
@@ -178,6 +181,27 @@ function VisualElement:setConstraint(property, targetElement, targetProperty, of
     return self
 end
 
+--- Updates a single property in the layoutConfig table
+--- @shortDescription Updates a single layout config property without replacing the entire table
+--- @param key string The layout config property to update (grow, shrink, basis, alignSelf, order, etc.)
+--- @param value any The value to set for the property
+--- @return VisualElement self The element instance
+function VisualElement:setLayoutConfigProperty(key, value)
+    local layoutConfig = self.get("layoutConfig")
+    layoutConfig[key] = value
+    self.set("layoutConfig", layoutConfig)
+    return self
+end
+
+--- Gets a single property from the layoutConfig table
+--- @shortDescription Gets a single layout config property
+--- @param key string The layout config property to get
+--- @return any value The value of the property, or nil if not set
+function VisualElement:getLayoutConfigProperty(key)
+    local layoutConfig = self.get("layoutConfig")
+    return layoutConfig[key]
+end
+
 --- Resolves all constraints for the element
 --- @shortDescription Resolves all constraints for the element
 --- @return VisualElement self The element instance
@@ -191,7 +215,7 @@ function VisualElement:resolveAllConstraints()
     for _, property in ipairs(order) do
         if constraints[property] then
             local value = self:_resolveConstraint(property, constraints[property])
-            self:_applyConstraintValue(property, value)
+            self:_applyConstraintValue(property, value, constraints)
         end
     end
     self._constraintsDirty = false
@@ -200,17 +224,31 @@ end
 
 --- Applies a resolved constraint value to the appropriate property
 --- @private
-function VisualElement:_applyConstraintValue(property, value)
+function VisualElement:_applyConstraintValue(property, value, constraints)
     if property == "x" or property == "left" then
         self.set("x", value)
     elseif property == "y" or property == "top" then
         self.set("y", value)
     elseif property == "right" then
-        local width = self.get("width")
-        self.set("x", value - width + 1)
+        if constraints.left then
+            local leftValue = self:_resolveConstraint("left", constraints.left)
+            local width = value - leftValue + 1
+            self.set("width", width)
+            self.set("x", leftValue)
+        else
+            local width = self.get("width")
+            self.set("x", value - width + 1)
+        end
     elseif property == "bottom" then
-        local height = self.get("height")
-        self.set("y", value - height + 1)
+        if constraints.top then
+            local topValue = self:_resolveConstraint("top", constraints.top)
+            local height = value - topValue + 1
+            self.set("height", height)
+            self.set("y", topValue)
+        else
+            local height = self.get("height")
+            self.set("y", value - height + 1)
+        end
     elseif property == "centerX" then
         local width = self.get("width")
         self.set("x", value - math.floor(width / 2))

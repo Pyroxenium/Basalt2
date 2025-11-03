@@ -320,20 +320,40 @@ end
 --- @return boolean Whether the event was handled
 --- @protected
 function ScrollFrame:mouse_scroll(direction, x, y)
-    local height = self.get("height")
-    local width = self.get("width")
-    local offsetY = self.get("offsetY")
-    local contentWidth = self.get("contentWidth")
-    local contentHeight = self.get("contentHeight")
+    if self:isInBounds(x, y) then
+        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local relX, relY = self:getRelativePosition(x + xOffset, y + yOffset)
 
-    local needsHorizontalScrollBar = self.get("showScrollBar") and contentWidth > width
-    local viewportHeight = needsHorizontalScrollBar and height - 1 or height
-    local maxScroll = math.max(0, contentHeight - viewportHeight)
+        local success, child = self:callChildrenEvent(true, "mouse_scroll", direction, relX, relY)
+        if success then
+            return true
+        end
 
-    local newScroll = math.min(maxScroll, math.max(0, offsetY + direction))
-    self.set("offsetY", newScroll)
+        local height = self.get("height")
+        local width = self.get("width")
+        local offsetY = self.get("offsetY")
+        local offsetX = self.get("offsetX")
+        local contentWidth = self.get("contentWidth")
+        local contentHeight = self.get("contentHeight")
 
-    return true
+        local needsHorizontalScrollBar = self.get("showScrollBar") and contentWidth > width
+        local viewportHeight = needsHorizontalScrollBar and height - 1 or height
+        local needsVerticalScrollBar = self.get("showScrollBar") and contentHeight > viewportHeight
+        local viewportWidth = needsVerticalScrollBar and width - 1 or width
+
+        if needsVerticalScrollBar then
+            local maxScroll = math.max(0, contentHeight - viewportHeight)
+            local newScroll = math.min(maxScroll, math.max(0, offsetY + direction))
+            self.set("offsetY", newScroll)
+        elseif needsHorizontalScrollBar then
+            local maxScroll = math.max(0, contentWidth - viewportWidth)
+            local newScroll = math.min(maxScroll, math.max(0, offsetX + direction))
+            self.set("offsetX", newScroll)
+        end
+
+        return true
+    end
+    return false
 end
 
 --- Renders the ScrollFrame and its scrollbars

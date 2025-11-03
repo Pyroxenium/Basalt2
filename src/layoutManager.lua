@@ -58,14 +58,46 @@ function LayoutManager._applyPositions(instance)
             child.set("y", pos.y)
             child.set("width", pos.width)
             child.set("height", pos.height)
+            child._layoutValues = {
+                x = pos.x,
+                y = pos.y,
+                width = pos.width,
+                height = pos.height
+            }
         end
     end
+end
+
+--- Checks if a child's properties were changed by the user since last layout
+--- @param child BaseElement The child element to check
+--- @return boolean changed Whether the user changed x, y, width, or height
+--- @private
+function LayoutManager._wasChangedByUser(child)
+    if not child._layoutValues then return false end
+
+    local currentX = child.get("x")
+    local currentY = child.get("y")
+    local currentWidth = child.get("width")
+    local currentHeight = child.get("height")
+
+    return currentX ~= child._layoutValues.x or
+           currentY ~= child._layoutValues.y or
+           currentWidth ~= child._layoutValues.width or
+           currentHeight ~= child._layoutValues.height
 end
 
 --- Updates a layout instance (recalculates positions)
 --- @param instance table The layout instance
 function LayoutManager.update(instance)
     if instance and instance.layout and instance.layout.calculate then
+        if instance._positions then
+            for child, pos in pairs(instance._positions) do
+                if not child._destroyed then
+                    child._userModified = LayoutManager._wasChangedByUser(child)
+                end
+            end
+        end
+
         instance.layout.calculate(instance)
         LayoutManager._applyPositions(instance)
     end
