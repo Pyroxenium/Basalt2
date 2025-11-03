@@ -23,6 +23,7 @@ Extends: `BaseElement`
 |borderColor|color|white|Border color|
 |visible|boolean|true|Whether the element is visible|
 |ignoreOffset|boolean|false|Whether to ignore the parent's offset|
+|layoutConfig|table|{}|Configuration for layout systems (grow, shrink, alignSelf, etc.)|
 
 ## Events
 
@@ -35,6 +36,8 @@ Extends: `BaseElement`
 |Method|Returns|Description|
 |---|---|---|
 |[VisualElement:setConstraint](#visualelement-setconstraint-property-targetelement-targetproperty-offset)|VisualElement|Sets a constraint on a property relative to another element's property|
+|[VisualElement:setLayoutConfigProperty](#visualelement-setlayoutconfigproperty-key-value)|VisualElement|Updates a single layout config property without replacing the entire table|
+|[VisualElement:getLayoutConfigProperty](#visualelement-getlayoutconfigproperty-key)|any|Gets a single layout config property|
 |[VisualElement:resolveAllConstraints](#visualelement-resolveallconstraints)|VisualElement|Resolves all constraints for the element|
 |[VisualElement:removeConstraint](#visualelement-removeconstraint-property)|VisualElement|Removes a constraint from the element|
 |[VisualElement:updateConstraints](#visualelement-updateconstraints)|VisualElement|Updates all constraints, recalculating positions and sizes|
@@ -87,6 +90,27 @@ Sets a constraint on a property relative to another element's property
 
 ### Returns
 * `VisualElement` `self` The element instance
+
+## VisualElement:setLayoutConfigProperty(key, value)
+
+Updates a single property in the layoutConfig table
+
+### Parameters
+* `key` `string` The layout config property to update (grow, shrink, basis, alignSelf, order, etc.)
+* `value` `any` The value to set for the property
+
+### Returns
+* `VisualElement` `self` The element instance
+
+## VisualElement:getLayoutConfigProperty(key)
+
+Gets a single property from the layoutConfig table
+
+### Parameters
+* `key` `string` The layout config property to get
+
+### Returns
+* `any` `value` The value of the property, or nil if not set
 
 ## VisualElement:resolveAllConstraints()
 
