@@ -105,7 +105,7 @@ function DropDown:mouse_click(button, x, y)
             self.set("height", 1)
             self:unsetState("opened")
         else
-            self.set("height", 1 + math.min(self.get("dropdownHeight"), #self.get("items")))
+            self.set("height", 1 + math.min(self.getResolved("dropdownHeight"), #self.getResolved("items")))
             self:setState("opened")
         end
         return true
@@ -138,9 +138,9 @@ function DropDown:mouse_up(button, x, y)
     if self:hasState("opened") then
         local relX, relY = self:getRelativePosition(x, y)
 
-        if relY > 1 and self.get("selectable") and not self._scrollBarDragging then
-            local itemIndex = (relY - 1) + self.get("offset")
-            local items = self.get("items")
+        if relY > 1 and self.getResolved("selectable") and not self._scrollBarDragging then
+            local itemIndex = (relY - 1) + self.getResolved("offset")
+            local items = self.getResolved("items")
 
             if itemIndex <= #items then
                 local item = items[itemIndex]
@@ -149,7 +149,7 @@ function DropDown:mouse_up(button, x, y)
                     items[itemIndex] = item
                 end
 
-                if not self.get("multiSelection") then
+                if not self.getResolved("multiSelection") then
                     for _, otherItem in ipairs(items) do
                         if type(otherItem) == "table" then
                             otherItem.selected = false
@@ -185,26 +185,28 @@ end
 function DropDown:render()
     VisualElement.render(self)
 
-    local text = self.get("selectedText")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local text = self.getResolved("selectedText")
     local isOpen = self:hasState("opened")
     local selectedItems = self:getSelectedItems()
     if #selectedItems > 0 then
         local selectedItem = selectedItems[1]
         text = selectedItem.text or ""
-        text = text:sub(1, self.get("width") - 2)
+        text = text:sub(1, width - 2)
     end
 
     if isOpen then
-        local actualHeight = self.get("height")
-        local dropdownHeight = math.min(self.get("dropdownHeight"), #self.get("items"))
+        local actualHeight = height
+        local dropdownHeight = math.min(self.getResolved("dropdownHeight"), #self.getResolved("items"))
         self.set("height", dropdownHeight)
         List.render(self, 1)
         self.set("height", actualHeight)
     end
 
-    self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and "\31" or "\17"),
-        string.rep(tHex[self.getResolved("foreground")], self.get("width")),
-        string.rep(tHex[self.getResolved("background")], self.get("width")))
+    self:blit(1, 1, text .. string.rep(" ", width - #text - 1) .. (isOpen and "\31" or "\17"),
+        string.rep(tHex[self.getResolved("foreground")], width),
+        string.rep(tHex[self.getResolved("background")], width))
 end
 
 --- Called when the DropDown gains focus

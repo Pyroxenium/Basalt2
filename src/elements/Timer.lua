@@ -44,7 +44,7 @@ end
 function Timer:start()
     if not self.running then
         self.running = true
-        local time = self.get("interval")
+        local time = self.getResolved("interval")
         self.timerId = os.startTimer(time)
     end
     return self
@@ -70,12 +70,12 @@ function Timer:dispatchEvent(event, ...)
         local timerId = select(1, ...)
         if timerId == self.timerId then
             self.action()
-            local amount = self.get("amount")
+            local amount = self.getResolved("amount")
             if amount > 0 then
                 self.set("amount", amount - 1)
             end
             if amount ~= 0 then
-                self.timerId = os.startTimer(self.get("interval"))
+                self.timerId = os.startTimer(self.getResolved("interval"))
             end
         end
     end

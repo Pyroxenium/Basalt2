@@ -225,7 +225,7 @@ end
 --- @param priority? number Optional priority override
 --- @return BaseElement self
 function BaseElement:setState(stateName, priority)
-    local states = self.get("states")
+    local states = self.getResolved("states")
 
     if not priority and self._registeredStates[stateName] then
         priority = self._registeredStates[stateName].priority
@@ -309,6 +309,145 @@ function BaseElement:updateConditionalStates()
     return self
 end
 
+--- Registers a responsive state that reacts to parent size changes
+--- @shortDescription Registers a state that responds to parent dimensions
+--- @param stateName string The name of the state
+--- @param condition string|function Condition as string expression or function: function(element) return boolean end
+--- @param options? table|number Options table with 'priority' and 'observe', or just priority number
+--- @return BaseElement self
+function BaseElement:registerResponsiveState(stateName, condition, options)
+    local priority = 100
+    local observeList = {}
+    if type(options) == "number" then
+        priority = options
+    elseif type(options) == "table" then
+        priority = options.priority or 100
+        observeList = options.observe or {}
+    end
+
+    local conditionFunc
+    local isStringExpr = type(condition) == "string"
+
+    if isStringExpr then
+        conditionFunc = self:_parseResponsiveExpression(condition)
+
+        local autoDeps = self:_detectDependencies(condition)
+        for _, dep in ipairs(autoDeps) do
+            table.insert(observeList, dep)
+        end
+    else
+        conditionFunc = condition
+    end
+    self:registerState(stateName, conditionFunc, priority)
+
+    for _, observeInfo in ipairs(observeList) do
+        local element = observeInfo.element or observeInfo[1]
+        local property = observeInfo.property or observeInfo[2]
+        if element and property then
+            element:observe(property, function()
+                self:updateConditionalStates()
+            end)
+        end
+    end
+    self:updateConditionalStates()
+
+    return self
+end
+
+--- Parses a responsive expression string into a function
+--- @private
+--- @param expr string The expression to parse
+--- @return function conditionFunc The parsed condition function
+function BaseElement:_parseResponsiveExpression(expr)
+    local protectedNames = {
+        colors = true,
+        math = true,
+        clamp = true,
+        round = true
+    }
+
+    local mathEnv = {
+        clamp = function(val, min, max)
+            return math.min(math.max(val, min), max)
+        end,
+        round = function(val)
+            return math.floor(val + 0.5)
+        end,
+        floor = math.floor,
+        ceil = math.ceil,
+        abs = math.abs
+    }
+
+    expr = expr:gsub("([%w_]+)%.([%w_]+)", function(obj, prop)
+        if protectedNames[obj] or tonumber(obj) then 
+            return obj.."."..prop
+        end
+        return string.format('__getProperty("%s", "%s")', obj, prop)
+    end)
+
+    local element = self
+    local env = setmetatable({
+        colors = colors,
+        math = math,
+        tostring = tostring,
+        tonumber = tonumber,
+        __getProperty = function(objName, propName)
+            if objName == "self" then
+                if element._properties[propName] then
+                    return element.get(propName)
+                end
+            elseif objName == "parent" then
+                if element.parent and element.parent._properties[propName] then
+                    return element.parent.get(propName)
+                end
+            else
+                local target = element:getBaseFrame():getChild(objName)
+                if target and target._properties[propName] then
+                    return target.get(propName)
+                end
+            end
+            return nil
+        end
+    }, { __index = mathEnv })
+
+    local func, err = load("return "..expr, "responsive", "t", env)
+    if not func then
+        error("Invalid responsive expression: " .. err)
+    end
+
+    return function(self)
+        local ok, result = pcall(func)
+        return ok and result or false
+    end
+end
+
+--- Detects dependencies in a responsive expression
+--- @private
+--- @param expr string The expression to analyze
+--- @return table dependencies List of {element, property} pairs
+function BaseElement:_detectDependencies(expr)
+    local deps = {}
+    local protectedNames = {colors = true, math = true, clamp = true, round = true}
+
+    for ref, prop in expr:gmatch("([%w_]+)%.([%w_]+)") do
+        if not protectedNames[ref] and not tonumber(ref) then
+            local element
+            if ref == "self" then
+                element = self
+            elseif ref == "parent" then
+                element = self.parent
+            else
+                element = self:getBaseFrame():getChild(ref)
+            end
+
+            if element then
+                table.insert(deps, {element = element, property = prop})
+            end
+        end
+    end
+    return deps
+end
+
 --- Removes a state from the registry
 --- @shortDescription Removes state definition
 --- @param stateName string The state to remove
@@ -325,9 +464,9 @@ end
 --- @param ... any Additional arguments to pass to the callbacks
 --- @return table self The BaseElement instance
 function BaseElement:fireEvent(event, ...)
-    if self.get("eventCallbacks")[event] then
+    if self.getResolved("eventCallbacks")[event] then
         local lastResult
-        for _, callback in ipairs(self.get("eventCallbacks")[event]) do
+        for _, callback in ipairs(self.getResolved("eventCallbacks")[event]) do
             lastResult = callback(self, ...)
         end
         return lastResult
@@ -341,7 +480,7 @@ end
 --- @return boolean? handled Whether the event was handled
 --- @protected
 function BaseElement:dispatchEvent(event, ...)
-    if self.get("enabled") == false then
+    if self.getResolved("enabled") == false then
         return false
     end
     if self[event] then

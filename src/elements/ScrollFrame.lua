@@ -110,7 +110,7 @@ ScrollFrame.defineProperty(ScrollFrame, "contentWidth", {
     type = "number",
     getter = function(self)
         local maxWidth = 0
-        local children = self.get("children")
+        local children = self.getResolved("children")
         for _, child in ipairs(children) do
             local childX = child.get("x")
             local childWidth = child.get("width")
@@ -129,7 +129,7 @@ ScrollFrame.defineProperty(ScrollFrame, "contentHeight", {
     type = "number",
     getter = function(self)
         local maxHeight = 0
-        local children = self.get("children")
+        local children = self.getResolved("children")
         for _, child in ipairs(children) do
             local childY = child.get("y")
             local childHeight = child.get("height")
@@ -182,11 +182,11 @@ end
 function ScrollFrame:mouse_click(button, x, y)
     if Container.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local width = self.get("width")
-        local height = self.get("height")
-        local showScrollBar = self.get("showScrollBar")
-        local contentWidth = self.get("contentWidth")
-        local contentHeight = self.get("contentHeight")
+        local width = self.getResolved("width")
+        local height = self.getResolved("height")
+        local showScrollBar = self.getResolved("showScrollBar")
+        local contentWidth = self.getResolved("contentWidth")
+        local contentHeight = self.getResolved("contentHeight")
         local needsHorizontalScrollBar = showScrollBar and contentWidth > width
         local viewportHeight = needsHorizontalScrollBar and height - 1 or height
         local needsVerticalScrollBar = showScrollBar and contentHeight > viewportHeight
@@ -197,7 +197,7 @@ function ScrollFrame:mouse_click(button, x, y)
             local handleSize = math.max(1, math.floor((viewportHeight / contentHeight) * scrollHeight))
             local maxOffset = contentHeight - viewportHeight
 
-            local currentPercent = maxOffset > 0 and (self.get("offsetY") / maxOffset * 100) or 0
+            local currentPercent = maxOffset > 0 and (self.getResolved("offsetY") / maxOffset * 100) or 0
             local handlePos = math.floor((currentPercent / 100) * (scrollHeight - handleSize)) + 1
 
             if relY >= handlePos and relY < handlePos + handleSize then
@@ -216,7 +216,7 @@ function ScrollFrame:mouse_click(button, x, y)
             local handleSize = math.max(1, math.floor((viewportWidth / contentWidth) * scrollWidth))
             local maxOffset = contentWidth - viewportWidth
 
-            local currentPercent = maxOffset > 0 and (self.get("offsetX") / maxOffset * 100) or 0
+            local currentPercent = maxOffset > 0 and (self.getResolved("offsetX") / maxOffset * 100) or 0
             local handlePos = math.floor((currentPercent / 100) * (scrollWidth - handleSize)) + 1
 
             if relX >= handlePos and relX < handlePos + handleSize then
@@ -245,11 +245,11 @@ end
 function ScrollFrame:mouse_drag(button, x, y)
     if self._scrollBarDragging then
         local _, relY = self:getRelativePosition(x, y)
-        local height = self.get("height")
-        local contentWidth = self.get("contentWidth")
-        local contentHeight = self.get("contentHeight")
-        local width = self.get("width")
-        local needsHorizontalScrollBar = self.get("showScrollBar") and contentWidth > width
+        local height = self.getResolved("height")
+        local contentWidth = self.getResolved("contentWidth")
+        local contentHeight = self.getResolved("contentHeight")
+        local width = self.getResolved("width")
+        local needsHorizontalScrollBar = self.getResolved("showScrollBar") and contentWidth > width
 
         local viewportHeight = needsHorizontalScrollBar and height - 1 or height
         local scrollHeight = viewportHeight
@@ -268,13 +268,13 @@ function ScrollFrame:mouse_drag(button, x, y)
 
     if self._hScrollBarDragging then
         local relX, _ = self:getRelativePosition(x, y)
-        local width = self.get("width")
-        local contentWidth = self.get("contentWidth")
-        local contentHeight = self.get("contentHeight")
-        local height = self.get("height")
-        local needsHorizontalScrollBar = self.get("showScrollBar") and contentWidth > width
+        local width = self.getResolved("width")
+        local contentWidth = self.getResolved("contentWidth")
+        local contentHeight = self.getResolved("contentHeight")
+        local height = self.getResolved("height")
+        local needsHorizontalScrollBar = self.getResolved("showScrollBar") and contentWidth > width
         local viewportHeight = needsHorizontalScrollBar and height - 1 or height
-        local needsVerticalScrollBar = self.get("showScrollBar") and contentHeight > viewportHeight
+        local needsVerticalScrollBar = self.getResolved("showScrollBar") and contentHeight > viewportHeight
         local viewportWidth = needsVerticalScrollBar and width - 1 or width
         local scrollWidth = viewportWidth
         local handleSize = math.max(1, math.floor((viewportWidth / contentWidth) * scrollWidth))
@@ -325,7 +325,7 @@ end
 --- @protected
 function ScrollFrame:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
-        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local xOffset, yOffset = self.getResolved("offsetX"), self.getResolved("offsetY")
         local relX, relY = self:getRelativePosition(x + xOffset, y + yOffset)
 
         local success, child = self:callChildrenEvent(true, "mouse_scroll", direction, relX, relY)
@@ -333,16 +333,16 @@ function ScrollFrame:mouse_scroll(direction, x, y)
             return true
         end
 
-        local height = self.get("height")
-        local width = self.get("width")
-        local offsetY = self.get("offsetY")
-        local offsetX = self.get("offsetX")
-        local contentWidth = self.get("contentWidth")
-        local contentHeight = self.get("contentHeight")
+        local height = self.getResolved("height")
+        local width = self.getResolved("width")
+        local offsetY = self.getResolved("offsetY")
+        local offsetX = self.getResolved("offsetX")
+        local contentWidth = self.getResolved("contentWidth")
+        local contentHeight = self.getResolved("contentHeight")
 
-        local needsHorizontalScrollBar = self.get("showScrollBar") and contentWidth > width
+        local needsHorizontalScrollBar = self.getResolved("showScrollBar") and contentWidth > width
         local viewportHeight = needsHorizontalScrollBar and height - 1 or height
-        local needsVerticalScrollBar = self.get("showScrollBar") and contentHeight > viewportHeight
+        local needsVerticalScrollBar = self.getResolved("showScrollBar") and contentHeight > viewportHeight
         local viewportWidth = needsVerticalScrollBar and width - 1 or width
 
         if needsVerticalScrollBar then
@@ -366,13 +366,13 @@ end
 function ScrollFrame:render()
     Container.render(self)
 
-    local height = self.get("height")
-    local width = self.get("width")
-    local offsetY = self.get("offsetY")
-    local offsetX = self.get("offsetX")
-    local showScrollBar = self.get("showScrollBar")
-    local contentWidth = self.get("contentWidth")
-    local contentHeight = self.get("contentHeight")
+    local height = self.getResolved("height")
+    local width = self.getResolved("width")
+    local offsetY = self.getResolved("offsetY")
+    local offsetX = self.getResolved("offsetX")
+    local showScrollBar = self.getResolved("showScrollBar")
+    local contentWidth = self.getResolved("contentWidth")
+    local contentHeight = self.getResolved("contentHeight")
     local needsHorizontalScrollBar = showScrollBar and contentWidth > width
     local viewportHeight = needsHorizontalScrollBar and height - 1 or height
     local needsVerticalScrollBar = showScrollBar and contentHeight > viewportHeight
@@ -382,10 +382,10 @@ function ScrollFrame:render()
         local scrollHeight = viewportHeight
         local handleSize = math.max(1, math.floor((viewportHeight / contentHeight) * scrollHeight))
         local maxOffset = contentHeight - viewportHeight
-        local scrollBarBg = self.get("scrollBarBackgroundSymbol")
-        local scrollBarColor = self.get("scrollBarColor")
-        local scrollBarBgColor = self.get("scrollBarBackgroundColor")
-        local scrollBarBg2Color = self.get("scrollBarBackgroundColor2")
+        local scrollBarBg = self.getResolved("scrollBarBackgroundSymbol")
+        local scrollBarColor = self.getResolved("scrollBarColor")
+        local scrollBarBgColor = self.getResolved("scrollBarBackgroundColor")
+        local scrollBarBg2Color = self.getResolved("scrollBarBackgroundColor2")
 
         local currentPercent = maxOffset > 0 and (offsetY / maxOffset * 100) or 0
         local handlePos = math.floor((currentPercent / 100) * (scrollHeight - handleSize)) + 1
@@ -403,10 +403,10 @@ function ScrollFrame:render()
         local scrollWidth = viewportWidth
         local handleSize = math.max(1, math.floor((viewportWidth / contentWidth) * scrollWidth))
         local maxOffset = contentWidth - viewportWidth
-        local scrollBarBg = self.get("scrollBarBackgroundSymbol")
-        local scrollBarColor = self.get("scrollBarColor")
-        local scrollBarBgColor = self.get("scrollBarBackgroundColor")
-        local scrollBarBg2Color = self.get("scrollBarBackgroundColor2")
+        local scrollBarBg = self.getResolved("scrollBarBackgroundSymbol")
+        local scrollBarColor = self.getResolved("scrollBarColor")
+        local scrollBarBgColor = self.getResolved("scrollBarBackgroundColor")
+        local scrollBarBg2Color = self.getResolved("scrollBarBackgroundColor2")
 
         local currentPercent = maxOffset > 0 and (offsetX / maxOffset * 100) or 0
         local handlePos = math.floor((currentPercent / 100) * (scrollWidth - handleSize)) + 1
@@ -421,7 +421,7 @@ function ScrollFrame:render()
     end
 
     if needsVerticalScrollBar and needsHorizontalScrollBar then
-        local background = self.get("background")
+        local background = self.getResolved("background")
         self:blit(width, height, " ", tHex[background], tHex[background])
     end
 end

@@ -80,8 +80,8 @@ function ScrollBar:attach(element, config)
     self.set("maxValue", config.max or 100)
     element:observe(config.property, function(_, value)
         if value then
-            local min = self.get("minValue")
-            local max = self.get("maxValue")
+            local min = self.getResolved("minValue")
+            local max = self.getResolved("maxValue")
             if min == max then return end
             
             self.set("value", math.floor(
@@ -96,28 +96,28 @@ end
 --- @shortDescription Updates the attached element's property based on the ScrollBar value
 --- @return ScrollBar self The ScrollBar instance
 function ScrollBar:updateAttachedElement()
-    local element = self.get("attachedElement")
+    local element = self.getResolved("attachedElement")
     if not element then return end
 
-    local value = self.get("value")
-    local min = self.get("minValue")
-    local max = self.get("maxValue")
+    local value = self.getResolved("value")
+    local min = self.getResolved("minValue")
+    local max = self.getResolved("maxValue")
 
     if type(min) == "function" then min = min() end
     if type(max) == "function" then max = max() end
 
     local mappedValue = min + (value / 100) * (max - min)
-    element.set(self.get("attachedProperty"), math.floor(mappedValue + 0.5))
+    element.set(self.getResolved("attachedProperty"), math.floor(mappedValue + 0.5))
     return self
 end
 
 local function getScrollbarSize(self)
-    return self.get("orientation") == "vertical" and self.get("height") or self.get("width")
+    return self.getResolved("orientation") == "vertical" and self.getResolved("height") or self.getResolved("width")
 end
 
 local function getRelativeScrollPosition(self, x, y)
     local relX, relY = self:getRelativePosition(x, y)
-    return self.get("orientation") == "vertical" and relY or relX
+    return self.getResolved("orientation") == "vertical" and relY or relX
 end
 
 --- @shortDescription Handles mouse click events
@@ -129,8 +129,8 @@ end
 function ScrollBar:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local size = getScrollbarSize(self)
-        local value = self.get("value")
-        local handleSize = self.get("handleSize")
+        local value = self.getResolved("value")
+        local handleSize = self.getResolved("handleSize")
 
         local handlePos = math.floor((value / 100) * (size - handleSize)) + 1
         local relPos = getRelativeScrollPosition(self, x, y)
@@ -155,8 +155,8 @@ end
 function ScrollBar:mouse_drag(button, x, y)
     if(VisualElement.mouse_drag(self, button, x, y))then
         local size = getScrollbarSize(self)
-        local handleSize = self.get("handleSize")
-        local dragMultiplier = self.get("dragMultiplier")
+        local handleSize = self.getResolved("handleSize")
+        local dragMultiplier = self.getResolved("dragMultiplier")
         local relPos = getRelativeScrollPosition(self, x, y)
 
         relPos = math.max(1, math.min(size, relPos))
@@ -179,8 +179,8 @@ end
 function ScrollBar:mouse_scroll(direction, x, y)
     if not self:isInBounds(x, y) then return false end
     direction = direction > 0 and -1 or 1
-    local step = self.get("step")
-    local currentValue = self.get("value")
+    local step = self.getResolved("step")
+    local currentValue = self.getResolved("value")
     local newValue = currentValue - direction * step
 
     self.set("value", math.min(100, math.max(0, newValue)))
@@ -194,21 +194,23 @@ function ScrollBar:render()
     VisualElement.render(self)
 
     local size = getScrollbarSize(self)
-    local value = self.get("value")
-    local handleSize = self.get("handleSize")
-    local symbol = self.get("symbol")
-    local symbolColor = self.get("symbolColor")
-    local symbolBackgroundColor = self.get("symbolBackgroundColor")
-    local bgSymbol = self.get("backgroundSymbol")
-    local isVertical = self.get("orientation") == "vertical"
+    local value = self.getResolved("value")
+    local handleSize = self.getResolved("handleSize")
+    local symbol = self.getResolved("symbol")
+    local symbolColor = self.getResolved("symbolColor")
+    local symbolBackgroundColor = self.getResolved("symbolBackgroundColor")
+    local bgSymbol = self.getResolved("backgroundSymbol")
+    local isVertical = self.getResolved("orientation") == "vertical"
+    local foreground = self.getResolved("foreground")
+    local background = self.getResolved("background")
 
     local handlePos = math.floor((value / 100) * (size - handleSize)) + 1
 
     for i = 1, size do
         if isVertical then
-            self:blit(1, i, bgSymbol, tHex[self.get("foreground")], tHex[self.get("background")])
+            self:blit(1, i, bgSymbol, tHex[foreground], tHex[background])
         else
-            self:blit(i, 1, bgSymbol, tHex[self.get("foreground")], tHex[self.get("background")])
+            self:blit(i, 1, bgSymbol, tHex[foreground], tHex[background])
         end
     end
 

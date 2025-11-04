@@ -154,7 +154,7 @@ end
 --- @param title string The title of the navigation item
 --- @return table tabHandler The navigation item handler proxy for adding elements
 function SideNav:newTab(title)
-    local tabs = self.get("tabs") or {}
+    local tabs = self.getResolved("tabs") or {}
     local tabId = #tabs + 1
 
     table.insert(tabs, {
@@ -164,7 +164,7 @@ function SideNav:newTab(title)
 
     self.set("tabs", tabs)
 
-    if not self.get("activeTab") then
+    if not self.getResolved("activeTab") then
         self.set("activeTab", tabId)
     end
     self:updateTabVisibility()
@@ -215,7 +215,7 @@ end
 --- @return table element The created element
 function SideNav:addElement(elementType, tabId)
     local element = Container.addElement(self, elementType)
-    local targetTab = tabId or self.get("activeTab")
+    local targetTab = tabId or self.getResolved("activeTab")
     if targetTab then
         element._tabId = targetTab
         self:updateTabVisibility()
@@ -230,7 +230,7 @@ end
 function SideNav:addChild(child)
     Container.addChild(self, child)
     if not child._tabId then
-        local tabs = self.get("tabs") or {}
+        local tabs = self.getResolved("tabs") or {}
         if #tabs > 0 then
             child._tabId = 1
             self:updateTabVisibility()
@@ -249,7 +249,7 @@ end
 --- @shortDescription Sets the active navigation item
 --- @param tabId number The ID of the navigation item to activate
 function SideNav:setActiveTab(tabId)
-    local oldTab = self.get("activeTab")
+    local oldTab = self.getResolved("activeTab")
     if oldTab == tabId then return self end
     self.set("activeTab", tabId)
     self:updateTabVisibility()
@@ -266,7 +266,7 @@ function SideNav:isChildVisible(child)
         return false
     end
     if child._tabId then
-        return child._tabId == self.get("activeTab")
+        return child._tabId == self.getResolved("activeTab")
     end
     return true
 end
@@ -280,11 +280,11 @@ function SideNav:getContentXOffset()
 end
 
 function SideNav:_getSidebarMetrics()
-    local tabs = self.get("tabs") or {}
-    local height = self.get("height") or 1
-    local sidebarWidth = self.get("sidebarWidth") or 12
-    local scrollOffset = self.get("sidebarScrollOffset") or 0
-    local sidebarPos = self.get("sidebarPosition") or "left"
+    local tabs = self.getResolved("tabs") or {}
+    local height = self.getResolved("height") or 1
+    local sidebarWidth = self.getResolved("sidebarWidth") or 12
+    local scrollOffset = self.getResolved("sidebarScrollOffset") or 0
+    local sidebarPos = self.getResolved("sidebarPosition") or "left"
 
     local positions = {}
     local actualY = 1
@@ -348,7 +348,7 @@ function SideNav:mouse_click(button, x, y)
 
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
-    local width = self.get("width") or 1
+    local width = self.getResolved("width") or 1
 
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
@@ -373,7 +373,7 @@ end
 
 function SideNav:getRelativePosition(x, y)
     local metrics = self:_getSidebarMetrics()
-    local width = self.get("width") or 1
+    local width = self.getResolved("width") or 1
 
     if x == nil or y == nil then
         return VisualElement.getRelativePosition(self)
@@ -456,7 +456,7 @@ function SideNav:mouse_up(button, x, y)
     end
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
-    local width = self.get("width") or 1
+    local width = self.getResolved("width") or 1
 
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
@@ -475,7 +475,7 @@ function SideNav:mouse_release(button, x, y)
     VisualElement.mouse_release(self, button, x, y)
     local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
     local metrics = self:_getSidebarMetrics()
-    local width = self.get("width") or 1
+    local width = self.getResolved("width") or 1
 
     local inSidebar = false
     if metrics.sidebarPosition == "right" then
@@ -494,7 +494,7 @@ function SideNav:mouse_move(_, x, y)
     if VisualElement.mouse_move(self, _, x, y) then
         local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
         local metrics = self:_getSidebarMetrics()
-        local width = self.get("width") or 1
+        local width = self.getResolved("width") or 1
 
         local inSidebar = false
         if metrics.sidebarPosition == "right" then
@@ -519,7 +519,7 @@ function SideNav:mouse_drag(button, x, y)
     if VisualElement.mouse_drag(self, button, x, y) then
         local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
         local metrics = self:_getSidebarMetrics()
-        local width = self.get("width") or 1
+        local width = self.getResolved("width") or 1
 
         local inSidebar = false
         if metrics.sidebarPosition == "right" then
@@ -542,7 +542,7 @@ end
 --- @return SideNav self For method chaining
 function SideNav:scrollSidebar(direction)
     local metrics = self:_getSidebarMetrics()
-    local currentOffset = self.get("sidebarScrollOffset") or 0
+    local currentOffset = self.getResolved("sidebarScrollOffset") or 0
     local maxScroll = metrics.maxScroll or 0
 
     local newOffset = currentOffset + (direction * 2)
@@ -556,7 +556,7 @@ function SideNav:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local baseRelX, baseRelY = VisualElement.getRelativePosition(self, x, y)
         local metrics = self:_getSidebarMetrics()
-        local width = self.get("width") or 1
+        local width = self.getResolved("width") or 1
 
         local inSidebar = false
         if metrics.sidebarPosition == "right" then
@@ -603,23 +603,25 @@ end
 --- @protected
 function SideNav:render()
     VisualElement.render(self)
-    local height = self.get("height")
+    local height = self.getResolved("height")
+    local foreground = self.getResolved("foreground")
+    local sidebarBackground = self.getResolved("sidebarBackground")
     local metrics = self:_getSidebarMetrics()
     local sidebarW = metrics.sidebarWidth or 12
 
     for y = 1, height do
-        VisualElement.multiBlit(self, 1, y, sidebarW, 1, " ", tHex[self.get("foreground")], tHex[self.get("sidebarBackground")])
+        VisualElement.multiBlit(self, 1, y, sidebarW, 1, " ", tHex[foreground], tHex[sidebarBackground])
     end
 
-    local activeTab = self.get("activeTab")
+    local activeTab = self.getResolved("activeTab")
 
     for _, pos in ipairs(metrics.positions) do
-        local bgColor = (pos.id == activeTab) and self.get("activeTabBackground") or self.get("sidebarBackground")
-        local fgColor = (pos.id == activeTab) and self.get("activeTabTextColor") or self.get("foreground")
+        local bgColor = (pos.id == activeTab) and self.getResolved("activeTabBackground") or sidebarBackground
+        local fgColor = (pos.id == activeTab) and self.getResolved("activeTabTextColor") or foreground
 
         local itemHeight = pos.displayHeight or (pos.y2 - pos.y1 + 1)
         for dy = 0, itemHeight - 1 do
-            VisualElement.multiBlit(self, 1, pos.y1 + dy, sidebarW, 1, " ", tHex[self.get("foreground")], tHex[bgColor])
+            VisualElement.multiBlit(self, 1, pos.y1 + dy, sidebarW, 1, " ", tHex[foreground], tHex[bgColor])
         end
 
         local displayTitle = pos.title
@@ -630,16 +632,16 @@ function SideNav:render()
         VisualElement.textFg(self, 2, pos.y1, displayTitle, fgColor)
     end
 
-    if not self.get("childrenSorted") then
+    if not self.getResolved("childrenSorted") then
         self:sortChildren()
     end
-    if not self.get("childrenEventsSorted") then
+    if not self.getResolved("childrenEventsSorted") then
         for eventName in pairs(self._values.childrenEvents or {}) do
             self:sortChildrenEvents(eventName)
         end
     end
 
-    for _, child in ipairs(self.get("visibleChildren") or {}) do
+    for _, child in ipairs(self.getResolved("visibleChildren") or {}) do
         if child == self then error("CIRCULAR REFERENCE DETECTED!") return end
         child:render()
         child:postRender()

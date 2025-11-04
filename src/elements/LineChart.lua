@@ -53,7 +53,7 @@ local function drawLine(self, x1, y1, x2, y2, symbol, bgColor, fgColor)
         local t = steps == 0 and 0 or i / steps
         local x = math.floor(x1 + dx * t)
         local y = math.floor(y1 + dy * t)
-        if x >= 1 and x <= self.get("width") and y >= 1 and y <= self.get("height") then
+        if x >= 1 and x <= self.getResolved("width") and y >= 1 and y <= self.getResolved("height") then
             self:blit(x, y, symbol, tHex[bgColor], tHex[fgColor])
         end
     end
@@ -64,11 +64,11 @@ end
 function LineChart:render()
     VisualElement.render(self)
 
-    local width = self.get("width")
-    local height = self.get("height")
-    local minVal = self.get("minValue")
-    local maxVal = self.get("maxValue")
-    local series = self.get("series")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local minVal = self.getResolved("minValue")
+    local maxVal = self.getResolved("maxValue")
+    local series = self.getResolved("series")
 
     for _, s in pairs(series) do
         if(s.visible)then

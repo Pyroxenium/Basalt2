@@ -129,7 +129,7 @@ Tree.__index = Tree
 ---@property nodes table {} The tree structure containing node objects with {text, children} properties
 Tree.defineProperty(Tree, "nodes", {default = {}, type = "table", canTriggerRender = true, setter = function(self, value)
     if #value > 0 then
-        self.get("expandedNodes")[value[1]] = true
+        self.getResolved("expandedNodes")[value[1]] = true
     end
     return value
 end})
@@ -210,7 +210,7 @@ end
 --- @param node table The node to expand
 --- @return Tree self The Tree instance
 function Tree:expandNode(node)
-    self.get("expandedNodes")[node] = true
+    self.getResolved("expandedNodes")[node] = true
     self:updateRender()
     return self
 end
@@ -220,7 +220,7 @@ end
 --- @param node table The node to collapse
 --- @return Tree self The Tree instance
 function Tree:collapseNode(node)
-    self.get("expandedNodes")[node] = nil
+    self.getResolved("expandedNodes")[node] = nil
     self:updateRender()
     return self
 end
@@ -230,7 +230,7 @@ end
 --- @param node table The node to toggle
 --- @return Tree self The Tree instance
 function Tree:toggleNode(node)
-    if self.get("expandedNodes")[node] then
+    if self.getResolved("expandedNodes")[node] then
         self:collapseNode(node)
     else
         self:expandNode(node)
@@ -248,10 +248,10 @@ end
 function Tree:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local width = self.get("width")
-        local height = self.get("height")
-        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-        local showScrollBar = self.get("showScrollBar")
+        local width = self.getResolved("width")
+        local height = self.getResolved("height")
+        local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+        local showScrollBar = self.getResolved("showScrollBar")
         local maxContentWidth, _ = self:getNodeSize()
         local needsHorizontalScrollBar = showScrollBar and maxContentWidth > width
         local contentHeight = needsHorizontalScrollBar and height - 1 or height
@@ -262,7 +262,7 @@ function Tree:mouse_click(button, x, y)
             local handleSize = math.max(1, math.floor((contentHeight / #flatNodes) * scrollHeight))
             local maxOffset = #flatNodes - contentHeight
 
-            local currentPercent = maxOffset > 0 and (self.get("offset") / maxOffset * 100) or 0
+            local currentPercent = maxOffset > 0 and (self.getResolved("offset") / maxOffset * 100) or 0
             local handlePos = math.floor((currentPercent / 100) * (scrollHeight - handleSize)) + 1
 
             if relY >= handlePos and relY < handlePos + handleSize then
@@ -281,7 +281,7 @@ function Tree:mouse_click(button, x, y)
             local handleSize = math.max(1, math.floor((contentWidth / maxContentWidth) * contentWidth))
             local maxOffset = maxContentWidth - contentWidth
 
-            local currentPercent = maxOffset > 0 and (self.get("horizontalOffset") / maxOffset * 100) or 0
+            local currentPercent = maxOffset > 0 and (self.getResolved("horizontalOffset") / maxOffset * 100) or 0
             local handlePos = math.floor((currentPercent / 100) * (contentWidth - handleSize)) + 1
 
             if relX >= handlePos and relX < handlePos + handleSize then
@@ -295,7 +295,7 @@ function Tree:mouse_click(button, x, y)
             return true
         end
 
-        local visibleIndex = relY + self.get("offset")
+        local visibleIndex = relY + self.getResolved("offset")
 
         if flatNodes[visibleIndex] then
             local nodeInfo = flatNodes[visibleIndex]
@@ -331,10 +331,10 @@ end
 function Tree:mouse_drag(button, x, y)
     if self._scrollBarDragging then
         local _, relY = self:getRelativePosition(x, y)
-        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-        local height = self.get("height")
+        local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+        local height = self.getResolved("height")
         local maxContentWidth, _ = self:getNodeSize()
-        local needsHorizontalScrollBar = self.get("showScrollBar") and maxContentWidth > self.get("width")
+        local needsHorizontalScrollBar = self.getResolved("showScrollBar") and maxContentWidth > self.getResolved("width")
         local contentHeight = needsHorizontalScrollBar and height - 1 or height
         local scrollHeight = contentHeight
         local handleSize = math.max(1, math.floor((contentHeight / #flatNodes) * scrollHeight))
@@ -352,13 +352,13 @@ function Tree:mouse_drag(button, x, y)
 
     if self._hScrollBarDragging then
         local relX, _ = self:getRelativePosition(x, y)
-        local width = self.get("width")
+        local width = self.getResolved("width")
         local maxContentWidth, _ = self:getNodeSize()
-        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-        local height = self.get("height")
-        local needsHorizontalScrollBar = self.get("showScrollBar") and maxContentWidth > width
+        local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+        local height = self.getResolved("height")
+        local needsHorizontalScrollBar = self.getResolved("showScrollBar") and maxContentWidth > width
         local contentHeight = needsHorizontalScrollBar and height - 1 or height
-        local needsVerticalScrollBar = self.get("showScrollBar") and #flatNodes > contentHeight
+        local needsVerticalScrollBar = self.getResolved("showScrollBar") and #flatNodes > contentHeight
         local contentWidth = needsVerticalScrollBar and width - 1 or width
         local handleSize = math.max(1, math.floor((contentWidth / maxContentWidth) * contentWidth))
         local maxOffset = maxContentWidth - contentWidth
@@ -406,15 +406,15 @@ end
 --- @protected
 function Tree:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
-        local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-        local height = self.get("height")
-        local width = self.get("width")
-        local showScrollBar = self.get("showScrollBar")
+        local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+        local height = self.getResolved("height")
+        local width = self.getResolved("width")
+        local showScrollBar = self.getResolved("showScrollBar")
         local maxContentWidth, _ = self:getNodeSize()
         local needsHorizontalScrollBar = showScrollBar and maxContentWidth > width
         local contentHeight = needsHorizontalScrollBar and height - 1 or height
         local maxScroll = math.max(0, #flatNodes - contentHeight)
-        local newScroll = math.min(maxScroll, math.max(0, self.get("offset") + direction))
+        local newScroll = math.min(maxScroll, math.max(0, self.getResolved("offset") + direction))
 
         self.set("offset", newScroll)
         return true
@@ -428,8 +428,8 @@ end
 --- @return number height The height of the tree
 function Tree:getNodeSize()
     local width, height = 0, 0
-    local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-    local expandedNodes = self.get("expandedNodes")
+    local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+    local expandedNodes = self.getResolved("expandedNodes")
 
     for _, nodeInfo in ipairs(flatNodes) do
         local node = nodeInfo.node
@@ -453,14 +453,14 @@ end
 function Tree:render()
     VisualElement.render(self)
 
-    local flatNodes = flattenTree(self.get("nodes"), self.get("expandedNodes"))
-    local height = self.get("height")
-    local width = self.get("width")
-    local selectedNode = self.get("selectedNode")
-    local expandedNodes = self.get("expandedNodes")
-    local offset = self.get("offset")
-    local horizontalOffset = self.get("horizontalOffset")
-    local showScrollBar = self.get("showScrollBar")
+    local flatNodes = flattenTree(self.getResolved("nodes"), self.getResolved("expandedNodes"))
+    local height = self.getResolved("height")
+    local width = self.getResolved("width")
+    local selectedNode = self.getResolved("selectedNode")
+    local expandedNodes = self.getResolved("expandedNodes")
+    local offset = self.getResolved("offset")
+    local horizontalOffset = self.getResolved("horizontalOffset")
+    local showScrollBar = self.getResolved("showScrollBar")
     local maxContentWidth, _ = self:getNodeSize()
     local needsHorizontalScrollBar = showScrollBar and maxContentWidth > width
     local contentHeight = needsHorizontalScrollBar and height - 1 or height
@@ -480,8 +480,8 @@ function Tree:render()
             end
 
             local isSelected = node == selectedNode
-            local _bg = isSelected and self.get("selectedBackgroundColor") or (node.background or node.bg or self.get("background"))
-            local _fg = isSelected and self.get("selectedForegroundColor") or (node.foreground or node.fg or self.get("foreground"))
+            local _bg = isSelected and self.getResolved("selectedBackgroundColor") or (node.background or node.bg or self.getResolved("background"))
+            local _fg = isSelected and self.getResolved("selectedForegroundColor") or (node.foreground or node.fg or self.getResolved("foreground"))
 
             local fullText = indent .. symbol .. " " .. (node.text or "Node")
             local text = sub(fullText, horizontalOffset + 1, horizontalOffset + contentWidth)
@@ -492,7 +492,7 @@ function Tree:render()
 
             self:blit(1, y, paddedText, fg, bg)
         else
-            self:blit(1, y, string.rep(" ", contentWidth), tHex[self.get("foreground")]:rep(contentWidth), tHex[self.get("background")]:rep(contentWidth))
+            self:blit(1, y, string.rep(" ", contentWidth), tHex[self.getResolved("foreground")]:rep(contentWidth), tHex[self.getResolved("background")]:rep(contentWidth))
         end
     end
 
@@ -537,7 +537,7 @@ function Tree:render()
     end
 
     if needsVerticalScrollBar and needsHorizontalScrollBar then
-        self:blit(width, height, " ", tHex[foreground], tHex[self.get("background")])
+        self:blit(width, height, " ", tHex[foreground], tHex[self.getResolved("background")])
     end
 end
 

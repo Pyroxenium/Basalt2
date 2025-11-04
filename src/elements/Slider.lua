@@ -59,9 +59,9 @@ end
 --- @return number value The current value (0 to max)
 --- @usage local value = slider:getValue()
 function Slider:getValue()
-    local step = self.get("step")
-    local max = self.get("max")
-    local maxSteps = self.get("horizontal") and self.get("width") or self.get("height")
+    local step = self.getResolved("step")
+    local max = self.getResolved("max")
+    local maxSteps = self.getResolved("horizontal") and self.getResolved("width") or self.getResolved("height")
     return math.floor((step - 1) * (max / (maxSteps - 1)))
 end
 
@@ -74,8 +74,8 @@ end
 function Slider:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local pos = self.get("horizontal") and relX or relY
-        local maxSteps = self.get("horizontal") and self.get("width") or self.get("height")
+        local pos = self.getResolved("horizontal") and relX or relY
+        local maxSteps = self.getResolved("horizontal") and self.getResolved("width") or self.getResolved("height")
 
         self.set("step", math.min(maxSteps, math.max(1, pos)))
         self:updateRender()
@@ -93,8 +93,8 @@ Slider.mouse_drag = Slider.mouse_click
 --- @protected
 function Slider:mouse_scroll(direction, x, y)
     if self:isInBounds(x, y) then
-        local step = self.get("step")
-        local maxSteps = self.get("horizontal") and self.get("width") or self.get("height")
+        local step = self.getResolved("step")
+        local maxSteps = self.getResolved("horizontal") and self.getResolved("width") or self.getResolved("height")
         self.set("step", math.min(maxSteps, math.max(1, step + direction)))
         self:updateRender()
         return true
@@ -106,23 +106,23 @@ end
 --- @protected
 function Slider:render()
     VisualElement.render(self)
-    local width = self.get("width")
-    local height = self.get("height")
-    local horizontal = self.get("horizontal")
-    local step = self.get("step")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local horizontal = self.getResolved("horizontal")
+    local step = self.getResolved("step")
 
     local barChar = horizontal and "\140" or " "
     local text = string.rep(barChar, horizontal and width or height)
 
     if horizontal then
-        self:textFg(1, 1, text, self.get("barColor"))
-        self:textBg(step, 1, " ", self.get("sliderColor"))
+        self:textFg(1, 1, text, self.getResolved("barColor"))
+        self:textBg(step, 1, " ", self.getResolved("sliderColor"))
     else
-        local bg = self.get("background")
+        local bg = self.getResolved("background")
         for y = 1, height do
             self:textBg(1, y, " ", bg)
         end
-        self:textBg(1, step, " ", self.get("sliderColor"))
+        self:textBg(1, step, " ", self.getResolved("sliderColor"))
     end
 end
 

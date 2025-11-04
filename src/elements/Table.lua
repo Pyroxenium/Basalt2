@@ -70,7 +70,7 @@ Table.defineProperty(Table, "offset", {
     type = "number",
     canTriggerRender = true,
     setter = function(self, value)
-        local maxOffset = math.max(0, #self.get("items") - (self.get("height") - 1))
+        local maxOffset = math.max(0, #self.getResolved("items") - (self.getResolved("height") - 1))
         return math.min(maxOffset, math.max(0, value))
     end
 })
@@ -127,8 +127,8 @@ function Table:init(props, basalt)
     self.set("type", "Table")
 
     self:observe("sortColumn", function()
-        if self.get("sortColumn") then
-            self:sortByColumn(self.get("sortColumn"))
+        if self.getResolved("sortColumn") then
+            self:sortByColumn(self.getResolved("sortColumn"))
         end
     end)
 
@@ -155,7 +155,7 @@ end
 --- @param rowIndex number The index of the row to remove
 --- @return Table self The Table instance
 function Table:removeRow(rowIndex)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     if items[rowIndex] then
         table.remove(items, rowIndex)
         self.set("items", items)
@@ -168,7 +168,7 @@ end
 --- @param rowIndex number The index of the row
 --- @return table? row The row data or nil
 function Table:getRow(rowIndex)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     return items[rowIndex]
 end
 
@@ -179,7 +179,7 @@ end
 --- @param value any The new value
 --- @return Table self The Table instance
 function Table:updateCell(rowIndex, colIndex, value)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     if items[rowIndex] and items[rowIndex].cells then
         items[rowIndex].cells[colIndex] = value
         self.set("items", items)
@@ -191,7 +191,7 @@ end
 --- @shortDescription Gets the currently selected row data
 --- @return table? row The selected row or nil
 function Table:getSelectedRow()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     for _, item in ipairs(items) do
         local isSelected = item._data and item._data.selected or item.selected
         if isSelected then
@@ -215,7 +215,7 @@ end
 --- @param width number|string The width of the column (number, "auto", or "30%")
 --- @return Table self The Table instance
 function Table:addColumn(name, width)
-    local columns = self.get("columns")
+    local columns = self.getResolved("columns")
     table.insert(columns, {name = name, width = width})
     self.set("columns", columns)
     return self
@@ -227,7 +227,7 @@ end
 --- @param sortFn function Function that takes (rowA, rowB) and returns comparison result
 --- @return Table self The Table instance
 function Table:setColumnSortFunction(columnIndex, sortFn)
-    local customSorts = self.get("customSortFunction")
+    local customSorts = self.getResolved("customSortFunction")
     customSorts[columnIndex] = sortFn
     self.set("customSortFunction", customSorts)
     return self
@@ -270,7 +270,7 @@ end
 --- @shortDescription Gets all rows as array of cell arrays
 --- @return table data Array of row cell arrays
 function Table:getData()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     local data = {}
 
     for _, item in ipairs(items) do
@@ -359,9 +359,9 @@ end
 --- @param fn function? Optional custom sorting function
 --- @return Table self The Table instance
 function Table:sortByColumn(columnIndex, fn)
-    local items = self.get("items")
-    local direction = self.get("sortDirection")
-    local customSorts = self.get("customSortFunction")
+    local items = self.getResolved("items")
+    local direction = self.getResolved("sortDirection")
+    local customSorts = self.getResolved("customSortFunction")
 
     local sortFn = fn or customSorts[columnIndex]
 
@@ -429,10 +429,10 @@ function Table:mouse_click(button, x, y)
     if not Collection.mouse_click(self, button, x, y) then return false end
 
     local relX, relY = self:getRelativePosition(x, y)
-    local width = self.get("width")
-    local height = self.get("height")
-    local items = self.get("items")
-    local showScrollBar = self.get("showScrollBar")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local items = self.getResolved("items")
+    local showScrollBar = self.getResolved("showScrollBar")
     local visibleRows = height - 1
 
     if showScrollBar and #items > visibleRows and relX == width and relY > 1 then
@@ -440,7 +440,7 @@ function Table:mouse_click(button, x, y)
         local maxOffset = #items - visibleRows
         local handleSize = math.max(1, math.floor((visibleRows / #items) * scrollBarHeight))
 
-        local currentPercent = maxOffset > 0 and (self.get("offset") / maxOffset * 100) or 0
+        local currentPercent = maxOffset > 0 and (self.getResolved("offset") / maxOffset * 100) or 0
         local handlePos = math.floor((currentPercent / 100) * (scrollBarHeight - handleSize)) + 1
 
         local scrollBarRelY = relY - 1
@@ -457,15 +457,15 @@ function Table:mouse_click(button, x, y)
     end
 
     if relY == 1 then
-        local columns = self.get("columns")
+        local columns = self.getResolved("columns")
         local calculatedColumns = self:calculateColumnWidths(columns, width)
 
         local currentX = 1
         for i, col in ipairs(calculatedColumns) do
             local colWidth = col.visibleWidth or col.width or 10
             if relX >= currentX and relX < currentX + colWidth then
-                if self.get("sortColumn") == i then
-                    self.set("sortDirection", self.get("sortDirection") == "asc" and "desc" or "asc")
+                if self.getResolved("sortColumn") == i then
+                    self.set("sortDirection", self.getResolved("sortDirection") == "asc" and "desc" or "asc")
                 else
                     self.set("sortColumn", i)
                     self.set("sortDirection", "asc")
@@ -480,7 +480,7 @@ function Table:mouse_click(button, x, y)
     end
 
     if relY > 1 then
-        local rowIndex = relY - 2 + self.get("offset")
+        local rowIndex = relY - 2 + self.getResolved("offset")
 
         if rowIndex >= 0 and rowIndex < #items then
             local actualIndex = rowIndex + 1
@@ -514,8 +514,8 @@ end
 function Table:mouse_drag(button, x, y)
     if self._scrollBarDragging then
         local _, relY = self:getRelativePosition(x, y)
-        local items = self.get("items")
-        local height = self.get("height")
+        local items = self.getResolved("items")
+        local height = self.getResolved("height")
         local visibleRows = height - 1
         local scrollBarHeight = height - 1
         local handleSize = math.max(1, math.floor((visibleRows / #items) * scrollBarHeight))
@@ -549,11 +549,11 @@ end
 --- @protected
 function Table:mouse_scroll(direction, x, y)
     if Collection.mouse_scroll(self, direction, x, y) then
-        local items = self.get("items")
-        local height = self.get("height")
+        local items = self.getResolved("items")
+        local height = self.getResolved("height")
         local visibleRows = height - 1  -- Subtract header
         local maxOffset = math.max(0, #items - visibleRows)
-        local newOffset = math.min(maxOffset, math.max(0, self.get("offset") + direction))
+        local newOffset = math.min(maxOffset, math.max(0, self.getResolved("offset") + direction))
 
         self.set("offset", newOffset)
         self:updateRender()
@@ -570,9 +570,11 @@ function Table:render()
     local items = self.getResolved("items")
     local sortCol = self.getResolved("sortColumn")
     local offset = self.getResolved("offset")
-    local height = self.get("height")
-    local width = self.get("width")
+    local height = self.getResolved("height")
+    local width = self.getResolved("width")
     local showScrollBar = self.getResolved("showScrollBar")
+    local background = self.getResolved("background")
+    local foreground = self.getResolved("foreground")
     local visibleRows = height - 1
 
     local needsScrollBar = showScrollBar and #items > visibleRows
@@ -595,14 +597,14 @@ function Table:render()
         if i > lastVisibleColumn then break end
         local text = col.name
         if i == sortCol then
-            text = text .. (self.get("sortDirection") == "asc" and "\30" or "\31")
+            text = text .. (self.getResolved("sortDirection") == "asc" and "\30" or "\31")
         end
-        self:textFg(currentX, 1, text:sub(1, col.visibleWidth), self.get("headerColor"))
+        self:textFg(currentX, 1, text:sub(1, col.visibleWidth), self.getResolved("headerColor"))
         currentX = currentX + col.visibleWidth
     end
 
     if currentX <= contentWidth then
-        self:textBg(currentX, 1, string.rep(" ", contentWidth - currentX + 1), self.get("background"))
+        self:textBg(currentX, 1, string.rep(" ", contentWidth - currentX + 1), background)
     end
 
     for y = 2, height do
@@ -615,7 +617,7 @@ function Table:render()
 
             if cells then
                 currentX = 1
-                local bg = isSelected and self.get("selectedBackground") or self.get("background")
+                local bg = isSelected and self.getResolved("selectedBackground") or background
 
                 for i, col in ipairs(calculatedColumns) do
                     if i > lastVisibleColumn then break end
@@ -625,7 +627,7 @@ function Table:render()
                         paddedText = string.sub(paddedText, 1, col.visibleWidth - 1) .. " "
                     end
                     local finalText = string.sub(paddedText, 1, col.visibleWidth)
-                    local finalForeground = string.rep(tHex[self.get("foreground")], col.visibleWidth)
+                    local finalForeground = string.rep(tHex[foreground], col.visibleWidth)
                     local finalBackground = string.rep(tHex[bg], col.visibleWidth)
 
                     self:blit(currentX, y, finalText, finalForeground, finalBackground)
@@ -638,8 +640,8 @@ function Table:render()
             end
         else
             self:blit(1, y, string.rep(" ", contentWidth),
-                string.rep(tHex[self.get("foreground")], contentWidth),
-                string.rep(tHex[self.get("background")], contentWidth))
+                string.rep(tHex[foreground], contentWidth),
+                string.rep(tHex[background], contentWidth))
         end
     end
 
@@ -655,7 +657,6 @@ function Table:render()
         local scrollBarBg = self.getResolved("scrollBarBackground")
         local scrollBarColor = self.getResolved("scrollBarColor")
         local scrollBarBgColor = self.getResolved("scrollBarBackgroundColor")
-        local foreground = self.getResolved("foreground")
 
         for i = 2, height do
             self:blit(width, i, scrollBarBg, tHex[foreground], tHex[scrollBarBgColor])

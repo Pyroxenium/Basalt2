@@ -53,7 +53,7 @@ end
 --- @protected
 function Switch:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
-        self.set("checked", not self.get("checked"))
+        self.set("checked", not self.getResolved("checked"))
         return true
     end
     return false
@@ -62,20 +62,21 @@ end
 --- @shortDescription Renders the Switch
 --- @protected
 function Switch:render()
-    local checked = self.get("checked")
-    local text = self.get("text")
-    local switchWidth = self.get("width")
-    local switchHeight = self.get("height")
+    local checked = self.getResolved("checked")
+    local text = self.getResolved("text")
+    local switchWidth = self.getResolved("width")
+    local switchHeight = self.getResolved("height")
+    local foreground = self.getResolved("foreground")
 
-    local bgColor = checked and self.get("onBackground") or self.get("offBackground")
-    self:multiBlit(1, 1, switchWidth, switchHeight, " ", tHex[self.get("foreground")], tHex[bgColor])
+    local bgColor = checked and self.getResolved("onBackground") or self.getResolved("offBackground")
+    self:multiBlit(1, 1, switchWidth, switchHeight, " ", tHex[foreground], tHex[bgColor])
 
     local sliderSize = math.floor(switchWidth / 2)
     local sliderStart = checked and (switchWidth - sliderSize + 1) or 1
-    self:multiBlit(sliderStart, 1, sliderSize, switchHeight, " ", tHex[self.get("foreground")], tHex[self.get("background")])
+    self:multiBlit(sliderStart, 1, sliderSize, switchHeight, " ", tHex[foreground], tHex[self.getResolved("background")])
 
     if text ~= "" then
-        self:textFg(switchWidth + 2, 1, text, self.get("foreground"))
+        self:textFg(switchWidth + 2, 1, text, foreground)
     end
 end
 

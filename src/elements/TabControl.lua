@@ -155,7 +155,7 @@ end
 --- @param title string The title of the tab
 --- @return table tabHandler The tab handler proxy for adding elements to the new tab
 function TabControl:newTab(title)
-    local tabs = self.get("tabs") or {}
+    local tabs = self.getResolved("tabs") or {}
     local tabId = #tabs + 1
 
     table.insert(tabs, {
@@ -165,7 +165,7 @@ function TabControl:newTab(title)
 
     self.set("tabs", tabs)
 
-    if not self.get("activeTab") then
+    if not self.getResolved("activeTab") then
         self.set("activeTab", tabId)
     end
     self:updateTabVisibility()
@@ -216,7 +216,7 @@ end
 --- @return table element The created element
 function TabControl:addElement(elementType, tabId)
     local element = Container.addElement(self, elementType)
-    local targetTab = tabId or self.get("activeTab")
+    local targetTab = tabId or self.getResolved("activeTab")
     if targetTab then
         element._tabId = targetTab
     self:updateTabVisibility()
@@ -231,7 +231,7 @@ end
 function TabControl:addChild(child)
     Container.addChild(self, child)
     if not child._tabId then
-        local tabs = self.get("tabs") or {}
+        local tabs = self.getResolved("tabs") or {}
         if #tabs > 0 then
             child._tabId = 1
             self:updateTabVisibility()
@@ -250,7 +250,7 @@ end
 --- @shortDescription Sets the active tab
 --- @param tabId number The ID of the tab to activate
 function TabControl:setActiveTab(tabId)
-    local oldTab = self.get("activeTab")
+    local oldTab = self.getResolved("activeTab")
     if oldTab == tabId then return self end
     self.set("activeTab", tabId)
     self:updateTabVisibility()
@@ -267,7 +267,7 @@ function TabControl:isChildVisible(child)
         return false
     end
     if child._tabId then
-        return child._tabId == self.get("activeTab")
+        return child._tabId == self.getResolved("activeTab")
     end
     return true
 end
@@ -281,15 +281,15 @@ function TabControl:getContentYOffset()
 end
 
 function TabControl:_getHeaderMetrics()
-    local tabs = self.get("tabs") or {}
-    local width = self.get("width") or 1
-    local minTabH = self.get("tabHeight") or 1
-    local scrollable = self.get("scrollableTab")
+    local tabs = self.getResolved("tabs") or {}
+    local width = self.getResolved("width") or 1
+    local minTabH = self.getResolved("tabHeight") or 1
+    local scrollable = self.getResolved("scrollableTab")
 
     local positions = {}
 
     if scrollable then
-        local scrollOffset = self.get("tabScrollOffset") or 0
+        local scrollOffset = self.getResolved("tabScrollOffset") or 0
         local actualX = 1
         local totalWidth = 0
 
@@ -500,10 +500,10 @@ end
 --- @param direction number -1 to scroll left, 1 to scroll right
 --- @return TabControl self For method chaining
 function TabControl:scrollTabs(direction)
-    if not self.get("scrollableTab") then return self end
+    if not self.getResolved("scrollableTab") then return self end
 
     local metrics = self:_getHeaderMetrics()
-    local currentOffset = self.get("tabScrollOffset") or 0
+    local currentOffset = self.getResolved("tabScrollOffset") or 0
     local maxScroll = metrics.maxScroll or 0
 
     local newOffset = currentOffset + (direction * 5)
@@ -517,7 +517,7 @@ function TabControl:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local headerH = self:_getHeaderMetrics().headerHeight
 
-        if self.get("scrollableTab") and y == self.get("y") then
+        if self.getResolved("scrollableTab") and y == self.getResolved("y") then
             self:scrollTabs(direction)
             return true
         end
@@ -549,18 +549,20 @@ end
 --- @protected
 function TabControl:render()
     VisualElement.render(self)
-    local width = self.get("width")
+    local width = self.getResolved("width")
+    local foreground = self.getResolved("foreground")
+    local headerBackground = self.getResolved("headerBackground")
     local metrics = self:_getHeaderMetrics()
     local headerH = metrics.headerHeight or 1
 
-    VisualElement.multiBlit(self, 1, 1, width, headerH, " ", tHex[self.get("foreground")], tHex[self.get("headerBackground")])
-    local activeTab = self.get("activeTab")
+    VisualElement.multiBlit(self, 1, 1, width, headerH, " ", tHex[foreground], tHex[headerBackground])
+    local activeTab = self.getResolved("activeTab")
 
     for _, pos in ipairs(metrics.positions) do
-        local bgColor = (pos.id == activeTab) and self.get("activeTabBackground") or self.get("headerBackground")
-        local fgColor = (pos.id == activeTab) and self.get("activeTabTextColor") or self.get("foreground")
+        local bgColor = (pos.id == activeTab) and self.getResolved("activeTabBackground") or headerBackground
+        local fgColor = (pos.id == activeTab) and self.getResolved("activeTabTextColor") or foreground
 
-        VisualElement.multiBlit(self, pos.x1, pos.line, pos.displayWidth or (pos.x2 - pos.x1 + 1), 1, " ", tHex[self.get("foreground")], tHex[bgColor])
+        VisualElement.multiBlit(self, pos.x1, pos.line, pos.displayWidth or (pos.x2 - pos.x1 + 1), 1, " ", tHex[foreground], tHex[bgColor])
 
         local displayTitle = pos.title
         local textStartInTitle = 1 + (pos.startClip or 0)
@@ -576,16 +578,16 @@ function TabControl:render()
         end
     end
 
-    if not self.get("childrenSorted") then
+    if not self.getResolved("childrenSorted") then
         self:sortChildren()
     end
-    if not self.get("childrenEventsSorted") then
+    if not self.getResolved("childrenEventsSorted") then
         for eventName in pairs(self._values.childrenEvents or {}) do
             self:sortChildrenEvents(eventName)
         end
     end
 
-    for _, child in ipairs(self.get("visibleChildren") or {}) do
+    for _, child in ipairs(self.getResolved("visibleChildren") or {}) do
         if child == self then error("CIRCULAR REFERENCE DETECTED!") return end
         child:render()
         child:postRender()

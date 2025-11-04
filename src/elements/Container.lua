@@ -121,8 +121,8 @@ function Container:isChildVisible(child)
     if not child:isType("VisualElement") then return false end
     if(child.get("visible") == false)then return false end
     if(child._destroyed)then return false end
-    local containerW, containerH = self.get("width"), self.get("height")
-    local offsetX, offsetY = self.get("offsetX"), self.get("offsetY")
+    local containerW, containerH = self.getResolved("width"), self.getResolved("height")
+    local offsetX, offsetY = self.getResolved("offsetX"), self.getResolved("offsetY")
 
     local childX, childY = child.get("x"), child.get("y")
     local childW, childH = child.get("width"), child.get("height")
@@ -353,7 +353,7 @@ local function convertMousePosition(self, event, ...)
     local args = {...}
     if event and event:find("mouse_") then
         local button, absX, absY = ...
-        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local xOffset, yOffset = self.getResolved("offsetX"), self.getResolved("offsetY")
         local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
         args = {button, relX, relY}
     end
@@ -368,13 +368,13 @@ end
 --- @return boolean handled Whether the event was handled
 --- @return table? child The child that handled the event
 function Container:callChildrenEvent(visibleOnly, event, ...)
-    if visibleOnly and not self.get("childrenEventsSorted") then
+    if visibleOnly and not self.getResolved("childrenEventsSorted") then
         for evt in pairs(self._values.childrenEvents) do
             self:sortChildrenEvents(evt)
         end
     end
 
-    local children = visibleOnly and self.get("visibleChildrenEvents") or self.get("childrenEvents")
+    local children = visibleOnly and self.getResolved("visibleChildrenEvents") or self.getResolved("childrenEvents")
     if children[event] then
         local events = children[event]
         for i = #events, 1, -1 do
@@ -510,8 +510,8 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Container:key(key)
-    if self.get("focusedChild") then
-        return self.get("focusedChild"):dispatchEvent("key", key)
+    if self.getResolved("focusedChild") then
+        return self.getResolved("focusedChild"):dispatchEvent("key", key)
     end
     return true
 end
@@ -521,8 +521,8 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Container:char(char)
-    if self.get("focusedChild") then
-        return self.get("focusedChild"):dispatchEvent("char", char)
+    if self.getResolved("focusedChild") then
+        return self.getResolved("focusedChild"):dispatchEvent("char", char)
     end
     return true
 end
@@ -532,8 +532,8 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function Container:key_up(key)
-    if self.get("focusedChild") then
-        return self.get("focusedChild"):dispatchEvent("key_up", key)
+    if self.getResolved("focusedChild") then
+        return self.getResolved("focusedChild"):dispatchEvent("key_up", key)
     end
     return true
 end
@@ -549,7 +549,7 @@ end
 --- @return Container self The container instance
 --- @protected
 function Container:multiBlit(x, y, width, height, text, fg, bg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     width = x < 1 and math.min(width + x - 1, w) or math.min(width, math.max(0, w - x + 1))
     height = y < 1 and math.min(height + y - 1, h) or math.min(height, math.max(0, h - y + 1))
@@ -568,7 +568,7 @@ end
 --- @return Container self The container instance
 --- @protected
 function Container:textFg(x, y, text, fg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -589,7 +589,7 @@ end
 --- @return Container self The container instance
 --- @protected
 function Container:textBg(x, y, text, bg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -603,7 +603,7 @@ function Container:textBg(x, y, text, bg)
 end
 
 function Container:drawText(x, y, text)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -617,7 +617,7 @@ function Container:drawText(x, y, text)
 end
 
 function Container:drawFg(x, y, fg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -630,7 +630,7 @@ function Container:drawFg(x, y, fg)
 end
 
 function Container:drawBg(x, y, bg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -651,7 +651,7 @@ end
 --- @return Container self The container instance
 --- @protected
 function Container:blit(x, y, text, fg, bg)
-    local w, h = self.get("width"), self.get("height")
+    local w, h = self.getResolved("width"), self.getResolved("height")
 
     if y < 1 or y > h then return self end
 
@@ -674,15 +674,15 @@ end
 --- @protected
 function Container:render()
     VisualElement.render(self)
-    if not self.get("childrenSorted")then
+    if not self.getResolved("childrenSorted")then
         self:sortChildren()
     end
-    if not self.get("childrenEventsSorted")then
+    if not self.getResolved("childrenEventsSorted")then
         for event in pairs(self._values.childrenEvents) do
             self:sortChildrenEvents(event)
         end
     end
-    for _, child in ipairs(self.get("visibleChildren")) do
+    for _, child in ipairs(self.getResolved("visibleChildren")) do
         if child == self then
             errorManager.error("CIRCULAR REFERENCE DETECTED!")
             return

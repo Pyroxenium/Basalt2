@@ -54,11 +54,11 @@ end
 function BarChart:render()
     VisualElement.render(self)
 
-    local width = self.get("width")
-    local height = self.get("height")
-    local minVal = self.get("minValue")
-    local maxVal = self.get("maxValue")
-    local series = self.get("series")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local minVal = self.getResolved("minValue")
+    local maxVal = self.getResolved("maxValue")
+    local series = self.getResolved("series")
 
     local activeSeriesCount = 0
     local seriesList = {}

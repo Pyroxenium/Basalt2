@@ -44,10 +44,10 @@ end
 --- @param y number
 --- @return boolean handled
 function Breadcrumb:mouse_click(button, x, y)
-    if not self.get("clickable") then return false end
+    if not self.getResolved("clickable") then return false end
         if VisualElement.mouse_click(self, button, x, y) then
-        local path = self.get("path")
-        local separator = self.get("separator")
+        local path = self.getResolved("path")
+        local separator = self.getResolved("separator")
 
         local cursorX = 1
         for i, segment in ipairs(path) do
@@ -81,11 +81,11 @@ end
 --- @shortDescription Renders the breadcrumb trail
 --- @protected
 function Breadcrumb:render()
-    local path = self.get("path")
-    local separator = self.get("separator")
-    local fg = self.get("foreground")
-    local clickable = self.get("clickable")
-    local width = self.get("width")
+    local path = self.getResolved("path")
+    local separator = self.getResolved("separator")
+    local fg = self.getResolved("foreground")
+    local clickable = self.getResolved("clickable")
+    local width = self.getResolved("width")
 
     local fullText = ""
     for i, segment in ipairs(path) do
@@ -95,8 +95,8 @@ function Breadcrumb:render()
         end
     end
 
-    if self.get("autoSize") then
-        self.set("width", #fullText)
+    if self.getResolved("autoSize") then
+        self.getResolved("width", #fullText)
     else
         if #fullText > width then
             local ellipsis = "... > "

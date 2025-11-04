@@ -28,7 +28,7 @@ Menu.defineProperty(Menu, "horizontalOffset", {
     type = "number",
     canTriggerRender = true,
     setter = function(self, value)
-        local maxOffset = math.max(0, self:getTotalWidth() - self.get("width"))
+        local maxOffset = math.max(0, self:getTotalWidth() - self.getResolved("width"))
         return math.min(maxOffset, math.max(0, value))
     end
 })
@@ -59,7 +59,7 @@ function Menu:init(props, basalt)
     self.set("type", "Menu")
 
     self:observe("items", function()
-        local maxWidth = self.get("maxWidth")
+        local maxWidth = self.getResolved("maxWidth")
         if maxWidth then
             self.set("width", math.min(maxWidth, self:getTotalWidth()), true)
         else
@@ -74,8 +74,8 @@ end
 --- @shortDescription Calculates total width of menu items
 --- @return number totalWidth The total width of all items
 function Menu:getTotalWidth()
-    local items = self.get("items")
-    local spacing = self.get("spacing")
+    local items = self.getResolved("items")
+    local spacing = self.getResolved("spacing")
     local totalWidth = 0
 
     for i, item in ipairs(items) do
@@ -97,10 +97,10 @@ end
 --- @protected
 function Menu:render()
     VisualElement.render(self)
-    local viewportWidth = self.get("width")
-    local spacing = self.get("spacing")
-    local offset = self.get("horizontalOffset")
-    local items = self.get("items")
+    local viewportWidth = self.getResolved("width")
+    local spacing = self.getResolved("spacing")
+    local offset = self.getResolved("horizontalOffset")
+    local items = self.getResolved("items")
 
     local itemPositions = {}
     local currentX = 1
@@ -143,13 +143,13 @@ function Menu:render()
 
             if #visibleText > 0 then
                 local isSelected = item.selected
-                local fg = item.selectable == false and self.get("separatorColor") or
-                    (isSelected and (item.selectedForeground or self.get("selectedForeground")) or
-                    (item.foreground or self.get("foreground")))
+                local fg = item.selectable == false and self.getResolved("separatorColor") or
+                    (isSelected and (item.selectedForeground or self.getResolved("selectedForeground")) or
+                    (item.foreground or self.getResolved("foreground")))
 
                 local bg = isSelected and
-                    (item.selectedBackground or self.get("selectedBackground")) or
-                    (item.background or self.get("background"))
+                    (item.selectedBackground or self.getResolved("selectedBackground")) or
+                    (item.background or self.getResolved("background"))
 
                 self:blit(visibleStart, 1, visibleText,
                     string.rep(tHex[fg], #visibleText),
@@ -168,8 +168,8 @@ function Menu:render()
                     if spacingWidth > 0 then
                         local spacingText = string.rep(" ", spacingWidth)
                         self:blit(visibleSpacingStart, 1, spacingText,
-                            string.rep(tHex[self.get("foreground")], spacingWidth),
-                            string.rep(tHex[self.get("background")], spacingWidth))
+                            string.rep(tHex[self.getResolved("foreground")], spacingWidth),
+                            string.rep(tHex[self.getResolved("background")], spacingWidth))
                     end
                 end
             end
@@ -181,11 +181,11 @@ end
 --- @protected
 function Menu:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
-    if(self.get("selectable") == false) then return false end
+    if(self.getResolved("selectable") == false) then return false end
     local relX = select(1, self:getRelativePosition(x, y))
-    local offset = self.get("horizontalOffset")
-    local spacing = self.get("spacing")
-    local items = self.get("items")
+    local offset = self.getResolved("horizontalOffset")
+    local spacing = self.getResolved("spacing")
+    local items = self.getResolved("items")
 
     local virtualX = relX + offset
     local currentX = 1
@@ -200,7 +200,7 @@ function Menu:mouse_click(button, x, y)
                     items[i] = item
                 end
 
-                if not self.get("multiSelection") then
+                if not self.getResolved("multiSelection") then
                     for _, otherItem in ipairs(items) do
                         if type(otherItem) == "table" then
                             otherItem.selected = false
@@ -230,8 +230,8 @@ end
 --- @protected
 function Menu:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
-        local offset = self.get("horizontalOffset")
-        local maxOffset = math.max(0, self:getTotalWidth() - self.get("width"))
+        local offset = self.getResolved("horizontalOffset")
+        local maxOffset = math.max(0, self:getTotalWidth() - self.getResolved("width"))
 
         offset = math.min(maxOffset, math.max(0, offset + (direction * 3)))
         self.set("horizontalOffset", offset)

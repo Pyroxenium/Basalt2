@@ -53,7 +53,7 @@ end
 --- @param height number The new height of the image
 --- @return Image self The Image instance
 function Image:resizeImage(width, height)
-    local frames = self.get("bimg")
+    local frames = self.getResolved("bimg")
 
     for frameIndex, frame in ipairs(frames) do
         local newFrame = {}
@@ -86,7 +86,7 @@ end
 --- @return number width The width of the image
 --- @return number height The height of the image
 function Image:getImageSize()
-    local bimg = self.get("bimg")
+    local bimg = self.getResolved("bimg")
     if not bimg[1] or not bimg[1][1] then return 0, 0 end
     return #bimg[1][1][1], #bimg[1]
 end
@@ -99,7 +99,7 @@ end
 --- @return number? bg Background color
 --- @return string? char Character at position
 function Image:getPixelData(x, y)
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame or not frame[y] then return end
 
     local text = frame[y][1]
@@ -116,10 +116,10 @@ function Image:getPixelData(x, y)
 end
 
 local function ensureFrame(self, y)
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame then
         frame = {}
-        self.get("bimg")[self.get("currentFrame")] = frame
+        self.getResolved("bimg")[self.getResolved("currentFrame")] = frame
     end
     if not frame[y] then
         frame[y] = {"", "", ""}
@@ -128,9 +128,9 @@ local function ensureFrame(self, y)
 end
 
 local function updateFrameSize(self, neededWidth, neededHeight)
-    if not self.get("autoResize") then return end
+    if not self.getResolved("autoResize") then return end
 
-    local frames = self.get("bimg")
+    local frames = self.getResolved("bimg")
 
     local maxWidth = neededWidth
     local maxHeight = neededHeight
@@ -164,13 +164,13 @@ end
 --- @return Image self The Image instance
 function Image:setText(x, y, text)
     if type(text) ~= "string" or #text < 1 or x < 1 or y < 1 then return self end
-    if not self.get("autoResize")then
+    if not self.getResolved("autoResize")then
         local imgWidth, imgHeight = self:getImageSize()
         if y > imgHeight then return self end
     end
     local frame = ensureFrame(self, y)
 
-    if self.get("autoResize") then
+    if self.getResolved("autoResize") then
         updateFrameSize(self, x + #text - 1, y)
     else
         local maxLen = #frame[y][1]
@@ -193,7 +193,7 @@ end
 --- @return string text The text at the specified position
 function Image:getText(x, y, length)
     if not x or not y then return "" end
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame or not frame[y] then return "" end
 
     local text = frame[y][1]
@@ -214,13 +214,13 @@ end
 --- @return Image self The Image instance
 function Image:setFg(x, y, pattern)
     if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
-    if not self.get("autoResize")then
+    if not self.getResolved("autoResize")then
         local imgWidth, imgHeight = self:getImageSize()
         if y > imgHeight then return self end
     end
     local frame = ensureFrame(self, y)
 
-    if self.get("autoResize") then
+    if self.getResolved("autoResize") then
         updateFrameSize(self, x + #pattern - 1, y)
     else
         local maxLen = #frame[y][2]
@@ -243,7 +243,7 @@ end
 --- @return string fg The foreground color pattern
 function Image:getFg(x, y, length)
     if not x or not y then return "" end
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame or not frame[y] then return "" end
 
     local fg = frame[y][2]
@@ -264,13 +264,13 @@ end
 --- @return Image self The Image instance
 function Image:setBg(x, y, pattern)
     if type(pattern) ~= "string" or #pattern < 1 or x < 1 or y < 1 then return self end
-    if not self.get("autoResize")then
+    if not self.getResolved("autoResize")then
         local imgWidth, imgHeight = self:getImageSize()
         if y > imgHeight then return self end
     end
     local frame = ensureFrame(self, y)
 
-    if self.get("autoResize") then
+    if self.getResolved("autoResize") then
         updateFrameSize(self, x + #pattern - 1, y)
     else
         local maxLen = #frame[y][3]
@@ -293,7 +293,7 @@ end
 --- @return string bg The background color pattern
 function Image:getBg(x, y, length)
     if not x or not y then return "" end
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame or not frame[y] then return "" end
 
     local bg = frame[y][3]
@@ -325,10 +325,10 @@ end
 --- @shortDescription Advances to the next frame in the animation
 --- @return Image self The Image instance
 function Image:nextFrame()
-    if not self.get("bimg").animation then return self end
+    if not self.getResolved("bimg").animation then return self end
 
-    local frames = self.get("bimg")
-    local current = self.get("currentFrame")
+    local frames = self.getResolved("bimg")
+    local current = self.getResolved("currentFrame")
     local next = current + 1
     if next > #frames then next = 1 end
 
@@ -340,7 +340,7 @@ end
 --- @shortDescription Adds a new frame to the image
 --- @return Image self The Image instance
 function Image:addFrame()
-    local frames = self.get("bimg")
+    local frames = self.getResolved("bimg")
     local width = frames.width or #frames[1][1][1]
     local height = frames.height or #frames[1]
     local frame = {}
@@ -360,7 +360,7 @@ end
 --- @param frame table The new frame data
 --- @return Image self The Image instance
 function Image:updateFrame(frameIndex, frame)
-    local frames = self.get("bimg")
+    local frames = self.getResolved("bimg")
     frames[frameIndex] = frame
     self:updateRender()
     return self
@@ -371,8 +371,8 @@ end
 --- @param frameIndex number The index of the frame to get
 --- @return table frame The frame data
 function Image:getFrame(frameIndex)
-    local frames = self.get("bimg")
-    return frames[frameIndex or self.get("currentFrame")]
+    local frames = self.getResolved("bimg")
+    return frames[frameIndex or self.getResolved("currentFrame")]
 end
 
 --- Gets the metadata of the image
@@ -380,7 +380,7 @@ end
 --- @return table metadata The metadata of the image
 function Image:getMetadata()
     local metadata = {}
-    local bimg = self.get("bimg")
+    local bimg = self.getResolved("bimg")
     for k,v in pairs(bimg)do
         if(type(v)=="string")then
             metadata[k] = v
@@ -401,7 +401,7 @@ function Image:setMetadata(key, value)
         end
         return self
     end
-    local bimg = self.get("bimg")
+    local bimg = self.getResolved("bimg")
     if(type(value)=="string")then
         bimg[key] = value
     end
@@ -413,13 +413,13 @@ end
 function Image:render()
     VisualElement.render(self)
 
-    local frame = self.get("bimg")[self.get("currentFrame")]
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
     if not frame then return end
 
-    local offsetX = self.get("offsetX")
-    local offsetY = self.get("offsetY")
-    local elementWidth = self.get("width")
-    local elementHeight = self.get("height")
+    local offsetX = self.getResolved("offsetX")
+    local offsetY = self.getResolved("offsetY")
+    local elementWidth = self.getResolved("width")
+    local elementHeight = self.getResolved("height")
 
     for y = 1, elementHeight do
         local frameY = y + offsetY

@@ -162,7 +162,7 @@ end
 --- @param offset number The offset to apply (negative = inside, positive = outside, fractional = percentage)
 --- @return VisualElement self The element instance
 function VisualElement:setConstraint(property, targetElement, targetProperty, offset)
-    local constraints = self.get("constraints")
+    local constraints = self.getResolved("constraints")
     if constraints[property] then
         self:_removeConstraintObservers(property, constraints[property])
     end
@@ -187,7 +187,7 @@ end
 --- @param value any The value to set for the property
 --- @return VisualElement self The element instance
 function VisualElement:setLayoutConfigProperty(key, value)
-    local layoutConfig = self.get("layoutConfig")
+    local layoutConfig = self.getResolved("layoutConfig")
     layoutConfig[key] = value
     self.set("layoutConfig", layoutConfig)
     return self
@@ -198,7 +198,7 @@ end
 --- @param key string The layout config property to get
 --- @return any value The value of the property, or nil if not set
 function VisualElement:getLayoutConfigProperty(key)
-    local layoutConfig = self.get("layoutConfig")
+    local layoutConfig = self.getResolved("layoutConfig")
     return layoutConfig[key]
 end
 
@@ -207,7 +207,7 @@ end
 --- @return VisualElement self The element instance
 function VisualElement:resolveAllConstraints()
     if not self._constraintsDirty then return self end
-    local constraints = self.get("constraints")
+    local constraints = self.getResolved("constraints")
     if not constraints or not next(constraints) then return self end
 
     local order = {"width", "height", "left", "right", "top", "bottom", "x", "y", "centerX", "centerY"}
@@ -236,7 +236,7 @@ function VisualElement:_applyConstraintValue(property, value, constraints)
             self.set("width", width)
             self.set("x", leftValue)
         else
-            local width = self.get("width")
+            local width = self.getResolved("width")
             self.set("x", value - width + 1)
         end
     elseif property == "bottom" then
@@ -246,14 +246,14 @@ function VisualElement:_applyConstraintValue(property, value, constraints)
             self.set("height", height)
             self.set("y", topValue)
         else
-            local height = self.get("height")
+            local height = self.getResolved("height")
             self.set("y", value - height + 1)
         end
     elseif property == "centerX" then
-        local width = self.get("width")
+        local width = self.getResolved("width")
         self.set("x", value - math.floor(width / 2))
     elseif property == "centerY" then
-        local height = self.get("height")
+        local height = self.getResolved("height")
         self.set("y", value - math.floor(height / 2))
     elseif property == "width" then
         self.set("width", value)
@@ -351,7 +351,7 @@ end
 --- @param property string The property of the constraint to remove
 --- @return VisualElement self The element instance
 function VisualElement:removeConstraint(property)
-    local constraints = self.get("constraints")
+    local constraints = self.getResolved("constraints")
     constraints[property] = nil
     self.set("constraints", constraints)
     self:updateConstraints()
@@ -362,7 +362,7 @@ end
 --- @shortDescription Updates all constraints, recalculating positions and sizes
 --- @return VisualElement self The element instance
 function VisualElement:updateConstraints()
-    local constraints = self.get("constraints")
+    local constraints = self.getResolved("constraints")
 
     for property, constraint in pairs(constraints) do
         local value = self:_resolveConstraint(property, constraint)
@@ -372,16 +372,16 @@ function VisualElement:updateConstraints()
         elseif property == "y" or property == "top" then
             self.set("y", value)
         elseif property == "right" then
-            local width = self.get("width")
+            local width = self.getResolved("width")
             self.set("x", value - width + 1)
         elseif property == "bottom" then
-            local height = self.get("height")
+            local height = self.getResolved("height")
             self.set("y", value - height + 1)
         elseif property == "centerX" then
-            local width = self.get("width")
+            local width = self.getResolved("width")
             self.set("x", value - math.floor(width / 2))
         elseif property == "centerY" then
-            local height = self.get("height")
+            local height = self.getResolved("height")
             self.set("y", value - math.floor(height / 2))
         elseif property == "width" then
             self.set("width", value)
@@ -403,7 +403,7 @@ function VisualElement:_resolveConstraint(property, constraint)
     end
 
     if not targetEl then
-        return self.get(property) or 1
+        return self.getResolved(property) or 1
     end
 
     local value
@@ -761,9 +761,9 @@ end
 --- @param y number The y position to check
 --- @return boolean isInBounds Whether the coordinates are within the bounds of the element
 function VisualElement:isInBounds(x, y)
-    local xPos, yPos = self.get("x"), self.get("y")
-    local width, height = self.get("width"), self.get("height")
-    if(self.get("ignoreOffset"))then
+    local xPos, yPos = self.getResolved("x"), self.getResolved("y")
+    local width, height = self.getResolved("width"), self.getResolved("height")
+    if(self.getResolved("ignoreOffset"))then
         if(self.parent)then
             x = x - self.parent.get("offsetX")
             y = y - self.parent.get("offsetY")
@@ -824,7 +824,7 @@ end
 --- @protected
 function VisualElement:mouse_move(_, x, y)
     if(x==nil)or(y==nil)then return false end
-    local hover = self.get("hover")
+    local hover = self.getResolved("hover")
     if(self:isInBounds(x, y))then
         if(not hover)then
             self.set("hover", true)
@@ -1000,8 +1000,8 @@ end
 --- @return number y The y position
 function VisualElement:calculatePosition()
     self:resolveAllConstraints()
-    local x, y = self.get("x"), self.get("y")
-    if not self.get("ignoreOffset") then
+    local x, y = self.getResolved("x"), self.getResolved("y")
+    if not self.getResolved("ignoreOffset") then
         if self.parent ~= nil then
             local xO, yO = self.parent.get("offsetX"), self.parent.get("offsetY")
             x = x - xO
@@ -1018,7 +1018,7 @@ end
 ---@return number x The absolute x position
 ---@return number y The absolute y position
 function VisualElement:getAbsolutePosition(x, y)
-    local xPos, yPos = self.get("x"), self.get("y")
+    local xPos, yPos = self.getResolved("x"), self.getResolved("y")
     if(x ~= nil) then
         xPos = xPos + x - 1
     end
@@ -1045,7 +1045,7 @@ end
 --- @return number y The relative y position
 function VisualElement:getRelativePosition(x, y)
     if (x == nil) or (y == nil) then
-        x, y = self.get("x"), self.get("y")
+        x, y = self.getResolved("x"), self.getResolved("y")
     end
 
     local parentX, parentY = 1, 1
@@ -1053,7 +1053,7 @@ function VisualElement:getRelativePosition(x, y)
         parentX, parentY = self.parent:getRelativePosition()
     end
 
-    local elementX, elementY = self.get("x"), self.get("y")
+    local elementX, elementY = self.getResolved("x"), self.getResolved("y")
     return x - (elementX - 1) - (parentX - 1),
            y - (elementY - 1) - (parentY - 1)
 end
@@ -1094,7 +1094,7 @@ end
 --- @protected
 function VisualElement:render()
     if(not self.getResolved("backgroundEnabled"))then return end
-    local width, height = self.get("width"), self.get("height")
+    local width, height = self.getResolved("width"), self.getResolved("height")
     local fgHex = tHex[self.getResolved("foreground")]
     local bgHex = tHex[self.getResolved("background")]
     local bTop, bBottom, bLeft, bRight =

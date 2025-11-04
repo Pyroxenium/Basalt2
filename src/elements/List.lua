@@ -14,7 +14,7 @@ List.defineProperty(List, "offset", {
     type = "number",
     canTriggerRender = true,
     setter = function(self, value)
-        local maxOffset = math.max(0, #self.get("items") - self.get("height"))
+        local maxOffset = math.max(0, #self.getResolved("items") - self.getResolved("height"))
         return math.min(maxOffset, math.max(0, value))
     end
 })
@@ -86,15 +86,15 @@ function List:init(props, basalt)
     self.set("type", "List")
 
     self:observe("items", function()
-        local maxOffset = math.max(0, #self.get("items") - self.get("height"))
-        if self.get("offset") > maxOffset then
+        local maxOffset = math.max(0, #self.getResolved("items") - self.getResolved("height"))
+        if self.getResolved("offset") > maxOffset then
             self.set("offset", maxOffset)
         end
     end)
 
     self:observe("height", function()
-        local maxOffset = math.max(0, #self.get("items") - self.get("height"))
-        if self.get("offset") > maxOffset then
+        local maxOffset = math.max(0, #self.getResolved("items") - self.getResolved("height"))
+        if self.getResolved("offset") > maxOffset then
             self.set("offset", maxOffset)
         end
     end)
@@ -111,16 +111,16 @@ end
 function List:mouse_click(button, x, y)
     if Collection.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local width = self.get("width")
-        local items = self.get("items")
-        local height = self.get("height")
-        local showScrollBar = self.get("showScrollBar")
+        local width = self.getResolved("width")
+        local items = self.getResolved("items")
+        local height = self.getResolved("height")
+        local showScrollBar = self.getResolved("showScrollBar")
 
         if showScrollBar and #items > height and relX == width then
             local maxOffset = #items - height
             local handleSize = math.max(1, math.floor((height / #items) * height))
 
-            local currentPercent = maxOffset > 0 and (self.get("offset") / maxOffset * 100) or 0
+            local currentPercent = maxOffset > 0 and (self.getResolved("offset") / maxOffset * 100) or 0
             local handlePos = math.floor((currentPercent / 100) * (height - handleSize)) + 1
 
             if relY >= handlePos and relY < handlePos + handleSize then
@@ -134,12 +134,12 @@ function List:mouse_click(button, x, y)
             return true
         end
 
-        if self.get("selectable") then
-            local adjustedIndex = relY + self.get("offset")
+        if self.getResolved("selectable") then
+            local adjustedIndex = relY + self.getResolved("offset")
 
             if adjustedIndex <= #items then
                 local item = items[adjustedIndex]
-                if not self.get("multiSelection") then
+                if not self.getResolved("multiSelection") then
                     for _, otherItem in ipairs(items) do
                         if type(otherItem) == "table" then
                             otherItem.selected = false
@@ -170,8 +170,8 @@ end
 function List:mouse_drag(button, x, y)
     if self._scrollBarDragging then
         local _, relY = self:getRelativePosition(x, y)
-        local items = self.get("items")
-        local height = self.get("height")
+        local items = self.getResolved("items")
+        local height = self.getResolved("height")
         local handleSize = math.max(1, math.floor((height / #items) * height))
         local maxOffset = #items - height
         relY = math.max(1, math.min(height, relY))
@@ -209,8 +209,8 @@ end
 --- @protected
 function List:mouse_scroll(direction, x, y)
     if Collection.mouse_scroll(self, direction, x, y) then
-        local offset = self.get("offset")
-        local maxOffset = math.max(0, #self.get("items") - self.get("height"))
+        local offset = self.getResolved("offset")
+        local maxOffset = math.max(0, #self.getResolved("items") - self.getResolved("height"))
 
         offset = math.min(maxOffset, math.max(0, offset + direction))
         self.set("offset", offset)
@@ -233,7 +233,7 @@ end
 --- @shortDescription Scrolls the list to the bottom
 --- @return List self The List instance
 function List:scrollToBottom()
-    local maxOffset = math.max(0, #self.get("items") - self.get("height"))
+    local maxOffset = math.max(0, #self.getResolved("items") - self.getResolved("height"))
     self.set("offset", maxOffset)
     return self
 end
@@ -252,8 +252,8 @@ end
 --- @return List self The List instance
 --- @usage list:scrollToItem(5)
 function List:scrollToItem(index)
-    local height = self.get("height")
-    local offset = self.get("offset")
+    local height = self.getResolved("height")
+    local offset = self.getResolved("offset")
 
     if index < offset + 1 then
         self.set("offset", math.max(0, index - 1))
@@ -270,8 +270,8 @@ end
 --- @return boolean Whether the event was handled
 --- @protected
 function List:key(keyCode)
-    if Collection.key(self, keyCode) and self.get("selectable") then
-        local items = self.get("items")
+    if Collection.key(self, keyCode) and self.getResolved("selectable") then
+        local items = self.getResolved("items")
         local currentIndex = self:getSelectedIndex()
 
         if keyCode == keys.up then
@@ -297,14 +297,14 @@ function List:key(keyCode)
             self:scrollToBottom()
             return true
         elseif keyCode == keys.pageUp then
-            local height = self.get("height")
+            local height = self.getResolved("height")
             local newIndex = math.max(1, (currentIndex or 1) - height)
             self:clearItemSelection()
             self:selectItem(newIndex)
             self:scrollToItem(newIndex)
             return true
         elseif keyCode == keys.pageDown then
-            local height = self.get("height")
+            local height = self.getResolved("height")
             local newIndex = math.min(#items, (currentIndex or 1) + height)
             self:clearItemSelection()
             self:selectItem(newIndex)
@@ -321,19 +321,19 @@ function List:render(vOffset)
     vOffset = vOffset or 0
     Collection.render(self)
 
-    local items = self.get("items")
-    local height = self.get("height")
-    local offset = self.get("offset")
-    local width = self.get("width")
+    local items = self.getResolved("items")
+    local height = self.getResolved("height")
+    local offset = self.getResolved("offset")
+    local width = self.getResolved("width")
     local listBg = self.getResolved("background")
     local listFg = self.getResolved("foreground")
-    local showScrollBar = self.get("showScrollBar")
+    local showScrollBar = self.getResolved("showScrollBar")
 
     local needsScrollBar = showScrollBar and #items > height
     local contentWidth = needsScrollBar and width - 1 or width
 
     if #items == 0 then
-        local emptyText = self.get("emptyText")
+        local emptyText = self.getResolved("emptyText")
         local y = math.floor(height / 2) + vOffset
         local x = math.max(1, math.floor((width - #emptyText) / 2) + 1)
 
