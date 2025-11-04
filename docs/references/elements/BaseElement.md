@@ -30,6 +30,7 @@ Extends: `PropertySystem`
 |[BaseElement:getCurrentState](#baseelement-getcurrentstate)|string|nil|Gets current primary state|
 |[BaseElement:getActiveStates](#baseelement-getactivestates)|table|Gets all active states|
 |[BaseElement:updateConditionalStates](#baseelement-updateconditionalstates)|BaseElement|Updates conditional states|
+|[BaseElement:registerResponsiveState](#baseelement-registerresponsivestate-statename-condition-options)|BaseElement|Registers a state that responds to parent dimensions|
 |[BaseElement:unregisterState](#baseelement-unregisterstate-statename)|BaseElement|Removes state definition|
 |[BaseElement:fireEvent](#baseelement-fireevent-event-any)|table|Triggers event callbacks with provided arguments|
 |[BaseElement:onChange](#baseelement-onchange-property-callback)|table|Watches property changes with callback notification|
@@ -147,6 +148,18 @@ Gets all currently active states sorted by priority
 ## BaseElement:updateConditionalStates()
 
 Updates all states that have auto-conditions
+
+### Returns
+* `BaseElement` self
+
+## BaseElement:registerResponsiveState(stateName, condition, options?)
+
+Registers a responsive state that reacts to parent size changes
+
+### Parameters
+* `stateName` `string` The name of the state
+* `condition` `string|function` Condition as string expression or function: function(element) return boolean end
+* `options` *(optional)* `table|number` Options table with 'priority' and 'observe', or just priority number
 
 ### Returns
 * `BaseElement` self
