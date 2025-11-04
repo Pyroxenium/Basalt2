@@ -2,7 +2,7 @@
 
 ## Installation
 
-Checkout [download](download) to learn how to get basalt on your CC:Tweaked computer.
+Check out the [download guide](download) to learn how to get Basalt on your CC:Tweaked computer.
 
 ## Creating Your First UI
 
@@ -18,11 +18,11 @@ local main = basalt.getMainFrame()
 main:addButton()
     :setText("Click me!")
     :setPosition(4, 4)
-    :onClick(function()
-        -- Do something when clicked
+    :onClick(function(self)
+        self:setText("Clicked!")
     end)
 
--- Start Basalt
+-- Start Basalt (starts the event loop)
 basalt.run()
 ```
 
@@ -63,46 +63,53 @@ element:setForeground(color)     -- Set text color
 
 Elements can respond to user interaction:
 ```lua
-element:onClick(function()
+element:onClick(function(self)
     -- Called when clicked
+    -- 'self' refers to the element that was clicked
 end)
 
-element:onEnter(function()
-    -- Called when mouse enters the element (only available on CraftOS-PC)
+element:onEnter(function(self)
+    -- Called when mouse enters (CraftOS-PC only)
 end)
 
-element:onChange(function(self, value)
-    -- Called when value changes (inputs, lists, etc)
+element:onChange("text", function(self, value)
+    -- Called when the "text" property changes
+    -- 'value' contains the new value
 end)
 ```
 
 ## Using monitors instead
 
-Basalt can render to monitors instead of the terminal. Here's how to use monitors:
+Basalt can also render to monitors. Here's how:
 
 ```lua
 local basalt = require("basalt")
 
+local main = basalt.getMainFrame()
+
 -- Get a reference to the monitor
 local monitor = peripheral.find("monitor") 
--- Or specific side: peripheral.wrap("right")
+-- Or use a specific side: peripheral.wrap("right")
 
--- Create frame for monitor
-local monitorFrame = basalt.createFrame():setTerm(monitor) -- :setTerm is the important method here
+-- Create a frame for the monitor
+local monitorFrame = basalt.createFrame()
+    :setTerm(monitor)
 
 -- Add elements like normal
 monitorFrame:addButton()
     :setText("Monitor Button")
-    :setWidth(24)
+    :setSize(24, 3)
     :setPosition(2, 2)
 
--- Start Basalt
+-- Start Basalt (handles all frames automatically)
 basalt.run()
 ```
+
+You can have multiple frames on different screens - just call `basalt.run()` once at the end!
 
 ## Next Steps
 
 - Check out the [Examples](https://github.com/Pyroxenium/Basalt2/tree/main/examples) for more complex UIs
 - Learn about [Animations](animations) for smooth transitions
-- Explore [States](states) for data management
+- Explore [States](states) for state management
 - Read the [API Reference](/references/main) for detailed documentation

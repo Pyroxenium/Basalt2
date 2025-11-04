@@ -71,15 +71,37 @@ export default defineConfig({
 
     sidebar: {
       '/guides/': [
-        { text: 'Getting started', link: '/guides/getting-started' },
-        { text: 'Download', link: '/guides/download' },
-        { text: 'Annotations', link: '/guides/annotations' },
-        { text: 'Animations', link: '/guides/animations' },
-        { text: 'Benchmark', link: '/guides/benchmarks' },
-        { text: 'Canvas', link: 'guides/canvas'},
-        { text: 'Properties', link: '/guides/properties' },
-        { text: 'States', link: '/guides/states' },
-        { text: 'XML', link: '/guides/xml' },
+        {
+          text: 'Getting Started',
+          items: [
+            { text: 'Introduction', link: '/guides/getting-started' },
+            { text: 'Download & Installation', link: '/guides/download' },
+          ]
+        },
+        {
+          text: 'Core Concepts',
+          items: [
+            { text: 'Properties', link: '/guides/properties' },
+            { text: 'States', link: '/guides/states' },
+            { text: 'Animations', link: '/guides/animations' },
+          ]
+        },
+        {
+          text: 'Advanced',
+          items: [
+            { text: 'XML', link: '/guides/xml' },
+            { text: 'Canvas', link: '/guides/canvas'},
+            { text: 'Element Loading', link: '/guides/element-loading' },
+          ]
+        },
+        {
+          text: 'Development',
+          items: [
+            { text: 'Debugging', link: '/guides/debugging' },
+            { text: 'Benchmarks', link: '/guides/benchmarks' },
+            { text: 'LuaLS Annotations', link: '/guides/annotations' },
+          ]
+        },
         { text: 'FAQ', link: '/guides/faq' },
       ],
 
