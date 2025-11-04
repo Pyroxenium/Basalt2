@@ -1,6 +1,5 @@
 # Label
-_This is the label class. It provides a simple text display element that automatically_
-_resizes its width based on the text content._
+_This is the label class. It provides a simple text display element that automatically resizes its width based on the text content._
 
 Extends: `VisualElement`
 
