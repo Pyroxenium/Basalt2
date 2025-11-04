@@ -236,7 +236,7 @@ ab.class=ca;ab.set("width",12)ab.set("height",6)
 ab.set("background",colors.black)ab.set("z",5)return ab end;function ca:init(ab,bb)ba.init(self,ab,bb)self.set("type","Image")
 return self end
 function ca:resizeImage(ab,bb)
-local cb=self.get("bimg")
+local cb=self.getResolved("bimg")
 for db,_c in ipairs(cb)do local ac={}
 for y=1,bb do local bc=string.rep(" ",ab)
 local cc=string.rep("f",ab)local dc=string.rep("0",ab)
@@ -245,19 +245,19 @@ local ad=_c[y][2]local bd=_c[y][3]
 bc=(_d..string.rep(" ",ab)):sub(1,ab)
 cc=(ad..string.rep("f",ab)):sub(1,ab)
 dc=(bd..string.rep("0",ab)):sub(1,ab)end;ac[y]={bc,cc,dc}end;cb[db]=ac end;self:updateRender()return self end
-function ca:getImageSize()local ab=self.get("bimg")if not ab[1]or not ab[1][1]then
-return 0,0 end;return#ab[1][1][1],#ab[1]end
+function ca:getImageSize()local ab=self.getResolved("bimg")if
+not ab[1]or not ab[1][1]then return 0,0 end;return#ab[1][1][1],#ab[1]end
 function ca:getPixelData(ab,bb)
-local cb=self.get("bimg")[self.get("currentFrame")]if not cb or not cb[bb]then return end;local db=cb[bb][1]
+local cb=self.getResolved("bimg")[self.getResolved("currentFrame")]if not cb or not cb[bb]then return end;local db=cb[bb][1]
 local _c=cb[bb][2]local ac=cb[bb][3]
 if not db or not _c or not ac then return end;local bc=tonumber(_c:sub(ab,ab),16)
 local cc=tonumber(ac:sub(ab,ab),16)local dc=db:sub(ab,ab)return bc,cc,dc end
 local function da(ab,bb)
-local cb=ab.get("bimg")[ab.get("currentFrame")]if not cb then cb={}
-ab.get("bimg")[ab.get("currentFrame")]=cb end
+local cb=ab.getResolved("bimg")[ab.getResolved("currentFrame")]if not cb then cb={}
+ab.getResolved("bimg")[ab.getResolved("currentFrame")]=cb end
 if not cb[bb]then cb[bb]={"","",""}end;return cb end
-local function _b(ab,bb,cb)if not ab.get("autoResize")then return end
-local db=ab.get("bimg")local _c=bb;local ac=cb
+local function _b(ab,bb,cb)if not ab.getResolved("autoResize")then return end
+local db=ab.getResolved("bimg")local _c=bb;local ac=cb
 for bc,cc in ipairs(db)do for dc,_d in pairs(cc)do _c=math.max(_c,#_d[1])
 ac=math.max(ac,dc)end end
 for bc,cc in ipairs(db)do
@@ -267,68 +267,69 @@ dc[2]=dc[2].."f"end;while#dc[3]<_c do dc[3]=dc[3].."0"end end end end
 function ca:setText(ab,bb,cb)if
 type(cb)~="string"or#cb<1 or ab<1 or bb<1 then return self end
 if
-not self.get("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.get("autoResize")then
+not self.getResolved("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.getResolved("autoResize")then
 _b(self,ab+#cb-1,bb)else local ac=#db[bb][1]if ab>ac then return self end
 cb=cb:sub(1,ac-ab+1)end
 local _c=db[bb][1]
 db[bb][1]=_c:sub(1,ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
 function ca:getText(ab,bb,cb)if not ab or not bb then return""end
-local db=self.get("bimg")[self.get("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][1]if not _c then
+local db=self.getResolved("bimg")[self.getResolved("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][1]if not _c then
 return""end
 if cb then return _c:sub(ab,ab+cb-1)else return _c:sub(ab,ab)end end
 function ca:setFg(ab,bb,cb)if
 type(cb)~="string"or#cb<1 or ab<1 or bb<1 then return self end
 if
-not self.get("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.get("autoResize")then
+not self.getResolved("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.getResolved("autoResize")then
 _b(self,ab+#cb-1,bb)else local ac=#db[bb][2]if ab>ac then return self end
 cb=cb:sub(1,ac-ab+1)end
 local _c=db[bb][2]
 db[bb][2]=_c:sub(1,ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
 function ca:getFg(ab,bb,cb)if not ab or not bb then return""end
-local db=self.get("bimg")[self.get("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][2]if not _c then
+local db=self.getResolved("bimg")[self.getResolved("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][2]if not _c then
 return""end
 if cb then return _c:sub(ab,ab+cb-1)else return _c:sub(ab)end end
 function ca:setBg(ab,bb,cb)if
 type(cb)~="string"or#cb<1 or ab<1 or bb<1 then return self end
 if
-not self.get("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.get("autoResize")then
+not self.getResolved("autoResize")then local ac,bc=self:getImageSize()if bb>bc then return self end end;local db=da(self,bb)if self.getResolved("autoResize")then
 _b(self,ab+#cb-1,bb)else local ac=#db[bb][3]if ab>ac then return self end
 cb=cb:sub(1,ac-ab+1)end
 local _c=db[bb][3]
 db[bb][3]=_c:sub(1,ab-1)..cb.._c:sub(ab+#cb)self:updateRender()return self end
 function ca:getBg(ab,bb,cb)if not ab or not bb then return""end
-local db=self.get("bimg")[self.get("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][3]if not _c then
+local db=self.getResolved("bimg")[self.getResolved("currentFrame")]if not db or not db[bb]then return""end;local _c=db[bb][3]if not _c then
 return""end
 if cb then return _c:sub(ab,ab+cb-1)else return _c:sub(ab)end end
 function ca:setPixel(ab,bb,cb,db,_c)if cb then self:setText(ab,bb,cb)end;if db then
 self:setFg(ab,bb,db)end;if _c then self:setBg(ab,bb,_c)end;return self end
-function ca:nextFrame()
-if not self.get("bimg").animation then return self end;local ab=self.get("bimg")local bb=self.get("currentFrame")
-local cb=bb+1;if cb>#ab then cb=1 end;self.set("currentFrame",cb)return self end
-function ca:addFrame()local ab=self.get("bimg")
+function ca:nextFrame()if not self.getResolved("bimg").animation then
+return self end;local ab=self.getResolved("bimg")
+local bb=self.getResolved("currentFrame")local cb=bb+1;if cb>#ab then cb=1 end;self.set("currentFrame",cb)
+return self end
+function ca:addFrame()local ab=self.getResolved("bimg")
 local bb=ab.width or#ab[1][1][1]local cb=ab.height or#ab[1]local db={}local _c=string.rep(" ",bb)
 local ac=string.rep("f",bb)local bc=string.rep("0",bb)for y=1,cb do db[y]={_c,ac,bc}end
-table.insert(ab,db)return self end;function ca:updateFrame(ab,bb)local cb=self.get("bimg")cb[ab]=bb
+table.insert(ab,db)return self end;function ca:updateFrame(ab,bb)local cb=self.getResolved("bimg")cb[ab]=bb
 self:updateRender()return self end;function ca:getFrame(ab)
-local bb=self.get("bimg")
-return bb[ab or self.get("currentFrame")]end
+local bb=self.getResolved("bimg")
+return bb[ab or self.getResolved("currentFrame")]end
 function ca:getMetadata()local ab={}
-local bb=self.get("bimg")
+local bb=self.getResolved("bimg")
 for cb,db in pairs(bb)do if(type(db)=="string")then ab[cb]=db end end;return ab end
 function ca:setMetadata(ab,bb)if(type(ab)=="table")then
 for db,_c in pairs(ab)do self:setMetadata(db,_c)end;return self end
-local cb=self.get("bimg")if(type(bb)=="string")then cb[ab]=bb end;return self end
+local cb=self.getResolved("bimg")if(type(bb)=="string")then cb[ab]=bb end;return self end
 function ca:render()ba.render(self)
-local ab=self.get("bimg")[self.get("currentFrame")]if not ab then return end;local bb=self.get("offsetX")
-local cb=self.get("offsetY")local db=self.get("width")local _c=self.get("height")
-for y=1,_c do local ac=y+cb
-local bc=ab[ac]
+local ab=self.getResolved("bimg")[self.getResolved("currentFrame")]if not ab then return end;local bb=self.getResolved("offsetX")
+local cb=self.getResolved("offsetY")local db=self.getResolved("width")
+local _c=self.getResolved("height")
+for y=1,_c do local ac=y+cb;local bc=ab[ac]
 if bc then local cc=bc[1]local dc=bc[2]local _d=bc[3]
-if cc and dc and _d then
-local ad=db-math.max(0,bb)
-if ad>0 then if bb<0 then local bd=math.abs(bb)+1;cc=cc:sub(bd)dc=dc:sub(bd)
-_d=_d:sub(bd)end;cc=cc:sub(1,ad)
-dc=dc:sub(1,ad)_d=_d:sub(1,ad)
+if cc and dc and _d then local ad=db-
+math.max(0,bb)
+if ad>0 then if bb<0 then local bd=math.abs(bb)+1
+cc=cc:sub(bd)dc=dc:sub(bd)_d=_d:sub(bd)end
+cc=cc:sub(1,ad)dc=dc:sub(1,ad)_d=_d:sub(1,ad)
 self:blit(math.max(1,1 +bb),y,cc,dc,_d)end end end end end;return ca end
 project["elements/BarChart.lua"] = function(...) local aa=require("elementManager")
 local ba=aa.getElement("VisualElement")local ca=aa.getElement("Graph")
@@ -336,13 +337,13 @@ local da=require("libraries/colorHex")local _b=setmetatable({},ca)_b.__index=_b;
 local ab=setmetatable({},_b):__init()ab.class=_b;return ab end
 function _b:init(ab,bb)
 ca.init(self,ab,bb)self.set("type","BarChart")return self end
-function _b:render()ba.render(self)local ab=self.get("width")
-local bb=self.get("height")local cb=self.get("minValue")local db=self.get("maxValue")
-local _c=self.get("series")local ac=0;local bc={}
-for ad,bd in pairs(_c)do if(bd.visible)then if#bd.data>0 then ac=ac+1
-table.insert(bc,bd)end end end;local cc=ac;local dc=1
-local _d=math.min(bc[1]and bc[1].pointCount or 0,math.floor((ab+dc)/ (
-cc+dc)))
+function _b:render()ba.render(self)local ab=self.getResolved("width")
+local bb=self.getResolved("height")local cb=self.getResolved("minValue")
+local db=self.getResolved("maxValue")local _c=self.getResolved("series")local ac=0;local bc={}for ad,bd in pairs(_c)do
+if(bd.visible)then if#
+bd.data>0 then ac=ac+1;table.insert(bc,bd)end end end;local cc=ac;local dc=1
+local _d=math.min(bc[1]and
+bc[1].pointCount or 0,math.floor((ab+dc)/ (cc+dc)))
 for groupIndex=1,_d do local ad=( (groupIndex-1)* (cc+dc))+1
 for bd,cd in ipairs(bc)do
 local dd=cd.data[groupIndex]
@@ -359,32 +360,33 @@ return da end;function ca:init(da,_b)
 aa.init(self,da,_b)self.set("type","Button")end
 function ca:render()
 aa.render(self)local da=self.getResolved("text")
-da=da:sub(1,self.get("width"))
-local _b,ab=ba(da,self.get("width"),self.get("height"))
+da=da:sub(1,self.getResolved("width"))
+local _b,ab=ba(da,self.getResolved("width"),self.getResolved("height"))
 self:textFg(_b,ab,da,self.getResolved("foreground"))end;return ca end
 project["elements/Label.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/utils").wrapText
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"text",{default="Label",type="string",canTriggerRender=true,setter=function(da,_b)
 if(type(_b)=="function")then _b=_b()end
-if(da.get("autoSize"))then da.set("width",#_b)else da.set("height",#
-ba(_b,da.get("width")))end;return _b end})
+if(da.getResolved("autoSize"))then da.set("width",#_b)else da.set("height",#
+ba(_b,da.getResolved("width")))end;return _b end})
 ca.defineProperty(ca,"autoSize",{default=true,type="boolean",canTriggerRender=true,setter=function(da,_b)if(_b)then
-da.set("width",#da.get("text"))else
-da.set("height",#ba(da.get("text"),da.get("width")))end;return _b end})
+da.set("width",#da.getResolved("text"))else
+da.set("height",#
+ba(da.getResolved("text"),da.getResolved("width")))end;return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
 da.class=ca;da.set("z",3)da.set("foreground",colors.black)
 da.set("backgroundEnabled",false)return da end
 function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
 self.set("background",self.parent.get("background"))
 self.set("foreground",self.parent.get("foreground"))end
-self.set("type","Label")return self end;function ca:getWrappedText()local da=self.get("text")
-local _b=ba(da,self.get("width"))return _b end
+self.set("type","Label")return self end;function ca:getWrappedText()local da=self.getResolved("text")
+local _b=ba(da,self.getResolved("width"))return _b end
 function ca:render()
-aa.render(self)local da=self.get("text")
-if(self.get("autoSize"))then
-self:textFg(1,1,da,self.get("foreground"))else local _b=ba(da,self.get("width"))for ab,bb in ipairs(_b)do
-self:textFg(1,ab,bb,self.get("foreground"))end end end;return ca end
+aa.render(self)local da=self.getResolved("text")
+if(self.getResolved("autoSize"))then
+self:textFg(1,1,da,self.getResolved("foreground"))else local _b=ba(da,self.getResolved("width"))for ab,bb in ipairs(_b)do
+self:textFg(1,ab,bb,self.getResolved("foreground"))end end end;return ca end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
 aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
@@ -402,66 +404,70 @@ function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;ba.set("width",8)ba.set("z",3)return ba end
 function aa:init(ba,ca)d.init(self,ba,ca)self.set("type","Input")return self end
 function aa:setCursor(ba,ca,da,_b)
-ba=math.min(self.get("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
+ba=math.min(self.getResolved("width"),math.max(1,ba))return d.setCursor(self,ba,ca,da,_b)end
 function aa:char(ba)
-if not self:hasState("focused")then return false end;local ca=self.get("text")local da=self.get("cursorPos")
-local _b=self.get("maxLength")local ab=self.get("pattern")
-if _b and#ca>=_b then return false end;if ab and not ba:match(ab)then return false end
-self.set("text",ca:sub(1,
-da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()local bb=
-self.get("cursorPos")-self.get("viewOffset")
-self:setCursor(bb,1,true,
-self.get("cursorColor")or self.get("foreground"))d.char(self,ba)return true end
+if not self:hasState("focused")then return false end;local ca=self.getResolved("text")
+local da=self.getResolved("cursorPos")local _b=self.getResolved("maxLength")
+local ab=self.getResolved("pattern")if _b and#ca>=_b then return false end;if ab and not ba:match(ab)then return
+false end
+self.set("text",ca:sub(1,da-1)..ba..ca:sub(da))self.set("cursorPos",da+1)self:updateViewport()
+local bb=
+self.getResolved("cursorPos")-self.getResolved("viewOffset")
+self:setCursor(bb,1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))d.char(self,ba)return true end
 function aa:key(ba,ca)
-if not self:hasState("focused")then return false end;local da=self.get("cursorPos")local _b=self.get("text")
-local ab=self.get("viewOffset")local bb=self.get("width")
-if ba==keys.left then
-if da>1 then
-self.set("cursorPos",da-1)if da-1 <=ab then
-self.set("viewOffset",math.max(0,da-2))end end elseif ba==keys.right then
-if da<=#_b then self.set("cursorPos",da+1)if da-ab>=bb then self.set("viewOffset",
-da-bb+1)end end elseif ba==keys.backspace then if da>1 then
+if not self:hasState("focused")then return false end;local da=self.getResolved("cursorPos")
+local _b=self.getResolved("text")local ab=self.getResolved("viewOffset")
+local bb=self.getResolved("width")
+if ba==keys.left then if da>1 then self.set("cursorPos",da-1)
+if da-1 <=ab then self.set("viewOffset",math.max(0,
+da-2))end end elseif ba==keys.right then if da<=#_b then self.set("cursorPos",
+da+1)if da-ab>=bb then
+self.set("viewOffset",da-bb+1)end end elseif
+ba==keys.backspace then if da>1 then
 self.set("text",_b:sub(1,da-2).._b:sub(da))self.set("cursorPos",da-1)self:updateRender()
 self:updateViewport()end end
-local cb=self.get("cursorPos")-self.get("viewOffset")
+local cb=self.getResolved("cursorPos")-self.getResolved("viewOffset")
 self:setCursor(cb,1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))d.key(self,ba,ca)return true end
 function aa:mouse_click(ba,ca,da)
 if d.mouse_click(self,ba,ca,da)then
-local _b,ab=self:getRelativePosition(ca,da)local bb=self.get("text")local cb=self.get("viewOffset")
-local db=#bb+1;local _c=math.min(db,cb+_b)self.set("cursorPos",_c)
-local ac=_c-cb
+local _b,ab=self:getRelativePosition(ca,da)local bb=self.getResolved("text")
+local cb=self.getResolved("viewOffset")local db=#bb+1;local _c=math.min(db,cb+_b)
+self.set("cursorPos",_c)local ac=_c-cb
 self:setCursor(ac,1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))return true end;return false end
-function aa:updateViewport()local ba=self.get("width")
-local ca=self.get("cursorPos")local da=self.get("viewOffset")
-local _b=#self.get("text")
-if ca-da>=ba then self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",
-ca-1)end
-self.set("viewOffset",math.max(0,math.min(self.get("viewOffset"),_b-ba+1)))return self end
+function aa:updateViewport()local ba=self.getResolved("width")
+local ca=self.getResolved("cursorPos")local da=self.getResolved("viewOffset")local _b=#
+self.getResolved("text")
+if ca-da>=ba then
+self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",ca-1)end
+self.set("viewOffset",math.max(0,math.min(self.getResolved("viewOffset"),_b-ba+1)))return self end
 function aa:focus()d.focus(self)
-self:setCursor(self.get("cursorPos")-
-self.get("viewOffset"),1,true,self.getResolved("cursorColor")or
+self:setCursor(self.getResolved("cursorPos")-
+self.getResolved("viewOffset"),1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))self:updateRender()end
 function aa:blur()d.blur(self)
 self:setCursor(1,1,false,self.getResolved("cursorColor")or
 self.getResolved("foreground"))self:updateRender()end
 function aa:paste(ba)
-if not self:hasState("focused")then return false end;local ca=self.get("text")local da=self.get("cursorPos")
-local _b=self.get("maxLength")local ab=self.get("pattern")
-local bb=ca:sub(1,da-1)..ba..ca:sub(da)if _b and#bb>_b then bb=bb:sub(1,_b)end;if
-ab and not bb:match(ab)then return false end;self.set("text",bb)self.set("cursorPos",da+
-#ba)self:updateViewport()end
+if not self:hasState("focused")then return false end;local ca=self.getResolved("text")
+local da=self.getResolved("cursorPos")local _b=self.getResolved("maxLength")
+local ab=self.getResolved("pattern")local bb=ca:sub(1,da-1)..ba..ca:sub(da)if
+_b and#bb>_b then bb=bb:sub(1,_b)end;if ab and not bb:match(ab)then
+return false end;self.set("text",bb)
+self.set("cursorPos",da+#ba)self:updateViewport()end
 function aa:render()local ba=self.getResolved("text")
-local ca=self.get("viewOffset")local da=self.getResolved("placeholder")
-local _b=self:hasState("focused")local ab,bb=self.get("width"),self.get("height")
-local cb=self.getResolved("replaceChar")
+local ca=self.getResolved("viewOffset")local da=self.getResolved("placeholder")
+local _b=self:hasState("focused")
+local ab,bb=self.getResolved("width"),self.getResolved("height")local cb=self.getResolved("replaceChar")
 self:multiBlit(1,1,ab,bb," ",_a[self.getResolved("foreground")],_a[self.getResolved("background")])if#ba==0 and#da~=0 and not _b then
 self:textFg(1,1,da:sub(1,ab),self.getResolved("placeholderColor"))return end;if(_b)then
 self:setCursor(
-self.get("cursorPos")-ca,1,true,self.getResolved("cursorColor")or
-self.getResolved("foreground"))end
-local db=ba:sub(ca+1,ca+ab)if cb and#cb>0 then db=cb:rep(#db)end
+self.getResolved("cursorPos")-ca,1,true,self.getResolved("cursorColor")or
+self.getResolved("foreground"))end;local db=ba:sub(ca+1,
+ca+ab)
+if cb and#cb>0 then db=cb:rep(#db)end
 self:textFg(1,1,db,self.getResolved("foreground"))end;return aa end
 project["elements/Frame.lua"] = function(...) local aa=require("elementManager")
 local ba=aa.getElement("VisualElement")local ca=aa.getElement("Container")local da=setmetatable({},ca)
@@ -478,39 +484,39 @@ return self end
 function da:mouse_click(ab,bb,cb)
 if self:isInBounds(bb,cb)then
 if
-self.get("draggable")then local db,_c=self:getRelativePosition(bb,cb)
-local ac=self.get("draggingMap")
-for bc,cc in ipairs(ac)do local dc=cc.width or 1;local _d=cc.height or 1;if
-type(dc)=="string"and dc=="width"then dc=self.get("width")elseif
-type(dc)=="function"then dc=dc(self)end
-if type(_d)==
-"string"and _d=="height"then _d=self.get("height")elseif
-type(_d)=="function"then _d=_d(self)end;local ad=cc.y or 1
+self.getResolved("draggable")then local db,_c=self:getRelativePosition(bb,cb)
+local ac=self.getResolved("draggingMap")
+for bc,cc in ipairs(ac)do local dc=cc.width or 1;local _d=cc.height or 1
+if
+type(dc)=="string"and dc=="width"then dc=self.getResolved("width")elseif type(dc)==
+"function"then dc=dc(self)end
+if type(_d)=="string"and _d=="height"then
+_d=self.getResolved("height")elseif type(_d)=="function"then _d=_d(self)end;local ad=cc.y or 1
 if
 db>=cc.x and db<=cc.x+dc-1 and _c>=ad and _c<=ad+_d-1 then
-self.dragStartX=bb-self.get("x")self.dragStartY=cb-self.get("y")self.dragging=true
-return true end end end;return ca.mouse_click(self,ab,bb,cb)end;return false end
+self.dragStartX=bb-self.getResolved("x")self.dragStartY=cb-self.getResolved("y")
+self.dragging=true;return true end end end;return ca.mouse_click(self,ab,bb,cb)end;return false end
 function da:mouse_up(ab,bb,cb)if self.dragging then self.dragging=false;self.dragStartX=nil
 self.dragStartY=nil;return true end;return
 ca.mouse_up(self,ab,bb,cb)end
 function da:mouse_drag(ab,bb,cb)
 if self.dragging then local db=bb-self.dragStartX
 local _c=cb-self.dragStartY;self.set("x",db)self.set("y",_c)return true end;return ca.mouse_drag(self,ab,bb,cb)end
-function da:getChildrenHeight()local ab=0;local bb=self.get("children")
+function da:getChildrenHeight()local ab=0;local bb=self.getResolved("children")
 for cb,db in ipairs(bb)do if
 db.get("visible")then local _c=db.get("y")local ac=db.get("height")local bc=_c+ac-1
 if bc>ab then ab=bc end end end;return ab end
 local function _b(ab,bb,...)local cb={...}
 if bb and bb:find("mouse_")then local db,_c,ac=...
-local bc,cc=ab.get("offsetX"),ab.get("offsetY")local dc,_d=ab:getRelativePosition(_c+bc,ac+cc)
+local bc,cc=ab.getResolved("offsetX"),ab.getResolved("offsetY")local dc,_d=ab:getRelativePosition(_c+bc,ac+cc)
 cb={db,dc,_d}end;return cb end
 function da:mouse_scroll(ab,bb,cb)
 if(ba.mouse_scroll(self,ab,bb,cb))then
 local db=_b(self,"mouse_scroll",ab,bb,cb)
 local _c,ac=self:callChildrenEvent(true,"mouse_scroll",table.unpack(db))if _c then return true end
-if self.get("scrollable")then
-local bc=self.get("height")local cc=self:getChildrenHeight()
-local dc=self.get("offsetY")local _d=math.max(0,cc-bc)local ad=dc+ab
+if self.getResolved("scrollable")then
+local bc=self.getResolved("height")local cc=self:getChildrenHeight()
+local dc=self.getResolved("offsetY")local _d=math.max(0,cc-bc)local ad=dc+ab
 ad=math.max(0,math.min(_d,ad))self.set("offsetY",ad)return true end end;return false end;return da end
 project["elements/Container.lua"] = function(...) local _b=require("elementManager")
 local ab=require("errorManager")local bb=_b.getElement("VisualElement")
@@ -552,11 +558,11 @@ self.set("childrenEventsSorted",false)self:updateRender()end)end
 function ac:isChildVisible(dc)
 if not dc:isType("VisualElement")then return false end;if(dc.get("visible")==false)then return false end;if(dc._destroyed)then return
 false end
-local _d,ad=self.get("width"),self.get("height")local bd,cd=self.get("offsetX"),self.get("offsetY")
-local dd,__a=dc.get("x"),dc.get("y")local a_a,b_a=dc.get("width"),dc.get("height")local c_a;local d_a;if
-(dc.get("ignoreOffset"))then c_a=dd;d_a=__a else c_a=dd-bd;d_a=__a-cd end;return
-(c_a+
-a_a>0)and(c_a<=_d)and(d_a+b_a>0)and(d_a<=ad)end
+local _d,ad=self.getResolved("width"),self.getResolved("height")
+local bd,cd=self.getResolved("offsetX"),self.getResolved("offsetY")local dd,__a=dc.get("x"),dc.get("y")
+local a_a,b_a=dc.get("width"),dc.get("height")local c_a;local d_a
+if(dc.get("ignoreOffset"))then c_a=dd;d_a=__a else c_a=dd-bd;d_a=__a-cd end;return
+(c_a+a_a>0)and(c_a<=_d)and(d_a+b_a>0)and(d_a<=ad)end
 function ac:addChild(dc)
 if dc==self then error("Cannot add container to itself")end;if(dc~=nil)then table.insert(self._values.children,dc)
 dc.parent=self;dc:postInit()self.set("childrenSorted",false)
@@ -618,15 +624,15 @@ if#_d==1 then return bd else if(bd:isType("Container"))then return
 bd:find(table.concat(_d,"/",2))end end end end end;return nil end
 local function cc(dc,_d,...)local ad={...}
 if _d and _d:find("mouse_")then local bd,cd,dd=...
-local __a,a_a=dc.get("offsetX"),dc.get("offsetY")local b_a,c_a=dc:getRelativePosition(cd+__a,dd+a_a)
+local __a,a_a=dc.getResolved("offsetX"),dc.getResolved("offsetY")local b_a,c_a=dc:getRelativePosition(cd+__a,dd+a_a)
 ad={bd,b_a,c_a}end;return ad end
 function ac:callChildrenEvent(dc,_d,...)
 if
-dc and not self.get("childrenEventsSorted")then for bd in pairs(self._values.childrenEvents)do
-self:sortChildrenEvents(bd)end end;local ad=dc and self.get("visibleChildrenEvents")or
-self.get("childrenEvents")
-if
-ad[_d]then local bd=ad[_d]for i=#bd,1,-1 do local cd=bd[i]
+dc and not self.getResolved("childrenEventsSorted")then for bd in pairs(self._values.childrenEvents)do
+self:sortChildrenEvents(bd)end end
+local ad=dc and self.getResolved("visibleChildrenEvents")or
+self.getResolved("childrenEvents")
+if ad[_d]then local bd=ad[_d]for i=#bd,1,-1 do local cd=bd[i]
 if(cd:dispatchEvent(_d,...))then return true,cd end end end
 if(ad["*"])then local bd=ad["*"]for i=#bd,1,-1 do local cd=bd[i]
 if(cd:dispatchEvent(_d,...))then return true,cd end end end;return false end
@@ -655,63 +661,66 @@ local cd,dd=self:callChildrenEvent(true,"mouse_drag",table.unpack(bd))if(cd)then
 function ac:mouse_scroll(dc,_d,ad)
 if(bb.mouse_scroll(self,dc,_d,ad))then
 local bd=cc(self,"mouse_scroll",dc,_d,ad)
-local cd,dd=self:callChildrenEvent(true,"mouse_scroll",table.unpack(bd))return true end;return false end;function ac:key(dc)if self.get("focusedChild")then return
-self.get("focusedChild"):dispatchEvent("key",dc)end
-return true end
-function ac:char(dc)if
-self.get("focusedChild")then
-return self.get("focusedChild"):dispatchEvent("char",dc)end;return true end;function ac:key_up(dc)
-if self.get("focusedChild")then return
-self.get("focusedChild"):dispatchEvent("key_up",dc)end;return true end
+local cd,dd=self:callChildrenEvent(true,"mouse_scroll",table.unpack(bd))return true end;return false end
+function ac:key(dc)
+if self.getResolved("focusedChild")then return
+self.getResolved("focusedChild"):dispatchEvent("key",dc)end;return true end
+function ac:char(dc)
+if self.getResolved("focusedChild")then return
+self.getResolved("focusedChild"):dispatchEvent("char",dc)end;return true end
+function ac:key_up(dc)
+if self.getResolved("focusedChild")then return
+self.getResolved("focusedChild"):dispatchEvent("key_up",dc)end;return true end
 function ac:multiBlit(dc,_d,ad,bd,cd,dd,__a)
-local a_a,b_a=self.get("width"),self.get("height")ad=dc<1 and math.min(ad+dc-1,a_a)or
+local a_a,b_a=self.getResolved("width"),self.getResolved("height")ad=dc<1 and math.min(ad+dc-1,a_a)or
 math.min(ad,math.max(0,a_a-dc+1))bd=_d<1 and math.min(
 bd+_d-1,b_a)or
 math.min(bd,math.max(0,b_a-_d+1))if ad<=0 or
 bd<=0 then return self end
 bb.multiBlit(self,math.max(1,dc),math.max(1,_d),ad,bd,cd,dd,__a)return self end
-function ac:textFg(dc,_d,ad,bd)local cd,dd=self.get("width"),self.get("height")if
-_d<1 or _d>dd then return self end;local __a=dc<1 and(2 -dc)or 1
-local a_a=math.min(#ad-
-__a+1,cd-math.max(1,dc)+1)if a_a<=0 then return self end
+function ac:textFg(dc,_d,ad,bd)
+local cd,dd=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>dd then return self end
+local __a=dc<1 and(2 -dc)or 1
+local a_a=math.min(#ad-__a+1,cd-math.max(1,dc)+1)if a_a<=0 then return self end
 bb.textFg(self,math.max(1,dc),math.max(1,_d),ad:sub(__a,
 __a+a_a-1),bd)return self end
-function ac:textBg(dc,_d,ad,bd)local cd,dd=self.get("width"),self.get("height")if
-_d<1 or _d>dd then return self end;local __a=dc<1 and(2 -dc)or 1
-local a_a=math.min(#ad-
-__a+1,cd-math.max(1,dc)+1)if a_a<=0 then return self end
+function ac:textBg(dc,_d,ad,bd)
+local cd,dd=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>dd then return self end
+local __a=dc<1 and(2 -dc)or 1
+local a_a=math.min(#ad-__a+1,cd-math.max(1,dc)+1)if a_a<=0 then return self end
 bb.textBg(self,math.max(1,dc),math.max(1,_d),ad:sub(__a,
 __a+a_a-1),bd)return self end
-function ac:drawText(dc,_d,ad)local bd,cd=self.get("width"),self.get("height")if _d<1 or
-_d>cd then return self end;local dd=dc<1 and(2 -dc)or 1
-local __a=math.min(
-#ad-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
+function ac:drawText(dc,_d,ad)
+local bd,cd=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>cd then return self end
+local dd=dc<1 and(2 -dc)or 1
+local __a=math.min(#ad-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
 bb.drawText(self,math.max(1,dc),math.max(1,_d),ad:sub(dd,
 dd+__a-1))return self end
-function ac:drawFg(dc,_d,ad)local bd,cd=self.get("width"),self.get("height")if
-_d<1 or _d>cd then return self end;local dd=dc<1 and(2 -dc)or 1
-local __a=math.min(#ad-
-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
+function ac:drawFg(dc,_d,ad)
+local bd,cd=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>cd then return self end
+local dd=dc<1 and(2 -dc)or 1
+local __a=math.min(#ad-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
 bb.drawFg(self,math.max(1,dc),math.max(1,_d),ad:sub(dd,dd+__a-1))return self end
-function ac:drawBg(dc,_d,ad)local bd,cd=self.get("width"),self.get("height")if
-_d<1 or _d>cd then return self end;local dd=dc<1 and(2 -dc)or 1
-local __a=math.min(#ad-
-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
+function ac:drawBg(dc,_d,ad)
+local bd,cd=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>cd then return self end
+local dd=dc<1 and(2 -dc)or 1
+local __a=math.min(#ad-dd+1,bd-math.max(1,dc)+1)if __a<=0 then return self end
 bb.drawBg(self,math.max(1,dc),math.max(1,_d),ad:sub(dd,dd+__a-1))return self end
-function ac:blit(dc,_d,ad,bd,cd)local dd,__a=self.get("width"),self.get("height")if
-_d<1 or _d>__a then return self end;local a_a=dc<1 and(2 -dc)or 1
-local b_a=math.min(
-#ad-a_a+1,dd-math.max(1,dc)+1)
+function ac:blit(dc,_d,ad,bd,cd)
+local dd,__a=self.getResolved("width"),self.getResolved("height")if _d<1 or _d>__a then return self end
+local a_a=dc<1 and(2 -dc)or 1
+local b_a=math.min(#ad-a_a+1,dd-math.max(1,dc)+1)
 local c_a=math.min(#bd-a_a+1,dd-math.max(1,dc)+1)
 local d_a=math.min(#cd-a_a+1,dd-math.max(1,dc)+1)if b_a<=0 then return self end;local _aa=ad:sub(a_a,a_a+b_a-1)local aaa=bd:sub(a_a,
 a_a+c_a-1)
 local baa=cd:sub(a_a,a_a+d_a-1)
 bb.blit(self,math.max(1,dc),math.max(1,_d),_aa,aaa,baa)return self end
-function ac:render()bb.render(self)if not self.get("childrenSorted")then
-self:sortChildren()end
-if
-not self.get("childrenEventsSorted")then for dc in pairs(self._values.childrenEvents)do
-self:sortChildrenEvents(dc)end end;for dc,_d in ipairs(self.get("visibleChildren"))do if _d==self then
+function ac:render()bb.render(self)if
+not self.getResolved("childrenSorted")then self:sortChildren()end
+if not
+self.getResolved("childrenEventsSorted")then for dc in pairs(self._values.childrenEvents)do
+self:sortChildrenEvents(dc)end end
+for dc,_d in ipairs(self.getResolved("visibleChildren"))do if _d==self then
 ab.error("CIRCULAR REFERENCE DETECTED!")return end;_d:render()
 _d:postRender()end end
 function ac:applyLayout(dc,_d)
@@ -736,19 +745,20 @@ da.init(self,cb,db)self.set("type","LineChart")return self end
 local function bb(cb,db,_c,ac,bc,cc,dc,_d)local ad=ac-db;local bd=bc-_c
 local cd=math.max(math.abs(ad),math.abs(bd))
 for i=0,cd do local dd=cd==0 and 0 or i/cd
-local __a=math.floor(db+ad*dd)local a_a=math.floor(_c+bd*dd)
-if
-
-__a>=1 and __a<=cb.get("width")and a_a>=1 and a_a<=cb.get("height")then cb:blit(__a,a_a,cc,_b[dc],_b[_d])end end end
-function ab:render()ca.render(self)local cb=self.get("width")
-local db=self.get("height")local _c=self.get("minValue")local ac=self.get("maxValue")
-local bc=self.get("series")
+local __a=math.floor(db+ad*dd)local a_a=math.floor(_c+bd*dd)if __a>=1 and
+__a<=cb.getResolved("width")and a_a>=1 and
+a_a<=cb.getResolved("height")then
+cb:blit(__a,a_a,cc,_b[dc],_b[_d])end end end
+function ab:render()ca.render(self)local cb=self.getResolved("width")
+local db=self.getResolved("height")local _c=self.getResolved("minValue")
+local ac=self.getResolved("maxValue")local bc=self.getResolved("series")
 for cc,dc in pairs(bc)do
-if(dc.visible)then local _d,ad;local bd=#dc.data
-local cd=(cb-1)/math.max((bd-1),1)
-for dd,__a in ipairs(dc.data)do local a_a=math.floor(( (dd-1)*cd)+1)local b_a=
-(__a-_c)/ (ac-_c)
-local c_a=math.floor(db- (b_a* (db-1)))c_a=math.max(1,math.min(c_a,db))if _d then
+if(dc.visible)then local _d,ad
+local bd=#dc.data;local cd=(cb-1)/math.max((bd-1),1)
+for dd,__a in ipairs(dc.data)do local a_a=math.floor(( (
+dd-1)*cd)+1)
+local b_a=(__a-_c)/ (ac-_c)local c_a=math.floor(db- (b_a* (db-1)))
+c_a=math.max(1,math.min(c_a,db))if _d then
 bb(self,_d,ad,a_a,c_a,dc.symbol,dc.bgColor,dc.fgColor)end;_d,ad=a_a,c_a end end end end;return ab end
 project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
 local aa=require("elements/List")local ba=require("libraries/colorHex")
@@ -756,23 +766,24 @@ local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})
 ca.defineProperty(ca,"spacing",{default=1,type="number",canTriggerRender=true})
 ca.defineProperty(ca,"horizontalOffset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
-local ab=math.max(0,da:getTotalWidth()-da.get("width"))return math.min(ab,math.max(0,_b))end})
+local ab=math.max(0,da:getTotalWidth()-da.getResolved("width"))return math.min(ab,math.max(0,_b))end})
 ca.defineProperty(ca,"maxWidth",{default=nil,type="number",canTriggerRender=true})
 function ca.new()local da=setmetatable({},ca):__init()
 da.class=ca;da.set("width",30)da.set("height",1)
 da.set("background",colors.gray)return da end
 function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Menu")
 self:observe("items",function()
-local ab=self.get("maxWidth")if ab then
+local ab=self.getResolved("maxWidth")if ab then
 self.set("width",math.min(ab,self:getTotalWidth()),true)else
 self.set("width",self:getTotalWidth(),true)end end)return self end
-function ca:getTotalWidth()local da=self.get("items")local _b=self.get("spacing")
-local ab=0;for bb,cb in ipairs(da)do if type(cb)=="table"then ab=ab+#cb.text else ab=
-ab+#tostring(cb)+2 end
-if bb<#da then ab=ab+_b end end;return ab end
-function ca:render()_a.render(self)local da=self.get("width")
-local _b=self.get("spacing")local ab=self.get("horizontalOffset")
-local bb=self.get("items")local cb={}local db=1
+function ca:getTotalWidth()local da=self.getResolved("items")
+local _b=self.getResolved("spacing")local ab=0
+for bb,cb in ipairs(da)do if type(cb)=="table"then ab=ab+#cb.text else ab=ab+
+#tostring(cb)+2 end;if bb<#da then
+ab=ab+_b end end;return ab end
+function ca:render()_a.render(self)local da=self.getResolved("width")
+local _b=self.getResolved("spacing")local ab=self.getResolved("horizontalOffset")
+local bb=self.getResolved("items")local cb={}local db=1
 for _c,ac in ipairs(bb)do if type(ac)=="string"then
 ac={text=" "..ac.." "}bb[_c]=ac end
 cb[_c]={startX=db,endX=db+#ac.text-1,text=ac.text,item=ac}db=db+#ac.text;if _c<#bb and _b>0 then db=db+_b end end
@@ -783,36 +794,38 @@ local bd=math.max(1,1 -cc+1)
 local cd=math.min(#ac.text,#ac.text- (dc-da))local dd=ac.text:sub(bd,cd)
 if#dd>0 then local __a=bc.selected
 local a_a=
-bc.selectable==false and self.get("separatorColor")or(__a and(bc.selectedForeground or
-self.get("selectedForeground"))or(bc.foreground or
-self.get("foreground")))
-local b_a=
-__a and(bc.selectedBackground or self.get("selectedBackground"))or(bc.background or self.get("background"))
+bc.selectable==false and self.getResolved("separatorColor")or
+(
+__a and(
+bc.selectedForeground or self.getResolved("selectedForeground"))or(bc.foreground or self.getResolved("foreground")))
+local b_a=__a and
+(bc.selectedBackground or self.getResolved("selectedBackground"))or
+(bc.background or self.getResolved("background"))
 self:blit(_d,1,dd,string.rep(ba[a_a],#dd),string.rep(ba[b_a],#dd))end
 if _c<#bb and _b>0 then local __a=ac.endX+1 -ab;local a_a=__a+_b-1
 if a_a>=1 and
 __a<=da then local b_a=math.max(1,__a)local c_a=math.min(da,a_a)
 local d_a=c_a-b_a+1
 if d_a>0 then local _aa=string.rep(" ",d_a)
-self:blit(b_a,1,_aa,string.rep(ba[self.get("foreground")],d_a),string.rep(ba[self.get("background")],d_a))end end end end end end
+self:blit(b_a,1,_aa,string.rep(ba[self.getResolved("foreground")],d_a),string.rep(ba[self.getResolved("background")],d_a))end end end end end end
 function ca:mouse_click(da,_b,ab)
 if not _a.mouse_click(self,da,_b,ab)then return false end
-if(self.get("selectable")==false)then return false end
-local bb=select(1,self:getRelativePosition(_b,ab))local cb=self.get("horizontalOffset")
-local db=self.get("spacing")local _c=self.get("items")local ac=bb+cb;local bc=1
-for cc,dc in ipairs(_c)do local _d=#dc.text
-if ac>=
-bc and ac<bc+_d then
+if(self.getResolved("selectable")==false)then return false end
+local bb=select(1,self:getRelativePosition(_b,ab))local cb=self.getResolved("horizontalOffset")
+local db=self.getResolved("spacing")local _c=self.getResolved("items")local ac=bb+cb;local bc=1
+for cc,dc in ipairs(_c)do
+local _d=#dc.text
+if ac>=bc and ac<bc+_d then
 if dc.selectable~=false then if type(dc)=="string"then
 dc={text=dc}_c[cc]=dc end;if
-not self.get("multiSelection")then
-for ad,bd in ipairs(_c)do if type(bd)=="table"then bd.selected=false end end end
-dc.selected=not dc.selected;if dc.callback then dc.callback(self)end
+not self.getResolved("multiSelection")then
+for ad,bd in ipairs(_c)do if type(bd)=="table"then bd.selected=false end end end;dc.selected=not
+dc.selected;if dc.callback then dc.callback(self)end
 self:fireEvent("select",cc,dc)end;return true end;bc=bc+_d;if cc<#_c and db>0 then bc=bc+db end end;return false end
 function ca:mouse_scroll(da,_b,ab)
 if _a.mouse_scroll(self,da,_b,ab)then
-local bb=self.get("horizontalOffset")
-local cb=math.max(0,self:getTotalWidth()-self.get("width"))bb=math.min(cb,math.max(0,bb+ (da*3)))
+local bb=self.getResolved("horizontalOffset")
+local cb=math.max(0,self:getTotalWidth()-self.getResolved("width"))bb=math.min(cb,math.max(0,bb+ (da*3)))
 self.set("horizontalOffset",bb)return true end;return false end;return ca end
 project["elements/VisualElement.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("BaseElement")local da=require("libraries/colorHex")
@@ -865,15 +878,16 @@ self:observe("height",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)
 self:observe("visible",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)end
-function _b:setConstraint(cb,db,_c,ac)local bc=self.get("constraints")if bc[cb]then
+function _b:setConstraint(cb,db,_c,ac)local bc=self.getResolved("constraints")if bc[cb]then
 self:_removeConstraintObservers(cb,bc[cb])end
 bc[cb]={element=db,property=_c,offset=ac or 0}self.set("constraints",bc)
-self:_addConstraintObservers(cb,bc[cb])self._constraintsDirty=true;self:updateRender()return self end;function _b:setLayoutConfigProperty(cb,db)local _c=self.get("layoutConfig")_c[cb]=db
-self.set("layoutConfig",_c)return self end;function _b:getLayoutConfigProperty(cb)
-local db=self.get("layoutConfig")return db[cb]end
-function _b:resolveAllConstraints()if not
-self._constraintsDirty then return self end
-local cb=self.get("constraints")if not cb or not next(cb)then return self end
+self:_addConstraintObservers(cb,bc[cb])self._constraintsDirty=true;self:updateRender()return self end
+function _b:setLayoutConfigProperty(cb,db)local _c=self.getResolved("layoutConfig")
+_c[cb]=db;self.set("layoutConfig",_c)return self end;function _b:getLayoutConfigProperty(cb)local db=self.getResolved("layoutConfig")
+return db[cb]end
+function _b:resolveAllConstraints()if
+not self._constraintsDirty then return self end
+local cb=self.getResolved("constraints")if not cb or not next(cb)then return self end
 local db={"width","height","left","right","top","bottom","x","y","centerX","centerY"}
 for _c,ac in ipairs(db)do if cb[ac]then local bc=self:_resolveConstraint(ac,cb[ac])
 self:_applyConstraintValue(ac,bc,cb)end end;self._constraintsDirty=false;return self end
@@ -882,13 +896,13 @@ if cb=="x"or cb=="left"then self.set("x",db)elseif cb=="y"or
 cb=="top"then self.set("y",db)elseif cb=="right"then
 if _c.left then
 local ac=self:_resolveConstraint("left",_c.left)local bc=db-ac+1;self.set("width",bc)self.set("x",ac)else
-local ac=self.get("width")self.set("x",db-ac+1)end elseif cb=="bottom"then
+local ac=self.getResolved("width")self.set("x",db-ac+1)end elseif cb=="bottom"then
 if _c.top then
 local ac=self:_resolveConstraint("top",_c.top)local bc=db-ac+1;self.set("height",bc)self.set("y",ac)else
-local ac=self.get("height")self.set("y",db-ac+1)end elseif cb=="centerX"then local ac=self.get("width")
-self.set("x",db-math.floor(ac/2))elseif cb=="centerY"then local ac=self.get("height")
-self.set("y",db-math.floor(ac/2))elseif cb=="width"then self.set("width",db)elseif cb=="height"then
-self.set("height",db)end end
+local ac=self.getResolved("height")self.set("y",db-ac+1)end elseif cb=="centerX"then local ac=self.getResolved("width")self.set("x",db-
+math.floor(ac/2))elseif cb=="centerY"then
+local ac=self.getResolved("height")self.set("y",db-math.floor(ac/2))elseif
+cb=="width"then self.set("width",db)elseif cb=="height"then self.set("height",db)end end
 function _b:_addConstraintObservers(cb,db)local _c=db.element;local ac=db.property
 if _c=="parent"then _c=self.parent end;if not _c then return end
 local bc=function()self._constraintsDirty=true
@@ -909,21 +923,21 @@ function _b:_removeAllConstraintObservers()
 if not self._constraintObserverCallbacks then return end
 for cb,db in pairs(self._constraintObserverCallbacks)do for _c,ac in ipairs(db)do
 ac.element:removeObserver(ac.property,ac.callback)end end;self._constraintObserverCallbacks=nil end
-function _b:removeConstraint(cb)local db=self.get("constraints")db[cb]=nil
+function _b:removeConstraint(cb)local db=self.getResolved("constraints")db[cb]=nil
 self.set("constraints",db)self:updateConstraints()return self end
-function _b:updateConstraints()local cb=self.get("constraints")
+function _b:updateConstraints()local cb=self.getResolved("constraints")
 for db,_c in pairs(cb)do
 local ac=self:_resolveConstraint(db,_c)
 if db=="x"or db=="left"then self.set("x",ac)elseif db=="y"or db=="top"then
-self.set("y",ac)elseif db=="right"then local bc=self.get("width")
-self.set("x",ac-bc+1)elseif db=="bottom"then local bc=self.get("height")
-self.set("y",ac-bc+1)elseif db=="centerX"then local bc=self.get("width")
-self.set("x",ac-math.floor(bc/2))elseif db=="centerY"then local bc=self.get("height")
-self.set("y",ac-math.floor(bc/2))elseif db=="width"then self.set("width",ac)elseif db=="height"then
-self.set("height",ac)end end end
+self.set("y",ac)elseif db=="right"then local bc=self.getResolved("width")
+self.set("x",ac-bc+1)elseif db=="bottom"then local bc=self.getResolved("height")
+self.set("y",ac-bc+1)elseif db=="centerX"then local bc=self.getResolved("width")self.set("x",ac-
+math.floor(bc/2))elseif db=="centerY"then
+local bc=self.getResolved("height")self.set("y",ac-math.floor(bc/2))elseif
+db=="width"then self.set("width",ac)elseif db=="height"then self.set("height",ac)end end end
 function _b:_resolveConstraint(cb,db)local _c=db.element;local ac=db.property;local bc=db.offset;if _c=="parent"then
 _c=self.parent end
-if not _c then return self.get(cb)or 1 end;local cc
+if not _c then return self.getResolved(cb)or 1 end;local cc
 if ac=="left"or ac=="x"then cc=_c.get("x")elseif ac=="right"then cc=_c.get("x")+
 _c.get("width")-1 elseif ac=="top"or ac=="y"then
 cc=_c.get("y")elseif ac=="bottom"then
@@ -982,12 +996,13 @@ function _b:drawBg(cb,db,_c)local ac,bc=self:calculatePosition()cb=cb+ac-1
 db=db+bc-1;self.parent:drawBg(cb,db,_c)end
 function _b:blit(cb,db,_c,ac,bc)local cc,dc=self:calculatePosition()cb=cb+cc-1
 db=db+dc-1;self.parent:blit(cb,db,_c,ac,bc)end
-function _b:isInBounds(cb,db)local _c,ac=self.get("x"),self.get("y")
-local bc,cc=self.get("width"),self.get("height")if(self.get("ignoreOffset"))then
-if(self.parent)then
-cb=cb-self.parent.get("offsetX")db=db-self.parent.get("offsetY")end end;return
-cb>=_c and cb<=
-_c+bc-1 and db>=ac and db<=ac+cc-1 end
+function _b:isInBounds(cb,db)
+local _c,ac=self.getResolved("x"),self.getResolved("y")
+local bc,cc=self.getResolved("width"),self.getResolved("height")
+if(self.getResolved("ignoreOffset"))then if(self.parent)then cb=cb-
+self.parent.get("offsetX")
+db=db-self.parent.get("offsetY")end end;return
+cb>=_c and cb<=_c+bc-1 and db>=ac and db<=ac+cc-1 end
 function _b:mouse_click(cb,db,_c)if self:isInBounds(db,_c)then self:setState("clicked")
 self:fireEvent("mouse_click",cb,self:getRelativePosition(db,_c))return true end;return
 false end
@@ -999,7 +1014,7 @@ function _b:mouse_release(cb,db,_c)
 self:fireEvent("mouse_release",cb,self:getRelativePosition(db,_c))self:unsetState("clicked")
 self:unsetState("dragging")end
 function _b:mouse_move(cb,db,_c)if(db==nil)or(_c==nil)then return false end
-local ac=self.get("hover")
+local ac=self.getResolved("hover")
 if(self:isInBounds(db,_c))then if(not ac)then self.set("hover",true)
 self:fireEvent("mouse_enter",self:getRelativePosition(db,_c))end;return true else if(ac)then
 self.set("hover",false)
@@ -1039,18 +1054,18 @@ function _b:key_up(cb)if
 (self:hasState("focused"))then self:fireEvent("key_up",cb)end end;function _b:char(cb)
 if(self:hasState("focused"))then self:fireEvent("char",cb)end end
 function _b:calculatePosition()
-self:resolveAllConstraints()local cb,db=self.get("x"),self.get("y")
-if
-not self.get("ignoreOffset")then if self.parent~=nil then
+self:resolveAllConstraints()local cb,db=self.getResolved("x"),self.getResolved("y")
+if not
+self.getResolved("ignoreOffset")then if self.parent~=nil then
 local _c,ac=self.parent.get("offsetX"),self.parent.get("offsetY")cb=cb-_c;db=db-ac end end;return cb,db end
-function _b:getAbsolutePosition(cb,db)local _c,ac=self.get("x"),self.get("y")if(cb~=nil)then
-_c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end;local bc=self.parent
-while bc do
-local cc,dc=bc.get("x"),bc.get("y")_c=_c+cc-1;ac=ac+dc-1;bc=bc.parent end;return _c,ac end
+function _b:getAbsolutePosition(cb,db)
+local _c,ac=self.getResolved("x"),self.getResolved("y")if(cb~=nil)then _c=_c+cb-1 end;if(db~=nil)then ac=ac+db-1 end
+local bc=self.parent;while bc do local cc,dc=bc.get("x"),bc.get("y")_c=_c+cc-1;ac=ac+dc-1
+bc=bc.parent end;return _c,ac end
 function _b:getRelativePosition(cb,db)if(cb==nil)or(db==nil)then
-cb,db=self.get("x"),self.get("y")end;local _c,ac=1,1;if self.parent then
+cb,db=self.getResolved("x"),self.getResolved("y")end;local _c,ac=1,1;if self.parent then
 _c,ac=self.parent:getRelativePosition()end
-local bc,cc=self.get("x"),self.get("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
+local bc,cc=self.getResolved("x"),self.getResolved("y")return cb- (bc-1)- (_c-1),db- (cc-1)- (ac-1)end
 function _b:setCursor(cb,db,_c,ac)
 if self.parent then local bc,cc=self:calculatePosition()
 if
@@ -1063,8 +1078,9 @@ function _b:prioritize()
 if(self.parent)then local cb=self.parent;cb:removeChild(self)
 cb:addChild(self)self:updateRender()end;return self end
 function _b:render()
-if(not self.getResolved("backgroundEnabled"))then return end;local cb,db=self.get("width"),self.get("height")
-local _c=da[self.getResolved("foreground")]local ac=da[self.getResolved("background")]
+if(not self.getResolved("backgroundEnabled"))then return end
+local cb,db=self.getResolved("width"),self.getResolved("height")local _c=da[self.getResolved("foreground")]
+local ac=da[self.getResolved("background")]
 local bc,cc,dc,_d=self.getResolved("borderTop"),self.getResolved("borderBottom"),self.getResolved("borderLeft"),self.getResolved("borderRight")self:multiBlit(1,1,cb,db," ",_c,ac)
 if
 (bc or cc or dc or _d)then
@@ -1088,36 +1104,37 @@ function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;ba.set("width",25)ba.set("height",3)return ba end;function aa:init(ba,ca)d.init(self,ba,ca)
 self.set("type","ProgressBar")end
 function aa:render()d.render(self)
-local ba=self.get("width")local ca=self.get("height")
-local da=math.min(100,math.max(0,self.get("progress")))local _b=math.floor((ba*da)/100)
-local ab=math.floor((ca*da)/100)local bb=self.get("direction")
-local cb=self.get("progressColor")
+local ba=self.getResolved("width")local ca=self.getResolved("height")
+local da=math.min(100,math.max(0,self.getResolved("progress")))local _b=math.floor((ba*da)/100)
+local ab=math.floor((ca*da)/100)local bb=self.getResolved("direction")
+local cb=self.getResolved("progressColor")local db=self.getResolved("foreground")
 if bb=="right"then
-self:multiBlit(1,1,_b,ca," ",_a[self.get("foreground")],_a[cb])elseif bb=="left"then
-self:multiBlit(ba-_b+1,1,_b,ca," ",_a[self.get("foreground")],_a[cb])elseif bb=="up"then
-self:multiBlit(1,ca-ab+1,ba,ab," ",_a[self.get("foreground")],_a[cb])elseif bb=="down"then
-self:multiBlit(1,1,ba,ab," ",_a[self.get("foreground")],_a[cb])end
-if self.get("showPercentage")then local db=tostring(da).."%"local _c=math.floor(
-(ba-#db)/2)+1
-local ac=math.floor((ca-1)/2)+1
-self:textFg(_c,ac,db,self.get("foreground"))end end;return aa end
+self:multiBlit(1,1,_b,ca," ",_a[db],_a[cb])elseif bb=="left"then
+self:multiBlit(ba-_b+1,1,_b,ca," ",_a[db],_a[cb])elseif bb=="up"then
+self:multiBlit(1,ca-ab+1,ba,ab," ",_a[db],_a[cb])elseif bb=="down"then
+self:multiBlit(1,1,ba,ab," ",_a[db],_a[cb])end
+if self.getResolved("showPercentage")then local _c=tostring(da).."%"local ac=math.floor((
+ba-#_c)/2)+1;local bc=
+math.floor((ca-1)/2)+1;self:textFg(ac,bc,_c,db)end end;return aa end
 project["elements/CheckBox.lua"] = function(...) local c=require("elements/VisualElement")
 local d=setmetatable({},c)d.__index=d
 d.defineProperty(d,"checked",{default=false,type="boolean",canTriggerRender=true})
-d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("checkedText")
-local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
-d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.get("text")
-local ca=math.max(#aa,#ba)if(_a.get("autoSize"))then _a.set("width",ca)end;return aa end})
+d.defineProperty(d,"text",{default=" ",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.getResolved("checkedText")local ca=math.max(#aa,
+#ba)if(_a.getResolved("autoSize"))then
+_a.set("width",ca)end;return aa end})
+d.defineProperty(d,"checkedText",{default="x",type="string",canTriggerRender=true,setter=function(_a,aa)local ba=_a.getResolved("text")
+local ca=math.max(#aa,#ba)
+if(_a.getResolved("autoSize"))then _a.set("width",ca)end;return aa end})
 d.defineProperty(d,"autoSize",{default=true,type="boolean"})d.defineEvent(d,"mouse_click")
 d.defineEvent(d,"mouse_up")function d.new()local _a=setmetatable({},d):__init()_a.class=d
 _a.set("backgroundEnabled",false)return _a end
 function d:init(_a,aa)
 c.init(self,_a,aa)self.set("type","CheckBox")end
 function d:mouse_click(_a,aa,ba)if c.mouse_click(self,_a,aa,ba)then
-self.set("checked",not self.get("checked"))return true end;return false end
+self.set("checked",not self.getResolved("checked"))return true end;return false end
 function d:render()c.render(self)local _a=self.getResolved("checked")
 local aa=self.getResolved("text")local ba=self.getResolved("checkedText")
-local ca=string.sub(_a and ba or aa,1,self.get("width"))
+local ca=string.sub(_a and ba or aa,1,self.getResolved("width"))
 self:textFg(1,1,ca,self.getResolved("foreground"))end;return d end
 project["elements/BaseElement.lua"] = function(...) local _a=require("propertySystem")
 local aa=require("libraries/utils").uuid;local ba=require("errorManager")local ca=setmetatable({},_a)
@@ -1170,7 +1187,7 @@ not self._values.eventCallbacks[da]then self._values.eventCallbacks[da]={}end
 table.insert(self._values.eventCallbacks[da],_b)return self end;function ca:registerState(da,_b,ab)
 self._registeredStates[da]={condition=_b,priority=ab or 0}return self end
 function ca:setState(da,_b)
-local ab=self.get("states")if not _b and self._registeredStates[da]then
+local ab=self.getResolved("states")if not _b and self._registeredStates[da]then
 _b=self._registeredStates[da].priority end;ab[da]=_b or 0
 self.set("states",ab)return self end
 function ca:unsetState(da)local _b=self.get("states")if _b[da]~=nil then _b[da]=nil
@@ -1185,14 +1202,47 @@ return ab.priority>bb.priority end)return _b end
 function ca:updateConditionalStates()
 for da,_b in pairs(self._registeredStates)do
 if _b.condition then if _b.condition(self)then
-self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end;function ca:unregisterState(da)self._stateRegistry[da]=nil
+self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end
+function ca:registerResponsiveState(da,_b,ab)local bb=100;local cb={}
+if type(ab)=="number"then bb=ab elseif type(ab)=="table"then bb=
+ab.priority or 100;cb=ab.observe or{}end;local db;local _c=type(_b)=="string"
+if _c then
+db=self:_parseResponsiveExpression(_b)local ac=self:_detectDependencies(_b)for bc,cc in ipairs(ac)do
+table.insert(cb,cc)end else db=_b end;self:registerState(da,db,bb)
+for ac,bc in ipairs(cb)do
+local cc=bc.element or bc[1]local dc=bc.property or bc[2]if cc and dc then
+cc:observe(dc,function()
+self:updateConditionalStates()end)end end;self:updateConditionalStates()return self end
+function ca:_parseResponsiveExpression(da)local _b={colors=true,math=true,clamp=true,round=true}
+local ab={clamp=function(ac,bc,cc)return
+math.min(math.max(ac,bc),cc)end,round=function(ac)
+return math.floor(ac+0.5)end,floor=math.floor,ceil=math.ceil,abs=math.abs}
+da=da:gsub("([%w_]+)%.([%w_]+)",function(ac,bc)
+if _b[ac]or tonumber(ac)then return ac.."."..bc end
+return string.format('__getProperty("%s", "%s")',ac,bc)end)local bb=self
+local cb=setmetatable({colors=colors,math=math,tostring=tostring,tonumber=tonumber,__getProperty=function(ac,bc)
+if ac=="self"then
+if bb._properties[bc]then return bb.get(bc)end elseif ac=="parent"then if bb.parent and bb.parent._properties[bc]then return
+bb.parent.get(bc)end else
+local cc=bb:getBaseFrame():getChild(ac)
+if cc and cc._properties[bc]then return cc.get(bc)end end;return nil end},{__index=ab})local db,_c=load("return "..da,"responsive","t",cb)
+if not db then error(
+"Invalid responsive expression: ".._c)end;return
+function(ac)local bc,cc=pcall(db)return bc and cc or false end end
+function ca:_detectDependencies(da)local _b={}
+local ab={colors=true,math=true,clamp=true,round=true}
+for bb,cb in da:gmatch("([%w_]+)%.([%w_]+)")do
+if not ab[bb]and not tonumber(bb)then
+local db;if bb=="self"then db=self elseif bb=="parent"then db=self.parent else
+db=self:getBaseFrame():getChild(bb)end;if db then
+table.insert(_b,{element=db,property=cb})end end end;return _b end;function ca:unregisterState(da)self._stateRegistry[da]=nil
 self:unsetState(da)return self end
 function ca:fireEvent(da,...)
 if
-self.get("eventCallbacks")[da]then local _b;for ab,bb in ipairs(self.get("eventCallbacks")[da])do
-_b=bb(self,...)end;return _b end;return self end
+self.getResolved("eventCallbacks")[da]then local _b;for ab,bb in
+ipairs(self.getResolved("eventCallbacks")[da])do _b=bb(self,...)end;return _b end;return self end
 function ca:dispatchEvent(da,...)
-if self.get("enabled")==false then return false end;if self[da]then return self[da](self,...)end;return
+if self.getResolved("enabled")==false then return false end;if self[da]then return self[da](self,...)end;return
 self:handleEvent(da,...)end;function ca:handleEvent(da,...)return false end;function ca:onChange(da,_b)
 self:observe(da,_b)return self end
 function ca:getBaseFrame()if self.parent then return
@@ -1205,7 +1255,7 @@ project["elements/List.lua"] = function(...) local _a=require("elements/Collecti
 local aa=require("libraries/colorHex")local ba=setmetatable({},_a)ba.__index=ba
 ba.defineProperty(ba,"offset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
 local ab=math.max(0,#
-da.get("items")-da.get("height"))return math.min(ab,math.max(0,_b))end})
+da.getResolved("items")-da.getResolved("height"))return math.min(ab,math.max(0,_b))end})
 ba.defineProperty(ba,"emptyText",{default="No items",type="string",canTriggerRender=true})
 ba.defineProperty(ba,"showScrollBar",{default=true,type="boolean",canTriggerRender=true})
 ba.defineProperty(ba,"scrollBarSymbol",{default=" ",type="string",canTriggerRender=true})
@@ -1222,34 +1272,36 @@ da.set("background",colors.gray)return da end
 function ba:init(da,_b)_a.init(self,da,_b)self._entrySchema=ca
 self.set("type","List")
 self:observe("items",function()
-local ab=math.max(0,#self.get("items")-self.get("height"))
-if self.get("offset")>ab then self.set("offset",ab)end end)
+local ab=math.max(0,#self.getResolved("items")-
+self.getResolved("height"))
+if self.getResolved("offset")>ab then self.set("offset",ab)end end)
 self:observe("height",function()
-local ab=math.max(0,#self.get("items")-self.get("height"))
-if self.get("offset")>ab then self.set("offset",ab)end end)return self end
+local ab=math.max(0,#self.getResolved("items")-
+self.getResolved("height"))
+if self.getResolved("offset")>ab then self.set("offset",ab)end end)return self end
 function ba:mouse_click(da,_b,ab)
 if _a.mouse_click(self,da,_b,ab)then
-local bb,cb=self:getRelativePosition(_b,ab)local db=self.get("width")local _c=self.get("items")
-local ac=self.get("height")local bc=self.get("showScrollBar")
-if bc and#_c>ac and bb==db then local cc=
-#_c-ac
-local dc=math.max(1,math.floor((ac/#_c)*ac))
-local _d=cc>0 and(self.get("offset")/cc*100)or 0
-local ad=math.floor((_d/100)* (ac-dc))+1
-if cb>=ad and cb<ad+dc then self._scrollBarDragging=true
-self._scrollBarDragOffset=cb-ad else local bd=( (cb-1)/ (ac-dc))*100
-local cd=math.floor((bd/100)*cc+0.5)
+local bb,cb=self:getRelativePosition(_b,ab)local db=self.getResolved("width")
+local _c=self.getResolved("items")local ac=self.getResolved("height")
+local bc=self.getResolved("showScrollBar")
+if bc and#_c>ac and bb==db then local cc=#_c-ac
+local dc=math.max(1,math.floor((ac/#_c)*ac))local _d=
+cc>0 and(self.getResolved("offset")/cc*100)or 0;local ad=
+math.floor((_d/100)* (ac-dc))+1
+if cb>=ad and cb<ad+dc then
+self._scrollBarDragging=true;self._scrollBarDragOffset=cb-ad else
+local bd=( (cb-1)/ (ac-dc))*100;local cd=math.floor((bd/100)*cc+0.5)
 self.set("offset",math.max(0,math.min(cc,cd)))end;return true end
-if self.get("selectable")then local cc=cb+self.get("offset")
-if
-cc<=#_c then local dc=_c[cc]if not self.get("multiSelection")then
-for _d,ad in ipairs(_c)do if
-type(ad)=="table"then ad.selected=false end end end
-dc.selected=not dc.selected;if dc.callback then dc.callback(self)end
+if self.getResolved("selectable")then
+local cc=cb+self.getResolved("offset")
+if cc<=#_c then local dc=_c[cc]if not self.getResolved("multiSelection")then
+for _d,ad in
+ipairs(_c)do if type(ad)=="table"then ad.selected=false end end end;dc.selected=not
+dc.selected;if dc.callback then dc.callback(self)end
 self:fireEvent("select",cc,dc)self:updateRender()end end;return true end;return false end
 function ba:mouse_drag(da,_b,ab)
 if self._scrollBarDragging then local bb,cb=self:getRelativePosition(_b,ab)
-local db=self.get("items")local _c=self.get("height")
+local db=self.getResolved("items")local _c=self.getResolved("height")
 local ac=math.max(1,math.floor((_c/#db)*_c))local bc=#db-_c;cb=math.max(1,math.min(_c,cb))local cc=cb- (
 self._scrollBarDragOffset or 0)local dc=
 ( (cc-1)/ (_c-ac))*100
@@ -1261,38 +1313,41 @@ self._scrollBarDragOffset=nil;return true end
 return _a.mouse_up and
 _a.mouse_up(self,da,_b,ab)or false end
 function ba:mouse_scroll(da,_b,ab)
-if _a.mouse_scroll(self,da,_b,ab)then local bb=self.get("offset")
-local cb=math.max(0,
-#self.get("items")-self.get("height"))bb=math.min(cb,math.max(0,bb+da))
+if _a.mouse_scroll(self,da,_b,ab)then
+local bb=self.getResolved("offset")
+local cb=math.max(0,#self.getResolved("items")-self.getResolved("height"))bb=math.min(cb,math.max(0,bb+da))
 self.set("offset",bb)return true end;return false end
 function ba:onSelect(da)self:registerCallback("select",da)return self end
 function ba:scrollToBottom()
-local da=math.max(0,#self.get("items")-self.get("height"))self.set("offset",da)return self end
+local da=math.max(0,#self.getResolved("items")-
+self.getResolved("height"))self.set("offset",da)return self end
 function ba:scrollToTop()self.set("offset",0)return self end
-function ba:scrollToItem(da)local _b=self.get("height")local ab=self.get("offset")
-if da<
-ab+1 then self.set("offset",math.max(0,da-1))elseif da>
+function ba:scrollToItem(da)local _b=self.getResolved("height")
+local ab=self.getResolved("offset")
+if da<ab+1 then self.set("offset",math.max(0,da-1))elseif da>
 ab+_b then self.set("offset",da-_b)end;return self end
 function ba:key(da)
-if _a.key(self,da)and self.get("selectable")then
-local _b=self.get("items")local ab=self:getSelectedIndex()
+if _a.key(self,da)and self.getResolved("selectable")then
+local _b=self.getResolved("items")local ab=self:getSelectedIndex()
 if da==keys.up then
 self:selectPrevious()if ab and ab>1 then self:scrollToItem(ab-1)end
 return true elseif da==keys.down then self:selectNext()if ab and ab<#_b then
 self:scrollToItem(ab+1)end;return true elseif da==keys.home then
 self:clearItemSelection()self:selectItem(1)self:scrollToTop()return true elseif
 da==keys["end"]then self:clearItemSelection()self:selectItem(#_b)
-self:scrollToBottom()return true elseif da==keys.pageUp then local bb=self.get("height")
-local cb=math.max(1,(ab or 1)-bb)self:clearItemSelection()self:selectItem(cb)
-self:scrollToItem(cb)return true elseif da==keys.pageDown then local bb=self.get("height")
+self:scrollToBottom()return true elseif da==keys.pageUp then local bb=self.getResolved("height")local cb=math.max(1,(
+ab or 1)-bb)
+self:clearItemSelection()self:selectItem(cb)self:scrollToItem(cb)return true elseif da==
+keys.pageDown then local bb=self.getResolved("height")
 local cb=math.min(#_b,(ab or 1)+bb)self:clearItemSelection()self:selectItem(cb)
 self:scrollToItem(cb)return true end end;return false end
-function ba:render(da)da=da or 0;_a.render(self)local _b=self.get("items")
-local ab=self.get("height")local bb=self.get("offset")local cb=self.get("width")
+function ba:render(da)da=da or 0;_a.render(self)
+local _b=self.getResolved("items")local ab=self.getResolved("height")
+local bb=self.getResolved("offset")local cb=self.getResolved("width")
 local db=self.getResolved("background")local _c=self.getResolved("foreground")
-local ac=self.get("showScrollBar")local bc=ac and#_b>ab;local cc=bc and cb-1 or cb
+local ac=self.getResolved("showScrollBar")local bc=ac and#_b>ab;local cc=bc and cb-1 or cb
 if#_b==0 then
-local dc=self.get("emptyText")local _d=math.floor(ab/2)+da;local ad=math.max(1,
+local dc=self.getResolved("emptyText")local _d=math.floor(ab/2)+da;local ad=math.max(1,
 math.floor((cb-#dc)/2)+1)for i=1,ab do
 self:textBg(1,i,string.rep(" ",cb),db)end;if _d>=1 and _d<=ab then
 self:textFg(ad,_d+da,dc,colors.gray)end;return end
@@ -1331,45 +1386,46 @@ function aa:init(ba,ca)
 d.init(self,ba,ca)self._entrySchema={}self.set("type","Collection")return self end
 function aa:addItem(ba)if type(ba)=="string"then ba={text=ba}end;if ba.selected==nil then
 ba.selected=false end
-local ca=_a.new(self,ba,self._entrySchema)table.insert(self.get("items"),ca)
-self:updateRender()return ca end
-function aa:removeItem(ba)local ca=self.get("items")if type(ba)=="number"then
+local ca=_a.new(self,ba,self._entrySchema)
+table.insert(self.getResolved("items"),ca)self:updateRender()return ca end
+function aa:removeItem(ba)local ca=self.getResolved("items")if type(ba)=="number"then
 table.remove(ca,ba)else
 for da,_b in pairs(ca)do if _b==ba then table.remove(ca,da)break end end end
 self:updateRender()return self end
 function aa:clear()self.set("items",{})self:updateRender()return self end
-function aa:getSelectedItems()local ba={}for ca,da in ipairs(self.get("items"))do
-if type(da)=="table"and
-da.selected then local _b=da;_b.index=ca;table.insert(ba,_b)end end;return ba end
-function aa:getSelectedItem()local ba=self.get("items")
-for ca,da in ipairs(ba)do if type(da)=="table"and
-da.selected then return da end end;return nil end
-function aa:selectItem(ba)local ca=self.get("items")
+function aa:getSelectedItems()local ba={}for ca,da in ipairs(self.getResolved("items"))do
+if
+type(da)=="table"and da.selected then local _b=da;_b.index=ca;table.insert(ba,_b)end end
+return ba end
+function aa:getSelectedItem()local ba=self.getResolved("items")
+for ca,da in ipairs(ba)do if
+type(da)=="table"and da.selected then return da end end;return nil end
+function aa:selectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
-if ca[ba]and
-type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
+if
+ca[ba]and type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
 if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
-function aa:unselectItem(ba)local ca=self.get("items")
+function aa:unselectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
-if ca[ba]and
-type(ca[ba])=="table"then ca[ba].selected=false end else
+if
+ca[ba]and type(ca[ba])=="table"then ca[ba].selected=false end else
 for da,_b in pairs(ca)do if _b==ba then
 if type(ca[da])=="table"then ca[da].selected=false end;break end end end;self:updateRender()return self end
-function aa:clearItemSelection()local ba=self.get("items")
-for ca,da in ipairs(ba)do da.selected=false end;self:updateRender()return self end
-function aa:getSelectedIndex()local ba=self.get("items")
-for ca,da in ipairs(ba)do if type(da)=="table"and
-da.selected then return ca end end;return nil end
-function aa:selectNext()local ba=self.get("items")
+function aa:clearItemSelection()local ba=self.getResolved("items")for ca,da in ipairs(ba)do
+da.selected=false end;self:updateRender()return self end
+function aa:getSelectedIndex()local ba=self.getResolved("items")
+for ca,da in ipairs(ba)do if
+type(da)=="table"and da.selected then return ca end end;return nil end
+function aa:selectNext()local ba=self.getResolved("items")
 local ca=self:getSelectedIndex()
 if not ca then if#ba>0 then self:selectItem(1)end elseif ca<#ba then
 if not
-self.get("multiSelection")then self:clearItemSelection()end;self:selectItem(ca+1)end;self:updateRender()return self end
-function aa:selectPrevious()local ba=self.get("items")
+self.getResolved("multiSelection")then self:clearItemSelection()end;self:selectItem(ca+1)end;self:updateRender()return self end
+function aa:selectPrevious()local ba=self.getResolved("items")
 local ca=self:getSelectedIndex()
 if not ca then if#ba>0 then self:selectItem(#ba)end elseif ca>1 then
 if not
-self.get("multiSelection")then self:clearItemSelection()end;self:selectItem(ca-1)end;self:updateRender()return self end
+self.getResolved("multiSelection")then self:clearItemSelection()end;self:selectItem(ca-1)end;self:updateRender()return self end
 function aa:onSelect(ba)self:registerCallback("select",ba)return self end;return aa end
 project["elementManager.lua"] = function(...) local _c=table.pack(...)
 local ac=fs.getDir(_c[2]or"basalt")local bc=_c[1]if(ac==nil)then
