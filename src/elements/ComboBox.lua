@@ -2,7 +2,6 @@ local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local DropDown = require("elements/DropDown")
 local tHex = require("libraries/colorHex")
-
 ---@configDescription A ComboBox that combines dropdown selection with editable text input
 ---@configDefault false
 

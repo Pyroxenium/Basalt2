@@ -1,7 +1,7 @@
 local elementManager = require("elementManager")
 local Frame = elementManager.getElement("Frame")
-
 ---@configDescription A dialog overlay system with common presets (alert, confirm, prompt).
+---@configDefault false
 
 --- A dialog overlay system that provides common dialog types such as alert, confirm, and prompt.
 ---@class Dialog : Frame

@@ -2,6 +2,7 @@ local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local tHex = require("libraries/colorHex")
 ---@configDescription The Switch is a standard Switch element with click handling and state management.
+---@configDefault false
 
 --- The Switch is a standard Switch element with click handling and state management.
 ---@class Switch : VisualElement

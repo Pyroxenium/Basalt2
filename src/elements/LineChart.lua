@@ -3,7 +3,7 @@ local VisualElement = elementManager.getElement("VisualElement")
 local Graph = elementManager.getElement("Graph")
 local tHex = require("libraries/colorHex")
 --- @configDescription A line chart element based on the graph element
----@configDefault false
+--- @configDefault false
 
 --- The Line Chart element visualizes data series as connected line graphs. It plots points on a coordinate system and connects them with lines.
 --- @usage [[

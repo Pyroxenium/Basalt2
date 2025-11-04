@@ -1,5 +1,6 @@
 local VisualElement = require("elements/VisualElement")
-local tHex = require("libraries/colorHex")
+---@configDescription A slider control element for selecting a value within a range.
+---@configDefault false
 
 --- This is the slider class. It provides a draggable slider control that can be either horizontal or vertical,
 --- with customizable colors and value ranges.

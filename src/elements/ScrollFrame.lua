@@ -2,6 +2,7 @@ local elementManager = require("elementManager")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
 ---@configDescription A scrollable container that automatically displays scrollbars when content overflows.
+---@configDefault false
 
 --- A container that provides automatic scrolling capabilities with visual scrollbars. Displays vertical and/or horizontal scrollbars when child content exceeds the container's dimensions.
 --- @run [[

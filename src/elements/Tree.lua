@@ -2,6 +2,7 @@ local VisualElement = require("elements/VisualElement")
 local sub = string.sub
 local tHex = require("libraries/colorHex")
 ---@cofnigDescription The tree element provides a hierarchical view of nodes that can be expanded and collapsed, with support for selection and scrolling.
+---@configDefault false
 
 local function flattenTree(nodes, expandedNodes, level, result)
     result = result or {}

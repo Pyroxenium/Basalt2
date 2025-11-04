@@ -2,6 +2,7 @@ local tHex = require("libraries/colorHex")
 local errorManager = require("errorManager")
 local Canvas = {}
 Canvas.__index = Canvas
+---@configDefault false
 
 local sub, rep = string.sub, string.rep
 

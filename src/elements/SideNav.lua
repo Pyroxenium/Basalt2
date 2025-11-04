@@ -3,6 +3,7 @@ local VisualElement = require("elements/VisualElement")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
 ---@configDescription A SideNav element that provides sidebar navigation with multiple content areas.
+---@configDefault false
 
 --- The SideNav is a container that provides sidebar navigation functionality
 --- @run [[

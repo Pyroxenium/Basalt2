@@ -3,6 +3,7 @@ local VisualElement = require("elements/VisualElement")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
 ---@configDescription A ContextMenu element that displays a menu with items and submenus.
+---@configDefault false
 
 --- The ContextMenu displays a list of clickable items with optional submenus
 --- @run [[

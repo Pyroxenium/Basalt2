@@ -1,5 +1,6 @@
 local log = require("log")
 local tHex = require("libraries/colorHex")
+---@configDefault false
 
 local maxLines = 10
 local isVisible = false

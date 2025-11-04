@@ -1,5 +1,7 @@
 local Collection = require("elements/Collection")
 local tHex = require("libraries/colorHex")
+---@configDescription The Table is a sortable data grid with customizable columns, row selection, and scrolling capabilities.
+---@configDefault false
 
 --- This is the table class. It provides a sortable data grid with customizable columns, row selection, and scrolling capabilities. Built on Collection for consistent item management.
 --- @usage [[

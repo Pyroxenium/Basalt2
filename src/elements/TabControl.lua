@@ -2,8 +2,8 @@ local elementManager = require("elementManager")
 local VisualElement = require("elements/VisualElement")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
-local log = require("log")
 ---@configDescription A TabControl element that provides tabbed interface with multiple content areas.
+---@configDefault false
 
 --- The TabControl is a container that provides tabbed interface functionality
 --- @run [[

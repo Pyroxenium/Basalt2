@@ -1,7 +1,6 @@
 local VisualElement = require("elements/VisualElement")
 local List = require("elements/List")
 local tHex = require("libraries/colorHex")
-
 ---@configDescription A DropDown menu that shows a list of selectable items
 ---@configDefault false
 

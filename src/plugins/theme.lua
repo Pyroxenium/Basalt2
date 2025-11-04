@@ -1,4 +1,7 @@
 local errorManager = require("errorManager")
+---@configDefault false
+
+
 local defaultTheme = {
     default = {
         background = colors.lightGray,

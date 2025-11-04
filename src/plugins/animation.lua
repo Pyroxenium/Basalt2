@@ -1,3 +1,5 @@
+---@configDefault false
+
 local registeredAnimations = {}
 local easings = {
     linear = function(progress)

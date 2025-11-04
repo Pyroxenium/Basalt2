@@ -1,6 +1,7 @@
 local elementManager = require("elementManager")
 local BaseElement = elementManager.getElement("BaseElement")
 ---@cofnigDescription The Timer is a non-visual element that can be used to perform actions at specific intervals.
+---@configDefault false
 
 --- The Timer is a non-visual element that can be used to perform actions at specific intervals.
 ---@class Timer : BaseElement

@@ -1,5 +1,5 @@
 local log = require("log")
-
+---@configDefault false
 
 local activeProfiles = setmetatable({}, {__mode = "k"})
 

@@ -3,6 +3,7 @@ local VisualElement = require("elements/VisualElement")
 local Container = elementManager.getElement("Container")
 local tHex = require("libraries/colorHex")
 ---@configDescription An Accordion element that provides collapsible panels with headers.
+---@configDefault false
 
 --- The Accordion is a container that provides collapsible panel functionality
 --- @run [[

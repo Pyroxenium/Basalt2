@@ -1,8 +1,7 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
-local tHex = require("libraries/colorHex")
-
 ---@configDescription A toast notification element that displays temporary messages.
+---@configDefault false
 
 --- A toast notification element that displays temporary messages with optional icons and auto-hide functionality.
 --- The element is always visible but only renders content when a message is shown.

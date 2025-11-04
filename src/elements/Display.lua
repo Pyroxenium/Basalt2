@@ -1,8 +1,5 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
-local getCenteredPosition = require("libraries/utils").getCenteredPosition
-local deepcopy = require("libraries/utils").deepcopy
-local colorHex = require("libraries/colorHex")
 ---@configDescription The Display is a special element which uses the CC Window API which you can use.
 ---@configDefault false
 

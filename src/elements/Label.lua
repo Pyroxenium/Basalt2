@@ -3,8 +3,7 @@ local VisualElement = elementManager.getElement("VisualElement")
 local wrapText = require("libraries/utils").wrapText
 ---@configDescription A simple text display element that automatically resizes its width based on the text content.
 
---- This is the label class. It provides a simple text display element that automatically
---- resizes its width based on the text content.
+--- This is the label class. It provides a simple text display element that automatically resizes its width based on the text content.
 ---@class Label : VisualElement
 local Label = setmetatable({}, VisualElement)
 Label.__index = Label

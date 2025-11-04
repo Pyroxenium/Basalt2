@@ -1,6 +1,7 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
-local tHex = require("libraries/colorHex")
+---@configDescription A breadcrumb navigation element that displays the current path.
+---@configDefault false
 
 ---@class Breadcrumb : VisualElement
 local Breadcrumb = setmetatable({}, VisualElement)

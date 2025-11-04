@@ -1,5 +1,8 @@
 local errorManager = require("errorManager")
 local log = require("log")
+---@configDefault false
+
+
 local XMLNode = {
     new = function(tag)
         return {

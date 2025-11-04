@@ -1,8 +1,8 @@
 local elementManager = require("elementManager")
 local VisualElement = elementManager.getElement("VisualElement")
 local errorManager = require("errorManager")
-
 --- @configDescription A program that runs in a window
+---@configDefault false
 
 --- This is the program class. It provides a program that runs in a window.
 ---@class Program : VisualElement
