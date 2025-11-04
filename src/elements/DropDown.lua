@@ -63,6 +63,8 @@ DropDown.defineProperty(DropDown, "dropdownHeight", {default = 5, type = "number
 DropDown.defineProperty(DropDown, "selectedText", {default = "", type = "string"})
 ---@property dropSymbol string "\31" Indicator for dropdown state
 DropDown.defineProperty(DropDown, "dropSymbol", {default = "\31", type = "string"})
+---@property undropSymbol string "\31" Indicator for dropdown state
+DropDown.defineProperty(DropDown, "undropSymbol", {default = "\17", type = "string"})
 
 --- Creates a new DropDown instance
 --- @shortDescription Creates a new DropDown instance
@@ -202,7 +204,7 @@ function DropDown:render()
         self.set("height", actualHeight)
     end
 
-    self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and "\31" or "\17"),
+    self:blit(1, 1, text .. string.rep(" ", self.get("width") - #text - 1) .. (isOpen and self.dropSymbol or self.undropSymbol),
         string.rep(tHex[self.getResolved("foreground")], self.get("width")),
         string.rep(tHex[self.getResolved("background")], self.get("width")))
 end
