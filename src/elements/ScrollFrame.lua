@@ -91,14 +91,17 @@ ScrollFrame.defineProperty(ScrollFrame, "showScrollBar", {default = true, type =
 ---@property scrollBarSymbol string "_" The symbol used for the scrollbar handle
 ScrollFrame.defineProperty(ScrollFrame, "scrollBarSymbol", {default = " ", type = "string", canTriggerRender = true})
 
----@property scrollBarBackground string "\127" The symbol used for the scrollbar background
-ScrollFrame.defineProperty(ScrollFrame, "scrollBarBackground", {default = "\127", type = "string", canTriggerRender = true})
+---@property scrollBarBackgroundSymbol string "\127" The symbol used for the scrollbar background
+ScrollFrame.defineProperty(ScrollFrame, "scrollBarBackgroundSymbol", {default = "\127", type = "string", canTriggerRender = true})
 
 ---@property scrollBarColor color lightGray Color of the scrollbar handle
 ScrollFrame.defineProperty(ScrollFrame, "scrollBarColor", {default = colors.lightGray, type = "color", canTriggerRender = true})
 
 ---@property scrollBarBackgroundColor color gray Background color of the scrollbar
 ScrollFrame.defineProperty(ScrollFrame, "scrollBarBackgroundColor", {default = colors.gray, type = "color", canTriggerRender = true})
+
+---@property scrollBarBackgroundColor2 secondary color black Background color of the scrollbar
+ScrollFrame.defineProperty(ScrollFrame, "scrollBarBackgroundColor2", {default = colors.black, type = "color", canTriggerRender = true})
 
 ---@property contentWidth number 0 The total width of the content (calculated from children)
 ScrollFrame.defineProperty(ScrollFrame, "contentWidth", {
@@ -378,20 +381,19 @@ function ScrollFrame:render()
         local scrollHeight = viewportHeight
         local handleSize = math.max(1, math.floor((viewportHeight / contentHeight) * scrollHeight))
         local maxOffset = contentHeight - viewportHeight
-        local scrollBarSymbol = self.get("scrollBarSymbol")
-        local scrollBarBg = self.get("scrollBarBackground")
+        local scrollBarBg = self.get("scrollBarBackgroundSymbol")
         local scrollBarColor = self.get("scrollBarColor")
         local scrollBarBgColor = self.get("scrollBarBackgroundColor")
-        local foreground = self.get("foreground")
+        local scrollBarBg2Color = self.get("scrollBarBackgroundColor2")
 
         local currentPercent = maxOffset > 0 and (offsetY / maxOffset * 100) or 0
         local handlePos = math.floor((currentPercent / 100) * (scrollHeight - handleSize)) + 1
 
         for i = 1, scrollHeight do
             if i >= handlePos and i < handlePos + handleSize then
-                self:blit(width, i, scrollBarSymbol, tHex[scrollBarColor], tHex[scrollBarBgColor])
+                self:blit(width, i, " ", tHex[scrollBarColor], tHex[scrollBarColor])
             else
-                self:blit(width, i, scrollBarBg, tHex[foreground], tHex[scrollBarBgColor])
+                self:blit(width, i, scrollBarBg, tHex[scrollBarBgColor], tHex[scrollBarBg2Color])
             end
         end
     end
@@ -400,20 +402,19 @@ function ScrollFrame:render()
         local scrollWidth = viewportWidth
         local handleSize = math.max(1, math.floor((viewportWidth / contentWidth) * scrollWidth))
         local maxOffset = contentWidth - viewportWidth
-        local scrollBarSymbol = self.get("scrollBarSymbol")
-        local scrollBarBg = self.get("scrollBarBackground")
+        local scrollBarBg = self.get("scrollBarBackgroundSymbol")
         local scrollBarColor = self.get("scrollBarColor")
         local scrollBarBgColor = self.get("scrollBarBackgroundColor")
-        local foreground = self.get("foreground")
+        local scrollBarBg2Color = self.get("scrollBarBackgroundColor2")
 
         local currentPercent = maxOffset > 0 and (offsetX / maxOffset * 100) or 0
         local handlePos = math.floor((currentPercent / 100) * (scrollWidth - handleSize)) + 1
 
         for i = 1, scrollWidth do
             if i >= handlePos and i < handlePos + handleSize then
-                self:blit(i, height, scrollBarSymbol, tHex[scrollBarColor], tHex[scrollBarBgColor])
+                self:blit(i, height, " ", tHex[scrollBarColor], tHex[scrollBarColor])
             else
-                self:blit(i, height, scrollBarBg, tHex[foreground], tHex[scrollBarBgColor])
+                self:blit(i, height, scrollBarBg, tHex[scrollBarBgColor], tHex[scrollBarBg2Color])
             end
         end
     end

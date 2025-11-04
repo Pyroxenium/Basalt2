@@ -1,5 +1,21 @@
 local minify = loadfile("tools/minify.lua")()
 
+local function loadConfig()
+    local config = dofile("config.lua")
+    return config
+end
+
+local function isDefaultFile(path, config)
+    for _, category in pairs(config.categories) do
+        for fileName, fileInfo in pairs(category.files) do
+            if fileInfo.path == path and fileInfo.default == true then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function scanDir(dir)
     local files = {}
     for file in io.popen('find "'..dir..'" -type f -name "*.lua"'):lines() do
@@ -13,9 +29,11 @@ local function scanDir(dir)
     return files
 end
 
-local function bundle()
+local function bundle(coreOnly)
+    local outputFile = coreOnly and "release/basalt-core.lua" or "release/basalt-full.lua"
+    local config = coreOnly and loadConfig() or nil
     local files = scanDir("src")
-    
+
     local output = {
         'local minified = true\n',
         'local minified_elementDirectory = {}\n',
@@ -27,51 +45,61 @@ local function bundle()
     }
 
     for _, file in ipairs(files) do
+        if not coreOnly or isDefaultFile(file.path, config) then
+            local elementName = file.path:match("^elements/(.+)%.lua$")
+            if elementName then
+                table.insert(output, string.format(
+                    'minified_elementDirectory["%s"] = {}\n',
+                    elementName
+                ))
+            end
 
-        local elementName = file.path:match("^elements/(.+)%.lua$")
-        if elementName then
-            table.insert(output, string.format(
-                'minified_elementDirectory["%s"] = {}\n',
-                elementName
-            ))
-        end
-
-        local pluginName = file.path:match("^plugins/(.+)%.lua$")
-        if pluginName then
-            table.insert(output, string.format(
-                'minified_pluginDirectory["%s"] = {}\n',
-                pluginName
-            ))
+            local pluginName = file.path:match("^plugins/(.+)%.lua$")
+            if pluginName then
+                table.insert(output, string.format(
+                    'minified_pluginDirectory["%s"] = {}\n',
+                    pluginName
+                ))
+            end
         end
     end
 
+    local includedFiles = {}
     for _, file in ipairs(files) do
-        local f = io.open(file.fullPath, "r")
-        local content = f:read("*all")
-        f:close()
+        if not coreOnly or isDefaultFile(file.path, config) then
+            table.insert(includedFiles, file)
 
-        local success, minified = minify(content)
-        if not success then
-            print("Failed to minify " .. file.path)
-            os.exit(1)
+            local f = io.open(file.fullPath, "r")
+            local content = f:read("*all")
+            f:close()
+
+            local success, minified = minify(content)
+            if not success then
+                print("Failed to minify " .. file.path)
+                os.exit(1)
+            end
+
+            table.insert(output, string.format(
+                'project["%s"] = function(...) %s end\n',
+                file.path, minified
+            ))
         end
-
-        table.insert(output, string.format(
-            'project["%s"] = function(...) %s end\n',
-            file.path, minified
-        ))
     end
 
     table.insert(output, 'return project["main.lua"]()')
 
-    local out = io.open("release/basalt.lua", "w")
+    local out = io.open(outputFile, "w")
     out:write(table.concat(output))
     out:close()
 
-    print("Successfully bundled files:")
-    for _, file in ipairs(files) do
+    print("Successfully bundled " .. outputFile .. ":")
+    for _, file in ipairs(includedFiles) do
         print("- " .. file.path)
     end
+    print("Total files: " .. #includedFiles)
 end
 
-bundle()
+print("=== Building Full Version ===")
+bundle(false)
+print("\n=== Building Core Version ===")
+bundle(true)

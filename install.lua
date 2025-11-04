@@ -1,5 +1,6 @@
 local basalt
-local releasePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt.lua"
+local fullPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt-full.lua"
+local corePath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt-core.lua"
 local devPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/src/"
 local configPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/config.lua"
 local luaLSPath = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/BasaltLS.lua"
@@ -31,7 +32,7 @@ end
 
 if(args[1] == "-r")or(args[1] == "--release")then
     print("Installing release version...")
-    local request = http.get(releasePath)
+    local request = http.get(fullPath)
     if not request then
         error("Failed to download Basalt")
     end
@@ -83,7 +84,7 @@ if(args[1] == "-d")or(args[1] == "--dev")then
 end
 
 
-local basaltRequest = http.get(releasePath)
+local basaltRequest = http.get(fullPath)
 if not basaltRequest then
     error("Failed to download Basalt")
 end
@@ -131,7 +132,10 @@ local function getScreenPosition(index)
 end
 
 local function createScreen(index)
-    local screen = main:addFrame(coloring)
+    local screen = main:addScrollFrame(coloring)
+        :setScrollBarBackgroundColor(colors.black)
+        --:setScrollBarBackgroundColor2(colors.gray)
+        :setScrollBarColor(colors.lightGray)
         :onScroll(function(self, direction)
             local height = getChildrenHeight(self)
             local scrollOffset = self:getOffsetY()
@@ -422,7 +426,7 @@ end
 local function installRelease(installPath, log, progressBar)
     logMessage(log, "Installing Release version...")
 
-    local request = http.get(releasePath)
+    local request = http.get(fullPath)
     if not request then
         logMessage(log, "Failed to download release version, aborting installation.")
         return
