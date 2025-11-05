@@ -1201,8 +1201,9 @@ table.sort(_b,function(ab,bb)
 return ab.priority>bb.priority end)return _b end
 function ca:updateConditionalStates()
 for da,_b in pairs(self._registeredStates)do
-if _b.condition then if _b.condition(self)then
-self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end
+if _b.condition then
+local ab=_b.condition(self)if ab then self:setState(da,_b.priority)else
+self:unsetState(da)end end end;return self end
 function ca:registerResponsiveState(da,_b,ab)local bb=100;local cb={}
 if type(ab)=="number"then bb=ab elseif type(ab)=="table"then bb=
 ab.priority or 100;cb=ab.observe or{}end;local db;local _c=type(_b)=="string"
@@ -1681,11 +1682,13 @@ local ad=self._properties[bc]if(ad==nil)then da.error("Property not found: "..bc
 return end;if
 type(_d)=="function"and ad.type~="function"then _d=_d(self)end;return
 ad.getter and ad.getter(self,_d,...)or _d end
-self.getResolved=function(bc,...)local cc=self:getCurrentState()local dc
+self.getResolved=function(bc,...)local cc=self:getActiveStates()local dc=nil;for ad,bd in ipairs(cc)do
 if
-cc and self._states and
-self._states[cc]and self._states[cc][bc]~=nil then dc=self._states[cc][bc]else dc=self._values[bc]end;local _d=self._properties[bc]if(_d==nil)then
-da.error("Property not found: "..bc)return end;if
+self._states and
+self._states[bd.name]and self._states[bd.name][bc]~=nil then dc=self._states[bd.name][bc]break end end;if dc==
+nil then dc=self._values[bc]end
+local _d=self._properties[bc]if(_d==nil)then da.error("Property not found: "..bc)
+return end;if
 type(dc)=="function"and _d.type~="function"then dc=dc(self)end;return
 _d.getter and _d.getter(self,dc,...)or dc end;local cb={}local db=getmetatable(self).__index
 while db do if

@@ -3087,8 +3087,9 @@ table.sort(_b,function(ab,bb)
 return ab.priority>bb.priority end)return _b end
 function ca:updateConditionalStates()
 for da,_b in pairs(self._registeredStates)do
-if _b.condition then if _b.condition(self)then
-self:setState(da,_b.priority)else self:unsetState(da)end end end;return self end
+if _b.condition then
+local ab=_b.condition(self)if ab then self:setState(da,_b.priority)else
+self:unsetState(da)end end end;return self end
 function ca:registerResponsiveState(da,_b,ab)local bb=100;local cb={}
 if type(ab)=="number"then bb=ab elseif type(ab)=="table"then bb=
 ab.priority or 100;cb=ab.observe or{}end;local db;local _c=type(_b)=="string"
@@ -3637,13 +3638,13 @@ cb.error("Could not find element: "..baa)return nil end;return
 daa:getState(caa).value end,__getProperty=function(baa,caa)if
 tonumber(baa)then return nil end
 if baa=="self"then if a_a._properties[caa]then
-return a_a.get(caa)end;if
+return a_a.getResolved(caa)end;if
 a_a._registeredStates and a_a._registeredStates[caa]then return a_a:hasState(caa)end
 local daa=a_a.get("states")if daa and daa[caa]~=nil then return true end
 cb.header="Reactive evaluation error"
 cb.error("Property or state '"..caa..
 "' not found in element '"..a_a:getType().."'")return nil elseif baa=="parent"then if a_a.parent._properties[caa]then return
-a_a.parent.get(caa)end;if a_a.parent._registeredStates and
+a_a.parent.getResolved(caa)end;if a_a.parent._registeredStates and
 a_a.parent._registeredStates[caa]then
 return a_a.parent:hasState(caa)end
 local daa=a_a.parent.get("states")if daa and daa[caa]~=nil then return true end
@@ -3651,7 +3652,7 @@ cb.header="Reactive evaluation error"
 cb.error("Property or state '"..caa.."' not found in parent element")return nil else local daa=a_a.parent:getChild(baa)if not daa then
 cb.header="Reactive evaluation error"
 cb.error("Could not find element: "..baa)return nil end;if
-daa._properties[caa]then return daa.get(caa)end
+daa._properties[caa]then return daa.getResolved(caa)end
 if daa._registeredStates and
 daa._registeredStates[caa]then return daa:hasState(caa)end;local _ba=daa.get("states")
 if _ba and _ba[caa]~=nil then return true end;cb.header="Reactive evaluation error"
@@ -4409,11 +4410,13 @@ local ad=self._properties[bc]if(ad==nil)then da.error("Property not found: "..bc
 return end;if
 type(_d)=="function"and ad.type~="function"then _d=_d(self)end;return
 ad.getter and ad.getter(self,_d,...)or _d end
-self.getResolved=function(bc,...)local cc=self:getCurrentState()local dc
+self.getResolved=function(bc,...)local cc=self:getActiveStates()local dc=nil;for ad,bd in ipairs(cc)do
 if
-cc and self._states and
-self._states[cc]and self._states[cc][bc]~=nil then dc=self._states[cc][bc]else dc=self._values[bc]end;local _d=self._properties[bc]if(_d==nil)then
-da.error("Property not found: "..bc)return end;if
+self._states and
+self._states[bd.name]and self._states[bd.name][bc]~=nil then dc=self._states[bd.name][bc]break end end;if dc==
+nil then dc=self._values[bc]end
+local _d=self._properties[bc]if(_d==nil)then da.error("Property not found: "..bc)
+return end;if
 type(dc)=="function"and _d.type~="function"then dc=dc(self)end;return
 _d.getter and _d.getter(self,dc,...)or dc end;local cb={}local db=getmetatable(self).__index
 while db do if
