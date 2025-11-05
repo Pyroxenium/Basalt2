@@ -375,16 +375,13 @@ da.set("width",#da.getResolved("text"))else
 da.set("height",#
 ba(da.getResolved("text"),da.getResolved("width")))end;return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("z",3)da.set("foreground",colors.black)
-da.set("backgroundEnabled",false)return da end
-function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
-self.set("background",self.parent.get("background"))
-self.set("foreground",self.parent.get("foreground"))end
-self.set("type","Label")return self end;function ca:getWrappedText()local da=self.getResolved("text")
-local _b=ba(da,self.getResolved("width"))return _b end
-function ca:render()
-aa.render(self)local da=self.getResolved("text")
-if(self.getResolved("autoSize"))then
+da.class=ca;da.set("z",3)da.set("backgroundEnabled",false)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Label")
+return self end
+function ca:getWrappedText()
+local da=self.getResolved("text")local _b=ba(da,self.getResolved("width"))return _b end
+function ca:render()aa.render(self)local da=self.getResolved("text")
+if
+(self.getResolved("autoSize"))then
 self:textFg(1,1,da,self.getResolved("foreground"))else local _b=ba(da,self.getResolved("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.getResolved("foreground"))end end end;return ca end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
@@ -476,20 +473,19 @@ da.defineProperty(da,"draggable",{default=false,type="boolean"})
 da.defineProperty(da,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
 da.defineProperty(da,"scrollable",{default=false,type="boolean"})da.defineEvent(da,"mouse_click")
 da.defineEvent(da,"mouse_drag")da.defineEvent(da,"mouse_up")
-da.defineEvent(da,"mouse_scroll")
-function da.new()local ab=setmetatable({},da):__init()
-ab.class=da;ab.set("width",12)ab.set("height",6)
-ab.set("background",colors.gray)ab.set("z",10)return ab end;function da:init(ab,bb)ca.init(self,ab,bb)self.set("type","Frame")
-return self end
+da.defineEvent(da,"mouse_scroll")function da.new()local ab=setmetatable({},da):__init()
+ab.class=da;ab.set("width",12)ab.set("height",6)ab.set("z",10)
+return ab end
+function da:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","Frame")return self end
 function da:mouse_click(ab,bb,cb)
 if self:isInBounds(bb,cb)then
-if
-self.getResolved("draggable")then local db,_c=self:getRelativePosition(bb,cb)
-local ac=self.getResolved("draggingMap")
-for bc,cc in ipairs(ac)do local dc=cc.width or 1;local _d=cc.height or 1
-if
-type(dc)=="string"and dc=="width"then dc=self.getResolved("width")elseif type(dc)==
-"function"then dc=dc(self)end
+if self.getResolved("draggable")then
+local db,_c=self:getRelativePosition(bb,cb)local ac=self.getResolved("draggingMap")
+for bc,cc in ipairs(ac)do
+local dc=cc.width or 1;local _d=cc.height or 1
+if type(dc)=="string"and dc=="width"then
+dc=self.getResolved("width")elseif type(dc)=="function"then dc=dc(self)end
 if type(_d)=="string"and _d=="height"then
 _d=self.getResolved("height")elseif type(_d)=="function"then _d=_d(self)end;local ad=cc.y or 1
 if
@@ -1159,18 +1155,20 @@ da.class=ca;return da end
 function ca:init(da,_b)
 if self._initialized then return self end;self._initialized=true;self._props=da;self._values.id=aa()
 self.basalt=_b;self._registeredEvents={}self._registeredStates={}
-local ab=getmetatable(self).__index;local bb={}ab=self.class
+self._cachedActiveStates=nil;local ab=getmetatable(self).__index;local bb={}ab=self.class
 while ab do
-if type(ab)=="table"and ab._eventConfigs then for cb,db in
-pairs(ab._eventConfigs)do if not bb[cb]then bb[cb]=db end end end
+if
+type(ab)=="table"and ab._eventConfigs then for cb,db in pairs(ab._eventConfigs)do if not bb[cb]then
+bb[cb]=db end end end
 ab=getmetatable(ab)and getmetatable(ab).__index end
 for cb,db in pairs(bb)do self._registeredEvents[db.requires]=true end;if self._callbacks then
 for cb,db in pairs(self._callbacks)do self[db]=function(_c,...)
 _c:registerCallback(cb,...)return _c end end end
 return self end
 function ca:postInit()if self._postInitialized then return self end
-self._postInitialized=true;if(self._props)then
-for da,_b in pairs(self._props)do self.set(da,_b)end end;self._props=nil;return self end;function ca:isType(da)
+self._postInitialized=true;self._modifiedProperties={}if(self._props)then for da,_b in pairs(self._props)do
+self.set(da,_b)end end
+self._props=nil;return self end;function ca:isType(da)
 for _b,ab in ipairs(self._values.type)do if ab==da then return true end end;return false end
 function ca:listenEvent(da,_b)_b=
 _b~=false
@@ -1189,16 +1187,18 @@ self._registeredStates[da]={condition=_b,priority=ab or 0}return self end
 function ca:setState(da,_b)
 local ab=self.getResolved("states")if not _b and self._registeredStates[da]then
 _b=self._registeredStates[da].priority end;ab[da]=_b or 0
-self.set("states",ab)return self end
+self.set("states",ab)self._cachedActiveStates=nil;return self end
 function ca:unsetState(da)local _b=self.get("states")if _b[da]~=nil then _b[da]=nil
-self.set("states",_b)end;return self end
+self.set("states",_b)self._cachedActiveStates=nil end
+return self end
 function ca:hasState(da)local _b=self.get("states")return _b[da]~=nil end
 function ca:getCurrentState()local da=self.get("states")local _b=-math.huge;local ab=nil;for bb,cb in
 pairs(da)do if cb>_b then _b=cb;ab=bb end end;return ab end
-function ca:getActiveStates()local da=self.get("states")local _b={}for ab,bb in pairs(da)do
+function ca:getActiveStates()
+if self._cachedActiveStates then return self._cachedActiveStates end;local da=self.get("states")local _b={}for ab,bb in pairs(da)do
 table.insert(_b,{name=ab,priority=bb})end
 table.sort(_b,function(ab,bb)
-return ab.priority>bb.priority end)return _b end
+return ab.priority>bb.priority end)self._cachedActiveStates=_b;return _b end
 function ca:updateConditionalStates()
 for da,_b in pairs(self._registeredStates)do
 if _b.condition then
@@ -1266,15 +1266,14 @@ ba.defineProperty(ba,"scrollBarBackgroundColor",{default=colors.gray,type="color
 ba.defineEvent(ba,"mouse_up")ba.defineEvent(ba,"mouse_drag")
 ba.defineEvent(ba,"mouse_scroll")ba.defineEvent(ba,"key")
 local ca={text={type="string",default="Entry"},bg={type="number",default=nil},fg={type="number",default=
-nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=nil}}
-function ba.new()local da=setmetatable({},ba):__init()
+nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=nil}}function ba.new()local da=setmetatable({},ba):__init()
 da.class=ba;da.set("width",16)da.set("height",8)da.set("z",5)
-da.set("background",colors.gray)return da end
-function ba:init(da,_b)_a.init(self,da,_b)self._entrySchema=ca
-self.set("type","List")
+return da end
+function ba:init(da,_b)
+_a.init(self,da,_b)self._entrySchema=ca;self.set("type","List")
 self:observe("items",function()
-local ab=math.max(0,#self.getResolved("items")-
-self.getResolved("height"))
+local ab=math.max(0,#
+self.getResolved("items")-self.getResolved("height"))
 if self.getResolved("offset")>ab then self.set("offset",ab)end end)
 self:observe("height",function()
 local ab=math.max(0,#self.getResolved("items")-
@@ -1654,13 +1653,14 @@ function _b.createFromBlueprint(cb,db,_c)local ac=cb.new({},_c)
 for bc,cc in pairs(db._values)do if type(cc)=="table"then
 ac._values[bc]=ba(cc)else ac._values[bc]=cc end end;return ac end
 function _b:__init()self._values={}self._observers={}self._states={}
-self.set=function(bc,cc,...)
-local dc=self._values[bc]local _d=self._properties[bc]
-if(_d~=nil)then if(_d.setter)then
-cc=_d.setter(self,cc,...)end
-if _d.canTriggerRender then self:updateRender()end;self._values[bc]=bb(self,bc,cc,_d)if
-dc~=cc and self._observers[bc]then
-for ad,bd in ipairs(self._observers[bc])do bd(self,cc,dc)end end end end
+self._modifiedProperties={}
+self.set=function(bc,cc,...)local dc=self._values[bc]local _d=self._properties[bc]
+if
+(_d~=nil)then if(_d.setter)then cc=_d.setter(self,cc,...)end;if _d.canTriggerRender then
+self:updateRender()end;self._values[bc]=bb(self,bc,cc,_d)
+self._modifiedProperties[bc]=true
+if dc~=cc and self._observers[bc]then for ad,bd in
+ipairs(self._observers[bc])do bd(self,cc,dc)end end end end
 self.get=function(bc,...)local cc=self._values[bc]local dc=self._properties[bc]
 if
 (dc==nil)then da.error("Property not found: "..bc)return end;if type(cc)=="function"and dc.type~="function"then
@@ -1708,8 +1708,9 @@ for bc,cc in pairs(cb)do if self._values[bc]==nil then
 if type(cc.default)=="table"then
 self._values[bc]=ba(cc.default)else self._values[bc]=cc.default end end end;return self end
 function _b:_updateProperty(cb,db)local _c=self._values[cb]
-if type(_c)=="function"then _c=_c(self)end;self._values[cb]=db
-local ac=type(db)=="function"and db(self)or db
+if type(_c)=="function"then _c=_c(self)end;self._modifiedProperties[cb]=true;self._values[cb]=db
+local ac=
+type(db)=="function"and db(self)or db
 if _c~=ac then
 if self._properties[cb].canTriggerRender then self:updateRender()end
 if self._observers[cb]then for bc,cc in ipairs(self._observers[cb])do
