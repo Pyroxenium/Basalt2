@@ -171,12 +171,12 @@ BigFont.__index = BigFont
 
 ---@property text string BigFont The text string to display in enlarged format
 BigFont.defineProperty(BigFont, "text", {default = "BigFont", type = "string", canTriggerRender = true, setter=function(self, value)
-    self.bigfontText = makeText(self.get("fontSize"), value, self.get("foreground"), self.get("background"))
+    self.bigfontText = makeText(self.getResolved("fontSize"), value, self.getResolved("foreground"), self.getResolved("background"))
     return value
 end})
 ---@property fontSize number 1 Scale factor for text size (1-3, where 1 is 3x3 pixels per character)
 BigFont.defineProperty(BigFont, "fontSize", {default = 1, type = "number", canTriggerRender = true, setter=function(self, value)
-    self.bigfontText = makeText(value, self.get("text"), self.get("foreground"), self.get("background"))
+    self.bigfontText = makeText(value, self.getResolved("text"), self.getResolved("foreground"), self.getResolved("background"))
     return value
 end})
 
@@ -200,10 +200,10 @@ function BigFont:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "BigFont")
     self:observe("background", function(self, value)
-        self.bigfontText = makeText(self.get("fontSize"), self.get("text"), self.get("foreground"), value)
+        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), self.getResolved("foreground"), value)
     end)
     self:observe("foreground", function(self, value)
-        self.bigfontText = makeText(self.get("fontSize"), self.get("text"), value, self.get("background"))
+        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), value, self.getResolved("background"))
     end)
 end
 
@@ -212,11 +212,12 @@ end
 function BigFont:render()
     VisualElement.render(self)
     if(self.bigfontText)then
-        local x, y = self.get("x"), self.get("y")
+        local x, y = self.getResolved("x"), self.getResolved("y")
+        local width = self.getResolved("width")
         for i = 1, #self.bigfontText[1] do
-            local text = self.bigfontText[1][i]:sub(1, self.get("width"))
-            local fg = self.bigfontText[2][i]:sub(1, self.get("width"))
-            local bg = self.bigfontText[3][i]:sub(1, self.get("width"))
+            local text = self.bigfontText[1][i]:sub(1, width)
+            local fg = self.bigfontText[2][i]:sub(1, width)
+            local bg = self.bigfontText[3][i]:sub(1, width)
             self:blit(x, y + i - 1, text, fg, bg)
         end
     end

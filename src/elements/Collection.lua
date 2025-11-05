@@ -56,7 +56,7 @@ function Collection:addItem(itemData)
     end
     local entry = CollectionEntry.new(self, itemData, self._entrySchema)
 
-    table.insert(self.get("items"), entry)
+    table.insert(self.getResolved("items"), entry)
     self:updateRender()
     return entry
 end
@@ -67,7 +67,7 @@ end
 --- @return Collection self The Collection instance
 --- @usage Collection:removeItem(1)
 function Collection:removeItem(index)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     if type(index) == "number" then
         table.remove(items, index)
     else
@@ -98,7 +98,7 @@ end
 --- @usage local selected = Collection:getSelectedItems()
 function Collection:getSelectedItems()
     local selected = {}
-    for i, item in ipairs(self.get("items")) do
+    for i, item in ipairs(self.getResolved("items")) do
         if type(item) == "table" and item.selected then
             local selectedItem = item
             selectedItem.index = i
@@ -112,7 +112,7 @@ end
 --- @shortDescription Gets first selected item
 --- @return table? selected The first item
 function Collection:getSelectedItem()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     for i, item in ipairs(items) do
         if type(item) == "table" and item.selected then
             return item
@@ -122,7 +122,7 @@ function Collection:getSelectedItem()
 end
 
 function Collection:selectItem(index)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     if type(index) == "number" then
         if items[index] and type(items[index]) == "table" then
             items[index].selected = true
@@ -142,7 +142,7 @@ function Collection:selectItem(index)
 end
 
 function Collection:unselectItem(index)
-    local items = self.get("items")
+    local items = self.getResolved("items")
     if type(index) == "number" then
         if items[index] and type(items[index]) == "table" then
             items[index].selected = false
@@ -162,7 +162,7 @@ function Collection:unselectItem(index)
 end
 
 function Collection:clearItemSelection()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     for i, item in ipairs(items) do
         item.selected = false
     end
@@ -175,7 +175,7 @@ end
 --- @return number? index The index of the first selected item, or nil if none selected
 --- @usage local index = Collection:getSelectedIndex()
 function Collection:getSelectedIndex()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     for i, item in ipairs(items) do
         if type(item) == "table" and item.selected then
             return i
@@ -188,7 +188,7 @@ end
 --- @shortDescription Selects the next item
 --- @return Collection self The Collection instance
 function Collection:selectNext()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     local currentIndex = self:getSelectedIndex()
 
     if not currentIndex then
@@ -196,7 +196,7 @@ function Collection:selectNext()
             self:selectItem(1)
         end
     elseif currentIndex < #items then
-        if not self.get("multiSelection") then
+        if not self.getResolved("multiSelection") then
             self:clearItemSelection()
         end
         self:selectItem(currentIndex + 1)
@@ -210,7 +210,7 @@ end
 --- @shortDescription Selects the previous item
 --- @return Collection self The Collection instance
 function Collection:selectPrevious()
-    local items = self.get("items")
+    local items = self.getResolved("items")
     local currentIndex = self:getSelectedIndex()
 
     if not currentIndex then
@@ -218,7 +218,7 @@ function Collection:selectPrevious()
             self:selectItem(#items)
         end
     elseif currentIndex > 1 then
-        if not self.get("multiSelection") then
+        if not self.getResolved("multiSelection") then
             self:clearItemSelection()
         end
         self:selectItem(currentIndex - 1)

@@ -24,18 +24,18 @@ CheckBox.__index = CheckBox
 CheckBox.defineProperty(CheckBox, "checked", {default = false, type = "boolean", canTriggerRender = true})
 ---@property text string empty Text shown when the checkbox is unchecked
 CheckBox.defineProperty(CheckBox, "text", {default = " ", type = "string", canTriggerRender = true, setter=function(self, value)
-    local checkedText = self.get("checkedText")
+    local checkedText = self.getResolved("checkedText")
     local width = math.max(#value, #checkedText)
-    if(self.get("autoSize"))then
+    if(self.getResolved("autoSize"))then
         self.set("width", width)
     end
     return value
 end})
 ---@property checkedText string x Text shown when the checkbox is checked
 CheckBox.defineProperty(CheckBox, "checkedText", {default = "x", type = "string", canTriggerRender = true, setter=function(self, value)
-    local text = self.get("text")
+    local text = self.getResolved("text")
     local width = math.max(#value, #text)
-    if(self.get("autoSize"))then
+    if(self.getResolved("autoSize"))then
         self.set("width", width)
     end
     return value
@@ -74,7 +74,7 @@ end
 --- @protected
 function CheckBox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
-        self.set("checked", not self.get("checked"))
+        self.set("checked", not self.getResolved("checked"))
         return true
     end
     return false
@@ -88,7 +88,7 @@ function CheckBox:render()
     local checked = self.getResolved("checked")
     local defaultText = self.getResolved("text")
     local checkedText = self.getResolved("checkedText")
-    local text = string.sub(checked and checkedText or defaultText, 1, self.get("width"))
+    local text = string.sub(checked and checkedText or defaultText, 1, self.getResolved("width"))
 
     self:textFg(1, 1, text, self.getResolved("foreground"))
 end

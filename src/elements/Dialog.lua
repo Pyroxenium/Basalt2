@@ -62,7 +62,7 @@ function Dialog:show()
     self:center()
     self.set("visible", true)
     -- Auto-focus when modal
-    if self.get("modal") then
+    if self.getResolved("modal") then
         self:setFocused(true)
     end
     return self
@@ -91,22 +91,22 @@ function Dialog:alert(title, message, callback)
     self:addLabel({
         text = message,
         x = 2, y = 3,
-        width = self.get("width") - 3,
+        width = self.getResolved("width") - 3,
         height = 3,
         foreground = colors.white
     })
 
     local btnWidth = 10
-    local btnX = math.floor((self.get("width") - btnWidth) / 2) + 1
+    local btnX = math.floor((self.getResolved("width") - btnWidth) / 2) + 1
 
     self:addButton({
         text = "OK",
         x = btnX,
-        y = self.get("height") - 2,
+        y = self.getResolved("height") - 2,
         width = btnWidth,
         height = 1,
-        background = self.get("primaryColor"),
-        foreground = self.get("buttonForeground")
+        background = self.getResolved("primaryColor"),
+        foreground = self.getResolved("buttonForeground")
     }):onClick(function()
         if callback then callback() end
         self:close()
@@ -129,7 +129,7 @@ function Dialog:confirm(title, message, callback)
     self:addLabel({
         text = message,
         x = 2, y = 3,
-        width = self.get("width") - 3,
+        width = self.getResolved("width") - 3,
         height = 3,
         foreground = colors.white
     })
@@ -137,16 +137,16 @@ function Dialog:confirm(title, message, callback)
     local btnWidth = 10
     local spacing = 2
     local totalWidth = btnWidth * 2 + spacing
-    local startX = math.floor((self.get("width") - totalWidth) / 2) + 1
+    local startX = math.floor((self.getResolved("width") - totalWidth) / 2) + 1
 
     self:addButton({
         text = "Cancel",
         x = startX,
-        y = self.get("height") - 2,
+        y = self.getResolved("height") - 2,
         width = btnWidth,
         height = 1,
-        background = self.get("secondaryColor"),
-        foreground = self.get("buttonForeground")
+        background = self.getResolved("secondaryColor"),
+        foreground = self.getResolved("buttonForeground")
     }):onClick(function()
         if callback then callback(false) end
         self:close()
@@ -155,11 +155,11 @@ function Dialog:confirm(title, message, callback)
     self:addButton({
         text = "OK",
         x = startX + btnWidth + spacing,
-        y = self.get("height") - 2,
+        y = self.getResolved("height") - 2,
         width = btnWidth,
         height = 1,
-        background = self.get("primaryColor"),
-        foreground = self.get("buttonForeground")
+        background = self.getResolved("primaryColor"),
+        foreground = self.getResolved("buttonForeground")
     }):onClick(function()
         if callback then callback(true) end
         self:close()
@@ -188,7 +188,7 @@ function Dialog:prompt(title, message, default, callback)
 
     local input = self:addInput({
         x = 2, y = 5,
-        width = self.get("width") - 3,
+        width = self.getResolved("width") - 3,
         height = 1,
         defaultText = default or "",
         background = colors.white,
@@ -198,16 +198,16 @@ function Dialog:prompt(title, message, default, callback)
     local btnWidth = 10
     local spacing = 2
     local totalWidth = btnWidth * 2 + spacing
-    local startX = math.floor((self.get("width") - totalWidth) / 2) + 1
+    local startX = math.floor((self.getResolved("width") - totalWidth) / 2) + 1
 
     self:addButton({
         text = "Cancel",
         x = startX,
-        y = self.get("height") - 2,
+        y = self.getResolved("height") - 2,
         width = btnWidth,
         height = 1,
-        background = self.get("secondaryColor"),
-        foreground = self.get("buttonForeground")
+        background = self.getResolved("secondaryColor"),
+        foreground = self.getResolved("buttonForeground")
     }):onClick(function()
         if callback then callback(nil) end
         self:close()
@@ -216,11 +216,11 @@ function Dialog:prompt(title, message, default, callback)
     self:addButton({
         text = "OK",
         x = startX + btnWidth + spacing,
-        y = self.get("height") - 2,
+        y = self.getResolved("height") - 2,
         width = btnWidth,
         height = 1,
-        background = self.get("primaryColor"),
-        foreground = self.get("buttonForeground")
+        background = self.getResolved("primaryColor"),
+        foreground = self.getResolved("buttonForeground")
     }):onClick(function()
         if callback then callback(input.get("text") or "") end
         self:close()
@@ -235,9 +235,9 @@ end
 function Dialog:render()
     Frame.render(self)
 
-    local title = self.get("title")
+    local title = self.getResolved("title")
     if title ~= "" then
-        local width = self.get("width")
+        local width = self.getResolved("width")
         local titleText = title:sub(1, width - 4)
         self:textFg(2, 2, titleText, colors.white)
     end
@@ -247,7 +247,7 @@ end
 --- @shortDescription Handles mouse click events
 --- @protected
 function Dialog:mouse_click(button, x, y)
-    if self.get("modal") then
+    if self.getResolved("modal") then
         if self:isInBounds(x, y) then
             return Frame.mouse_click(self, button, x, y)
         end
@@ -260,7 +260,7 @@ end
 --- @shortDescription Handles mouse drag events
 --- @protected
 function Dialog:mouse_drag(button, x, y)
-    if self.get("modal") then
+    if self.getResolved("modal") then
         if self:isInBounds(x, y) then
             return Frame.mouse_drag and Frame.mouse_drag(self, button, x, y) or false
         end
@@ -273,7 +273,7 @@ end
 --- @shortDescription Handles mouse up events
 --- @protected
 function Dialog:mouse_up(button, x, y)
-    if self.get("modal") then
+    if self.getResolved("modal") then
         if self:isInBounds(x, y) then
             return Frame.mouse_up and Frame.mouse_up(self, button, x, y) or false
         end
@@ -286,7 +286,7 @@ end
 --- @shortDescription Handles mouse scroll events
 --- @protected
 function Dialog:mouse_scroll(direction, x, y)
-    if self.get("modal") then
+    if self.getResolved("modal") then
         if self:isInBounds(x, y) then
             return Frame.mouse_scroll and Frame.mouse_scroll(self, direction, x, y) or false
         end

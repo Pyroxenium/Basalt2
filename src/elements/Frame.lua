@@ -53,21 +53,21 @@ end
 --- @protected
 function Frame:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
-        if self.get("draggable") then
+        if self.getResolved("draggable") then
             local relX, relY = self:getRelativePosition(x, y)
-            local draggingMap = self.get("draggingMap")
+            local draggingMap = self.getResolved("draggingMap")
 
             for _, map in ipairs(draggingMap) do
                 local width = map.width or 1
                 local height = map.height or 1
 
                 if type(width) == "string" and width == "width" then
-                    width = self.get("width")
+                    width = self.getResolved("width")
                 elseif type(width) == "function" then
                     width = width(self)
                 end
                 if type(height) == "string" and height == "height" then
-                    height = self.get("height")
+                    height = self.getResolved("height")
                 elseif type(height) == "function" then
                     height = height(self)
                 end
@@ -75,8 +75,8 @@ function Frame:mouse_click(button, x, y)
                 local mapY = map.y or 1
                 if relX >= map.x and relX <= map.x + width - 1 and
                 relY >= mapY and relY <= mapY + height - 1 then
-                    self.dragStartX = x - self.get("x")
-                    self.dragStartY = y - self.get("y")
+                    self.dragStartX = x - self.getResolved("x")
+                    self.dragStartY = y - self.getResolved("y")
                     self.dragging = true
                     return true
                 end
@@ -126,7 +126,7 @@ end
 --- @protected
 function Frame:getChildrenHeight()
     local maxHeight = 0
-    local children = self.get("children")
+    local children = self.getResolved("children")
 
     for _, child in ipairs(children) do
         if child.get("visible") then
@@ -147,7 +147,7 @@ local function convertMousePosition(self, event, ...)
     local args = {...}
     if event and event:find("mouse_") then
         local button, absX, absY = ...
-        local xOffset, yOffset = self.get("offsetX"), self.get("offsetY")
+        local xOffset, yOffset = self.getResolved("offsetX"), self.getResolved("offsetY")
         local relX, relY = self:getRelativePosition(absX + xOffset, absY + yOffset)
         args = {button, relX, relY}
     end
@@ -167,11 +167,11 @@ function Frame:mouse_scroll(direction, x, y)
         if success then
             return true
         end
-        if self.get("scrollable") then
-            local height = self.get("height")
+        if self.getResolved("scrollable") then
+            local height = self.getResolved("height")
 
             local childrenHeight = self:getChildrenHeight()
-            local currentOffset = self.get("offsetY")
+            local currentOffset = self.getResolved("offsetY")
             local maxScroll = math.max(0, childrenHeight - height)
 
             local newOffset = currentOffset + direction

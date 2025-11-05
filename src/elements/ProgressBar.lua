@@ -47,29 +47,30 @@ end
 --- @protected
 function ProgressBar:render()
     VisualElement.render(self)
-    local width = self.get("width")
-    local height = self.get("height")
-    local progress = math.min(100, math.max(0, self.get("progress")))
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local progress = math.min(100, math.max(0, self.getResolved("progress")))
     local fillWidth = math.floor((width * progress) / 100)
     local fillHeight = math.floor((height * progress) / 100)
-    local direction = self.get("direction")
-    local progressColor = self.get("progressColor")
+    local direction = self.getResolved("direction")
+    local progressColor = self.getResolved("progressColor")
+    local foreground = self.getResolved("foreground")
 
     if direction == "right" then
-        self:multiBlit(1, 1, fillWidth, height, " ", tHex[self.get("foreground")], tHex[progressColor])
+        self:multiBlit(1, 1, fillWidth, height, " ", tHex[foreground], tHex[progressColor])
     elseif direction == "left" then
-        self:multiBlit(width - fillWidth + 1, 1, fillWidth, height, " ", tHex[self.get("foreground")], tHex[progressColor])
+        self:multiBlit(width - fillWidth + 1, 1, fillWidth, height, " ", tHex[foreground], tHex[progressColor])
     elseif direction == "up" then
-        self:multiBlit(1, height - fillHeight + 1, width, fillHeight, " ", tHex[self.get("foreground")], tHex[progressColor])
+        self:multiBlit(1, height - fillHeight + 1, width, fillHeight, " ", tHex[foreground], tHex[progressColor])
     elseif direction == "down" then
-        self:multiBlit(1, 1, width, fillHeight, " ", tHex[self.get("foreground")], tHex[progressColor])
+        self:multiBlit(1, 1, width, fillHeight, " ", tHex[foreground], tHex[progressColor])
     end
 
-    if self.get("showPercentage") then
+    if self.getResolved("showPercentage") then
         local text = tostring(progress).."%"
         local x = math.floor((width - #text) / 2) + 1
         local y = math.floor((height - 1) / 2) + 1
-        self:textFg(x, y, text, self.get("foreground"))
+        self:textFg(x, y, text, foreground)
     end
 end
 

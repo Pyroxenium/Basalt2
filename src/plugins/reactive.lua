@@ -90,7 +90,7 @@ local function parseExpression(expr, element, propName)
             if objName == "self" then
                 -- Check if property exists
                 if element._properties[propName] then
-                    return element.get(propName)
+                    return element.getResolved(propName)
                 end
                 if element._registeredStates and element._registeredStates[propName] then
                     return element:hasState(propName)
@@ -104,7 +104,7 @@ local function parseExpression(expr, element, propName)
                 return nil
             elseif objName == "parent" then
                 if element.parent._properties[propName] then
-                    return element.parent.get(propName)
+                    return element.parent.getResolved(propName)
                 end
                 if element.parent._registeredStates and element.parent._registeredStates[propName] then
                     return element.parent:hasState(propName)
@@ -125,7 +125,7 @@ local function parseExpression(expr, element, propName)
                 end
 
                 if target._properties[propName] then
-                    return target.get(propName)
+                    return target.getResolved(propName)
                 end
                 if target._registeredStates and target._registeredStates[propName] then
                     return target:hasState(propName)

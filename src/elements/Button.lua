@@ -62,8 +62,8 @@ end
 function Button:render()
     VisualElement.render(self)
     local text = self.getResolved("text")
-    text = text:sub(1, self.get("width"))
-    local xO, yO = getCenteredPosition(text, self.get("width"), self.get("height"))
+    text = text:sub(1, self.getResolved("width"))
+    local xO, yO = getCenteredPosition(text, self.getResolved("width"), self.getResolved("height"))
     self:textFg(xO, yO, text, self.getResolved("foreground"))
 end
 

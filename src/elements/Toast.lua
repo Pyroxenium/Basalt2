@@ -76,7 +76,7 @@ function Toast:show(titleOrMessage, messageOrDuration, duration)
     if type(messageOrDuration) == "string" then
         title = titleOrMessage
         message = messageOrDuration
-        dur = duration or self.get("duration")
+        dur = duration or self.getResolved("duration")
     elseif type(messageOrDuration) == "number" then
         title = ""
         message = titleOrMessage
@@ -84,7 +84,7 @@ function Toast:show(titleOrMessage, messageOrDuration, duration)
     else
         title = ""
         message = titleOrMessage
-        dur = self.get("duration")
+        dur = self.getResolved("duration")
     end
 
     self.set("title", title)
@@ -96,7 +96,7 @@ function Toast:show(titleOrMessage, messageOrDuration, duration)
         self._hideTimerId = nil
     end
 
-    if self.get("autoHide") and dur > 0 then
+    if self.getResolved("autoHide") and dur > 0 then
         self._hideTimerId = os.startTimer(dur)
     end
 
@@ -179,12 +179,12 @@ end
 --- @protected
 function Toast:render()
     VisualElement.render(self)
-    if not self.get("active") then
+    if not self.getResolved("active") then
         return
     end
 
-    local width = self.get("width")
-    local height = self.get("height")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
     local title = self.getResolved("title")
     local message = self.getResolved("message")
     local toastType = self.getResolved("toastType")

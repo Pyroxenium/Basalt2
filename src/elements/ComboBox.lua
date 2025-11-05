@@ -78,10 +78,10 @@ end
 --- @shortDescription Filters items for auto-complete
 --- @private
 function ComboBox:getFilteredItems()
-    local allItems = self.get("items") or {}
-    local currentText = self.get("text"):lower()
+    local allItems = self.getResolved("items") or {}
+    local currentText = self.getResolved("text"):lower()
 
-    if not self.get("autoComplete") or #currentText == 0 then
+    if not self.getResolved("autoComplete") or #currentText == 0 then
         return allItems
     end
 
@@ -106,15 +106,15 @@ end
 --- @shortDescription Updates dropdown with filtered items
 --- @private
 function ComboBox:updateFilteredDropdown()
-    if not self.get("autoComplete") then return end
+    if not self.getResolved("autoComplete") then return end
 
     local filteredItems = self:getFilteredItems()
-    local shouldOpen = #filteredItems > 0 and #self.get("text") > 0
+    local shouldOpen = #filteredItems > 0 and #self.getResolved("text") > 0
 
     if shouldOpen then
         self:setState("opened")
         self.set("manuallyOpened", false)
-        local dropdownHeight = self.get("dropdownHeight") or 5
+        local dropdownHeight = self.getResolved("dropdownHeight") or 5
         local actualHeight = math.min(dropdownHeight, #filteredItems)
         self.set("height", 1 + actualHeight)
     else
@@ -128,15 +128,15 @@ end
 --- @shortDescription Updates the viewport
 --- @private
 function ComboBox:updateViewport()
-    local text = self.get("text")
-    local cursorPos = self.get("cursorPos")
-    local width = self.get("width")
-    local dropSymbol = self.get("dropSymbol")
+    local text = self.getResolved("text")
+    local cursorPos = self.getResolved("cursorPos")
+    local width = self.getResolved("width")
+    local dropSymbol = self.getResolved("dropSymbol")
 
     local textWidth = width - #dropSymbol
     if textWidth < 1 then textWidth = 1 end
 
-    local viewOffset = self.get("viewOffset")
+    local viewOffset = self.getResolved("viewOffset")
 
     if cursorPos - viewOffset > textWidth then
         viewOffset = cursorPos - textWidth
@@ -151,18 +151,18 @@ end
 --- @shortDescription Handles character input
 --- @param char string The character that was typed
 function ComboBox:char(char)
-    if not self.get("editable") then return end
+    if not self.getResolved("editable") then return end
     if not self:hasState("focused") then return end
 
-    local text = self.get("text")
-    local cursorPos = self.get("cursorPos")
+    local text = self.getResolved("text")
+    local cursorPos = self.getResolved("cursorPos")
 
     local newText = text:sub(1, cursorPos - 1) .. char .. text:sub(cursorPos)
     self.set("text", newText)
     self.set("cursorPos", cursorPos + 1)
     self:updateViewport()
 
-    if self.get("autoComplete") then
+    if self.getResolved("autoComplete") then
         self:updateFilteredDropdown()
     else
         self:updateRender()
@@ -174,11 +174,11 @@ end
 --- @param key number The key code that was pressed
 --- @param held boolean Whether the key is being held
 function ComboBox:key(key, held)
-    if not self.get("editable") then return end
+    if not self.getResolved("editable") then return end
     if not self:hasState("focused") then return end
 
-    local text = self.get("text")
-    local cursorPos = self.get("cursorPos")
+    local text = self.getResolved("text")
+    local cursorPos = self.getResolved("cursorPos")
 
     if key == keys.left then
         self.set("cursorPos", math.max(1, cursorPos - 1))
@@ -193,7 +193,7 @@ function ComboBox:key(key, held)
             self.set("cursorPos", cursorPos - 1)
             self:updateViewport()
 
-            if self.get("autoComplete") then
+            if self.getResolved("autoComplete") then
                 self:updateFilteredDropdown()
             else
                 self:updateRender()
@@ -205,7 +205,7 @@ function ComboBox:key(key, held)
             self.set("text", newText)
             self:updateViewport()
 
-            if self.get("autoComplete") then
+            if self.getResolved("autoComplete") then
                 self:updateFilteredDropdown()
             else
                 self:updateRender()
@@ -238,8 +238,8 @@ function ComboBox:mouse_click(button, x, y)
     if not VisualElement.mouse_click(self, button, x, y) then return false end
 
     local relX, relY = self:getRelativePosition(x, y)
-    local width = self.get("width")
-    local dropSymbol = self.get("dropSymbol")
+    local width = self.getResolved("width")
+    local dropSymbol = self.getResolved("dropSymbol")
     local isOpen = self:hasState("opened")
 
     if relY == 1 then
@@ -250,8 +250,8 @@ function ComboBox:mouse_click(button, x, y)
                 self.set("manuallyOpened", false)
             else
                 self:setState("opened")
-                local allItems = self.get("items") or {}
-                local dropdownHeight = self.get("dropdownHeight") or 5
+                local allItems = self.getResolved("items") or {}
+                local dropdownHeight = self.getResolved("dropdownHeight") or 5
                 local actualHeight = math.min(dropdownHeight, #allItems)
                 self.set("height", 1 + actualHeight)
                 self.set("manuallyOpened", true)
@@ -260,17 +260,17 @@ function ComboBox:mouse_click(button, x, y)
             return true
         end
 
-        if relX <= width - #dropSymbol and self.get("editable") then
-            local text = self.get("text")
-            local viewOffset = self.get("viewOffset")
+        if relX <= width - #dropSymbol and self.getResolved("editable") then
+            local text = self.getResolved("text")
+            local viewOffset = self.getResolved("viewOffset")
             local maxPos = #text + 1
             local targetPos = math.min(maxPos, viewOffset + relX)
 
             self.set("cursorPos", targetPos)
             if not isOpen then
                 self:setState("opened")
-                local allItems = self.get("items") or {}
-                local dropdownHeight = self.get("dropdownHeight") or 5
+                local allItems = self.getResolved("items") or {}
+                local dropdownHeight = self.getResolved("dropdownHeight") or 5
                 local actualHeight = math.min(dropdownHeight, #allItems)
                 self.set("height", 1 + actualHeight)
                 self.set("manuallyOpened", true)
@@ -299,14 +299,14 @@ function ComboBox:mouse_up(button, x, y)
     if self:hasState("opened") then
         local relX, relY = self:getRelativePosition(x, y)
 
-        if relY > 1 and self.get("selectable") and not self._scrollBarDragging then
-            local itemIndex = (relY - 1) + self.get("offset")
+        if relY > 1 and self.getResolved("selectable") and not self._scrollBarDragging then
+            local itemIndex = (relY - 1) + self.getResolved("offset")
 
             local items
-            if self.get("autoComplete") and not self.get("manuallyOpened") then
+            if self.getResolved("autoComplete") and not self.getResolved("manuallyOpened") then
                 items = self:getFilteredItems()
             else
-                items = self.get("items")
+                items = self.getResolved("items")
             end
 
             if itemIndex <= #items then
@@ -316,8 +316,8 @@ function ComboBox:mouse_up(button, x, y)
                     items[itemIndex] = item
                 end
 
-                if not self.get("multiSelection") then
-                    for _, otherItem in ipairs(self.get("items")) do
+                if not self.getResolved("multiSelection") then
+                    for _, otherItem in ipairs(self.getResolved("items")) do
                         if type(otherItem) == "table" then
                             otherItem.selected = false
                         end
@@ -357,12 +357,12 @@ end
 function ComboBox:render()
     VisualElement.render(self)
 
-    local text = self.get("text")
-    local width = self.get("width")
-    local dropSymbol = self.get("dropSymbol")
+    local text = self.getResolved("text")
+    local width = self.getResolved("width")
+    local dropSymbol = self.getResolved("dropSymbol")
     local isFocused = self:hasState("focused")
     local isOpen = self:hasState("opened")
-    local viewOffset = self.get("viewOffset")
+    local viewOffset = self.getResolved("viewOffset")
     local selectedText = self.getResolved("selectedText")
     local bg = self.getResolved("background")
     local fg = self.getResolved("foreground")
@@ -387,8 +387,8 @@ function ComboBox:render()
         string.rep(tHex[fg], width),
         string.rep(tHex[bg], width))
 
-    if isFocused and self.get("editable") then
-        local cursorPos = self.get("cursorPos")
+    if isFocused and self.getResolved("editable") then
+        local cursorPos = self.getResolved("cursorPos")
         local cursorX = cursorPos - viewOffset
         if cursorX >= 1 and cursorX <= textWidth then
             self:setCursor(cursorX, 1, true, fg)
@@ -396,14 +396,14 @@ function ComboBox:render()
     end
 
     if isOpen then
-        local actualHeight = self.get("height")
-        local items = self.get("items")
+        local actualHeight = self.getResolved("height")
+        local items = self.getResolved("items")
 
-        if self.get("autoComplete") and not self.get("manuallyOpened") then
+        if self.getResolved("autoComplete") and not self.getResolved("manuallyOpened") then
             items = self:getFilteredItems()
         end
 
-        local dropdownHeight = math.min(self.get("dropdownHeight"), #items)
+        local dropdownHeight = math.min(self.getResolved("dropdownHeight"), #items)
 
         local originalItems = self._values.items
         self._values.items = items
@@ -418,8 +418,8 @@ function ComboBox:render()
             string.rep(tHex[fg], width),
             string.rep(tHex[bg], width))
 
-        if isFocused and self.get("editable") then
-            local cursorPos = self.get("cursorPos")
+        if isFocused and self.getResolved("editable") then
+            local cursorPos = self.getResolved("cursorPos")
             local cursorX = cursorPos - viewOffset
             if cursorX >= 1 and cursorX <= textWidth then
                 self:setCursor(cursorX, 1, true, fg)

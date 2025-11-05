@@ -60,13 +60,13 @@ end
 --- @param pointCount number The number of points in the series
 --- @return Graph self The graph instance
 function Graph:addSeries(name, symbol, bgCol, fgCol, pointCount)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     table.insert(series, {
         name = name,
         symbol = symbol or " ",
         bgColor = bgCol or colors.white,
         fgColor = fgCol or colors.black,
-        pointCount = pointCount or self.get("width"),
+        pointCount = pointCount or self.getResolved("width"),
         data = {},
         visible = true
     })
@@ -78,7 +78,7 @@ end
 --- @param name string The name of the series
 --- @return Graph self The graph instance
 function Graph:removeSeries(name)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     for i, s in ipairs(series) do
         if s.name == name then
             table.remove(series, i)
@@ -93,7 +93,7 @@ end
 --- @param name string The name of the series
 --- @return table? series The series
 function Graph:getSeries(name)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     for _, s in ipairs(series) do
         if s.name == name then
             return s
@@ -107,7 +107,7 @@ end
 --- @param visible boolean Whether the series should be visible
 --- @return Graph self The graph instance
 function Graph:changeSeriesVisibility(name, visible)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     for _, s in ipairs(series) do
         if s.name == name then
             s.visible = visible
@@ -123,7 +123,7 @@ end
 --- @param value number The value of the point
 --- @return Graph self The graph instance
 function Graph:addPoint(name, value)
-    local series = self.get("series")
+    local series = self.getResolved("series")
 
     for _, s in ipairs(series) do
         if s.name == name then
@@ -142,7 +142,7 @@ end
 --- @param name string The name of the series
 --- @return Graph self The graph instance
 function Graph:focusSeries(name)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     for index, s in ipairs(series) do
         if s.name == name then
             table.remove(series, index)
@@ -159,7 +159,7 @@ end
 --- @param count number The number of points in the series
 --- @return Graph self The graph instance
 function Graph:setSeriesPointCount(name, count)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     for _, s in ipairs(series) do
         if s.name == name then
             s.pointCount = count
@@ -178,7 +178,7 @@ end
 --- @param name? string The name of the series
 --- @return Graph self The graph instance
 function Graph:clear(seriesName)
-    local series = self.get("series")
+    local series = self.getResolved("series")
     if seriesName then
         for _, s in ipairs(series) do
             if s.name == seriesName then
@@ -199,11 +199,11 @@ end
 function Graph:render()
     VisualElement.render(self)
 
-    local width = self.get("width")
-    local height = self.get("height")
-    local minVal = self.get("minValue")
-    local maxVal = self.get("maxValue")
-    local series = self.get("series")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local minVal = self.getResolved("minValue")
+    local maxVal = self.getResolved("maxValue")
+    local series = self.getResolved("series")
 
     for _, s in pairs(series) do
         if(s.visible)then

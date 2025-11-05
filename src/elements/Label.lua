@@ -11,10 +11,10 @@ Label.__index = Label
 ---@property text string Label The text content to display. Can be a string or a function that returns a string
 Label.defineProperty(Label, "text", {default = "Label", type = "string", canTriggerRender = true, setter = function(self, value)
     if(type(value)=="function")then value = value() end
-    if(self.get("autoSize"))then
+    if(self.getResolved("autoSize"))then
         self.set("width", #value)
     else
-        self.set("height", #wrapText(value, self.get("width")))
+        self.set("height", #wrapText(value, self.getResolved("width")))
     end
     return value
 end})
@@ -22,9 +22,9 @@ end})
 ---@property autoSize boolean true Whether the label should automatically resize its width based on the text content
 Label.defineProperty(Label, "autoSize", {default = true, type = "boolean", canTriggerRender = true, setter = function(self, value)
     if(value)then
-        self.set("width", #self.get("text"))
+        self.set("width", #self.getResolved("text"))
     else
-        self.set("height", #wrapText(self.get("text"), self.get("width")))
+        self.set("height", #wrapText(self.getResolved("text"), self.getResolved("width")))
     end
     return value
 end})
@@ -61,8 +61,8 @@ end
 --- @shortDescription Gets the wrapped lines of the Label
 --- @return table wrappedText The wrapped lines of the Label
 function Label:getWrappedText()
-    local text = self.get("text")
-    local wrappedText = wrapText(text, self.get("width"))
+    local text = self.getResolved("text")
+    local wrappedText = wrapText(text, self.getResolved("width"))
     return wrappedText
 end
 
@@ -70,13 +70,13 @@ end
 --- @protected
 function Label:render()
     VisualElement.render(self)
-    local text = self.get("text")
-    if(self.get("autoSize"))then
-        self:textFg(1, 1, text, self.get("foreground"))
+    local text = self.getResolved("text")
+    if(self.getResolved("autoSize"))then
+        self:textFg(1, 1, text, self.getResolved("foreground"))
     else
-        local wrappedText = wrapText(text, self.get("width"))
+        local wrappedText = wrapText(text, self.getResolved("width"))
         for i, line in ipairs(wrappedText) do
-            self:textFg(1, i, line, self.get("foreground"))
+            self:textFg(1, i, line, self.getResolved("foreground"))
         end
     end
 end

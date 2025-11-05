@@ -94,20 +94,20 @@ local function autoCompleteVisible(self)
 end
 
 local function getBorderPadding(self)
-    return self.get("autoCompleteShowBorder") and 1 or 0
+    return self.getResolved("autoCompleteShowBorder") and 1 or 0
 end
 
 local function updateAutoCompleteStyles(self)
     local frame = self._autoCompleteFrame
     local list = self._autoCompleteList
     if not frame or frame._destroyed then return end
-    frame:setBackground(self.get("autoCompleteBackground"))
-    frame:setForeground(self.get("autoCompleteForeground"))
+    frame:setBackground(self.getResolved("autoCompleteBackground"))
+    frame:setForeground(self.getResolved("autoCompleteForeground"))
     if list and not list._destroyed then
-        list:setBackground(self.get("autoCompleteBackground"))
-        list:setForeground(self.get("autoCompleteForeground"))
-        list:setSelectedBackground(self.get("autoCompleteSelectedBackground"))
-        list:setSelectedForeground(self.get("autoCompleteSelectedForeground"))
+        list:setBackground(self.getResolved("autoCompleteBackground"))
+        list:setForeground(self.getResolved("autoCompleteForeground"))
+        list:setSelectedBackground(self.getResolved("autoCompleteSelectedBackground"))
+        list:setSelectedForeground(self.getResolved("autoCompleteSelectedForeground"))
         list:updateRender()
     end
     layoutAutoCompleteList(self)
@@ -165,9 +165,9 @@ local function applyAutoCompleteSelection(self, item)
     local insertText = entry.insert or entry.text or ""
     if insertText == "" then return end
 
-    local lines = self.get("lines")
-    local cursorY = self.get("cursorY")
-    local cursorX = self.get("cursorX")
+    local lines = self.getResolved("lines")
+    local cursorY = self.getResolved("cursorY")
+    local cursorX = self.getResolved("cursorX")
     local line = lines[cursorY] or ""
     local startIndex = self._autoCompleteTokenStart or cursorX
     if startIndex < 1 then startIndex = 1 end
@@ -184,7 +184,7 @@ local function applyAutoCompleteSelection(self, item)
 end
 
 local function ensureAutoCompleteUI(self)
-    if not self.get("autoCompleteEnabled") then return nil end
+    if not self.getResolved("autoCompleteEnabled") then return nil end
     local frame = self._autoCompleteFrame
     if frame and not frame._destroyed then
         return self._autoCompleteList
@@ -194,15 +194,15 @@ local function ensureAutoCompleteUI(self)
     if not base or not base.addFrame then return nil end
 
     frame = base:addFrame({
-        width = self.get("width"),
+        width = self.getResolved("width"),
         height = 1,
         x = 1,
         y = 1,
         visible = false,
-        background = self.get("autoCompleteBackground"),
-        foreground = self.get("autoCompleteForeground"),
+        background = self.getResolved("autoCompleteBackground"),
+        foreground = self.getResolved("autoCompleteForeground"),
         ignoreOffset = true,
-        z = self.get("z") + self.get("autoCompleteZOffset"),
+        z = self.getResolved("z") + self.getResolved("autoCompleteZOffset"),
     })
     frame:setIgnoreOffset(true)
     frame:setVisible(false)
@@ -215,16 +215,16 @@ local function ensureAutoCompleteUI(self)
         height = math.max(1, frame.get("height") - padding * 2),
         selectable = true,
         multiSelection = false,
-        background = self.get("autoCompleteBackground"),
-        foreground = self.get("autoCompleteForeground"),
+        background = self.getResolved("autoCompleteBackground"),
+        foreground = self.getResolved("autoCompleteForeground"),
     })
-    list:setSelectedBackground(self.get("autoCompleteSelectedBackground"))
-    list:setSelectedForeground(self.get("autoCompleteSelectedForeground"))
+    list:setSelectedBackground(self.getResolved("autoCompleteSelectedBackground"))
+    list:setSelectedForeground(self.getResolved("autoCompleteSelectedForeground"))
     list:setOffset(0)
     list:onSelect(function(_, index, selectedItem)
         if not autoCompleteVisible(self) then return end
         setAutoCompleteSelection(self, index)
-        if self.get("autoCompleteAcceptOnClick") then
+        if self.getResolved("autoCompleteAcceptOnClick") then
             applyAutoCompleteSelection(self, selectedItem)
         end
     end)
@@ -272,12 +272,12 @@ updateAutoCompleteBorder = function(self)
         frame._autoCompleteBorderCommand = nil
     end
 
-    if not self.get("autoCompleteShowBorder") then
+    if not self.getResolved("autoCompleteShowBorder") then
         frame:updateRender()
         return
     end
 
-    local borderColor = self.get("autoCompleteBorderColor") or colors.black
+    local borderColor = self.getResolved("autoCompleteBorderColor") or colors.black
 
     local commandIndex = canvas:addCommand(function(element)
         local width = element.get("width") or 0
@@ -303,12 +303,12 @@ updateAutoCompleteBorder = function(self)
 end
 
 local function getTokenInfo(self)
-    local lines = self.get("lines")
-    local cursorY = self.get("cursorY")
-    local cursorX = self.get("cursorX")
+    local lines = self.getResolved("lines")
+    local cursorY = self.getResolved("cursorY")
+    local cursorX = self.getResolved("cursorX")
     local line = lines[cursorY] or ""
     local uptoCursor = line:sub(1, math.max(cursorX - 1, 0))
-    local pattern = self.get("autoCompleteTokenPattern") or "[%w_]+"
+    local pattern = self.getResolved("autoCompleteTokenPattern") or "[%w_]+"
 
     local token = ""
     if pattern ~= "" then
@@ -355,7 +355,7 @@ local function iterateSuggestions(source, handler)
 end
 
 local function gatherSuggestions(self, token)
-    local provider = self.get("autoCompleteProvider")
+    local provider = self.getResolved("autoCompleteProvider")
     local source = {}
     if provider then
         local ok, result = pcall(provider, self, token)
@@ -363,11 +363,11 @@ local function gatherSuggestions(self, token)
             source = result
         end
     else
-        source = self.get("autoCompleteItems") or {}
+        source = self.getResolved("autoCompleteItems") or {}
     end
 
     local suggestions = {}
-    local caseInsensitive = self.get("autoCompleteCaseInsensitive")
+    local caseInsensitive = self.getResolved("autoCompleteCaseInsensitive")
     local target = caseInsensitive and token:lower() or token
     iterateSuggestions(source, function(entry)
         local normalized = normalizeSuggestion(entry)
@@ -379,7 +379,7 @@ local function gatherSuggestions(self, token)
         end
     end)
 
-    local maxItems = self.get("autoCompleteMaxItems")
+    local maxItems = self.getResolved("autoCompleteMaxItems")
     if #suggestions > maxItems then
         while #suggestions > maxItems do
             table.remove(suggestions)
@@ -403,8 +403,8 @@ local function measureSuggestionWidth(self, suggestions)
         end
     end
 
-    local limit = self.get("autoCompleteMaxWidth")
-    local maxWidth = self.get("width")
+    local limit = self.getResolved("autoCompleteMaxWidth")
+    local maxWidth = self.getResolved("width")
     if limit and limit > 0 then
         maxWidth = math.min(maxWidth, limit)
     end
@@ -430,7 +430,7 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
     local list = self._autoCompleteList
     if not frame or frame._destroyed then return end
     local border = getBorderPadding(self)
-    local contentWidth = math.max(1, width or self.get("width"))
+    local contentWidth = math.max(1, width or self.getResolved("width"))
     local contentHeight = math.max(1, visibleCount or 1)
 
     local base = self:getBaseFrame()
@@ -457,17 +457,17 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
     local frameWidth = contentWidth + border * 2
     local frameHeight = contentHeight + border * 2
     local originX, originY = self:calculatePosition()
-    local scrollX = self.get("scrollX") or 0
-    local scrollY = self.get("scrollY") or 0
-    local tokenStart = (self._autoCompleteTokenStart or self.get("cursorX"))
+    local scrollX = self.getResolved("scrollX") or 0
+    local scrollY = self.getResolved("scrollY") or 0
+    local tokenStart = (self._autoCompleteTokenStart or self.getResolved("cursorX"))
     local column = tokenStart - scrollX
-    column = math.max(1, math.min(self.get("width"), column))
+    column = math.max(1, math.min(self.getResolved("width"), column))
 
-    local cursorRow = self.get("cursorY") - scrollY
-    cursorRow = math.max(1, math.min(self.get("height"), cursorRow))
+    local cursorRow = self.getResolved("cursorY") - scrollY
+    cursorRow = math.max(1, math.min(self.getResolved("height"), cursorRow))
 
-    local offsetX = self.get("autoCompleteOffsetX")
-    local offsetY = self.get("autoCompleteOffsetY")
+    local offsetX = self.getResolved("autoCompleteOffsetX")
+    local offsetY = self.getResolved("autoCompleteOffsetY")
 
     local baseX = originX + column - 1 + offsetX
     local x = baseX - border
@@ -520,7 +520,7 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
     frame:setPosition(x, y)
     frame:setWidth(frameWidth)
     frame:setHeight(frameHeight)
-    frame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+    frame:setZ(self.getResolved("z") + self.getResolved("autoCompleteZOffset"))
 
     layoutAutoCompleteList(self, contentWidth, contentHeight)
 
@@ -531,7 +531,7 @@ local function placeAutoCompleteFrame(self, visibleCount, width)
 end
 
 local function refreshAutoComplete(self)
-    if not self.get("autoCompleteEnabled") then
+    if not self.getResolved("autoCompleteEnabled") then
         hideAutoComplete(self, true)
         return
     end
@@ -544,7 +544,7 @@ local function refreshAutoComplete(self)
     self._autoCompleteToken = token
     self._autoCompleteTokenStart = startIndex
 
-    if #token < self.get("autoCompleteMinChars") then
+    if #token < self.getResolved("autoCompleteMinChars") then
         hideAutoComplete(self)
         return
     end
@@ -576,7 +576,7 @@ end
 local function handleAutoCompleteKey(self, key)
     if not autoCompleteVisible(self) then return false end
 
-    if key == keys.tab or (key == keys.enter and self.get("autoCompleteAcceptOnEnter")) then
+    if key == keys.tab or (key == keys.enter and self.getResolved("autoCompleteAcceptOnEnter")) then
         applyAutoCompleteSelection(self)
         return true
     elseif key == keys.up then
@@ -593,7 +593,7 @@ local function handleAutoCompleteKey(self, key)
         local height = (self._autoCompleteList and self._autoCompleteList.get("height")) or 1
         setAutoCompleteSelection(self, (self._autoCompleteIndex or 1) + height)
         return true
-    elseif key == keys.escape and self.get("autoCompleteCloseOnEscape") then
+    elseif key == keys.escape and self.getResolved("autoCompleteCloseOnEscape") then
         hideAutoComplete(self)
         return true
     end
@@ -647,7 +647,7 @@ function TextBox:init(props, basalt)
     self.set("type", "TextBox")
 
     local function refreshIfEnabled()
-        if self.get("autoCompleteEnabled") and self:hasState("focused") then
+        if self.getResolved("autoCompleteEnabled") and self:hasState("focused") then
             refreshAutoComplete(self)
         end
     end
@@ -659,7 +659,7 @@ function TextBox:init(props, basalt)
     local function reposition()
         if autoCompleteVisible(self) then
             local suggestions = rawget(self, "_autoCompleteSuggestions") or {}
-            placeAutoCompleteFrame(self, math.max(#suggestions, 1), rawget(self, "_autoCompletePopupWidth") or self.get("width"))
+            placeAutoCompleteFrame(self, math.max(#suggestions, 1), rawget(self, "_autoCompletePopupWidth") or self.getResolved("width"))
         end
     end
 
@@ -690,12 +690,12 @@ function TextBox:init(props, basalt)
 
     self:observe("autoCompleteZOffset", function()
         if self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
-            self._autoCompleteFrame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+            self._autoCompleteFrame:setZ(self.getResolved("z") + self.getResolved("autoCompleteZOffset"))
         end
     end)
     self:observe("z", function()
         if self._autoCompleteFrame and not self._autoCompleteFrame._destroyed then
-            self._autoCompleteFrame:setZ(self.get("z") + self.get("autoCompleteZOffset"))
+            self._autoCompleteFrame:setZ(self.getResolved("z") + self.getResolved("autoCompleteZOffset"))
         end
     end)
 
@@ -749,7 +749,7 @@ end
 --- @param color number The color to apply
 --- @return TextBox self The TextBox instance
 function TextBox:addSyntaxPattern(pattern, color)
-    table.insert(self.get("syntaxPatterns"), {pattern = pattern, color = color})
+    table.insert(self.getResolved("syntaxPatterns"), {pattern = pattern, color = color})
     return self
 end
 
@@ -757,7 +757,7 @@ end
 --- @param index number The index of the pattern to remove
 --- @return TextBox self
 function TextBox:removeSyntaxPattern(index)
-    local patterns = self.get("syntaxPatterns") or {}
+    local patterns = self.getResolved("syntaxPatterns") or {}
     if type(index) ~= "number" then return self end
     if index >= 1 and index <= #patterns then
         table.remove(patterns, index)
@@ -776,9 +776,9 @@ function TextBox:clearSyntaxPatterns()
 end
 
 local function insertChar(self, char)
-    local lines = self.get("lines")
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
+    local lines = self.getResolved("lines")
+    local cursorX = self.getResolved("cursorX")
+    local cursorY = self.getResolved("cursorY")
     local currentLine = lines[cursorY]
     lines[cursorY] = currentLine:sub(1, cursorX-1) .. char .. currentLine:sub(cursorX)
     self.set("cursorX", cursorX + 1)
@@ -793,9 +793,9 @@ local function insertText(self, text)
 end
 
 local function newLine(self)
-    local lines = self.get("lines")
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
+    local lines = self.getResolved("lines")
+    local cursorX = self.getResolved("cursorX")
+    local cursorY = self.getResolved("cursorY")
     local currentLine = lines[cursorY]
 
     local restOfLine = currentLine:sub(cursorX)
@@ -809,9 +809,9 @@ local function newLine(self)
 end
 
 local function backspace(self)
-    local lines = self.get("lines")
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
+    local lines = self.getResolved("lines")
+    local cursorX = self.getResolved("cursorX")
+    local cursorY = self.getResolved("cursorY")
     local currentLine = lines[cursorY]
 
     if cursorX > 1 then
@@ -832,12 +832,12 @@ end
 --- @shortDescription Updates the viewport to keep the cursor in view
 --- @return TextBox self The TextBox instance
 function TextBox:updateViewport()
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
-    local scrollX = self.get("scrollX")
-    local scrollY = self.get("scrollY")
-    local width = self.get("width")
-    local height = self.get("height")
+    local cursorX = self.getResolved("cursorX")
+    local cursorY = self.getResolved("cursorY")
+    local scrollX = self.getResolved("scrollX")
+    local scrollY = self.getResolved("scrollY")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
 
     -- Horizontal scrolling
     if cursorX - scrollX > width then
@@ -860,14 +860,14 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function TextBox:char(char)
-    if not self.get("editable") or not self:hasState("focused") then return false end
+    if not self.getResolved("editable") or not self:hasState("focused") then return false end
     -- Auto-pair logic only triggers for single characters
-    local autoPair = self.get("autoPairEnabled")
+    local autoPair = self.getResolved("autoPairEnabled")
     if autoPair and #char == 1 then
-        local map = self.get("autoPairCharacters") or {}
-        local lines = self.get("lines")
-        local cursorX = self.get("cursorX")
-        local cursorY = self.get("cursorY")
+        local map = self.getResolved("autoPairCharacters") or {}
+        local lines = self.getResolved("lines")
+        local cursorX = self.getResolved("cursorX")
+        local cursorY = self.getResolved("cursorY")
         local line = lines[cursorY] or ""
         local afterChar = line:sub(cursorX, cursorX)
 
@@ -876,22 +876,22 @@ function TextBox:char(char)
         if closing then
             -- If skip closing and same closing already directly after, just insert opening?
             insertChar(self, char)
-            if self.get("autoPairSkipClosing") then
+            if self.getResolved("autoPairSkipClosing") then
                 if afterChar ~= closing then
                     insertChar(self, closing)
                     -- Move cursor back inside pair
-                    self.set("cursorX", self.get("cursorX") - 1)
+                    self.set("cursorX", self.getResolved("cursorX") - 1)
                 end
             else
                 insertChar(self, closing)
-                self.set("cursorX", self.get("cursorX") - 1)
+                self.set("cursorX", self.getResolved("cursorX") - 1)
             end
             refreshAutoComplete(self)
             return true
         end
 
         -- If typed char is a closing we might want to overtype
-        if self.get("autoPairOverType") then
+        if self.getResolved("autoPairOverType") then
             for open, close in pairs(map) do
                 if char == close and afterChar == close then
                     -- move over instead of inserting
@@ -913,24 +913,24 @@ end
 --- @return boolean handled Whether the event was handled
 --- @protected
 function TextBox:key(key)
-    if not self.get("editable") or not self:hasState("focused") then return false end
+    if not self.getResolved("editable") or not self:hasState("focused") then return false end
     if handleAutoCompleteKey(self, key) then
         return true
     end
-    local lines = self.get("lines")
-    local cursorX = self.get("cursorX")
-    local cursorY = self.get("cursorY")
+    local lines = self.getResolved("lines")
+    local cursorX = self.getResolved("cursorX")
+    local cursorY = self.getResolved("cursorY")
 
     if key == keys.enter then
         -- Smart newline between matching braces/brackets if enabled
-        if self.get("autoPairEnabled") and self.get("autoPairNewlineIndent") then
-            local lines = self.get("lines")
-            local cursorX = self.get("cursorX")
-            local cursorY = self.get("cursorY")
+        if self.getResolved("autoPairEnabled") and self.getResolved("autoPairNewlineIndent") then
+            local lines = self.getResolved("lines")
+            local cursorX = self.getResolved("cursorX")
+            local cursorY = self.getResolved("cursorY")
             local line = lines[cursorY] or ""
             local before = line:sub(1, cursorX - 1)
             local after = line:sub(cursorX)
-            local pairMap = self.get("autoPairCharacters") or {}
+            local pairMap = self.getResolved("autoPairCharacters") or {}
             local inverse = {}
             for o,c in pairs(pairMap) do inverse[c]=o end
             local prevChar = before:sub(-1)
@@ -989,9 +989,9 @@ function TextBox:mouse_scroll(direction, x, y)
         return true
     end
     if self:isInBounds(x, y) then
-        local scrollY = self.get("scrollY")
-        local height = self.get("height")
-        local lines = self.get("lines")
+        local scrollY = self.getResolved("scrollY")
+        local height = self.getResolved("height")
+        local lines = self.getResolved("lines")
 
         local maxScroll = math.max(0, #lines - height + 2)
 
@@ -1013,11 +1013,11 @@ end
 function TextBox:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local scrollX = self.get("scrollX")
-        local scrollY = self.get("scrollY")
+        local scrollX = self.getResolved("scrollX")
+        local scrollY = self.getResolved("scrollY")
 
         local targetY = (relY or 0) + (scrollY or 0)
-        local lines = self.get("lines") or {}
+        local lines = self.getResolved("lines") or {}
 
         -- clamp and validate before indexing to avoid nil errors
         if targetY < 1 then targetY = 1 end
@@ -1042,7 +1042,7 @@ end
 --- @shortDescription Handles paste events
 --- @protected
 function TextBox:paste(text)
-    if not self.get("editable") or not self:hasState("focused") then return false end
+    if not self.getResolved("editable") or not self:hasState("focused") then return false end
 
     for char in text:gmatch(".") do
         if char == "\n" then
@@ -1078,13 +1078,13 @@ end
 --- @shortDescription Gets the text of the TextBox
 --- @return string text The text of the TextBox
 function TextBox:getText()
-    return table.concat(self.get("lines"), "\n")
+    return table.concat(self.getResolved("lines"), "\n")
 end
 
 local function applySyntaxHighlighting(self, line)
     local text = line
-    local colors = string.rep(tHex[self.get("foreground")], #text)
-    local patterns = self.get("syntaxPatterns")
+    local colors = string.rep(tHex[self.getResolved("foreground")], #text)
+    local patterns = self.getResolved("syntaxPatterns")
 
     for _, syntax in ipairs(patterns) do
         local start = 1
@@ -1111,13 +1111,15 @@ end
 function TextBox:render()
     VisualElement.render(self)
 
-    local lines = self.get("lines")
-    local scrollX = self.get("scrollX")
-    local scrollY = self.get("scrollY")
-    local width = self.get("width")
-    local height = self.get("height")
-    local fg = tHex[self.get("foreground")]
-    local bg = tHex[self.get("background")]
+    local lines = self.getResolved("lines")
+    local scrollX = self.getResolved("scrollX")
+    local scrollY = self.getResolved("scrollY")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local foreground = self.getResolved("foreground")
+    local background = self.getResolved("background")
+    local fg = tHex[foreground]
+    local bg = tHex[background]
 
     for y = 1, height do
         local lineNum = y + scrollY
@@ -1130,17 +1132,17 @@ function TextBox:render()
         local padLen = width - #text
         if padLen > 0 then
             text = text .. string.rep(" ", padLen)
-            colors = colors .. string.rep(tHex[self.get("foreground")], padLen)
+            colors = colors .. string.rep(tHex[foreground], padLen)
         end
 
         self:blit(1, y, text, colors, string.rep(bg, #text))
     end
 
     if self:hasState("focused") then
-        local relativeX = self.get("cursorX") - scrollX
-        local relativeY = self.get("cursorY") - scrollY
+        local relativeX = self.getResolved("cursorX") - scrollX
+        local relativeY = self.getResolved("cursorY") - scrollY
         if relativeX >= 1 and relativeX <= width and relativeY >= 1 and relativeY <= height then
-            self:setCursor(relativeX, relativeY, true, self.get("cursorColor") or self.get("foreground"))
+            self:setCursor(relativeX, relativeY, true, self.getResolved("cursorColor") or foreground)
         end
     end
 end

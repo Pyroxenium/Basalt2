@@ -50,7 +50,7 @@ end
 function Display:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Display")
-    self._window = window.create(basalt.getActiveFrame():getTerm(), 1, 1, self.get("width"), self.get("height"), false)
+    self._window = window.create(basalt.getActiveFrame():getTerm(), 1, 1, self.getResolved("width"), self.getResolved("height"), false)
     local reposition = self._window.reposition
     local blit = self._window.blit
     local write = self._window.write
@@ -63,7 +63,7 @@ function Display:init(props, basalt)
     end
 
     self._window.getPosition = function(self)
-        return self.get("x"), self.get("y")
+        return self.getResolved("x"), self.getResolved("y")
     end
 
     self._window.setVisible = function(visible)
@@ -71,7 +71,7 @@ function Display:init(props, basalt)
     end
 
     self._window.isVisible = function(self)
-        return self.get("visible")
+        return self.getResolved("visible")
     end
     self._window.blit = function(x, y, text, fg, bg)
         blit(x, y, text, fg, bg)
@@ -85,13 +85,13 @@ function Display:init(props, basalt)
     self:observe("width", function(self, width)
         local window = self._window
         if window then
-            window.reposition(1, 1, width, self.get("height"))
+            window.reposition(1, 1, width, self.getResolved("height"))
         end
     end)
     self:observe("height", function(self, height)
         local window = self._window
         if window then
-            window.reposition(1, 1, self.get("width"), height)
+            window.reposition(1, 1, self.getResolved("width"), height)
         end
     end)
 end

@@ -148,8 +148,8 @@ end
 --- @shortDescription Calculates menu size based on items
 --- @private
 function ContextMenu:calculateSize()
-    local items = self.get("items")
-    local itemHeight = self.get("itemHeight")
+    local items = self.getResolved("items")
+    local itemHeight = self.getResolved("itemHeight")
 
     if #items == 0 then
         self.set("width", 10)
@@ -195,7 +195,7 @@ function ContextMenu:close()
     self.set("isOpen", false)
     self.set("visible", false)
 
-    local openSubmenu = self.get("openSubmenu")
+    local openSubmenu = self.getResolved("openSubmenu")
     if openSubmenu and openSubmenu.menu then
         openSubmenu.menu:close()
     end
@@ -225,8 +225,8 @@ end
 --- @return table? item Item data or nil
 --- @private
 function ContextMenu:getItemAt(y)
-    local items = self.get("items")
-    local itemHeight = self.get("itemHeight")
+    local items = self.getResolved("items")
+    local itemHeight = self.getResolved("itemHeight")
 
     local index = math.floor((y - 1) / itemHeight) + 1
 
@@ -243,20 +243,20 @@ function ContextMenu:createSubmenu(submenuItems, parentItem)
     local submenu = self.parent:addContextMenu()
     submenu:setItems(submenuItems)
 
-    submenu.set("background", self.get("background"))
-    submenu.set("foreground", self.get("foreground"))
+    submenu.set("background", self.getResolved("background"))
+    submenu.set("foreground", self.getResolved("foreground"))
 
     submenu.parentMenu = self
 
-    local parentX = self.get("x")
-    local parentY = self.get("y")
-    local parentWidth = self.get("width")
-    local itemHeight = self.get("itemHeight")
+    local parentX = self.getResolved("x")
+    local parentY = self.getResolved("y")
+    local parentWidth = self.getResolved("width")
+    local itemHeight = self.getResolved("itemHeight")
     local itemIndex = parentItem._index or 1
 
     submenu.set("x", parentX + parentWidth)
     submenu.set("y", parentY + (itemIndex - 1) * itemHeight)
-    submenu.set("z", self.get("z") + 1)
+    submenu.set("z", self.getResolved("z") + 1)
 
     return submenu
 end
@@ -278,7 +278,7 @@ function ContextMenu:mouse_click(button, x, y)
         end
 
         if item.submenu then
-            local openSubmenu = self.get("openSubmenu")
+            local openSubmenu = self.getResolved("openSubmenu")
             if openSubmenu and openSubmenu.index == index then
                 openSubmenu.menu:close()
                 self.set("openSubmenu", nil)
@@ -312,12 +312,12 @@ end
 --- @shortDescription Renders the ContextMenu
 --- @protected
 function ContextMenu:render()
-    local items = self.get("items")
-    local width = self.get("width")
-    local height = self.get("height")
-    local itemHeight = self.get("itemHeight")
-    local menuBg = self.get("background")
-    local menuFg = self.get("foreground")
+    local items = self.getResolved("items")
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    local itemHeight = self.getResolved("itemHeight")
+    local menuBg = self.getResolved("background")
+    local menuFg = self.getResolved("foreground")
 
     for i, item in ipairs(items) do
         local y = (i - 1) * itemHeight + 1
@@ -342,16 +342,16 @@ function ContextMenu:render()
         end
     end
 
-    if not self.get("childrenSorted") then
+    if not self.getResolved("childrenSorted") then
         self:sortChildren()
     end
-    if not self.get("childrenEventsSorted") then
+    if not self.getResolved("childrenEventsSorted") then
         for eventName in pairs(self._values.childrenEvents or {}) do
             self:sortChildrenEvents(eventName)
         end
     end
 
-    for _, child in ipairs(self.get("visibleChildren") or {}) do
+    for _, child in ipairs(self.getResolved("visibleChildren") or {}) do
         if child == self then 
             error("CIRCULAR REFERENCE DETECTED!")
             return 

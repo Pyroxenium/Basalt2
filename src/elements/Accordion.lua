@@ -174,14 +174,14 @@ end
 --- @param expanded boolean Whether the panel starts expanded (default: false)
 --- @return table panelContainer The container for this panel
 function Accordion:newPanel(title, expanded)
-    local panels = self.get("panels") or {}
+    local panels = self.getResolved("panels") or {}
     local panelId = #panels + 1
 
     local panelContainer = self:addContainer()
     panelContainer.set("x", 1)
     panelContainer.set("y", 1)
-    panelContainer.set("width", self.get("width"))
-    panelContainer.set("height", self.get("height"))
+    panelContainer.set("width", self.getResolved("width"))
+    panelContainer.set("height", self.getResolved("height"))
     panelContainer.set("visible", expanded or false)
     panelContainer.set("ignoreOffset", true)
 
@@ -202,11 +202,11 @@ Accordion.addPanel = Accordion.newPanel
 --- @shortDescription Updates the layout of all panels (positions and visibility)
 --- @private
 function Accordion:updatePanelLayout()
-    local panels = self.get("panels") or {}
-    local headerHeight = self.get("panelHeaderHeight") or 1
+    local panels = self.getResolved("panels") or {}
+    local headerHeight = self.getResolved("panelHeaderHeight") or 1
     local currentY = 1
-    local width = self.get("width")
-    local accordionHeight = self.get("height")
+    local width = self.getResolved("width")
+    local accordionHeight = self.getResolved("height")
 
     for _, panel in ipairs(panels) do
         local contentY = currentY + headerHeight
@@ -238,7 +238,7 @@ function Accordion:updatePanelLayout()
 
     local totalHeight = currentY - 1
     local maxOffset = math.max(0, totalHeight - accordionHeight)
-    local currentOffset = self.get("offsetY")
+    local currentOffset = self.getResolved("offsetY")
 
     if currentOffset > maxOffset then
         self.set("offsetY", maxOffset)
@@ -251,8 +251,8 @@ end
 --- @param panelId number The ID of the panel to toggle
 --- @return Accordion self For method chaining
 function Accordion:togglePanel(panelId)
-    local panels = self.get("panels") or {}
-    local allowMultiple = self.get("allowMultiple")
+    local panels = self.getResolved("panels") or {}
+    local allowMultiple = self.getResolved("allowMultiple")
 
     for i, panel in ipairs(panels) do
         if panel.id == panelId then
@@ -279,8 +279,8 @@ end
 --- @param panelId number The ID of the panel to expand
 --- @return Accordion self For method chaining
 function Accordion:expandPanel(panelId)
-    local panels = self.get("panels") or {}
-    local allowMultiple = self.get("allowMultiple")
+    local panels = self.getResolved("panels") or {}
+    local allowMultiple = self.getResolved("allowMultiple")
 
     for i, panel in ipairs(panels) do
         if panel.id == panelId then
@@ -309,7 +309,7 @@ end
 --- @param panelId number The ID of the panel to collapse
 --- @return Accordion self For method chaining
 function Accordion:collapsePanel(panelId)
-    local panels = self.get("panels") or {}
+    local panels = self.getResolved("panels") or {}
 
     for _, panel in ipairs(panels) do
         if panel.id == panelId then
@@ -329,7 +329,7 @@ end
 --- @param panelId number The ID of the panel
 --- @return table? container The panel's container or nil
 function Accordion:getPanel(panelId)
-    local panels = self.get("panels") or {}
+    local panels = self.getResolved("panels") or {}
     for _, panel in ipairs(panels) do
         if panel.id == panelId then
             return panel.container
@@ -342,8 +342,8 @@ end
 --- @return table metrics Panel layout information
 --- @private
 function Accordion:_getPanelMetrics()
-    local panels = self.get("panels") or {}
-    local headerHeight = self.get("panelHeaderHeight") or 1
+    local panels = self.getResolved("panels") or {}
+    local headerHeight = self.getResolved("panelHeaderHeight") or 1
 
     local positions = {}
     local currentY = 1
@@ -381,7 +381,7 @@ function Accordion:mouse_click(button, x, y)
     end
 
     local relX, relY = VisualElement.getRelativePosition(self, x, y)
-    local offsetY = self.get("offsetY")
+    local offsetY = self.getResolved("offsetY")
     local adjustedY = relY + offsetY
     local metrics = self:_getPanelMetrics()
 
@@ -400,12 +400,12 @@ end
 function Accordion:mouse_scroll(direction, x, y)
     if VisualElement.mouse_scroll(self, direction, x, y) then
         local metrics = self:_getPanelMetrics()
-        local accordionHeight = self.get("height")
+        local accordionHeight = self.getResolved("height")
         local totalHeight = metrics.totalHeight
         local maxOffset = math.max(0, totalHeight - accordionHeight)
 
         if maxOffset > 0 then
-            local currentOffset = self.get("offsetY")
+            local currentOffset = self.getResolved("offsetY")
             local newOffset = currentOffset + direction
             newOffset = math.max(0, math.min(maxOffset, newOffset))
             self.set("offsetY", newOffset)
@@ -422,17 +422,17 @@ end
 function Accordion:render()
     VisualElement.render(self)
 
-    local width = self.get("width")
-    local offsetY = self.get("offsetY")
+    local width = self.getResolved("width")
+    local offsetY = self.getResolved("offsetY")
     local metrics = self:_getPanelMetrics()
 
     for _, panelInfo in ipairs(metrics.positions) do
-        local bgColor = panelInfo.expanded and self.get("expandedHeaderBackground") or self.get("headerBackground")
-        local fgColor = panelInfo.expanded and self.get("expandedHeaderTextColor") or self.get("headerTextColor")
+        local bgColor = panelInfo.expanded and self.getResolved("expandedHeaderBackground") or self.getResolved("headerBackground")
+        local fgColor = panelInfo.expanded and self.getResolved("expandedHeaderTextColor") or self.getResolved("headerTextColor")
 
         local headerY = panelInfo.headerY - offsetY
 
-        if headerY >= 1 and headerY <= self.get("height") then
+        if headerY >= 1 and headerY <= self.getResolved("height") then
             VisualElement.multiBlit(
                 self, 
                 1, 
@@ -450,16 +450,16 @@ function Accordion:render()
         end
     end
 
-    if not self.get("childrenSorted") then
+    if not self.getResolved("childrenSorted") then
         self:sortChildren()
     end
-    if not self.get("childrenEventsSorted") then
+    if not self.getResolved("childrenEventsSorted") then
         for eventName in pairs(self._values.childrenEvents or {}) do
             self:sortChildrenEvents(eventName)
         end
     end
 
-    for _, child in ipairs(self.get("visibleChildren") or {}) do
+    for _, child in ipairs(self.getResolved("visibleChildren") or {}) do
         if child == self then 
             error("CIRCULAR REFERENCE DETECTED!")
             return 

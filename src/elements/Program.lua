@@ -254,15 +254,15 @@ function Program:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Program")
         self:observe("width", function(self, width)
-        local program = self.get("program")
+        local program = self.getResolved("program")
         if program then
-            program:resize(width, self.get("height"))
+            program:resize(width, self.getResolved("height"))
         end
     end)
     self:observe("height", function(self, height)
-        local program = self.get("program")
+        local program = self.getResolved("program")
         if program then
-            program:resize(self.get("width"), height)
+            program:resize(self.getResolved("width"), height)
         end
     end)
     return self
@@ -280,7 +280,7 @@ function Program:execute(path, env, addEnvironment, ...)
     local program = BasaltProgram.new(self, env, addEnvironment)
     self.set("program", program)
     program:setArgs(...)
-    program:run(path, self.get("width"), self.get("height"), ...)
+    program:run(path, self.getResolved("width"), self.getResolved("height"), ...)
     self:updateRender()
     return self
 end
@@ -289,7 +289,7 @@ end
 --- @shortDescription Stops the program
 --- @return Program self The Program instance
 function Program:stop()
-    local program = self.get("program")
+    local program = self.getResolved("program")
     if program then
         program:stop()
         self.set("running", false)
@@ -332,7 +332,7 @@ end
 --- @return any result The event result
 --- @protected
 function Program:dispatchEvent(event, ...)
-    local program = self.get("program")
+    local program = self.getResolved("program")
     local result = VisualElement.dispatchEvent(self, event, ...)
     if program then
         program:resume(event, ...)
@@ -350,7 +350,7 @@ end
 --- @protected
 function Program:focus()
     if(VisualElement.focus(self))then
-        local program = self.get("program")
+        local program = self.getResolved("program")
         if program then
             local cursorBlink = program.window.getCursorBlink()
             local cursorX, cursorY = program.window.getCursorPos()
@@ -363,7 +363,7 @@ end
 --- @protected
 function Program:render()
     VisualElement.render(self)
-    local program = self.get("program")
+    local program = self.getResolved("program")
     if program then
         local _, height = program.window.getSize()
         for y = 1, height do

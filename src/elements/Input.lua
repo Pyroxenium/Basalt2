@@ -62,7 +62,7 @@ end
 --- @param blink boolean Whether the cursor should blink
 --- @param color number The color of the cursor
 function Input:setCursor(x, y, blink, color)
-    x = math.min(self.get("width"), math.max(1, x))
+    x = math.min(self.getResolved("width"), math.max(1, x))
     return VisualElement.setCursor(self, x, y, blink, color)
 end
 
@@ -72,10 +72,10 @@ end
 --- @protected
 function Input:char(char)
     if not self:hasState("focused") then return false end
-    local text = self.get("text")
-    local pos = self.get("cursorPos")
-    local maxLength = self.get("maxLength")
-    local pattern = self.get("pattern")
+    local text = self.getResolved("text")
+    local pos = self.getResolved("cursorPos")
+    local maxLength = self.getResolved("maxLength")
+    local pattern = self.getResolved("pattern")
 
     if maxLength and #text >= maxLength then return false end
     if pattern and not char:match(pattern) then return false end
@@ -84,8 +84,8 @@ function Input:char(char)
     self.set("cursorPos", pos + 1)
     self:updateViewport()
 
-    local relPos = self.get("cursorPos") - self.get("viewOffset")
-    self:setCursor(relPos, 1, true, self.get("cursorColor") or self.get("foreground"))
+    local relPos = self.getResolved("cursorPos") - self.getResolved("viewOffset")
+    self:setCursor(relPos, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     VisualElement.char(self, char)
     return true
 end
@@ -96,10 +96,10 @@ end
 --- @protected
 function Input:key(key, held)
     if not self:hasState("focused") then return false end
-    local pos = self.get("cursorPos")
-    local text = self.get("text")
-    local viewOffset = self.get("viewOffset")
-    local width = self.get("width")
+    local pos = self.getResolved("cursorPos")
+    local text = self.getResolved("text")
+    local viewOffset = self.getResolved("viewOffset")
+    local width = self.getResolved("width")
 
     if key == keys.left then
         if pos > 1 then
@@ -124,7 +124,7 @@ function Input:key(key, held)
         end
     end
 
-    local relativePos = self.get("cursorPos") - self.get("viewOffset")
+    local relativePos = self.getResolved("cursorPos") - self.getResolved("viewOffset")
     self:setCursor(relativePos, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     VisualElement.key(self, key, held)
     return true
@@ -139,8 +139,8 @@ end
 function Input:mouse_click(button, x, y)
     if VisualElement.mouse_click(self, button, x, y) then
         local relX, relY = self:getRelativePosition(x, y)
-        local text = self.get("text")
-        local viewOffset = self.get("viewOffset")
+        local text = self.getResolved("text")
+        local viewOffset = self.getResolved("viewOffset")
 
         local maxPos = #text + 1
         local targetPos = math.min(maxPos, viewOffset + relX)
@@ -158,10 +158,10 @@ end
 --- @shortDescription Updates the input's viewport
 --- @return Input self The updated instance
 function Input:updateViewport()
-    local width = self.get("width")
-    local cursorPos = self.get("cursorPos")
-    local viewOffset = self.get("viewOffset")
-    local textLength = #self.get("text")
+    local width = self.getResolved("width")
+    local cursorPos = self.getResolved("cursorPos")
+    local viewOffset = self.getResolved("viewOffset")
+    local textLength = #self.getResolved("text")
 
     if cursorPos - viewOffset >= width then
         self.set("viewOffset", cursorPos - width + 1)
@@ -169,7 +169,7 @@ function Input:updateViewport()
         self.set("viewOffset", cursorPos - 1)
     end
 
-    self.set("viewOffset", math.max(0, math.min(self.get("viewOffset"), textLength - width + 1)))
+    self.set("viewOffset", math.max(0, math.min(self.getResolved("viewOffset"), textLength - width + 1)))
 
     return self
 end
@@ -178,7 +178,7 @@ end
 --- @protected
 function Input:focus()
     VisualElement.focus(self)
-    self:setCursor(self.get("cursorPos") - self.get("viewOffset"), 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
+    self:setCursor(self.getResolved("cursorPos") - self.getResolved("viewOffset"), 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     self:updateRender()
 end
 
@@ -194,10 +194,10 @@ end
 --- @protected
 function Input:paste(content)
     if not self:hasState("focused") then return false end
-    local text = self.get("text")
-    local pos = self.get("cursorPos")
-    local maxLength = self.get("maxLength")
-    local pattern = self.get("pattern")
+    local text = self.getResolved("text")
+    local pos = self.getResolved("cursorPos")
+    local maxLength = self.getResolved("maxLength")
+    local pattern = self.getResolved("pattern")
     local newText = text:sub(1, pos - 1) .. content .. text:sub(pos)
     if maxLength and #newText > maxLength then
         newText = newText:sub(1, maxLength)
@@ -214,10 +214,10 @@ end
 --- @protected
 function Input:render()
     local text = self.getResolved("text")
-    local viewOffset = self.get("viewOffset")
+    local viewOffset = self.getResolved("viewOffset")
     local placeholder = self.getResolved("placeholder")
     local focused = self:hasState("focused")
-    local width, height = self.get("width"), self.get("height")
+    local width, height = self.getResolved("width"), self.getResolved("height")
     local replaceChar = self.getResolved("replaceChar")
     self:multiBlit(1, 1, width, height, " ", tHex[self.getResolved("foreground")], tHex[self.getResolved("background")])
 
@@ -227,7 +227,7 @@ function Input:render()
     end
 
     if(focused) then
-        self:setCursor(self.get("cursorPos") - viewOffset, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
+        self:setCursor(self.getResolved("cursorPos") - viewOffset, 1, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
     end
 
     local visibleText = text:sub(viewOffset + 1, viewOffset + width)
