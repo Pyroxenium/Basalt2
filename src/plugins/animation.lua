@@ -1,7 +1,8 @@
 ---@configDefault false
 
 local registeredAnimations = {}
-local easings = {
+local easings = {}
+easings = {
     linear = function(progress)
         return progress
     end,
@@ -19,6 +20,171 @@ local easings = {
             return 2 * progress * progress
         end
         return 1 - (-2 * progress + 2)^2 / 2
+    end,
+
+    easeInCubic = function(progress)
+        return progress * progress * progress
+    end,
+
+    easeOutCubic = function(progress)
+        return 1 - (1 - progress)^3
+    end,
+
+    easeInOutCubic = function(progress)
+        if progress < 0.5 then
+            return 4 * progress * progress * progress
+        end
+        return 1 - (-2 * progress + 2)^3 / 2
+    end,
+
+    easeInQuart = function(progress)
+        return progress * progress * progress * progress
+    end,
+
+    easeOutQuart = function(progress)
+        return 1 - (1 - progress)^4
+    end,
+
+    easeInOutQuart = function(progress)
+        if progress < 0.5 then
+            return 8 * progress * progress * progress * progress
+        end
+        return 1 - (-2 * progress + 2)^4 / 2
+    end,
+
+    easeInQuint = function(progress)
+        return progress * progress * progress * progress * progress
+    end,
+
+    easeOutQuint = function(progress)
+        return 1 - (1 - progress)^5
+    end,
+
+    easeInOutQuint = function(progress)
+        if progress < 0.5 then
+            return 16 * progress * progress * progress * progress * progress
+        end
+        return 1 - (-2 * progress + 2)^5 / 2
+    end,
+
+    easeInSine = function(progress)
+        return 1 - math.cos(progress * math.pi / 2)
+    end,
+
+    easeOutSine = function(progress)
+        return math.sin(progress * math.pi / 2)
+    end,
+
+    easeInOutSine = function(progress)
+        return -(math.cos(math.pi * progress) - 1) / 2
+    end,
+
+    easeInExpo = function(progress)
+        if progress == 0 then return 0 end
+        return 2^(10 * progress - 10)
+    end,
+
+    easeOutExpo = function(progress)
+        if progress == 1 then return 1 end
+        return 1 - 2^(-10 * progress)
+    end,
+
+    easeInOutExpo = function(progress)
+        if progress == 0 then return 0 end
+        if progress == 1 then return 1 end
+        if progress < 0.5 then
+            return 2^(20 * progress - 10) / 2
+        end
+        return (2 - 2^(-20 * progress + 10)) / 2
+    end,
+
+    easeInCirc = function(progress)
+        return 1 - math.sqrt(1 - progress * progress)
+    end,
+
+    easeOutCirc = function(progress)
+        return math.sqrt(1 - (progress - 1) * (progress - 1))
+    end,
+
+    easeInOutCirc = function(progress)
+        if progress < 0.5 then
+            return (1 - math.sqrt(1 - (2 * progress)^2)) / 2
+        end
+        return (math.sqrt(1 - (-2 * progress + 2)^2) + 1) / 2
+    end,
+
+    easeInBack = function(progress)
+        local c1 = 1.70158
+        local c3 = c1 + 1
+        return c3 * progress * progress * progress - c1 * progress * progress
+    end,
+
+    easeOutBack = function(progress)
+        local c1 = 1.70158
+        local c3 = c1 + 1
+        return 1 + c3 * (progress - 1)^3 + c1 * (progress - 1)^2
+    end,
+
+    easeInOutBack = function(progress)
+        local c1 = 1.70158
+        local c2 = c1 * 1.525
+        if progress < 0.5 then
+            return ((2 * progress)^2 * ((c2 + 1) * 2 * progress - c2)) / 2
+        end
+        return ((2 * progress - 2)^2 * ((c2 + 1) * (progress * 2 - 2) + c2) + 2) / 2
+    end,
+
+    easeInElastic = function(progress)
+        local c4 = (2 * math.pi) / 3
+        if progress == 0 then return 0 end
+        if progress == 1 then return 1 end
+        return -(2^(10 * progress - 10)) * math.sin((progress * 10 - 10.75) * c4)
+    end,
+
+    easeOutElastic = function(progress)
+        local c4 = (2 * math.pi) / 3
+        if progress == 0 then return 0 end
+        if progress == 1 then return 1 end
+        return 2^(-10 * progress) * math.sin((progress * 10 - 0.75) * c4) + 1
+    end,
+
+    easeInOutElastic = function(progress)
+        local c5 = (2 * math.pi) / 4.5
+        if progress == 0 then return 0 end
+        if progress == 1 then return 1 end
+        if progress < 0.5 then
+            return -(2^(20 * progress - 10) * math.sin((20 * progress - 11.125) * c5)) / 2
+        end
+        return (2^(-20 * progress + 10) * math.sin((20 * progress - 11.125) * c5)) / 2 + 1
+    end,
+
+    easeInBounce = function(progress)
+        return 1 - easings.easeOutBounce(1 - progress)
+    end,
+
+    easeOutBounce = function(progress)
+        local n1 = 7.5625
+        local d1 = 2.75
+
+        if progress < 1 / d1 then
+            return n1 * progress * progress
+        elseif progress < 2 / d1 then
+            progress = progress - 1.5 / d1
+            return n1 * progress * progress + 0.75
+        elseif progress < 2.5 / d1 then
+            progress = progress - 2.25 / d1
+            return n1 * progress * progress + 0.9375
+        else
+            progress = progress - 2.625 / d1
+            return n1 * progress * progress + 0.984375
+        end
+    end,
+
+    easeInOutBounce = function(progress)
+        if progress < 0.5 then
+            return (1 - easings.easeOutBounce(1 - 2 * progress)) / 2
+        end
+        return (1 + easings.easeOutBounce(2 * progress - 1)) / 2
     end
 }
 
@@ -66,7 +232,7 @@ function AnimationInstance:start()
     if self.handlers.start then
         self.handlers.start(self)
     end
-    return self
+    return self 
 end
 
 --- Updates the animation
@@ -519,6 +685,27 @@ Animation.registerAnimation("marquee", {
     end,
 
     complete = function(anim)
+    end
+})
+
+Animation.registerAnimation("custom", {
+    start = function(anim)
+        anim.callback = anim.args[1]
+        if type(anim.callback) ~= "function" then
+            error("custom animation requires a function as first argument")
+        end
+    end,
+
+    update = function(anim, progress)
+        local elapsed = os.epoch("local") / 1000 - anim.startTime
+        anim.callback(anim.element, progress, elapsed)
+        return progress >= 1
+    end,
+
+    complete = function(anim)
+        if anim.callback then
+            anim.callback(anim.element, 1, anim.duration)
+        end
     end
 })
 
