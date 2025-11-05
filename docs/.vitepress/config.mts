@@ -92,6 +92,7 @@ export default defineConfig({
             { text: 'XML', link: '/guides/xml' },
             { text: 'Canvas', link: '/guides/canvas'},
             { text: 'Element Loading', link: '/guides/element-loading' },
+            { text: 'Responsive Systems', link: '/guides/responsive-system' },
           ]
         },
         {
