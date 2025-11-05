@@ -65,3 +65,4 @@ basalt.run()
 |dropdownHeight|number|5|Maximum visible items when expanded|
 |selectedText|string|""|Text shown when no selection made|
 |dropSymbol|string|"\31"|Indicator for dropdown state|
+|undropSymbol|string|"\31"|Indicator for dropdown state|
