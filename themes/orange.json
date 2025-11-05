@@ -1,0 +1,47 @@
+{
+    "theme": "orange",
+    "default": {
+        "background": "black",
+        "foreground": "orange"
+    },
+    "BaseFrame": {
+        "background": "white",
+        "Container": {
+            "default": {
+                "background": "black",
+                "foreground": "orange"
+            },
+            "background": "orange",
+            "foreground": "white",
+            "Button": {
+                "background": "black",
+                "foreground": "orange",
+                "states": {
+                    "clicked": {
+                        "background": "white",
+                        "foreground": "orange"
+                    }
+                }
+            },
+            "Label": {
+                "foreground": "black"
+            }
+        },
+        "Button": {
+            "background": "black",
+            "foreground": "orange",
+            "states": {
+                "clicked": {
+                    "background": "orange",
+                    "foreground": "white"
+                }
+            }
+        },
+        "names": {
+            "basaltDebugLog": {
+                "background": "red",
+                "foreground": "white"
+            }
+        }
+    }
+}

@@ -71,7 +71,6 @@ function List.new()
     self.set("width", 16)
     self.set("height", 8)
     self.set("z", 5)
-    self.set("background", colors.gray)
     return self
 end
 

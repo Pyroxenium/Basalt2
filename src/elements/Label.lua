@@ -37,7 +37,6 @@ function Label.new()
     local self = setmetatable({}, Label):__init()
     self.class = Label
     self.set("z", 3)
-    self.set("foreground", colors.black)
     self.set("backgroundEnabled", false)
     return self
 end
@@ -49,10 +48,6 @@ end
 --- @protected
 function Label:init(props, basalt)
     VisualElement.init(self, props, basalt)
-    if(self.parent)then
-        self.set("background", self.parent.get("background"))
-        self.set("foreground", self.parent.get("foreground"))
-    end
     self.set("type", "Label")
     return self
 end

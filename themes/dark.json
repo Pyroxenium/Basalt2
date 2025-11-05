@@ -1,0 +1,44 @@
+{
+    "theme": "dark",
+    "default": {
+        "background": "white",
+        "foreground": "black"
+    },
+    "BaseFrame": {
+        "background": "black",
+        "Container": {
+            "background": "gray",
+            "foreground": "white",
+            "Button": {
+                "background": "lightGray",
+                "foreground": "black",
+                "states": {
+                    "clicked": {
+                        "background": "blue",
+                        "foreground": "white"
+                    }
+                }
+            },
+            "Input": {
+                "background": "black",
+                "foreground": "lightGray"
+            }
+        },
+        "Button": {
+            "background": "gray",
+            "foreground": "white",
+            "states": {
+                "clicked": {
+                    "background": "blue",
+                    "foreground": "white"
+                }
+            }
+        },
+        "names": {
+            "basaltDebugLog": {
+                "background": "red",
+                "foreground": "white"
+            }
+        }
+    }
+}

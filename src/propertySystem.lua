@@ -263,6 +263,7 @@ function PropertySystem:__init()
     self._values = {}
     self._observers = {}
     self._states = {}
+    self._modifiedProperties = {}
 
     self.set = function(name, value, ...)
         local oldValue = self._values[name]
@@ -275,6 +276,7 @@ function PropertySystem:__init()
                 self:updateRender()
             end
             self._values[name] = applyHooks(self, name, value, config)
+            self._modifiedProperties[name] = true
             if oldValue ~= value and self._observers[name] then
                 for _, callback in ipairs(self._observers[name]) do
                     callback(self, value, oldValue)
@@ -431,6 +433,7 @@ function PropertySystem:_updateProperty(name, value)
         oldValue = oldValue(self)
     end
 
+    self._modifiedProperties[name] = true
     self._values[name] = value
     local newValue = type(value) == "function" and value(self) or value
 

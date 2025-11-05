@@ -29,7 +29,6 @@ function Frame.new()
     self.class = Frame
     self.set("width", 12)
     self.set("height", 6)
-    self.set("background", colors.gray)
     self.set("z", 10)
     return self
 end

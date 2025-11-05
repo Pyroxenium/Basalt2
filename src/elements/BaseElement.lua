@@ -101,6 +101,7 @@ function BaseElement:init(props, basalt)
     self.basalt = basalt
     self._registeredEvents = {}
     self._registeredStates = {}
+    self._cachedActiveStates = nil
 
     local currentClass = getmetatable(self).__index
 
@@ -142,6 +143,7 @@ function BaseElement:postInit()
         return self
     end
     self._postInitialized = true
+    self._modifiedProperties = {}
     if(self._props)then
         for k,v in pairs(self._props)do
             self.set(k, v)
@@ -234,6 +236,7 @@ function BaseElement:setState(stateName, priority)
     states[stateName] = priority or 0
 
     self.set("states", states)
+    self._cachedActiveStates = nil
     return self
 end
 
@@ -246,6 +249,7 @@ function BaseElement:unsetState(stateName)
     if states[stateName] ~= nil then
         states[stateName] = nil
         self.set("states", states)
+        self._cachedActiveStates = nil
     end
     return self
 end
@@ -282,6 +286,11 @@ end
 --- @shortDescription Gets all active states
 --- @return table states Array of {name, priority} sorted by priority
 function BaseElement:getActiveStates()
+    -- Return cached version if available
+    if self._cachedActiveStates then
+        return self._cachedActiveStates
+    end
+
     local states = self.get("states")
     local result = {}
 
@@ -291,6 +300,7 @@ function BaseElement:getActiveStates()
 
     table.sort(result, function(a, b) return a.priority > b.priority end)
 
+    self._cachedActiveStates = result
     return result
 end
 

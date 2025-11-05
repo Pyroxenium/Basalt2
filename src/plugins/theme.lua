@@ -4,24 +4,48 @@ local errorManager = require("errorManager")
 
 local defaultTheme = {
     default = {
-        background = colors.lightGray,
+        background = colors.cyan,
         foreground = colors.black,
     },
     BaseFrame = {
         background = colors.white,
         foreground = colors.black,
 
-        Frame = {
+        Container = {
+            default = {
+                background = colors.cyan,
+                foreground = colors.black,
+            },
             background = colors.black,
-            names = {
-                basaltDebugLogClose = {
-                    background = colors.blue,
-                    foreground = colors.white
+            Button = {
+                background = colors.cyan,
+                foreground = colors.black,
+                states = {
+                    clicked = {
+                        background = colors.white,
+                        foreground = colors.black,
+                    }
                 }
+            },
+            Input = {
+                background = colors.cyan,
+                foreground = colors.black,
+            },
+            Label = {
+                foreground = colors.white,
             },
         },
         Button = {
             background = colors.cyan,
+            foreground = colors.black,
+            states = {
+                clicked = {
+                    background = colors.black,
+                    foreground = colors.cyan,
+                }
+            }
+        },
+        Label = {
             foreground = colors.black,
         },
 
@@ -96,26 +120,6 @@ local function lookUpTemplate(theme, path)
     return current
 end
 
-local function getDefaultProperties(theme, elementType)
-    local result = {}
-    if theme.default then
-        for k,v in pairs(theme.default) do
-            if type(v) ~= "table" then
-                result[k] = v
-            end
-        end
-
-        if theme.default[elementType] then
-            for k,v in pairs(theme.default[elementType]) do
-                if type(v) ~= "table" then
-                    result[k] = v
-                end
-            end
-        end
-    end
-    return result
-end
-
 local function applyNamedStyles(result, theme, elementType, elementName, themeTable)
     if theme.default and theme.default.names and theme.default.names[elementName] then
         for k,v in pairs(theme.default.names[elementName]) do
@@ -139,17 +143,46 @@ end
 
 local function collectThemeProps(theme, path, elementType, elementName)
     local result = {}
-    local themeTable = lookUpTemplate(theme, path)
-    if themeTable then
-        for k,v in pairs(themeTable) do
+    if theme.default then
+        for k,v in pairs(theme.default) do
             if type(v) ~= "table" then
                 result[k] = v
             end
         end
     end
+    local current = theme
+    for i = 1, #path do
+        local types = path[i]
+        local found = false
 
-    if next(result) == nil then
-        result = getDefaultProperties(theme, elementType)
+        for _, elementType in ipairs(types) do
+            if current[elementType] then
+                current = current[elementType]
+                found = true
+                if current.default then
+                    for k,v in pairs(current.default) do
+                        if type(v) ~= "table" then
+                            result[k] = v
+                        end
+                    end
+                end
+                break
+            end
+        end
+
+        if not found then
+            current = nil
+            break
+        end
+    end
+
+    local themeTable = lookUpTemplate(theme, path)
+    if themeTable then
+        for k,v in pairs(themeTable) do
+            if type(v) ~= "table" or k == "states" then
+                result[k] = v
+            end
+        end
     end
 
     applyNamedStyles(result, theme, elementType, elementName, themeTable)
@@ -163,22 +196,53 @@ end
 --- @param applyToChildren boolean? Whether to apply theme to child elements (default: true)
 --- @return BaseElement self The element instance
 function BaseElement:applyTheme(applyToChildren)
+    local backup = {}
+    if self._modifiedProperties then
+        for prop, _ in pairs(self._modifiedProperties) do
+            backup[prop] = true
+        end
+    end
+
     local styles = self:getTheme()
     if(styles ~= nil) then
         for prop, value in pairs(styles) do
-            local config = self._properties[prop]
-            if(config)then
-                if((config.type)=="color")then
-                    if(type(value)=="string")then
-                        if(colors[value])then
-                            value = colors[value]
+            if prop ~= "states" and not backup[prop] then
+                local config = self._properties[prop]
+                if(config)then
+                    if((config.type)=="color")then
+                        if(type(value)=="string")then
+                            if(colors[value])then
+                                value = colors[value]
+                            end
+                        end
+                    end
+                    self.set(prop, value)
+                end
+            end
+        end
+        if styles.states then
+            for stateName, stateConfig in pairs(styles.states) do
+                for prop, value in pairs(stateConfig) do
+                    if prop ~= "priority" then
+                        local config = self._properties[prop]
+                        local capitalizedName = prop:sub(1,1):upper() .. prop:sub(2)
+                        if(config)then
+                            if((config.type)=="color")then
+                                if(type(value)=="string")then
+                                    if(colors[value])then
+                                        value = colors[value]
+                                    end
+                                end
+                            end
+                            self["set" .. capitalizedName .. "State"](self, stateName, value)
                         end
                     end
                 end
-                self.set(prop, value)
             end
         end
     end
+    self._modifiedProperties = backup
+
     if(applyToChildren~=false)then
         if(self:isType("Container"))then
             local children = self.get("children")
