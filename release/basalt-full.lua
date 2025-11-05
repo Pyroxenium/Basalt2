@@ -1293,16 +1293,13 @@ da.set("width",#da.getResolved("text"))else
 da.set("height",#
 ba(da.getResolved("text"),da.getResolved("width")))end;return _b end})
 function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("z",3)da.set("foreground",colors.black)
-da.set("backgroundEnabled",false)return da end
-function ca:init(da,_b)aa.init(self,da,_b)if(self.parent)then
-self.set("background",self.parent.get("background"))
-self.set("foreground",self.parent.get("foreground"))end
-self.set("type","Label")return self end;function ca:getWrappedText()local da=self.getResolved("text")
-local _b=ba(da,self.getResolved("width"))return _b end
-function ca:render()
-aa.render(self)local da=self.getResolved("text")
-if(self.getResolved("autoSize"))then
+da.class=ca;da.set("z",3)da.set("backgroundEnabled",false)return da end;function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Label")
+return self end
+function ca:getWrappedText()
+local da=self.getResolved("text")local _b=ba(da,self.getResolved("width"))return _b end
+function ca:render()aa.render(self)local da=self.getResolved("text")
+if
+(self.getResolved("autoSize"))then
 self:textFg(1,1,da,self.getResolved("foreground"))else local _b=ba(da,self.getResolved("width"))for ab,bb in ipairs(_b)do
 self:textFg(1,ab,bb,self.getResolved("foreground"))end end end;return ca end
 project["elements/SideNav.lua"] = function(...) local aa=require("elementManager")
@@ -1705,20 +1702,19 @@ da.defineProperty(da,"draggable",{default=false,type="boolean"})
 da.defineProperty(da,"draggingMap",{default={{x=1,y=1,width="width",height=1}},type="table"})
 da.defineProperty(da,"scrollable",{default=false,type="boolean"})da.defineEvent(da,"mouse_click")
 da.defineEvent(da,"mouse_drag")da.defineEvent(da,"mouse_up")
-da.defineEvent(da,"mouse_scroll")
-function da.new()local ab=setmetatable({},da):__init()
-ab.class=da;ab.set("width",12)ab.set("height",6)
-ab.set("background",colors.gray)ab.set("z",10)return ab end;function da:init(ab,bb)ca.init(self,ab,bb)self.set("type","Frame")
-return self end
+da.defineEvent(da,"mouse_scroll")function da.new()local ab=setmetatable({},da):__init()
+ab.class=da;ab.set("width",12)ab.set("height",6)ab.set("z",10)
+return ab end
+function da:init(ab,bb)
+ca.init(self,ab,bb)self.set("type","Frame")return self end
 function da:mouse_click(ab,bb,cb)
 if self:isInBounds(bb,cb)then
-if
-self.getResolved("draggable")then local db,_c=self:getRelativePosition(bb,cb)
-local ac=self.getResolved("draggingMap")
-for bc,cc in ipairs(ac)do local dc=cc.width or 1;local _d=cc.height or 1
-if
-type(dc)=="string"and dc=="width"then dc=self.getResolved("width")elseif type(dc)==
-"function"then dc=dc(self)end
+if self.getResolved("draggable")then
+local db,_c=self:getRelativePosition(bb,cb)local ac=self.getResolved("draggingMap")
+for bc,cc in ipairs(ac)do
+local dc=cc.width or 1;local _d=cc.height or 1
+if type(dc)=="string"and dc=="width"then
+dc=self.getResolved("width")elseif type(dc)=="function"then dc=dc(self)end
 if type(_d)=="string"and _d=="height"then
 _d=self.getResolved("height")elseif type(_d)=="function"then _d=_d(self)end;local ad=cc.y or 1
 if
@@ -2178,7 +2174,8 @@ local aa=require("elements/List")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
 ca.defineProperty(ca,"dropdownHeight",{default=5,type="number"})
 ca.defineProperty(ca,"selectedText",{default="",type="string"})
-ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})function ca.new()local da=setmetatable({},ca):__init()
+ca.defineProperty(ca,"dropSymbol",{default="\31",type="string"})
+ca.defineProperty(ca,"undropSymbol",{default="\17",type="string"})function ca.new()local da=setmetatable({},ca):__init()
 da.class=ca;da.set("width",16)da.set("height",1)da.set("z",8)
 return da end;function ca:init(da,_b)
 aa.init(self,da,_b)self.set("type","DropDown")
@@ -2220,7 +2217,8 @@ local _c=math.min(self.getResolved("dropdownHeight"),
 #self.getResolved("items"))self.set("height",_c)aa.render(self,1)
 self.set("height",db)end
 self:blit(1,1,ab..
-string.rep(" ",da-#ab-1).. (bb and"\31"or"\17"),string.rep(ba[self.getResolved("foreground")],da),string.rep(ba[self.getResolved("background")],da))end;function ca:focus()_a.focus(self)self:prioritize()
+string.rep(" ",da-#ab-1).. (
+bb and self.getResolved("dropSymbol")or self.getResolved("undropSymbol")),string.rep(ba[self.getResolved("foreground")],da),string.rep(ba[self.getResolved("background")],da))end;function ca:focus()_a.focus(self)self:prioritize()
 self:setState("opened")end
 function ca:blur()_a.blur(self)
 self:unsetState("opened")self.set("height",1)self:updateRender()end;return ca end
@@ -3045,18 +3043,20 @@ da.class=ca;return da end
 function ca:init(da,_b)
 if self._initialized then return self end;self._initialized=true;self._props=da;self._values.id=aa()
 self.basalt=_b;self._registeredEvents={}self._registeredStates={}
-local ab=getmetatable(self).__index;local bb={}ab=self.class
+self._cachedActiveStates=nil;local ab=getmetatable(self).__index;local bb={}ab=self.class
 while ab do
-if type(ab)=="table"and ab._eventConfigs then for cb,db in
-pairs(ab._eventConfigs)do if not bb[cb]then bb[cb]=db end end end
+if
+type(ab)=="table"and ab._eventConfigs then for cb,db in pairs(ab._eventConfigs)do if not bb[cb]then
+bb[cb]=db end end end
 ab=getmetatable(ab)and getmetatable(ab).__index end
 for cb,db in pairs(bb)do self._registeredEvents[db.requires]=true end;if self._callbacks then
 for cb,db in pairs(self._callbacks)do self[db]=function(_c,...)
 _c:registerCallback(cb,...)return _c end end end
 return self end
 function ca:postInit()if self._postInitialized then return self end
-self._postInitialized=true;if(self._props)then
-for da,_b in pairs(self._props)do self.set(da,_b)end end;self._props=nil;return self end;function ca:isType(da)
+self._postInitialized=true;self._modifiedProperties={}if(self._props)then for da,_b in pairs(self._props)do
+self.set(da,_b)end end
+self._props=nil;return self end;function ca:isType(da)
 for _b,ab in ipairs(self._values.type)do if ab==da then return true end end;return false end
 function ca:listenEvent(da,_b)_b=
 _b~=false
@@ -3075,16 +3075,18 @@ self._registeredStates[da]={condition=_b,priority=ab or 0}return self end
 function ca:setState(da,_b)
 local ab=self.getResolved("states")if not _b and self._registeredStates[da]then
 _b=self._registeredStates[da].priority end;ab[da]=_b or 0
-self.set("states",ab)return self end
+self.set("states",ab)self._cachedActiveStates=nil;return self end
 function ca:unsetState(da)local _b=self.get("states")if _b[da]~=nil then _b[da]=nil
-self.set("states",_b)end;return self end
+self.set("states",_b)self._cachedActiveStates=nil end
+return self end
 function ca:hasState(da)local _b=self.get("states")return _b[da]~=nil end
 function ca:getCurrentState()local da=self.get("states")local _b=-math.huge;local ab=nil;for bb,cb in
 pairs(da)do if cb>_b then _b=cb;ab=bb end end;return ab end
-function ca:getActiveStates()local da=self.get("states")local _b={}for ab,bb in pairs(da)do
+function ca:getActiveStates()
+if self._cachedActiveStates then return self._cachedActiveStates end;local da=self.get("states")local _b={}for ab,bb in pairs(da)do
 table.insert(_b,{name=ab,priority=bb})end
 table.sort(_b,function(ab,bb)
-return ab.priority>bb.priority end)return _b end
+return ab.priority>bb.priority end)self._cachedActiveStates=_b;return _b end
 function ca:updateConditionalStates()
 for da,_b in pairs(self._registeredStates)do
 if _b.condition then
@@ -3219,15 +3221,14 @@ ba.defineProperty(ba,"scrollBarBackgroundColor",{default=colors.gray,type="color
 ba.defineEvent(ba,"mouse_up")ba.defineEvent(ba,"mouse_drag")
 ba.defineEvent(ba,"mouse_scroll")ba.defineEvent(ba,"key")
 local ca={text={type="string",default="Entry"},bg={type="number",default=nil},fg={type="number",default=
-nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=nil}}
-function ba.new()local da=setmetatable({},ba):__init()
+nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=nil},callback={type="function",default=nil}}function ba.new()local da=setmetatable({},ba):__init()
 da.class=ba;da.set("width",16)da.set("height",8)da.set("z",5)
-da.set("background",colors.gray)return da end
-function ba:init(da,_b)_a.init(self,da,_b)self._entrySchema=ca
-self.set("type","List")
+return da end
+function ba:init(da,_b)
+_a.init(self,da,_b)self._entrySchema=ca;self.set("type","List")
 self:observe("items",function()
-local ab=math.max(0,#self.getResolved("items")-
-self.getResolved("height"))
+local ab=math.max(0,#
+self.getResolved("items")-self.getResolved("height"))
 if self.getResolved("offset")>ab then self.set("offset",ab)end end)
 self:observe("height",function()
 local ab=math.max(0,#self.getResolved("items")-
@@ -3564,54 +3565,69 @@ db and#db.commands.pre>0 then for _c,ac in pairs(db.commands.pre)do ac(cb)end en
 function bb.hooks.postRender(cb)
 local db=cb.get("canvas")if db and#db.commands.post>0 then for _c,ac in pairs(db.commands.post)do
 ac(cb)end end end;return{VisualElement=bb,API=da} end
-project["plugins/theme.lua"] = function(...) local ab=require("errorManager")
-local bb={default={background=colors.lightGray,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Frame={background=colors.black,names={basaltDebugLogClose={background=colors.blue,foreground=colors.white}}},Button={background=colors.cyan,foreground=colors.black},names={basaltDebugLog={background=colors.red,foreground=colors.white}}}}local cb={default=bb}local db="default"
-local _c={hooks={postInit={pre=function(ad)if ad._postInitialized then return ad end
-ad:applyTheme()end}}}
-function _c.____getElementPath(ad,bd)if bd then table.insert(bd,1,ad._values.type)else
-bd={ad._values.type}end;local cd=ad.parent;if cd then return
-cd.____getElementPath(cd,bd)else return bd end end
-local function ac(ad,bd)local cd=ad
-for i=1,#bd do local dd=false;local __a=bd[i]for a_a,b_a in ipairs(__a)do
-if cd[b_a]then cd=cd[b_a]dd=true;break end end;if not dd then return nil end end;return cd end
-local function bc(ad,bd)local cd={}
-if ad.default then for dd,__a in pairs(ad.default)do
-if type(__a)~="table"then cd[dd]=__a end end;if ad.default[bd]then
-for dd,__a in
-pairs(ad.default[bd])do if type(__a)~="table"then cd[dd]=__a end end end end;return cd end
-local function cc(ad,bd,cd,dd,__a)
+project["plugins/theme.lua"] = function(...) local _b=require("errorManager")
+local ab={default={background=colors.cyan,foreground=colors.black},BaseFrame={background=colors.white,foreground=colors.black,Container={default={background=colors.cyan,foreground=colors.black},background=colors.black,Button={background=colors.cyan,foreground=colors.black,states={clicked={background=colors.white,foreground=colors.black}}},Input={background=colors.cyan,foreground=colors.black},Label={foreground=colors.white}},Button={background=colors.cyan,foreground=colors.black,states={clicked={background=colors.black,foreground=colors.cyan}}},Label={foreground=colors.black},names={basaltDebugLog={background=colors.red,foreground=colors.white}}}}local bb={default=ab}local cb="default"
+local db={hooks={postInit={pre=function(dc)if dc._postInitialized then return dc end
+dc:applyTheme()end}}}
+function db.____getElementPath(dc,_d)if _d then table.insert(_d,1,dc._values.type)else
+_d={dc._values.type}end;local ad=dc.parent;if ad then return
+ad.____getElementPath(ad,_d)else return _d end end
+local function _c(dc,_d)local ad=dc
+for i=1,#_d do local bd=false;local cd=_d[i]for dd,__a in ipairs(cd)do
+if ad[__a]then ad=ad[__a]bd=true;break end end;if not bd then return nil end end;return ad end
+local function ac(dc,_d,ad,bd,cd)
 if
-bd.default and bd.default.names and bd.default.names[dd]then for a_a,b_a in pairs(bd.default.names[dd])do
-if type(b_a)~="table"then ad[a_a]=b_a end end end
+_d.default and _d.default.names and _d.default.names[bd]then for dd,__a in pairs(_d.default.names[bd])do
+if type(__a)~="table"then dc[dd]=__a end end end
 if
 
-bd.default and bd.default[cd]and bd.default[cd].names and bd.default[cd].names[dd]then
-for a_a,b_a in pairs(bd.default[cd].names[dd])do if
-type(b_a)~="table"then ad[a_a]=b_a end end end;if __a and __a.names and __a.names[dd]then
-for a_a,b_a in pairs(__a.names[dd])do if
-type(b_a)~="table"then ad[a_a]=b_a end end end end
-local function dc(ad,bd,cd,dd)local __a={}local a_a=ac(ad,bd)
-if a_a then for b_a,c_a in pairs(a_a)do
-if type(c_a)~="table"then __a[b_a]=c_a end end end;if next(__a)==nil then __a=bc(ad,cd)end
-cc(__a,ad,cd,dd,a_a)return __a end
-function _c:applyTheme(ad)local bd=self:getTheme()
-if(bd~=nil)then
-for cd,dd in pairs(bd)do
-local __a=self._properties[cd]
-if(__a)then
-if( (__a.type)=="color")then if(type(dd)=="string")then
-if(colors[dd])then dd=colors[dd]end end end;self.set(cd,dd)end end end
-if(ad~=false)then if(self:isType("Container"))then local cd=self.get("children")
-for dd,__a in
-ipairs(cd)do if(__a and __a.applyTheme)then __a:applyTheme()end end end end;return self end
-function _c:getTheme()local ad=self:____getElementPath()
-local bd=self.get("type")local cd=self.get("name")return dc(cb[db],ad,bd,cd)end;local _d={}function _d.setTheme(ad)cb.default=ad end
-function _d.getTheme()return cb.default end
-function _d.loadTheme(ad)local bd=fs.open(ad,"r")
-if bd then local cd=bd.readAll()bd.close()
-cb.default=textutils.unserializeJSON(cd)if not cb.default then
-ab.error("Failed to load theme from "..ad)end else
-ab.error("Could not open theme file: "..ad)end end;return{BaseElement=_c,API=_d} end
+_d.default and _d.default[ad]and _d.default[ad].names and _d.default[ad].names[bd]then
+for dd,__a in pairs(_d.default[ad].names[bd])do if
+type(__a)~="table"then dc[dd]=__a end end end;if cd and cd.names and cd.names[bd]then
+for dd,__a in pairs(cd.names[bd])do if type(__a)~=
+"table"then dc[dd]=__a end end end end
+local function bc(dc,_d,ad,bd)local cd={}
+if dc.default then for a_a,b_a in pairs(dc.default)do
+if type(b_a)~="table"then cd[a_a]=b_a end end end;local dd=dc
+for i=1,#_d do local a_a=_d[i]local b_a=false
+for c_a,d_a in ipairs(a_a)do
+if dd[d_a]then dd=dd[d_a]b_a=true;if dd.default then
+for _aa,aaa in
+pairs(dd.default)do if type(aaa)~="table"then cd[_aa]=aaa end end end;break end end;if not b_a then dd=nil;break end end;local __a=_c(dc,_d)if __a then
+for a_a,b_a in pairs(__a)do if
+type(b_a)~="table"or a_a=="states"then cd[a_a]=b_a end end end
+ac(cd,dc,ad,bd,__a)return cd end
+function db:applyTheme(dc)local _d={}if self._modifiedProperties then
+for bd,cd in pairs(self._modifiedProperties)do _d[bd]=true end end
+local ad=self:getTheme()
+if(ad~=nil)then
+for bd,cd in pairs(ad)do
+if bd~="states"and not _d[bd]then
+local dd=self._properties[bd]
+if(dd)then
+if( (dd.type)=="color")then if(type(cd)=="string")then
+if(colors[cd])then cd=colors[cd]end end end;self.set(bd,cd)end end end
+if ad.states then
+for bd,cd in pairs(ad.states)do
+for dd,__a in pairs(cd)do
+if dd~="priority"then
+local a_a=self._properties[dd]local b_a=dd:sub(1,1):upper()..dd:sub(2)
+if(a_a)then
+if(
+(a_a.type)=="color")then if(type(__a)=="string")then
+if(colors[__a])then __a=colors[__a]end end end
+self["set"..b_a.."State"](self,bd,__a)end end end end end end;self._modifiedProperties=_d
+if(dc~=false)then if(self:isType("Container"))then
+local bd=self.get("children")
+for cd,dd in ipairs(bd)do if(dd and dd.applyTheme)then dd:applyTheme()end end end end;return self end
+function db:getTheme()local dc=self:____getElementPath()
+local _d=self.get("type")local ad=self.get("name")return bc(bb[cb],dc,_d,ad)end;local cc={}function cc.setTheme(dc)bb.default=dc end
+function cc.getTheme()return bb.default end
+function cc.loadTheme(dc)local _d=fs.open(dc,"r")
+if _d then local ad=_d.readAll()_d.close()
+bb.default=textutils.unserializeJSON(ad)if not bb.default then
+_b.error("Failed to load theme from "..dc)end else
+_b.error("Could not open theme file: "..dc)end end;return{BaseElement=db,API=cc} end
 project["plugins/reactive.lua"] = function(...) local cb=require("errorManager")
 local db=require("propertySystem")local _c={colors=true,math=true,clamp=true,round=true}
 local ac={clamp=function(__a,a_a,b_a)return
@@ -4382,13 +4398,14 @@ function _b.createFromBlueprint(cb,db,_c)local ac=cb.new({},_c)
 for bc,cc in pairs(db._values)do if type(cc)=="table"then
 ac._values[bc]=ba(cc)else ac._values[bc]=cc end end;return ac end
 function _b:__init()self._values={}self._observers={}self._states={}
-self.set=function(bc,cc,...)
-local dc=self._values[bc]local _d=self._properties[bc]
-if(_d~=nil)then if(_d.setter)then
-cc=_d.setter(self,cc,...)end
-if _d.canTriggerRender then self:updateRender()end;self._values[bc]=bb(self,bc,cc,_d)if
-dc~=cc and self._observers[bc]then
-for ad,bd in ipairs(self._observers[bc])do bd(self,cc,dc)end end end end
+self._modifiedProperties={}
+self.set=function(bc,cc,...)local dc=self._values[bc]local _d=self._properties[bc]
+if
+(_d~=nil)then if(_d.setter)then cc=_d.setter(self,cc,...)end;if _d.canTriggerRender then
+self:updateRender()end;self._values[bc]=bb(self,bc,cc,_d)
+self._modifiedProperties[bc]=true
+if dc~=cc and self._observers[bc]then for ad,bd in
+ipairs(self._observers[bc])do bd(self,cc,dc)end end end end
 self.get=function(bc,...)local cc=self._values[bc]local dc=self._properties[bc]
 if
 (dc==nil)then da.error("Property not found: "..bc)return end;if type(cc)=="function"and dc.type~="function"then
@@ -4436,8 +4453,9 @@ for bc,cc in pairs(cb)do if self._values[bc]==nil then
 if type(cc.default)=="table"then
 self._values[bc]=ba(cc.default)else self._values[bc]=cc.default end end end;return self end
 function _b:_updateProperty(cb,db)local _c=self._values[cb]
-if type(_c)=="function"then _c=_c(self)end;self._values[cb]=db
-local ac=type(db)=="function"and db(self)or db
+if type(_c)=="function"then _c=_c(self)end;self._modifiedProperties[cb]=true;self._values[cb]=db
+local ac=
+type(db)=="function"and db(self)or db
 if _c~=ac then
 if self._properties[cb].canTriggerRender then self:updateRender()end
 if self._observers[cb]then for bc,cc in ipairs(self._observers[cb])do
