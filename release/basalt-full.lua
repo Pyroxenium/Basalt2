@@ -3904,10 +3904,59 @@ return dc end
 local cc={}
 function cc.debugChildren(dc,_d)dc:debug(_d)for ad,bd in pairs(dc.get("children"))do if bd.debug then
 bd:debug(_d)end end;return dc end;return{BaseElement=ac,Container=cc,BaseFrame=bc} end
-project["plugins/animation.lua"] = function(...) local aa={}
-local ba={linear=function(ab)return ab end,easeInQuad=function(ab)return ab*ab end,easeOutQuad=function(ab)return
+project["plugins/animation.lua"] = function(...) local aa={}local ba={}
+ba={linear=function(ab)return ab end,easeInQuad=function(ab)return ab*ab end,easeOutQuad=function(ab)return
 1 - (1 -ab)* (1 -ab)end,easeInOutQuad=function(ab)if ab<0.5 then return 2 *ab*ab end;return 1 - (
--2 *ab+2)^2 /2 end}local ca={}ca.__index=ca
+-2 *ab+2)^2 /2 end,easeInCubic=function(ab)return
+ab*ab*ab end,easeOutCubic=function(ab)return 1 - (1 -ab)^3 end,easeInOutCubic=function(ab)if
+ab<0.5 then return 4 *ab*ab*ab end;return
+1 - (-2 *ab+2)^3 /2 end,easeInQuart=function(ab)
+return ab*ab*ab*ab end,easeOutQuart=function(ab)return 1 - (1 -ab)^4 end,easeInOutQuart=function(ab)if ab<0.5 then return
+8 *ab*ab*ab*ab end;return
+1 - (-2 *ab+2)^4 /2 end,easeInQuint=function(ab)return
+ab*ab*ab*ab*ab end,easeOutQuint=function(ab)return 1 - (1 -ab)^5 end,easeInOutQuint=function(ab)if ab<
+0.5 then return 16 *ab*ab*ab*ab*ab end;return 1 - (-
+2 *ab+2)^5 /2 end,easeInSine=function(ab)return
+1 -math.cos(ab*math.pi/2)end,easeOutSine=function(ab)return math.sin(
+ab*math.pi/2)end,easeInOutSine=function(ab)
+return- (math.cos(
+math.pi*ab)-1)/2 end,easeInExpo=function(ab)if ab==0 then return 0 end
+return 2 ^ (10 *ab-10)end,easeOutExpo=function(ab)if ab==1 then return 1 end;return
+1 -2 ^ (-10 *ab)end,easeInOutExpo=function(ab)if ab==0 then return 0 end
+if ab==1 then return 1 end;if ab<0.5 then return 2 ^ (20 *ab-10)/2 end;return(2 -2 ^ (
+-20 *ab+10))/2 end,easeInCirc=function(ab)return
+1 -math.sqrt(1 -ab*ab)end,easeOutCirc=function(ab)return math.sqrt(
+1 - (ab-1)* (ab-1))end,easeInOutCirc=function(ab)if
+ab<0.5 then
+return(1 -math.sqrt(1 - (2 *ab)^2))/2 end;return
+(math.sqrt(1 - (-2 *ab+2)^2)+1)/2 end,easeInBack=function(ab)
+local bb=1.70158;local cb=bb+1;return cb*ab*ab*ab-bb*ab*ab end,easeOutBack=function(ab)
+local bb=1.70158;local cb=bb+1
+return 1 +cb* (ab-1)^3 +bb* (ab-1)^2 end,easeInOutBack=function(ab)local bb=1.70158;local cb=bb*1.525;if ab<0.5 then
+return( (
+2 *ab)^2 * ( (cb+1)*2 *ab-cb))/2 end
+return( (2 *ab-2)^2 *
+( (cb+1)* (ab*2 -2)+cb)+2)/2 end,easeInElastic=function(ab)local bb=(
+2 *math.pi)/3;if ab==0 then return 0 end;if ab==1 then return 1 end;return
+- (
+2 ^ (10 *ab-10))*math.sin((ab*10 -10.75)*bb)end,easeOutElastic=function(ab)local bb=(
+2 *math.pi)/3;if ab==0 then return 0 end;if ab==1 then return 1 end;return
+
+2 ^ (-10 *ab)*math.sin((ab*10 -0.75)*bb)+1 end,easeInOutElastic=function(ab)local bb=(
+2 *math.pi)/4.5;if ab==0 then return 0 end
+if ab==1 then return 1 end;if ab<0.5 then
+return-
+(2 ^ (20 *ab-10)*math.sin((20 *ab-11.125)*bb))/2 end;return
+(2 ^ (-20 *ab+10)*math.sin(
+(20 *ab-11.125)*bb))/2 +1 end,easeInBounce=function(ab)return
+1 -ba.easeOutBounce(1 -ab)end,easeOutBounce=function(ab)
+local bb=7.5625;local cb=2.75
+if ab<1 /cb then return bb*ab*ab elseif ab<2 /cb then ab=ab-1.5 /cb;return
+bb*ab*ab+0.75 elseif ab<2.5 /cb then ab=ab-2.25 /cb;return bb*ab*ab+0.9375 else ab=
+ab-2.625 /cb;return bb*ab*ab+0.984375 end end,easeInOutBounce=function(ab)if
+ab<0.5 then
+return(1 -ba.easeOutBounce(1 -2 *ab))/2 end;return
+(1 +ba.easeOutBounce(2 *ab-1))/2 end}local ca={}ca.__index=ca
 function ca.new(ab,bb,cb,db,_c)local ac=setmetatable({},ca)ac.element=ab
 ac.type=bb;ac.args=cb;ac.duration=db or 1;ac.startTime=0;ac.isPaused=false
 ac.handlers=aa[bb]ac.easing=_c;return ac end;function ca:start()self.startTime=os.epoch("local")/1000;if
@@ -4047,7 +4096,13 @@ local db=math.max(0.01,ab.speed)local _c=math.floor(cb/db)
 if _c~=ab.lastShift then ab.lastShift=_c
 local ac=#ab.padded;local bc=(_c%ac)+1;local cc=ab.padded..ab.padded
 local dc=cc:sub(bc,bc+ab.width-1)ab.element.set(ab.args[1],dc)end;return false end,complete=function(ab)
-end})local _b={hooks={}}
+end})
+da.registerAnimation("custom",{start=function(ab)ab.callback=ab.args[1]if
+type(ab.callback)~="function"then
+error("custom animation requires a function as first argument")end end,update=function(ab,bb)local cb=
+os.epoch("local")/1000 -ab.startTime
+ab.callback(ab.element,bb,cb)return bb>=1 end,complete=function(ab)if ab.callback then
+ab.callback(ab.element,1,ab.duration)end end})local _b={hooks={}}
 function _b.hooks.handleEvent(ab,bb,...)if bb=="timer"then local cb=ab.get("animation")if cb then
 cb:event(bb,...)end end end
 function _b.setup(ab)
