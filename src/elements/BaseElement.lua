@@ -232,6 +232,7 @@ function BaseElement:setState(stateName, priority)
     end
 
     states[stateName] = priority or 0
+
     self.set("states", states)
     return self
 end
@@ -299,7 +300,9 @@ end
 function BaseElement:updateConditionalStates()
     for stateName, stateInfo in pairs(self._registeredStates) do
         if stateInfo.condition then
-            if stateInfo.condition(self) then
+            local result = stateInfo.condition(self)
+
+            if result then
                 self:setState(stateName, stateInfo.priority)
             else
                 self:unsetState(stateName)

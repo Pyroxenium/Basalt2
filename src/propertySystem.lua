@@ -335,12 +335,16 @@ function PropertySystem:__init()
     end
 
     self.getResolved = function(name, ...)
-        local currentState = self:getCurrentState()
-        local value
+        local activeStates = self:getActiveStates()
+        local value = nil
+        for _, stateInfo in ipairs(activeStates) do
+            if self._states and self._states[stateInfo.name] and self._states[stateInfo.name][name] ~= nil then
+                value = self._states[stateInfo.name][name]
+                break
+            end
+        end
 
-        if currentState and self._states and self._states[currentState] and self._states[currentState][name] ~= nil then
-            value = self._states[currentState][name]
-        else
+        if value == nil then
             value = self._values[name]
         end
 
