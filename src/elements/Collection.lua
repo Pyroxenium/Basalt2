@@ -123,20 +123,29 @@ end
 
 function Collection:selectItem(index)
     local items = self.getResolved("items")
-    if type(index) == "number" then
-        if items[index] and type(items[index]) == "table" then
-            items[index].selected = true
-        end
-    else
+    if index < 1 or index > #items then return end
+    local _index = index
+    if type(index) == "string" then
         for k,v in pairs(items)do
             if v == index then
-                if type(v) == "table" then
-                    v.selected = true
-                end
+                _index = k
                 break
             end
         end
     end
+    if not self.getResolved("multiSelection") then
+        for _, otherItem in ipairs(items) do
+            if type(otherItem) == "table" then
+                otherItem.selected = false
+            end
+        end
+    end
+    local item = items[_index]
+    item.selected = true
+    if item.callback then
+        item.callback(self)
+    end
+    self:fireEvent("select", index, item)
     self:updateRender()
     return self
 end

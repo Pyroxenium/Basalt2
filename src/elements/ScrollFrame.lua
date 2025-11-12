@@ -156,7 +156,7 @@ function ScrollFrame.new()
     self.class = ScrollFrame
     self.set("width", 20)
     self.set("height", 10)
-    self.set("z", 5)
+    self.set("z", 10)
     return self
 end
 
