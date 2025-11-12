@@ -756,73 +756,110 @@ dd-1)*cd)+1)
 local b_a=(__a-_c)/ (ac-_c)local c_a=math.floor(db- (b_a* (db-1)))
 c_a=math.max(1,math.min(c_a,db))if _d then
 bb(self,_d,ad,a_a,c_a,dc.symbol,dc.bgColor,dc.fgColor)end;_d,ad=a_a,c_a end end end end;return ab end
-project["elements/Menu.lua"] = function(...) local _a=require("elements/VisualElement")
-local aa=require("elements/List")local ba=require("libraries/colorHex")
-local ca=setmetatable({},aa)ca.__index=ca
-ca.defineProperty(ca,"separatorColor",{default=colors.gray,type="color"})
-ca.defineProperty(ca,"spacing",{default=1,type="number",canTriggerRender=true})
-ca.defineProperty(ca,"horizontalOffset",{default=0,type="number",canTriggerRender=true,setter=function(da,_b)
-local ab=math.max(0,da:getTotalWidth()-da.getResolved("width"))return math.min(ab,math.max(0,_b))end})
-ca.defineProperty(ca,"maxWidth",{default=nil,type="number",canTriggerRender=true})
-function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",30)da.set("height",1)
-da.set("background",colors.gray)return da end
-function ca:init(da,_b)aa.init(self,da,_b)self.set("type","Menu")
+project["elements/Menu.lua"] = function(...) local aa=require("elements/VisualElement")
+local ba=require("elements/List")local ca=require("libraries/colorHex")
+local da=setmetatable({},ba)da.__index=da
+da.defineProperty(da,"separatorColor",{default=colors.gray,type="color"})
+da.defineProperty(da,"spacing",{default=1,type="number",canTriggerRender=true})
+da.defineProperty(da,"openDropdown",{default=nil,type="table",allowNil=true,canTriggerRender=true})
+da.defineProperty(da,"dropdownBackground",{default=colors.black,type="color",canTriggerRender=true})
+da.defineProperty(da,"dropdownForeground",{default=colors.white,type="color",canTriggerRender=true})
+da.defineProperty(da,"horizontalOffset",{default=0,type="number",canTriggerRender=true,setter=function(ab,bb)
+local cb=math.max(0,ab:getTotalWidth()-ab.getResolved("width"))return math.min(cb,math.max(0,bb))end})
+da.defineProperty(da,"maxWidth",{default=nil,type="number",canTriggerRender=true})
+local _b={text={type="string",default="Entry"},bg={type="number",default=nil},fg={type="number",default=nil},selectedBg={type="number",default=nil},selectedFg={type="number",default=
+nil},callback={type="function",default=nil},dropdown={type="table",default=nil}}function da.new()local ab=setmetatable({},da):__init()
+ab.class=da;ab.set("width",30)ab.set("height",1)ab.set("z",8)
+return ab end
+function da:init(ab,bb)
+ba.init(self,ab,bb)self._entrySchema=_b;self.set("type","Menu")
 self:observe("items",function()
-local ab=self.getResolved("maxWidth")if ab then
-self.set("width",math.min(ab,self:getTotalWidth()),true)else
+local cb=self.getResolved("maxWidth")if cb then
+self.set("width",math.min(cb,self:getTotalWidth()),true)else
 self.set("width",self:getTotalWidth(),true)end end)return self end
-function ca:getTotalWidth()local da=self.getResolved("items")
-local _b=self.getResolved("spacing")local ab=0
-for bb,cb in ipairs(da)do if type(cb)=="table"then ab=ab+#cb.text else ab=ab+
-#tostring(cb)+2 end;if bb<#da then
-ab=ab+_b end end;return ab end
-function ca:render()_a.render(self)local da=self.getResolved("width")
-local _b=self.getResolved("spacing")local ab=self.getResolved("horizontalOffset")
-local bb=self.getResolved("items")local cb={}local db=1
-for _c,ac in ipairs(bb)do if type(ac)=="string"then
-ac={text=" "..ac.." "}bb[_c]=ac end
-cb[_c]={startX=db,endX=db+#ac.text-1,text=ac.text,item=ac}db=db+#ac.text;if _c<#bb and _b>0 then db=db+_b end end
-for _c,ac in ipairs(cb)do local bc=ac.item;local cc=ac.startX-ab;local dc=ac.endX-ab
-if cc>da then break end
-if dc>=1 then local _d=math.max(1,cc)local ad=math.min(da,dc)
-local bd=math.max(1,1 -cc+1)
-local cd=math.min(#ac.text,#ac.text- (dc-da))local dd=ac.text:sub(bd,cd)
-if#dd>0 then local __a=bc.selected
-local a_a=
-bc.selectable==false and self.getResolved("separatorColor")or
+function da:getTotalWidth()local ab=self.getResolved("items")
+local bb=self.getResolved("spacing")local cb=0
+for db,_c in ipairs(ab)do if type(_c)=="table"then cb=cb+#_c.text else cb=cb+
+#tostring(_c)+2 end;if db<#ab then
+cb=cb+bb end end;return cb end
+function da:render()aa.render(self)local ab=self.getResolved("width")
+local bb=self.getResolved("spacing")local cb=self.getResolved("horizontalOffset")
+local db=self.getResolved("items")local _c={}local ac=1
+for cc,dc in ipairs(db)do if type(dc)=="string"then
+dc={text=" "..dc.." "}db[cc]=dc end
+_c[cc]={startX=ac,endX=ac+#dc.text-1,text=dc.text,item=dc}ac=ac+#dc.text;if cc<#db and bb>0 then ac=ac+bb end end
+for cc,dc in ipairs(_c)do local _d=dc.item;local ad=dc.startX-cb;local bd=dc.endX-cb
+if ad>ab then break end
+if bd>=1 then local cd=math.max(1,ad)local dd=math.min(ab,bd)
+local __a=math.max(1,1 -ad+1)
+local a_a=math.min(#dc.text,#dc.text- (bd-ab))local b_a=dc.text:sub(__a,a_a)
+if#b_a>0 then local c_a=_d.selected
+local d_a=
+_d.selectable==false and self.getResolved("separatorColor")or
 (
-__a and(
-bc.selectedForeground or self.getResolved("selectedForeground"))or(bc.foreground or self.getResolved("foreground")))
-local b_a=__a and
-(bc.selectedBackground or self.getResolved("selectedBackground"))or
-(bc.background or self.getResolved("background"))
-self:blit(_d,1,dd,string.rep(ba[a_a],#dd),string.rep(ba[b_a],#dd))end
-if _c<#bb and _b>0 then local __a=ac.endX+1 -ab;local a_a=__a+_b-1
-if a_a>=1 and
-__a<=da then local b_a=math.max(1,__a)local c_a=math.min(da,a_a)
-local d_a=c_a-b_a+1
-if d_a>0 then local _aa=string.rep(" ",d_a)
-self:blit(b_a,1,_aa,string.rep(ba[self.getResolved("foreground")],d_a),string.rep(ba[self.getResolved("background")],d_a))end end end end end end
-function ca:mouse_click(da,_b,ab)
-if not _a.mouse_click(self,da,_b,ab)then return false end
+c_a and(
+_d.selectedForeground or self.getResolved("selectedForeground"))or(_d.foreground or self.getResolved("foreground")))
+local _aa=c_a and
+(_d.selectedBackground or self.getResolved("selectedBackground"))or
+(_d.background or self.getResolved("background"))
+self:blit(cd,1,b_a,string.rep(ca[d_a],#b_a),string.rep(ca[_aa],#b_a))end
+if cc<#db and bb>0 then local c_a=dc.endX+1 -cb;local d_a=c_a+bb-1
+if d_a>=1 and
+c_a<=ab then local _aa=math.max(1,c_a)local aaa=math.min(ab,d_a)
+local baa=aaa-_aa+1
+if baa>0 then local caa=string.rep(" ",baa)
+self:blit(_aa,1,caa,string.rep(ca[self.getResolved("foreground")],baa),string.rep(ca[self.getResolved("background")],baa))end end end end end;local bc=self.getResolved("openDropdown")if bc then
+self:renderDropdown(bc)end end
+function da:renderDropdown(ab)local bb=self.getResolved("dropdownBackground")
+local cb=self.getResolved("dropdownForeground")
+for db,_c in ipairs(ab.items)do local ac=ab.y+db-1
+local bc=_c.text or _c.label or""local cc=bc=="---"local dc=ca[_c.background or bb]
+local _d=ca[_c.foreground or cb]local ad=string.rep(" ",ab.width)
+self:blit(ab.x,ac,ad,string.rep(_d,ab.width),string.rep(dc,ab.width))
+if cc then local bd=string.rep("-",ab.width)
+self:blit(ab.x,ac,bd,string.rep(ca[colors.gray],ab.width),string.rep(dc,ab.width))else
+if#bc>ab.width-2 then bc=bc:sub(1,ab.width-2)end
+self:textFg(ab.x+1,ac,bc,_c.foreground or cb)end end end
+function da:mouse_click(ab,bb,cb)local db=self.getResolved("openDropdown")
+if db then
+local ad,bd=self:getRelativePosition(bb,cb)
+if self:isInsideDropdown(ad,bd,db)then
+return self:handleDropdownClick(ad,bd,db)else self:hideDropdown()end end
+if not aa.mouse_click(self,ab,bb,cb)then return false end
 if(self.getResolved("selectable")==false)then return false end
-local bb=select(1,self:getRelativePosition(_b,ab))local cb=self.getResolved("horizontalOffset")
-local db=self.getResolved("spacing")local _c=self.getResolved("items")local ac=bb+cb;local bc=1
-for cc,dc in ipairs(_c)do
-local _d=#dc.text
-if ac>=bc and ac<bc+_d then
-if dc.selectable~=false then if type(dc)=="string"then
-dc={text=dc}_c[cc]=dc end;if
-not self.getResolved("multiSelection")then
-for ad,bd in ipairs(_c)do if type(bd)=="table"then bd.selected=false end end end;dc.selected=not
-dc.selected;if dc.callback then dc.callback(self)end
-self:fireEvent("select",cc,dc)end;return true end;bc=bc+_d;if cc<#_c and db>0 then bc=bc+db end end;return false end
-function ca:mouse_scroll(da,_b,ab)
-if _a.mouse_scroll(self,da,_b,ab)then
-local bb=self.getResolved("horizontalOffset")
-local cb=math.max(0,self:getTotalWidth()-self.getResolved("width"))bb=math.min(cb,math.max(0,bb+ (da*3)))
-self.set("horizontalOffset",bb)return true end;return false end;return ca end
+local _c=select(1,self:getRelativePosition(bb,cb))local ac=self.getResolved("horizontalOffset")
+local bc=self.getResolved("spacing")local cc=self.getResolved("items")local dc=_c+ac;local _d=1
+for ad,bd in ipairs(cc)do
+local cd=#bd.text
+if dc>=_d and dc<_d+cd then
+if bd.selectable~=false then if type(bd)=="string"then
+bd={text=bd}cc[ad]=bd end
+if
+bd.dropdown and#bd.dropdown>0 then self:showDropdown(ad,bd,_d-ac)return true end;if not self.getResolved("multiSelection")then
+for dd,__a in ipairs(cc)do if
+type(__a)=="table"then __a.selected=false end end end;bd.selected=not
+bd.selected;if bd.callback then bd.callback(self)end
+self:fireEvent("select",ad,bd)end;return true end;_d=_d+cd;if ad<#cc and bc>0 then _d=_d+bc end end;return false end
+function da:mouse_scroll(ab,bb,cb)
+if aa.mouse_scroll(self,ab,bb,cb)then
+local db=self.getResolved("horizontalOffset")
+local _c=math.max(0,self:getTotalWidth()-self.getResolved("width"))db=math.min(_c,math.max(0,db+ (ab*3)))
+self.set("horizontalOffset",db)return true end;return false end
+function da:showDropdown(ab,bb,cb)local db=bb.dropdown;if not db or#db==0 then return end;local _c=8;for cc,dc in
+ipairs(db)do local _d=dc.text or dc.label or""
+if#_d+2 >_c then _c=#_d+2 end end;local ac=#db
+local bc=self.getResolved("height")
+self.set("openDropdown",{index=ab,items=db,x=cb,y=bc+1,width=_c,height=ac})self:updateRender()end;function da:hideDropdown()self.set("openDropdown",nil)
+self:updateRender()end
+function da:isInsideDropdown(ab,bb,cb)return
+ab>=cb.x and
+ab<cb.x+cb.width and bb>=cb.y and bb<cb.y+cb.height end
+function da:handleDropdownClick(ab,bb,cb)local db=bb-cb.y+1
+if db>=1 and db<=#cb.items then
+local _c=cb.items[db]if _c.text=="---"or _c.label=="---"or _c.disabled then return
+true end
+if _c.callback then
+_c.callback(self,_c)elseif _c.onClick then _c.onClick(self,_c)end;self:hideDropdown()return true end;return false end;return da end
 project["elements/VisualElement.lua"] = function(...) local ba=require("elementManager")
 local ca=ba.getElement("BaseElement")local da=require("libraries/colorHex")
 local _b=setmetatable({},ca)_b.__index=_b
