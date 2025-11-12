@@ -505,6 +505,10 @@ return ab end
 function _b:init(ab,bb)
 ca.init(self,ab,bb)self.set("type","ComboBox")
 self.set("cursorPos",1)self.set("viewOffset",0)return self end
+function _b:selectItem(ab)ca.selectItem(self,ab)
+local bb=self:getSelectedItem()
+if bb and bb.text then self.set("text",bb.text)
+self.set("cursorPos",#bb.text+1)self:updateViewport()end;self:updateRender()end
 function _b:getFilteredItems()local ab=self.getResolved("items")or{}
 local bb=self.getResolved("text"):lower()if
 not self.getResolved("autoComplete")or#bb==0 then return ab end;local cb={}
@@ -633,8 +637,8 @@ ipairs(ab)do local db=cb.get("y")local _c=cb.get("height")local ac=db+_c-1
 if ac>_b then _b=ac end end;return _b end})ca.defineEvent(ca,"mouse_click")
 ca.defineEvent(ca,"mouse_drag")ca.defineEvent(ca,"mouse_up")
 ca.defineEvent(ca,"mouse_scroll")function ca.new()local da=setmetatable({},ca):__init()
-da.class=ca;da.set("width",20)da.set("height",10)da.set("z",5)
-return da end
+da.class=ca;da.set("width",20)da.set("height",10)da.set("z",10)return
+da end
 function ca:init(da,_b)
 aa.init(self,da,_b)self.set("type","ScrollFrame")return self end
 function ca:mouse_click(da,_b,ab)
@@ -3393,10 +3397,13 @@ function aa:getSelectedItem()local ba=self.getResolved("items")
 for ca,da in ipairs(ba)do if
 type(da)=="table"and da.selected then return da end end;return nil end
 function aa:selectItem(ba)local ca=self.getResolved("items")
-if type(ba)=="number"then
-if
-ca[ba]and type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
-if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
+if ba<1 or ba>#ca then return end;local da=ba;if type(ba)=="string"then
+for ab,bb in pairs(ca)do if bb==ba then da=ab;break end end end
+if not
+self.getResolved("multiSelection")then for ab,bb in ipairs(ca)do
+if type(bb)=="table"then bb.selected=false end end end;local _b=ca[da]_b.selected=true
+if _b.callback then _b.callback(self)end;self:fireEvent("select",ba,_b)self:updateRender()return
+self end
 function aa:unselectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
 if
