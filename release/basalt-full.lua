@@ -42,6 +42,7 @@ minified_elementDirectory["ContextMenu"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Collection"] = {}
 minified_elementDirectory["Accordion"] = {}
+minified_pluginDirectory["store"] = {}
 minified_pluginDirectory["canvas"] = {}
 minified_pluginDirectory["theme"] = {}
 minified_pluginDirectory["reactive"] = {}
@@ -302,6 +303,7 @@ if not cd then
 local __a=self.program.get("doneCallback")if __a then __a(self.program,cd,dd)end
 local a_a=self.program.get("errorCallback")
 if a_a then local b_a=debug.traceback(self.coroutine,dd)
+if b_a==nil then b_a=""end;dd=dd or"Unknown error"
 local c_a=a_a(self.program,dd,b_a:gsub(dd,""))if(c_a==false)then self.filter=nil;return cd,dd end end;_b.header="Basalt Program Error ".._c;_b.error(dd)end
 if coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)self.program.set("program",nil)
@@ -505,10 +507,6 @@ return ab end
 function _b:init(ab,bb)
 ca.init(self,ab,bb)self.set("type","ComboBox")
 self.set("cursorPos",1)self.set("viewOffset",0)return self end
-function _b:selectItem(ab)ca.selectItem(self,ab)
-local bb=self:getSelectedItem()
-if bb and bb.text then self.set("text",bb.text)
-self.set("cursorPos",#bb.text+1)self:updateViewport()end;self:updateRender()end
 function _b:getFilteredItems()local ab=self.getResolved("items")or{}
 local bb=self.getResolved("text"):lower()if
 not self.getResolved("autoComplete")or#bb==0 then return ab end;local cb={}
@@ -1482,7 +1480,9 @@ ac=ac-1 else break end end;cb[ac+1]=db end
 self._values.visibleChildrenEvents=self._values.visibleChildrenEvents or{}self._values.visibleChildrenEvents[ab]=cb end;self.set("childrenEventsSorted",true)return self end;return _b end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
+aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true,setter=function(ba,ca)
+ba.set("cursorPos",math.min(
+#ca+1,ba.getResolved("cursorPos")))ba:updateViewport()return ca end})
 aa.defineProperty(aa,"cursorPos",{default=1,type="number"})
 aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
@@ -1519,7 +1519,14 @@ da+1)if da-ab>=bb then
 self.set("viewOffset",da-bb+1)end end elseif
 ba==keys.backspace then if da>1 then
 self.set("text",_b:sub(1,da-2).._b:sub(da))self.set("cursorPos",da-1)self:updateRender()
-self:updateViewport()end end
+self:updateViewport()end elseif
+ba==keys.delete then
+if da<=#_b then
+self.set("text",_b:sub(1,da-1).._b:sub(da+1))self:updateRender()self:updateViewport()end elseif ba==keys.home then self.set("cursorPos",1)
+self.set("viewOffset",0)elseif ba==keys["end"]then self.set("cursorPos",#_b+1)self:set("viewOffset",math.max(0,
+#_b-bb+1))elseif
+ba==keys.enter then
+self:fireEvent("submit",self.getResolved("text"))end
 local cb=self.getResolved("cursorPos")-self.getResolved("viewOffset")
 self:setCursor(cb,1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))d.key(self,ba,ca)return true end
@@ -1536,6 +1543,7 @@ self.getResolved("text")
 if ca-da>=ba then
 self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",ca-1)end
 self.set("viewOffset",math.max(0,math.min(self.getResolved("viewOffset"),_b-ba+1)))return self end
+function aa:onSubmit(ba)self:registerCallback("submit",ba)return self end
 function aa:focus()d.focus(self)
 self:setCursor(self.getResolved("cursorPos")-
 self.getResolved("viewOffset"),1,true,self.getResolved("cursorColor")or
@@ -1568,32 +1576,36 @@ aa.defineProperty(aa,"title",{default="",type="string",canTriggerRender=true})
 aa.defineProperty(aa,"message",{default="",type="string",canTriggerRender=true})
 aa.defineProperty(aa,"duration",{default=3,type="number"})
 aa.defineProperty(aa,"toastType",{default="default",type="string",canTriggerRender=true})
+aa.defineProperty(aa,"callback",{default=nil,type="function"})
 aa.defineProperty(aa,"autoHide",{default=true,type="boolean"})
 aa.defineProperty(aa,"active",{default=false,type="boolean",canTriggerRender=true})
 aa.defineProperty(aa,"colorMap",{default={success=colors.green,error=colors.red,warning=colors.orange,info=colors.lightBlue,default=colors.gray},type="table"})aa.defineEvent(aa,"timer")function aa.new()
 local ba=setmetatable({},aa):__init()ba.class=aa;ba.set("width",30)ba.set("height",3)
 ba.set("z",100)return ba end;function aa:init(ba,ca)
 _a.init(self,ba,ca)return self end
-function aa:show(ba,ca,da)local _b,ab,bb
-if type(ca)=="string"then _b=ba
-ab=ca;bb=da or self.getResolved("duration")elseif type(ca)==
-"number"then _b=""ab=ba;bb=ca else _b=""ab=ba
-bb=self.getResolved("duration")end;self.set("title",_b)self.set("message",ab)
-self.set("active",true)if self._hideTimerId then os.cancelTimer(self._hideTimerId)
-self._hideTimerId=nil end
+function aa:show(ba,ca,da,_b)local ab,bb,cb
+if type(ca)=="string"then ab=ba
+bb=ca;cb=da or self.getResolved("duration")elseif type(ca)==
+"number"then ab=""bb=ba;cb=ca else ab=""bb=ba
+cb=self.getResolved("duration")end;self.set("title",ab)self.set("message",bb)
+self.set("active",true)self.set("callback",_b)if self._hideTimerId then
+os.cancelTimer(self._hideTimerId)self._hideTimerId=nil end
 if
-self.getResolved("autoHide")and bb>0 then self._hideTimerId=os.startTimer(bb)end;return self end
+self.getResolved("autoHide")and cb>0 then self._hideTimerId=os.startTimer(cb)end;return self end
 function aa:hide()self.set("active",false)self.set("title","")
 self.set("message","")if self._hideTimerId then os.cancelTimer(self._hideTimerId)
-self._hideTimerId=nil end;return self end;function aa:success(ba,ca,da)self.set("toastType","success")
-return self:show(ba,ca,da)end;function aa:error(ba,ca,da)
-self.set("toastType","error")return self:show(ba,ca,da)end
-function aa:warning(ba,ca,da)
-self.set("toastType","warning")return self:show(ba,ca,da)end;function aa:info(ba,ca,da)self.set("toastType","info")
-return self:show(ba,ca,da)end
-function aa:dispatchEvent(ba,...)
-_a.dispatchEvent(self,ba,...)if ba=="timer"then local ca=select(1,...)
-if ca==self._hideTimerId then self:hide()end end end
+self._hideTimerId=nil end;return self end;function aa:success(ba,ca,da,_b)self.set("toastType","success")
+return self:show(ba,ca,da,_b)end
+function aa:error(ba,ca,da,_b)
+self.set("toastType","error")return self:show(ba,ca,da,_b)end;function aa:warning(ba,ca,da,_b)self.set("toastType","warning")
+return self:show(ba,ca,da,_b)end
+function aa:info(ba,ca,da,_b)
+self.set("toastType","info")return self:show(ba,ca,da,_b)end
+function aa:dispatchEvent(ba,...)_a.dispatchEvent(self,ba,...)
+if ba=="timer"then
+local ca=select(1,...)
+if ca==self._hideTimerId then self._hideTimerId=nil
+local da=self.getResolved("callback")if da then da(self)end;self:hide()end end end
 function aa:render()_a.render(self)
 if not self.getResolved("active")then return end;local ba=self.getResolved("width")
 local ca=self.getResolved("height")local da=self.getResolved("title")
@@ -2803,7 +2815,7 @@ self:observe("height",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)
 self:observe("visible",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)end
-function _b:setConstraint(cb,db,_c,ac)local bc=self.getResolved("constraints")if bc[cb]then
+function _b:setConstraint(cb,db,_c,ac)local bc=self.get("constraints")if bc[cb]then
 self:_removeConstraintObservers(cb,bc[cb])end
 bc[cb]={element=db,property=_c,offset=ac or 0}self.set("constraints",bc)
 self:_addConstraintObservers(cb,bc[cb])self._constraintsDirty=true;self:updateRender()return self end
@@ -3376,7 +3388,8 @@ aa.defineProperty(aa,"items",{default={},type="table",canTriggerRender=true})
 aa.defineProperty(aa,"selectable",{default=true,type="boolean"})
 aa.defineProperty(aa,"multiSelection",{default=false,type="boolean"})
 aa.defineProperty(aa,"selectedBackground",{default=colors.blue,type="color",canTriggerRender=true})
-aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color",canTriggerRender=true})function aa.new()local ba=setmetatable({},aa):__init()
+aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color",canTriggerRender=true})
+aa.combineProperties(aa,"selectionColor","selectedForeground","selectedBackground")function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;return ba end
 function aa:init(ba,ca)
 d.init(self,ba,ca)self._entrySchema={}self.set("type","Collection")return self end
@@ -3397,13 +3410,10 @@ function aa:getSelectedItem()local ba=self.getResolved("items")
 for ca,da in ipairs(ba)do if
 type(da)=="table"and da.selected then return da end end;return nil end
 function aa:selectItem(ba)local ca=self.getResolved("items")
-if ba<1 or ba>#ca then return end;local da=ba;if type(ba)=="string"then
-for ab,bb in pairs(ca)do if bb==ba then da=ab;break end end end
-if not
-self.getResolved("multiSelection")then for ab,bb in ipairs(ca)do
-if type(bb)=="table"then bb.selected=false end end end;local _b=ca[da]_b.selected=true
-if _b.callback then _b.callback(self)end;self:fireEvent("select",ba,_b)self:updateRender()return
-self end
+if type(ba)=="number"then
+if
+ca[ba]and type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
+if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
 function aa:unselectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
 if
@@ -3522,6 +3532,55 @@ self:sortChildrenEvents(db)end end
 for db,_c in
 ipairs(self.getResolved("visibleChildren")or{})do
 if _c==self then error("CIRCULAR REFERENCE DETECTED!")return end;_c:render()_c:postRender()end end;return _b end
+project["plugins/store.lua"] = function(...) local _a=require("propertySystem")
+local aa=require("errorManager")local ba={}function ba.setup(da)
+da.defineProperty(da,"stores",{default={},type="table"})
+da.defineProperty(da,"storeObserver",{default={},type="table"})end
+function ba:initializeStore(da,_b,ab,bb)
+local cb=self.get("stores")if cb[da]then
+aa.error("Store '"..da.."' already exists")return self end;local db=bb or"stores/"..
+self.get("name")..".store"local _c={}
+if ab and
+fs.exists(db)then local ac=fs.open(db,"r")_c=
+textutils.unserialize(ac.readAll())or{}ac.close()end;cb[da]={value=ab and _c[da]or _b,persist=ab}
+return self end;local ca={}
+function ca:setStore(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("stores")local cb=ab.get("storeObserver")
+if not bb[da]then aa.error("Store '"..
+da.."' not initialized")end
+if bb[da].persist then
+local db="stores/"..ab.get("name")..".store"local _c={}
+if fs.exists(db)then local cc=fs.open(db,"r")_c=
+textutils.unserialize(cc.readAll())or{}cc.close()end;_c[da]=_b;local ac=fs.getDir(db)if not fs.exists(ac)then
+fs.makeDir(ac)end;local bc=fs.open(db,"w")
+bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b
+if cb[da]then for db,_c in ipairs(cb[da])do _c(da,_b)end end;for db,_c in pairs(bb)do
+if _c.computed then _c.value=_c.computeFn(self)if cb[db]then for ac,bc in ipairs(cb[db])do
+bc(db,_c.value)end end end end
+return self end
+function ca:getStore(da)local _b=self:getBaseFrame()local ab=_b.get("stores")if
+not ab[da]then
+aa.error("Store '"..da.."' not initialized")end;if ab[da].computed then
+return ab[da].computeFn(self)end;return ab[da].value end
+function ca:onStoreChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("stores")[da]if not bb then
+aa.error("Cannot observe store '"..da.."': Store not initialized")return self end
+local cb=ab.get("storeObserver")if not cb[da]then cb[da]={}end;table.insert(cb[da],_b)
+return self end
+function ca:removeStoreChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("storeObserver")
+if bb[da]then for cb,db in ipairs(bb[da])do
+if db==_b then table.remove(bb[da],cb)break end end end;return self end
+function ca:computed(da,_b)local ab=self:getBaseFrame()local bb=ab.get("stores")if bb[da]then
+aa.error(
+"Computed store '"..da.."' already exists")return self end
+bb[da]={computeFn=_b,value=_b(self),computed=true}return self end
+function ca:bind(da,_b)_b=_b or da;local ab=self:getBaseFrame()local bb=false
+if
+self.get(da)~=nil then self.set(da,ab:getStore(_b))end
+self:onChange(da,function(cb,db)if bb then return end;bb=true;cb:setStore(_b,db)bb=false end)
+self:onStoreChange(_b,function(cb,db)if bb then return end;bb=true;if self.get(da)~=nil then
+self.set(da,db)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
 project["plugins/canvas.lua"] = function(...) local ba=require("libraries/colorHex")
 local ca=require("errorManager")local da={}da.__index=da;local _b,ab=string.sub,string.rep
 function da.new(cb)

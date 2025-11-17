@@ -21,6 +21,7 @@ minified_elementDirectory["CheckBox"] = {}
 minified_elementDirectory["BaseElement"] = {}
 minified_elementDirectory["List"] = {}
 minified_elementDirectory["Collection"] = {}
+minified_pluginDirectory["store"] = {}
 project["errorManager.lua"] = function(...) local d=require("log")
 local _a={tracebackEnabled=true,header="Basalt Error"}local function aa(ba,ca)term.setTextColor(ca)print(ba)
 term.setTextColor(colors.white)end
@@ -386,7 +387,9 @@ self:textFg(1,1,da,self.getResolved("foreground"))else local _b=ba(da,self.getRe
 self:textFg(1,ab,bb,self.getResolved("foreground"))end end end;return ca end
 project["elements/Input.lua"] = function(...) local d=require("elements/VisualElement")
 local _a=require("libraries/colorHex")local aa=setmetatable({},d)aa.__index=aa
-aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true})
+aa.defineProperty(aa,"text",{default="",type="string",canTriggerRender=true,setter=function(ba,ca)
+ba.set("cursorPos",math.min(
+#ca+1,ba.getResolved("cursorPos")))ba:updateViewport()return ca end})
 aa.defineProperty(aa,"cursorPos",{default=1,type="number"})
 aa.defineProperty(aa,"viewOffset",{default=0,type="number",canTriggerRender=true})
 aa.defineProperty(aa,"maxLength",{default=nil,type="number"})
@@ -423,7 +426,14 @@ da+1)if da-ab>=bb then
 self.set("viewOffset",da-bb+1)end end elseif
 ba==keys.backspace then if da>1 then
 self.set("text",_b:sub(1,da-2).._b:sub(da))self.set("cursorPos",da-1)self:updateRender()
-self:updateViewport()end end
+self:updateViewport()end elseif
+ba==keys.delete then
+if da<=#_b then
+self.set("text",_b:sub(1,da-1).._b:sub(da+1))self:updateRender()self:updateViewport()end elseif ba==keys.home then self.set("cursorPos",1)
+self.set("viewOffset",0)elseif ba==keys["end"]then self.set("cursorPos",#_b+1)self:set("viewOffset",math.max(0,
+#_b-bb+1))elseif
+ba==keys.enter then
+self:fireEvent("submit",self.getResolved("text"))end
 local cb=self.getResolved("cursorPos")-self.getResolved("viewOffset")
 self:setCursor(cb,1,true,self.getResolved("cursorColor")or
 self.getResolved("foreground"))d.key(self,ba,ca)return true end
@@ -440,6 +450,7 @@ self.getResolved("text")
 if ca-da>=ba then
 self.set("viewOffset",ca-ba+1)elseif ca<=da then self.set("viewOffset",ca-1)end
 self.set("viewOffset",math.max(0,math.min(self.getResolved("viewOffset"),_b-ba+1)))return self end
+function aa:onSubmit(ba)self:registerCallback("submit",ba)return self end
 function aa:focus()d.focus(self)
 self:setCursor(self.getResolved("cursorPos")-
 self.getResolved("viewOffset"),1,true,self.getResolved("cursorColor")or
@@ -911,7 +922,7 @@ self:observe("height",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)
 self:observe("visible",function()if self.parent then
 self.parent.set("childrenSorted",false)end end)end
-function _b:setConstraint(cb,db,_c,ac)local bc=self.getResolved("constraints")if bc[cb]then
+function _b:setConstraint(cb,db,_c,ac)local bc=self.get("constraints")if bc[cb]then
 self:_removeConstraintObservers(cb,bc[cb])end
 bc[cb]={element=db,property=_c,offset=ac or 0}self.set("constraints",bc)
 self:_addConstraintObservers(cb,bc[cb])self._constraintsDirty=true;self:updateRender()return self end
@@ -1417,7 +1428,8 @@ aa.defineProperty(aa,"items",{default={},type="table",canTriggerRender=true})
 aa.defineProperty(aa,"selectable",{default=true,type="boolean"})
 aa.defineProperty(aa,"multiSelection",{default=false,type="boolean"})
 aa.defineProperty(aa,"selectedBackground",{default=colors.blue,type="color",canTriggerRender=true})
-aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color",canTriggerRender=true})function aa.new()local ba=setmetatable({},aa):__init()
+aa.defineProperty(aa,"selectedForeground",{default=colors.white,type="color",canTriggerRender=true})
+aa.combineProperties(aa,"selectionColor","selectedForeground","selectedBackground")function aa.new()local ba=setmetatable({},aa):__init()
 ba.class=aa;return ba end
 function aa:init(ba,ca)
 d.init(self,ba,ca)self._entrySchema={}self.set("type","Collection")return self end
@@ -1438,13 +1450,10 @@ function aa:getSelectedItem()local ba=self.getResolved("items")
 for ca,da in ipairs(ba)do if
 type(da)=="table"and da.selected then return da end end;return nil end
 function aa:selectItem(ba)local ca=self.getResolved("items")
-if ba<1 or ba>#ca then return end;local da=ba;if type(ba)=="string"then
-for ab,bb in pairs(ca)do if bb==ba then da=ab;break end end end
-if not
-self.getResolved("multiSelection")then for ab,bb in ipairs(ca)do
-if type(bb)=="table"then bb.selected=false end end end;local _b=ca[da]_b.selected=true
-if _b.callback then _b.callback(self)end;self:fireEvent("select",ba,_b)self:updateRender()return
-self end
+if type(ba)=="number"then
+if
+ca[ba]and type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
+if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
 function aa:unselectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
 if
@@ -1467,6 +1476,55 @@ if not ca then if#ba>0 then self:selectItem(#ba)end elseif ca>1 then
 if not
 self.getResolved("multiSelection")then self:clearItemSelection()end;self:selectItem(ca-1)end;self:updateRender()return self end
 function aa:onSelect(ba)self:registerCallback("select",ba)return self end;return aa end
+project["plugins/store.lua"] = function(...) local _a=require("propertySystem")
+local aa=require("errorManager")local ba={}function ba.setup(da)
+da.defineProperty(da,"stores",{default={},type="table"})
+da.defineProperty(da,"storeObserver",{default={},type="table"})end
+function ba:initializeStore(da,_b,ab,bb)
+local cb=self.get("stores")if cb[da]then
+aa.error("Store '"..da.."' already exists")return self end;local db=bb or"stores/"..
+self.get("name")..".store"local _c={}
+if ab and
+fs.exists(db)then local ac=fs.open(db,"r")_c=
+textutils.unserialize(ac.readAll())or{}ac.close()end;cb[da]={value=ab and _c[da]or _b,persist=ab}
+return self end;local ca={}
+function ca:setStore(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("stores")local cb=ab.get("storeObserver")
+if not bb[da]then aa.error("Store '"..
+da.."' not initialized")end
+if bb[da].persist then
+local db="stores/"..ab.get("name")..".store"local _c={}
+if fs.exists(db)then local cc=fs.open(db,"r")_c=
+textutils.unserialize(cc.readAll())or{}cc.close()end;_c[da]=_b;local ac=fs.getDir(db)if not fs.exists(ac)then
+fs.makeDir(ac)end;local bc=fs.open(db,"w")
+bc.write(textutils.serialize(_c))bc.close()end;bb[da].value=_b
+if cb[da]then for db,_c in ipairs(cb[da])do _c(da,_b)end end;for db,_c in pairs(bb)do
+if _c.computed then _c.value=_c.computeFn(self)if cb[db]then for ac,bc in ipairs(cb[db])do
+bc(db,_c.value)end end end end
+return self end
+function ca:getStore(da)local _b=self:getBaseFrame()local ab=_b.get("stores")if
+not ab[da]then
+aa.error("Store '"..da.."' not initialized")end;if ab[da].computed then
+return ab[da].computeFn(self)end;return ab[da].value end
+function ca:onStoreChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("stores")[da]if not bb then
+aa.error("Cannot observe store '"..da.."': Store not initialized")return self end
+local cb=ab.get("storeObserver")if not cb[da]then cb[da]={}end;table.insert(cb[da],_b)
+return self end
+function ca:removeStoreChange(da,_b)local ab=self:getBaseFrame()
+local bb=ab.get("storeObserver")
+if bb[da]then for cb,db in ipairs(bb[da])do
+if db==_b then table.remove(bb[da],cb)break end end end;return self end
+function ca:computed(da,_b)local ab=self:getBaseFrame()local bb=ab.get("stores")if bb[da]then
+aa.error(
+"Computed store '"..da.."' already exists")return self end
+bb[da]={computeFn=_b,value=_b(self),computed=true}return self end
+function ca:bind(da,_b)_b=_b or da;local ab=self:getBaseFrame()local bb=false
+if
+self.get(da)~=nil then self.set(da,ab:getStore(_b))end
+self:onChange(da,function(cb,db)if bb then return end;bb=true;cb:setStore(_b,db)bb=false end)
+self:onStoreChange(_b,function(cb,db)if bb then return end;bb=true;if self.get(da)~=nil then
+self.set(da,db)end;bb=false end)return self end;return{BaseElement=ca,BaseFrame=ba} end
 project["elementManager.lua"] = function(...) local _c=table.pack(...)
 local ac=fs.getDir(_c[2]or"basalt")local bc=_c[1]if(ac==nil)then
 error("Unable to find directory "..
