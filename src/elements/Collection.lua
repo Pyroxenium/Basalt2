@@ -17,6 +17,9 @@ Collection.defineProperty(Collection, "selectedBackground", {default = colors.bl
 ---@property selectedForeground color white Text color for selected items
 Collection.defineProperty(Collection, "selectedForeground", {default = colors.white, type = "color", canTriggerRender = true})
 
+---@combinedProperty selectionColor {x number, y number} Combined x, y position
+Collection.combineProperties(Collection, "selectionColor", "selectedForeground", "selectedBackground")
+
 ---@event onSelect {index number, item table} Fired when an item is selected
 
 --- Creates a new Collection instance
@@ -123,29 +126,20 @@ end
 
 function Collection:selectItem(index)
     local items = self.getResolved("items")
-    if index < 1 or index > #items then return end
-    local _index = index
-    if type(index) == "string" then
+    if type(index) == "number" then
+        if items[index] and type(items[index]) == "table" then
+            items[index].selected = true
+        end
+    else
         for k,v in pairs(items)do
             if v == index then
-                _index = k
+                if type(v) == "table" then
+                    v.selected = true
+                end
                 break
             end
         end
     end
-    if not self.getResolved("multiSelection") then
-        for _, otherItem in ipairs(items) do
-            if type(otherItem) == "table" then
-                otherItem.selected = false
-            end
-        end
-    end
-    local item = items[_index]
-    item.selected = true
-    if item.callback then
-        item.callback(self)
-    end
-    self:fireEvent("select", index, item)
     self:updateRender()
     return self
 end

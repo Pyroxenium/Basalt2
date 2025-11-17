@@ -74,17 +74,6 @@ function ComboBox:init(props, basalt)
     return self
 end
 
-function ComboBox:selectItem(index)
-    DropDown.selectItem(self, index)
-    local selectedItem = self:getSelectedItem()
-    if selectedItem and selectedItem.text then
-        self.set("text", selectedItem.text)
-        self.set("cursorPos", #selectedItem.text + 1)
-        self:updateViewport()
-    end
-    self:updateRender()
-end
-
 --- Filters items based on current text for auto-complete
 --- @shortDescription Filters items for auto-complete
 --- @private

@@ -21,6 +21,9 @@ Toast.defineProperty(Toast, "duration", {default = 3, type = "number"})
 ---@property toastType string "default" Type of toast: default, success, error, warning, info
 Toast.defineProperty(Toast, "toastType", {default = "default", type = "string", canTriggerRender = true})
 
+---@property callback function nil Callback function to call when the toast hides
+Toast.defineProperty(Toast, "callback", {default = nil, type = "function"})
+
 ---@property autoHide boolean true Whether the toast should automatically hide after duration
 Toast.defineProperty(Toast, "autoHide", {default = true, type = "boolean"})
 
@@ -70,8 +73,9 @@ end
 --- @param titleOrMessage string The title (if message provided) or the message (if no message)
 --- @param messageOrDuration? string|number The message (if string) or duration (if number)
 --- @param duration? number Duration in seconds
+--- @param callback? function Callback function to call when the toast hides
 --- @return Toast self The Toast instance
-function Toast:show(titleOrMessage, messageOrDuration, duration)
+function Toast:show(titleOrMessage, messageOrDuration, duration, callback)
     local title, message, dur
     if type(messageOrDuration) == "string" then
         title = titleOrMessage
@@ -90,6 +94,7 @@ function Toast:show(titleOrMessage, messageOrDuration, duration)
     self.set("title", title)
     self.set("message", message)
     self.set("active", true)
+    self.set("callback", callback)
 
     if self._hideTimerId then
         os.cancelTimer(self._hideTimerId)
@@ -123,10 +128,11 @@ end
 --- @param titleOrMessage string The title or message
 --- @param messageOrDuration? string|number The message or duration
 --- @param duration? number Duration in seconds
+--- @param callback? function Callback function to call when the toast hides
 --- @return Toast self The Toast instance
-function Toast:success(titleOrMessage, messageOrDuration, duration)
+function Toast:success(titleOrMessage, messageOrDuration, duration, callback)
     self.set("toastType", "success")
-    return self:show(titleOrMessage, messageOrDuration, duration)
+    return self:show(titleOrMessage, messageOrDuration, duration, callback)
 end
 
 --- Shows an error toast
@@ -134,10 +140,11 @@ end
 --- @param titleOrMessage string The title or message
 --- @param messageOrDuration? string|number The message or duration
 --- @param duration? number Duration in seconds
+--- @param callback? function Callback function to call when the toast hides
 --- @return Toast self The Toast instance
-function Toast:error(titleOrMessage, messageOrDuration, duration)
+function Toast:error(titleOrMessage, messageOrDuration, duration, callback)
     self.set("toastType", "error")
-    return self:show(titleOrMessage, messageOrDuration, duration)
+    return self:show(titleOrMessage, messageOrDuration, duration, callback)
 end
 
 --- Shows a warning toast
@@ -145,10 +152,11 @@ end
 --- @param titleOrMessage string The title or message
 --- @param messageOrDuration? string|number The message or duration
 --- @param duration? number Duration in seconds
+--- @param callback? function Callback function to call when the toast hides
 --- @return Toast self The Toast instance
-function Toast:warning(titleOrMessage, messageOrDuration, duration)
+function Toast:warning(titleOrMessage, messageOrDuration, duration, callback)
     self.set("toastType", "warning")
-    return self:show(titleOrMessage, messageOrDuration, duration)
+    return self:show(titleOrMessage, messageOrDuration, duration, callback)
 end
 
 --- Shows an info toast
@@ -156,10 +164,11 @@ end
 --- @param titleOrMessage string The title or message
 --- @param messageOrDuration? string|number The message or duration
 --- @param duration? number Duration in seconds
+--- @param callback? function Callback function to call when the toast hides
 --- @return Toast self The Toast instance
-function Toast:info(titleOrMessage, messageOrDuration, duration)
+function Toast:info(titleOrMessage, messageOrDuration, duration, callback)
     self.set("toastType", "info")
-    return self:show(titleOrMessage, messageOrDuration, duration)
+    return self:show(titleOrMessage, messageOrDuration, duration, callback)
 end
 
 --- @shortDescription Dispatches events to the Toast instance
@@ -169,6 +178,11 @@ function Toast:dispatchEvent(event, ...)
     if event == "timer" then
         local timerId = select(1, ...)
         if timerId == self._hideTimerId then
+            self._hideTimerId = nil
+            local callback = self.getResolved("callback")
+            if callback then
+                callback(self)
+            end
             self:hide()
         end
     end

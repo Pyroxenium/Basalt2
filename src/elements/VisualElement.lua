@@ -162,7 +162,7 @@ end
 --- @param offset number The offset to apply (negative = inside, positive = outside, fractional = percentage)
 --- @return VisualElement self The element instance
 function VisualElement:setConstraint(property, targetElement, targetProperty, offset)
-    local constraints = self.getResolved("constraints")
+    local constraints = self.get("constraints")
     if constraints[property] then
         self:_removeConstraintObservers(property, constraints[property])
     end

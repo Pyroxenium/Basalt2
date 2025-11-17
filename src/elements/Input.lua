@@ -9,7 +9,16 @@ local Input = setmetatable({}, VisualElement)
 Input.__index = Input
 
 ---@property text string - The current text content of the input
-Input.defineProperty(Input, "text", {default = "", type = "string", canTriggerRender = true})
+Input.defineProperty(Input, "text", {
+    default = "", 
+    type = "string", 
+    canTriggerRender = true, 
+    setter = function(self, value)
+        self.set("cursorPos", math.min(#value + 1, self.getResolved("cursorPos")))
+        self:updateViewport()
+        return value
+    end
+})
 ---@property cursorPos number 1 The current cursor position in the text
 Input.defineProperty(Input, "cursorPos", {default = 1, type = "number"})
 ---@property viewOffset number 0 The horizontal scroll offset for viewing long text
@@ -122,6 +131,20 @@ function Input:key(key, held)
             self:updateRender()
             self:updateViewport()
         end
+    elseif key == keys.delete then
+        if pos <= #text then
+            self.set("text", text:sub(1, pos-1) .. text:sub(pos+1))
+            self:updateRender()
+            self:updateViewport()
+        end
+    elseif key == keys.home then
+        self.set("cursorPos", 1)
+        self.set("viewOffset", 0)
+    elseif key == keys["end"] then
+        self.set("cursorPos", #text + 1)
+        self:set("viewOffset", math.max(0, #text - width + 1))
+    elseif key == keys.enter then
+        self:fireEvent("submit", self.getResolved("text"))
     end
 
     local relativePos = self.getResolved("cursorPos") - self.getResolved("viewOffset")
@@ -171,6 +194,15 @@ function Input:updateViewport()
 
     self.set("viewOffset", math.max(0, math.min(self.getResolved("viewOffset"), textLength - width + 1)))
 
+    return self
+end
+
+--- Registers a callback for the submit event
+--- @shortDescription Registers a callback for the submit event
+--- @param callback function The callback function to register
+--- @return Input self The Input instance
+function Input:onSubmit(callback)
+    self:registerCallback("submit", callback)
     return self
 end
 

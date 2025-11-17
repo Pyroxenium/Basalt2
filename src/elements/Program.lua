@@ -145,6 +145,8 @@ function BasaltProgram:run(path, width, height)
                 local errorCallback = self.program.get("errorCallback")
                 if errorCallback then
                     local trace = debug.traceback(self.coroutine, result)
+                    if trace == nil then trace = "" end
+                    result = result or "Unknown error"
                     local _result = errorCallback(self.program, result, trace:gsub(result, ""))
                     if(_result==false)then
                         self.filter = nil
