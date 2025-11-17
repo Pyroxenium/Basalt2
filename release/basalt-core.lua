@@ -1438,10 +1438,13 @@ function aa:getSelectedItem()local ba=self.getResolved("items")
 for ca,da in ipairs(ba)do if
 type(da)=="table"and da.selected then return da end end;return nil end
 function aa:selectItem(ba)local ca=self.getResolved("items")
-if type(ba)=="number"then
-if
-ca[ba]and type(ca[ba])=="table"then ca[ba].selected=true end else for da,_b in pairs(ca)do
-if _b==ba then if type(_b)=="table"then _b.selected=true end;break end end end;self:updateRender()return self end
+if ba<1 or ba>#ca then return end;local da=ba;if type(ba)=="string"then
+for ab,bb in pairs(ca)do if bb==ba then da=ab;break end end end
+if not
+self.getResolved("multiSelection")then for ab,bb in ipairs(ca)do
+if type(bb)=="table"then bb.selected=false end end end;local _b=ca[da]_b.selected=true
+if _b.callback then _b.callback(self)end;self:fireEvent("select",ba,_b)self:updateRender()return
+self end
 function aa:unselectItem(ba)local ca=self.getResolved("items")
 if type(ba)=="number"then
 if
