@@ -12,6 +12,7 @@ Extends: `VisualElement`
 |message|string|""|The message text of the toast|
 |duration|number|3|Duration in seconds before the toast auto-hides|
 |toastType|string|"default"|Type of toast: default, success, error, warning, info|
+|callback|function|nil|Callback function to call when the toast hides|
 |autoHide|boolean|true|Whether the toast should automatically hide after duration|
 |active|boolean|false|Whether the toast is currently showing a message|
 |colorMap|table|Map|of toast types to their colors|
@@ -20,14 +21,14 @@ Extends: `VisualElement`
 
 |Method|Returns|Description|
 |---|---|---|
-|[Toast:show](#toast-show-titleormessage-messageorduration-duration)|Toast|Shows a toast message|
+|[Toast:show](#toast-show-titleormessage-messageorduration-duration-callback)|Toast|Shows a toast message|
 |[Toast:hide](#toast-hide)|Toast|Hides the toast|
-|[Toast:success](#toast-success-titleormessage-messageorduration-duration)|Toast|Shows a success toast|
-|[Toast:error](#toast-error-titleormessage-messageorduration-duration)|Toast|Shows an error toast|
-|[Toast:warning](#toast-warning-titleormessage-messageorduration-duration)|Toast|Shows a warning toast|
-|[Toast:info](#toast-info-titleormessage-messageorduration-duration)|Toast|Shows an info toast|
+|[Toast:success](#toast-success-titleormessage-messageorduration-duration-callback)|Toast|Shows a success toast|
+|[Toast:error](#toast-error-titleormessage-messageorduration-duration-callback)|Toast|Shows an error toast|
+|[Toast:warning](#toast-warning-titleormessage-messageorduration-duration-callback)|Toast|Shows a warning toast|
+|[Toast:info](#toast-info-titleormessage-messageorduration-duration-callback)|Toast|Shows an info toast|
 
-## Toast:show(titleOrMessage, messageOrDuration?, duration?)
+## Toast:show(titleOrMessage, messageOrDuration?, duration?, callback?)
 
 Shows a toast message
 
@@ -35,6 +36,7 @@ Shows a toast message
 * `titleOrMessage` `string` The title (if message provided) or the message (if no message)
 * `messageOrDuration` *(optional)* `string|number` The message (if string) or duration (if number)
 * `duration` *(optional)* `number` Duration in seconds
+* `callback` *(optional)* `function` Callback function to call when the toast hides
 
 ### Returns
 * `Toast` `self` The Toast instance
@@ -46,7 +48,7 @@ Hides the toast
 ### Returns
 * `Toast` `self` The Toast instance
 
-## Toast:success(titleOrMessage, messageOrDuration?, duration?)
+## Toast:success(titleOrMessage, messageOrDuration?, duration?, callback?)
 
 Shows a success toast
 
@@ -54,11 +56,12 @@ Shows a success toast
 * `titleOrMessage` `string` The title or message
 * `messageOrDuration` *(optional)* `string|number` The message or duration
 * `duration` *(optional)* `number` Duration in seconds
+* `callback` *(optional)* `function` Callback function to call when the toast hides
 
 ### Returns
 * `Toast` `self` The Toast instance
 
-## Toast:error(titleOrMessage, messageOrDuration?, duration?)
+## Toast:error(titleOrMessage, messageOrDuration?, duration?, callback?)
 
 Shows an error toast
 
@@ -66,11 +69,12 @@ Shows an error toast
 * `titleOrMessage` `string` The title or message
 * `messageOrDuration` *(optional)* `string|number` The message or duration
 * `duration` *(optional)* `number` Duration in seconds
+* `callback` *(optional)* `function` Callback function to call when the toast hides
 
 ### Returns
 * `Toast` `self` The Toast instance
 
-## Toast:warning(titleOrMessage, messageOrDuration?, duration?)
+## Toast:warning(titleOrMessage, messageOrDuration?, duration?, callback?)
 
 Shows a warning toast
 
@@ -78,11 +82,12 @@ Shows a warning toast
 * `titleOrMessage` `string` The title or message
 * `messageOrDuration` *(optional)* `string|number` The message or duration
 * `duration` *(optional)* `number` Duration in seconds
+* `callback` *(optional)* `function` Callback function to call when the toast hides
 
 ### Returns
 * `Toast` `self` The Toast instance
 
-## Toast:info(titleOrMessage, messageOrDuration?, duration?)
+## Toast:info(titleOrMessage, messageOrDuration?, duration?, callback?)
 
 Shows an info toast
 
@@ -90,6 +95,7 @@ Shows an info toast
 * `titleOrMessage` `string` The title or message
 * `messageOrDuration` *(optional)* `string|number` The message or duration
 * `duration` *(optional)* `number` Duration in seconds
+* `callback` *(optional)* `function` Callback function to call when the toast hides
 
 ### Returns
 * `Toast` `self` The Toast instance

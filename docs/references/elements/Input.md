@@ -22,6 +22,7 @@ Extends: `VisualElement`
 |---|---|---|
 |[Input:setCursor](#input-setcursor-x-y-blink-color)|-|Sets the cursor position and color|
 |[Input:updateViewport](#input-updateviewport)|Input|Updates the input's viewport|
+|[Input:onSubmit](#input-onsubmit-callback)|Input|Registers a callback for the submit event|
 
 ## Input:setCursor(x, y, blink, color)
 
@@ -39,3 +40,13 @@ Updates the input's viewport
 
 ### Returns
 * `Input` `self` The updated instance
+
+## Input:onSubmit(callback)
+
+Registers a callback for the submit event
+
+### Parameters
+* `callback` `function` The callback function to register
+
+### Returns
+* `Input` `self` The Input instance
