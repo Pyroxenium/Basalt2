@@ -27,6 +27,8 @@ Extends: `VisualElement`
 |[Image:setBg](#image-setbg-x-y-pattern)|Image|Sets the background color at the specified position|
 |[Image:getBg](#image-getbg-x-y-length)|string|Gets the background color at the specified position|
 |[Image:setPixel](#image-setpixel-x-y-char-fg-bg)|Image|Sets the pixel at the specified position|
+|[Image:applyPalette](#image-applypalette)|Image|Applies the palette defined in the image to the terminal|
+|[Image:undoPalette](#image-undopalette)|Image|Restores the previous palette before applyPalette was called|
 |[Image:nextFrame](#image-nextframe)|Image|Advances to the next frame in the animation|
 |[Image:addFrame](#image-addframe)|Image|Adds a new frame to the image|
 |[Image:updateFrame](#image-updateframe-frameindex-frame)|Image|Updates the specified frame with the provided data|
@@ -148,6 +150,20 @@ Sets the pixel at the specified position
 * `char` `string` The character to set
 * `fg` `string` The foreground color pattern
 * `bg` `string` The background color pattern
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:applyPalette()
+
+Applies the palette defined in the image to the terminal
+
+### Returns
+* `Image` `self` The Image instance
+
+## Image:undoPalette()
+
+Restores the previous palette before applyPalette was called
 
 ### Returns
 * `Image` `self` The Image instance
