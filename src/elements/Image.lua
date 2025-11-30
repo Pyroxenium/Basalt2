@@ -321,6 +321,45 @@ function Image:setPixel(x, y, char, fg, bg)
     return self
 end
 
+--- Applies the palette defined in the image to the terminal
+--- @shortDescription Applies the palette defined in the image to the terminal
+--- @return Image self The Image instance
+function Image:applyPalette()
+    local frame = self.getResolved("bimg")[self.getResolved("currentFrame")]
+    if not frame then return self end
+    if not frame.palette then return self end
+    local parentTerm = self:getBaseFrame():getTerm()
+    self.oldPalette = {}
+
+    local palette = frame.palette
+    for k,v in pairs(palette) do
+        if type(v) == "table" then
+            local r,g,b = v[1], v[2], v[3]
+            parentTerm.setPaletteColor(2 ^ k, colors.packRGB(r, g, b))
+        else
+            parentTerm.setPaletteColor(2 ^ k, v)
+        end
+        local curPaletteColor = parentTerm.getPaletteColor(k)
+        self.oldPalette[k] = curPaletteColor
+    end
+    self:updateRender()
+    return self
+end
+
+--- Restores the previous palette before applyPalette was called
+--- @shortDescription Restores the previous palette before applyPalette was called
+--- @return Image self The Image instance
+function Image:undoPalette()
+    if not self.oldPalette then return self end
+    local parentTerm = self:getBaseFrame():getTerm()
+    for k,v in pairs(self.oldPalette) do
+        parentTerm.setPaletteColor(2 ^ k, v)
+    end
+    self.oldPalette = nil
+    self:updateRender()
+    return self
+end
+
 --- Advances to the next frame in the animation
 --- @shortDescription Advances to the next frame in the animation
 --- @return Image self The Image instance
