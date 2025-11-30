@@ -303,6 +303,16 @@ return""end
 if cb then return _c:sub(ab,ab+cb-1)else return _c:sub(ab)end end
 function ca:setPixel(ab,bb,cb,db,_c)if cb then self:setText(ab,bb,cb)end;if db then
 self:setFg(ab,bb,db)end;if _c then self:setBg(ab,bb,_c)end;return self end
+function ca:applyPalette()
+local ab=self.getResolved("bimg")[self.getResolved("currentFrame")]if not ab then return self end;if not ab.palette then return self end
+local bb=self:getBaseFrame():getTerm()self.oldPalette={}local cb=ab.palette
+for db,_c in pairs(cb)do
+if type(_c)=="table"then
+local bc,cc,dc=_c[1],_c[2],_c[3]
+bb.setPaletteColor(2 ^db,colors.packRGB(bc,cc,dc))else bb.setPaletteColor(2 ^db,_c)end;local ac=bb.getPaletteColor(db)self.oldPalette[db]=ac end;self:updateRender()return self end
+function ca:undoPalette()if not self.oldPalette then return self end
+local ab=self:getBaseFrame():getTerm()
+for bb,cb in pairs(self.oldPalette)do ab.setPaletteColor(2 ^bb,cb)end;self.oldPalette=nil;self:updateRender()return self end
 function ca:nextFrame()if not self.getResolved("bimg").animation then
 return self end;local ab=self.getResolved("bimg")
 local bb=self.getResolved("currentFrame")local cb=bb+1;if cb>#ab then cb=1 end;self.set("currentFrame",cb)
