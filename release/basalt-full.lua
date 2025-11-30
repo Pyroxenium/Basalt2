@@ -309,10 +309,11 @@ if coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)self.program.set("program",nil)
 local __a=self.program.get("doneCallback")if __a then __a(self.program,cd,dd)end end else _b.header="Basalt Program Error ".._c
 _b.error("File not found")end else _b.header="Basalt Program Error"
-_b.error("Program ".._c.." not found")end end;function bb:resize(_c,ac)self.window.reposition(1,1,_c,ac)
+_b.error("Program ".._c.." not found")end end
+function bb:resize(_c,ac)
+if type(_c)~="number"or type(ac)~="number"then return end;self.window.reposition(1,1,_c,ac)
 self:resume("term_resize",_c,ac)end
-function bb:resume(_c,...)local ac={...}if
-(_c:find("mouse_"))then
+function bb:resume(_c,...)local ac={...}if(_c:find("mouse_"))then
 ac[2],ac[3]=self.program:getRelativePosition(ac[2],ac[3])end;if self.coroutine==nil or
 coroutine.status(self.coroutine)=="dead"then
 self.program.set("running",false)return end
@@ -338,10 +339,10 @@ return _c end
 function ab:init(_c,ac)
 da.init(self,_c,ac)self.set("type","Program")
 self:observe("width",function(bc,cc)
-local dc=bc.getResolved("program")
-if dc then dc:resize(cc,bc.getResolved("height"))end end)
-self:observe("height",function(bc,cc)local dc=bc.getResolved("program")if dc then
-dc:resize(bc.getResolved("width"),cc)end end)return self end
+local dc=self.getResolved("program")if dc then
+dc:resize(self.get("width"),self.get("height"))end end)
+self:observe("height",function(bc,cc)local dc=self.getResolved("program")if dc then
+dc:resize(self.get("width"),self.get("height"))end end)return self end
 function ab:execute(_c,ac,bc,...)self.set("path",_c)self.set("running",true)
 local cc=bb.new(self,ac,bc)self.set("program",cc)cc:setArgs(...)
 cc:run(_c,self.getResolved("width"),self.getResolved("height"),...)self:updateRender()return self end;function ab:stop()local _c=self.getResolved("program")if _c then _c:stop()
