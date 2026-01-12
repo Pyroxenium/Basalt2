@@ -1689,17 +1689,17 @@ dc.class=cc;dc.set("width",16)dc.set("height",3)dc.set("z",5)
 return dc end
 function cc:init(dc,_d)
 bc.init(self,dc,_d)self.set("type","BigFont")
-self:observe("background",function(ad,bd)
-ad.bigfontText=_c(ad.getResolved("fontSize"),ad.getResolved("text"),ad.getResolved("foreground"),bd)end)
-self:observe("foreground",function(ad,bd)
-ad.bigfontText=_c(ad.getResolved("fontSize"),ad.getResolved("text"),bd,ad.getResolved("background"))end)end
+self:observe("background",function(ad)
+ad.bigfontText=_c(ad.getResolved("fontSize"),ad.getResolved("text"),ad.getResolved("foreground"),ad.getResolved("background"))end)
+self:observe("foreground",function(ad)
+ad.bigfontText=_c(ad.getResolved("fontSize"),ad.getResolved("text"),ad.getResolved("foreground"),ad.getResolved("background"))end)end
 function cc:render()bc.render(self)
 if(self.bigfontText)then
-local dc,_d=self.getResolved("x"),self.getResolved("y")local ad=self.getResolved("width")
+local dc=self.getResolved("width")
 for i=1,#self.bigfontText[1]do
-local bd=self.bigfontText[1][i]:sub(1,ad)
-local cd=self.bigfontText[2][i]:sub(1,ad)
-local dd=self.bigfontText[3][i]:sub(1,ad)self:blit(dc,_d+i-1,bd,cd,dd)end end end;return cc end
+local _d=self.bigfontText[1][i]:sub(1,dc)
+local ad=self.bigfontText[2][i]:sub(1,dc)
+local bd=self.bigfontText[3][i]:sub(1,dc)self:blit(1,i,_d,ad,bd)end end end;return cc end
 project["elements/Switch.lua"] = function(...) local _a=require("elementManager")
 local aa=_a.getElement("VisualElement")local ba=require("libraries/colorHex")
 local ca=setmetatable({},aa)ca.__index=ca
