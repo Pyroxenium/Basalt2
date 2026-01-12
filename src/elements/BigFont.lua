@@ -199,11 +199,11 @@ end
 function BigFont:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "BigFont")
-    self:observe("background", function(self, value)
-        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), self.getResolved("foreground"), value)
+    self:observe("background", function(self)
+        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), self.getResolved("foreground"), self.getResolved("background"))
     end)
-    self:observe("foreground", function(self, value)
-        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), value, self.getResolved("background"))
+    self:observe("foreground", function(self)
+        self.bigfontText = makeText(self.getResolved("fontSize"), self.getResolved("text"), self.getResolved("foreground"), self.getResolved("background"))
     end)
 end
 
@@ -212,13 +212,12 @@ end
 function BigFont:render()
     VisualElement.render(self)
     if(self.bigfontText)then
-        local x, y = self.getResolved("x"), self.getResolved("y")
         local width = self.getResolved("width")
         for i = 1, #self.bigfontText[1] do
             local text = self.bigfontText[1][i]:sub(1, width)
             local fg = self.bigfontText[2][i]:sub(1, width)
             local bg = self.bigfontText[3][i]:sub(1, width)
-            self:blit(x, y + i - 1, text, fg, bg)
+            self:blit(1, i, text, fg, bg)
         end
     end
 end
