@@ -56,8 +56,6 @@ end
 --- @protected
 function Display:postInit()
     VisualElement.postInit(self)
-    self.basalt.LOGGER.debug(self.basalt.getActiveFrame())
-    self.basalt.LOGGER.debug(self:getBaseFrame():getTerm())
     self._window = window.create(self:getBaseFrame():getTerm(), 1, 1, self.getResolved("width"), self.getResolved("height"), false)
     local reposition = self._window.reposition
     local blit = self._window.blit
