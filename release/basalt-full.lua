@@ -2557,8 +2557,6 @@ ba.set("z",5)return ba end
 function aa:init(ba,ca)
 _a.init(self,ba,ca)self.set("type","Display")end
 function aa:postInit()_a.postInit(self)
-self.basalt.LOGGER.debug(self.basalt.getActiveFrame())
-self.basalt.LOGGER.debug(self:getBaseFrame():getTerm())
 self._window=window.create(self:getBaseFrame():getTerm(),1,1,self.getResolved("width"),self.getResolved("height"),false)local ba=self._window.reposition;local ca=self._window.blit
 local da=self._window.write
 self._window.reposition=function(_b,ab,bb,cb)self.set("x",_b)self.set("y",ab)
