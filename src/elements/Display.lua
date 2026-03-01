@@ -50,7 +50,15 @@ end
 function Display:init(props, basalt)
     VisualElement.init(self, props, basalt)
     self.set("type", "Display")
-    self._window = window.create(basalt.getActiveFrame():getTerm(), 1, 1, self.getResolved("width"), self.getResolved("height"), false)
+end
+
+--- @shortDescription Post-initialization setup for the Display
+--- @protected
+function Display:postInit()
+    VisualElement.postInit(self)
+    self.basalt.LOGGER.debug(self.basalt.getActiveFrame())
+    self.basalt.LOGGER.debug(self:getBaseFrame():getTerm())
+    self._window = window.create(self:getBaseFrame():getTerm(), 1, 1, self.getResolved("width"), self.getResolved("height"), false)
     local reposition = self._window.reposition
     local blit = self._window.blit
     local write = self._window.write
