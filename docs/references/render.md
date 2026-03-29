@@ -12,9 +12,6 @@ _functionality. It also has a buffer system to reduce the number of calls_
 |[Render:multiBlit](#render-multiblit-x-y-width-height-text-fg-bg)|Render|Blits text to the screen with multiple lines|
 |[Render:textFg](#render-textfg-x-y-text-fg)|Render|Blits text to the screen with a foreground color|
 |[Render:textBg](#render-textbg-x-y-text-bg)|Render|Blits text to the screen with a background color|
-|[Render:text](#render-text-x-y-text)|Render|Renders the text to the screen|
-|[Render:fg](#render-fg-x-y-fg)|Render|Blits a foreground color to the screen|
-|[Render:bg](#render-bg-x-y-bg)|Render|Blits a background color to the screen|
 |[Render:text](#render-text-x-y-text)|Render|Blits text to the screen|
 |[Render:fg](#render-fg-x-y-fg)|Render|Blits a foreground color to the screen|
 |[Render:bg](#render-bg-x-y-bg)|Render|Blits a background color to the screen|
@@ -102,42 +99,6 @@ Blits text to the screen with a background color
 * `y` `number` The y position to blit to
 * `text` `string` The text to blit
 * `bg` `colors` The background color of the text
-
-### Returns
-* `Render`
-
-## Render:text(x, y, text)
-
-Renders the text to the screen
-
-### Parameters
-* `x` `number` The x position to blit to
-* `y` `number` The y position to blit to
-* `text` `string` The text to blit
-
-### Returns
-* `Render`
-
-## Render:fg(x, y, fg)
-
-Blits a foreground color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `fg` `string` The foreground color to blit
-
-### Returns
-* `Render`
-
-## Render:bg(x, y, bg)
-
-Blits a background color to the screen
-
-### Parameters
-* `x` `number` The x position
-* `y` `number` The y position
-* `bg` `string` The background color to blit
 
 ### Returns
 * `Render`

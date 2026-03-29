@@ -70,7 +70,6 @@ Extends: `BaseElement`
 |[VisualElement:isInBounds](#visualelement-isinbounds-x-y)|boolean|Checks if point is within bounds|
 |[VisualElement:setFocused](#visualelement-setfocused-focused-internal)|VisualElement|Sets focus state|
 |[VisualElement:isFocused](#visualelement-isfocused)|boolean|Checks if element is focused|
-|[VisualElement:isFocused](#visualelement-isfocused)|boolean|Checks if element is focused|
 |[VisualElement:addBorder](#visualelement-addborder-colororoptions-sideoptions)|VisualElement|Adds or updates a drawable character border around the element. The border will automatically adapt to size/background changes because the command reads current properties each render.|
 |[VisualElement:removeBorder](#visualelement-removeborder)|VisualElement|Removes the previously added border (if any)|
 |[VisualElement:calculatePosition](#visualelement-calculateposition)|number, number|Calculates the position of the element|
@@ -431,13 +430,6 @@ Sets or removes focus from this element
 
 ### Returns
 * `VisualElement` self
-
-## VisualElement:isFocused()
-
-Gets whether this element is focused
-
-### Returns
-* `boolean` isFocused
 
 ## VisualElement:isFocused()
 

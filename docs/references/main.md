@@ -33,6 +33,7 @@ local basalt = require("basalt")
 |[basalt.removeEvent](#basalt-removeevent-eventname-callback)|boolean|Removes an event callback|
 |[basalt.triggerEvent](#basalt-triggerevent-eventname)|-|Triggers a custom event|
 |[basalt.requireElements](#basalt-requireelements-elements-autoload)|-|Requires elements for the application|
+|[basalt.setRenderThrottleTime](#basalt-setrenderthrottletime-time)|-|Sets the render throttle time|
 |[basalt.loadManifest](#basalt-loadmanifest-path)|table|Loads an application manifest|
 |[basalt.install](#basalt-install-elementname-source)|-|Installs an element|
 |[basalt.configure](#basalt-configure-config)|-|Configures element loading behavior|
@@ -219,6 +220,18 @@ basalt.requireElements({"Button", "Label", "Slider"})
 
 ```lua
 basalt.requireElements("Button", true)
+```
+
+## basalt.setRenderThrottleTime(time)
+
+Sets the render throttle time in seconds (default: 0, no throttling)
+
+### Parameters
+* `time` `number` The minimum time in seconds between renders
+
+### Usage
+```lua
+basalt.setRenderThrottleTime(0.1) -- Throttle rendering to 0.1 seconds
 ```
 
 ## basalt.loadManifest(path)
