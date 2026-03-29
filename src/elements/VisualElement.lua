@@ -11,9 +11,21 @@ local VisualElement = setmetatable({}, BaseElement)
 VisualElement.__index = VisualElement
 
 ---@property x number 1 The horizontal position relative to parent
-VisualElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "x", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
+    if self.parent then
+        self.parent.set("childrenSorted", false)
+        self.parent.set("childrenEventsSorted", false)
+    end
+    return value
+end})
 ---@property y number 1 The vertical position relative to parent
-VisualElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "y", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
+    if self.parent then
+        self.parent.set("childrenSorted", false)
+        self.parent.set("childrenEventsSorted", false)
+    end
+    return value
+end})
 ---@property z number 1 The z-index for layering elements
 VisualElement.defineProperty(VisualElement, "z", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
     if self.parent then
@@ -29,9 +41,21 @@ VisualElement.defineProperty(VisualElement, "constraints", {
 })
 
 ---@property width number 1 The width of the element
-VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "width", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
+    if self.parent then
+        self.parent.set("childrenSorted", false)
+        self.parent.set("childrenEventsSorted", false)
+    end
+    return value
+end})
 ---@property height number 1 The height of the element
-VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true})
+VisualElement.defineProperty(VisualElement, "height", {default = 1, type = "number", canTriggerRender = true, setter = function(self, value)
+    if self.parent then
+        self.parent.set("childrenSorted", false)
+        self.parent.set("childrenEventsSorted", false)
+    end
+    return value
+end})
 ---@property background color black The background color
 VisualElement.defineProperty(VisualElement, "background", {default = colors.black, type = "color", canTriggerRender = true})
 ---@property foreground color white The text/foreground color
@@ -75,6 +99,7 @@ VisualElement.combineProperties(VisualElement, "size", "width", "height")
 VisualElement.combineProperties(VisualElement, "color", "foreground", "background")
 
 ---@event onClick {button string, x number, y number} Fired on mouse click
+---@event onDoubleClick {button, x, y} Fired on double click (two clicks within 400ms)
 ---@event onClickUp {button, x, y} Fired on mouse button release
 ---@event onRelease {button, x, y} Fired when mouse leaves while clicked
 ---@event onDrag {button, x, y} Fired when mouse moves while clicked
@@ -91,11 +116,12 @@ VisualElement.defineEvent(VisualElement, "focus")
 VisualElement.defineEvent(VisualElement, "blur")
 
 VisualElement.registerEventCallback(VisualElement, "Click", "mouse_click", "mouse_up")
+VisualElement.registerEventCallback(VisualElement, "DoubleClick", "mouse_double_click", "mouse_click")
 VisualElement.registerEventCallback(VisualElement, "ClickUp", "mouse_up", "mouse_click")
 VisualElement.registerEventCallback(VisualElement, "Drag", "mouse_drag", "mouse_click", "mouse_up")
 VisualElement.registerEventCallback(VisualElement, "Scroll", "mouse_scroll")
 VisualElement.registerEventCallback(VisualElement, "Enter", "mouse_enter", "mouse_move")
-VisualElement.registerEventCallback(VisualElement, "LeEave", "mouse_leave", "mouse_move")
+VisualElement.registerEventCallback(VisualElement, "Leave", "mouse_leave", "mouse_move")
 VisualElement.registerEventCallback(VisualElement, "Focus", "focus", "blur")
 VisualElement.registerEventCallback(VisualElement, "Blur", "blur", "focus")
 VisualElement.registerEventCallback(VisualElement, "Key", "key", "key_up")
@@ -780,10 +806,22 @@ end
 --- @param y number The y position of the click
 --- @return boolean clicked Whether the element was clicked
 --- @protected
+local DOUBLE_CLICK_THRESHOLD = 0.4  -- seconds
+
 function VisualElement:mouse_click(button, x, y)
     if self:isInBounds(x, y) then
         self:setState("clicked")
-        self:fireEvent("mouse_click", button, self:getRelativePosition(x, y))
+        local rx, ry = self:getRelativePosition(x, y)
+        local now = os.clock()
+        local last = self._lastClick
+        if last and (now - last.time) <= DOUBLE_CLICK_THRESHOLD
+                 and last.button == button then
+            self._lastClick = nil
+            self:fireEvent("mouse_double_click", button, rx, ry)
+        else
+            self._lastClick = { time = now, button = button }
+            self:fireEvent("mouse_click", button, rx, ry)
+        end
         return true
     end
     return false
@@ -824,16 +862,16 @@ end
 --- @protected
 function VisualElement:mouse_move(_, x, y)
     if(x==nil)or(y==nil)then return false end
-    local hover = self.getResolved("hover")
+    local hover = self:hasState("hover")
     if(self:isInBounds(x, y))then
         if(not hover)then
-            self.set("hover", true)
+            self:setState("hover")
             self:fireEvent("mouse_enter", self:getRelativePosition(x, y))
         end
         return true
     else
         if(hover)then
-            self.set("hover", false)
+            self:unsetState("hover")
             self:fireEvent("mouse_leave", self:getRelativePosition(x, y))
         end
     end
@@ -899,13 +937,6 @@ function VisualElement:setFocused(focused, internal)
     return self
 end
 
---- Gets whether this element is focused
---- @shortDescription Checks if element is focused
---- @return boolean isFocused
-function VisualElement:isFocused()
-    return self:hasState("focused")
-end
-
 --- @shortDescription Handles a focus event
 --- @protected
 function VisualElement:focus()
@@ -916,8 +947,7 @@ end
 --- @protected
 function VisualElement:blur()
     self:fireEvent("blur")
-    -- Attempt to clear cursor; signature may expect (x,y,blink,fg,bg)
-    pcall(function() self:setCursor(1,1,false, self.get and self.getResolved("foreground")) end)
+    self:setCursor(1, 1, false, self.getResolved("foreground"))
 end
 
 --- Gets whether this element is focused

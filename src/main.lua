@@ -34,6 +34,7 @@ end
 local main = nil
 local focusedFrame = nil
 local activeFrames = {}
+local THROTTLE_TIME = 0
 local _type = type
 
 local lazyElements = {}
@@ -298,10 +299,15 @@ local function updateEvent(event, ...)
     end
 end
 
+local lastRenderTime = 0
 local function renderFrames()
-    for _, frame in pairs(activeFrames)do
-        frame:render()
-        frame:postRender()
+    local currentTime = os.clock()
+    if currentTime - lastRenderTime >= THROTTLE_TIME then
+        for _, frame in pairs(activeFrames)do
+            frame:render()
+            frame:postRender()
+        end
+        lastRenderTime = currentTime
     end
 end
 
@@ -496,6 +502,15 @@ function basalt.requireElements(elements, autoLoad)
 
     basalt.LOGGER.info("All required elements are available: " .. table.concat(elements, ", "))
     return true
+end
+
+--- Sets the render throttle time in seconds (default: 0, no throttling)
+--- @shortDescription Sets the render throttle time
+--- @param time number The minimum time in seconds between renders
+--- @usage basalt.setRenderThrottleTime(0.1) -- Throttle rendering to 0.1 seconds
+function basalt.setRenderThrottleTime(time)
+    expect(1, time, "number")
+    THROTTLE_TIME = time
 end
 
 --- Loads a manifest file that describes element requirements and configuration

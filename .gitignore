@@ -6,6 +6,7 @@ ascii.lua
 tests
 testWorkflows
 .vscode
+.idea
 todo.txt
 Flexbox2.lua
 markdown.lua

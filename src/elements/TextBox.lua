@@ -1143,8 +1143,26 @@ function TextBox:render()
         local relativeY = self.getResolved("cursorY") - scrollY
         if relativeX >= 1 and relativeX <= width and relativeY >= 1 and relativeY <= height then
             self:setCursor(relativeX, relativeY, true, self.getResolved("cursorColor") or foreground)
+        else
+            self:setCursor(relativeX, relativeY, false, self.getResolved("cursorColor") or foreground)
         end
     end
+end
+
+--- @shortDescription Handles a focus event
+--- @protected
+function TextBox:focus()
+    VisualElement.focus(self)
+    local scrollX = self.getResolved("scrollX")
+    local scrollY = self.getResolved("scrollY")
+    local relativeX = self.getResolved("cursorX") - scrollX
+    local relativeY = self.getResolved("cursorY") - scrollY
+    local width = self.getResolved("width")
+    local height = self.getResolved("height")
+    if relativeX >= 1 and relativeX <= width and relativeY >= 1 and relativeY <= height then
+        self:setCursor(relativeX, relativeY, true, self.getResolved("cursorColor") or self.getResolved("foreground"))
+    end
+    self:updateRender()
 end
 
 function TextBox:destroy()

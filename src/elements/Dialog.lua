@@ -77,6 +77,25 @@ function Dialog:close()
     return self
 end
 
+--- Calculates the number of lines needed to display a message at a given width
+--- @private
+function Dialog:calcLines(message, width)
+    local available = width - 3  -- left padding + right border
+    local lines = 1
+    local col = 0
+    for word in message:gmatch("%S+") do
+        if col > 0 and col + 1 + #word > available then
+            lines = lines + 1
+            col = #word
+        else
+            col = col == 0 and #word or col + 1 + #word
+        end
+    end
+    -- Also count explicit newlines in message
+    for _ in message:gmatch("\n") do lines = lines + 1 end
+    return lines
+end
+
 --- Creates a simple alert dialog
 --- @shortDescription Creates a simple alert dialog
 --- @param title string The alert title
@@ -86,23 +105,29 @@ end
 function Dialog:alert(title, message, callback)
     self:clear()
     self.set("title", title)
-    self.set("height", 8)
+
+    local w = self.getResolved("width")
+    local msgLines = self:calcLines(message, w)
+    -- 1 border top + 1 title + 1 gap + msgLines + 1 gap + 1 button + 1 gap + 1 border bottom
+    local h = 2 + 1 + 1 + msgLines + 1 + 1 + 1
+    self.set("height", h)
 
     self:addLabel({
         text = message,
         x = 2, y = 3,
-        width = self.getResolved("width") - 3,
-        height = 3,
+        width = w - 3,
+        height = msgLines,
+        autoSize = false,
         foreground = colors.white
     })
 
     local btnWidth = 10
-    local btnX = math.floor((self.getResolved("width") - btnWidth) / 2) + 1
+    local btnX = math.floor((w - btnWidth) / 2) + 1
 
     self:addButton({
         text = "OK",
         x = btnX,
-        y = self.getResolved("height") - 2,
+        y = h - 2,
         width = btnWidth,
         height = 1,
         background = self.getResolved("primaryColor"),
@@ -124,25 +149,30 @@ end
 function Dialog:confirm(title, message, callback)
     self:clear()
     self.set("title", title)
-    self.set("height", 8)
+
+    local w = self.getResolved("width")
+    local msgLines = self:calcLines(message, w)
+    local h = 2 + 1 + 1 + msgLines + 1 + 1 + 1
+    self.set("height", h)
 
     self:addLabel({
         text = message,
         x = 2, y = 3,
-        width = self.getResolved("width") - 3,
-        height = 3,
+        width = w - 3,
+        height = msgLines,
+        autoSize = false,
         foreground = colors.white
     })
 
     local btnWidth = 10
     local spacing = 2
     local totalWidth = btnWidth * 2 + spacing
-    local startX = math.floor((self.getResolved("width") - totalWidth) / 2) + 1
+    local startX = math.floor((w - totalWidth) / 2) + 1
 
     self:addButton({
         text = "Cancel",
         x = startX,
-        y = self.getResolved("height") - 2,
+        y = h - 2,
         width = btnWidth,
         height = 1,
         background = self.getResolved("secondaryColor"),
@@ -155,7 +185,7 @@ function Dialog:confirm(title, message, callback)
     self:addButton({
         text = "OK",
         x = startX + btnWidth + spacing,
-        y = self.getResolved("height") - 2,
+        y = h - 2,
         width = btnWidth,
         height = 1,
         background = self.getResolved("primaryColor"),

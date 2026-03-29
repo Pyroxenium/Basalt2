@@ -217,8 +217,7 @@ end
 --- @shortDescription Handles a blur event
 --- @protected
 function Input:blur()
-    VisualElement.blur(self)
-    self:setCursor(1, 1, false, self.getResolved("cursorColor") or self.getResolved("foreground"))
+    VisualElement.blur(self) 
     self:updateRender()
 end
 

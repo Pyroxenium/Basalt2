@@ -340,7 +340,7 @@ function Container:getChild(path)
                     return v
                 else
                     if(v:isType("Container"))then
-                       return v:find(table.concat(parts, "/", 2))
+                       return v:getChild(table.concat(parts, "/", 2))
                     end
                 end
             end
@@ -441,6 +441,7 @@ function Container:mouse_up(button, x, y)
         if(success)then
             return true
         end
+        return true
     end
     return false
 end
@@ -453,7 +454,11 @@ end
 function Container:mouse_release(button, x, y)
     VisualElement.mouse_release(self, button, x, y)
     local args = convertMousePosition(self, "mouse_release", button, x, y)
-    self:callChildrenEvent(false, "mouse_release", table.unpack(args))
+    for _, child in ipairs(self._values.children) do
+        if not child._destroyed then
+            child:dispatchEvent("mouse_release", table.unpack(args))
+        end
+    end
 end
 
 --- @shortDescription Handles mouse move events

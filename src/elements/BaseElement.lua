@@ -466,7 +466,7 @@ end
 --- @param stateName string The state to remove
 --- @return BaseElement self
 function BaseElement:unregisterState(stateName)
-    self._stateRegistry[stateName] = nil
+    self._registeredStates[stateName] = nil
     self:unsetState(stateName)
     return self
 end

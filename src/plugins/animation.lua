@@ -549,7 +549,7 @@ Animation.registerAnimation("entries", {
             index = #list
         end
         anim.element.set(anim.args[1], list[index])
-
+        return progress >= 1
     end,
 
     complete = function(anim)

@@ -201,7 +201,6 @@ end
 --- @protected
 function BaseFrame:mouse_up(button, x, y)
     Container.mouse_up(self, button, x, y)
-    Container.mouse_release(self, button, x, y)
 end
 
 --- @shortDescription Resizes the Frame
