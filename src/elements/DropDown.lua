@@ -27,8 +27,8 @@ local tHex = require("libraries/colorHex")
 --- dropdown:setItems({
 ---     {
 ---         text = "Category A",
----         background = colors.blue,
----         foreground = colors.white
+---         bg = colors.blue,
+---         fg = colors.white
 ---     },
 ---     { separator = true, text = "-" },  -- Add a separator
 ---     {
@@ -41,8 +41,8 @@ local tHex = require("libraries/colorHex")
 ---     {
 ---         text = "Option 2",
 ---         -- Custom colors when selected
----         selectedBackground = colors.green,
----         selectedForeground = colors.white
+---         selectedBg = colors.green,
+---         selectedFg = colors.white
 ---     }
 --- })
 ---
