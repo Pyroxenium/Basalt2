@@ -165,12 +165,12 @@ function Menu:render()
             if #visibleText > 0 then
                 local isSelected = item.selected
                 local fg = item.selectable == false and self.getResolved("separatorColor") or
-                    (isSelected and (item.selectedForeground or self.getResolved("selectedForeground")) or
-                    (item.foreground or self.getResolved("foreground")))
+                    (isSelected and (item.selectedFg or self.getResolved("selectedForeground")) or
+                    (item.fg or self.getResolved("foreground")))
 
                 local bg = isSelected and
-                    (item.selectedBackground or self.getResolved("selectedBackground")) or
-                    (item.background or self.getResolved("background"))
+                    (item.selectedBg or self.getResolved("selectedBackground")) or
+                    (item.bg or self.getResolved("background"))
 
                 self:blit(visibleStart, 1, visibleText,
                     string.rep(tHex[fg], #visibleText),
@@ -217,8 +217,8 @@ function Menu:renderDropdown(dropdown)
 
         local isSeparator = label == "---"
 
-        local bgHex = tHex[item.background or dropdownBg]
-        local fgHex = tHex[item.foreground or dropdownFg]
+        local bgHex = tHex[item.bg or dropdownBg]
+        local fgHex = tHex[item.fg or dropdownFg]
         local spaces = string.rep(" ", dropdown.width)
 
         self:blit(dropdown.x, y, spaces,
@@ -234,7 +234,7 @@ function Menu:renderDropdown(dropdown)
             if #label > dropdown.width - 2 then
                 label = label:sub(1, dropdown.width - 2)
             end
-            self:textFg(dropdown.x + 1, y, label, item.foreground or dropdownFg)
+            self:textFg(dropdown.x + 1, y, label, item.fg or dropdownFg)
         end
     end
 end

@@ -7,6 +7,7 @@ local CollectionEntry = require("libraries/collectionentry")
 local Collection = setmetatable({}, VisualElement)
 Collection.__index = Collection
 
+---@property items table Collection of items in the collection.
 Collection.defineProperty(Collection, "items", {default={}, type = "table", canTriggerRender = true})
 ---@property selectable boolean true Whether items can be selected
 Collection.defineProperty(Collection, "selectable", {default = true, type = "boolean"})
