@@ -7,7 +7,7 @@ Extends: `VisualElement`
 
 |Property|Type|Default|Description|
 |---|---|---|---|
-|items|table|Collection|of items in the collection.|
+|items|table|{}|Collection of items in the collection.|
 |selectable|boolean|true|Whether items can be selected|
 |multiSelection|boolean|false|Whether multiple items can be selected at once|
 |selectedBackground|color|blue|Background color for selected items|
