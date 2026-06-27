@@ -347,8 +347,8 @@ package.path=ab;cc.header="Basalt Loading Error"cc.error(bc)end;local _c,ac=pcal
 package.path=ab;if not _c then db(ac)else return ac end end
 project["main.lua"] = function(...) local cd=require("elementManager")
 local dd=require("errorManager")local __a=require("propertySystem")
-local a_a=require("libraries/expect")local b_a={}b_a.traceback=true;b_a._events={}b_a._schedule={}
-b_a._eventQueue={}b_a._plugins={}b_a.isRunning=false;b_a.LOGGER=require("log")
+local a_a=require("libraries/expect")local b_a={}b_a.traceback=true;b_a._events={}b_a._schedule={}b_a._plugins={}
+b_a.isRunning=false;b_a.LOGGER=require("log")
 if(minified)then
 b_a.path=fs.getDir(shell.getRunningProgram())else b_a.path=fs.getDir(select(2,...))end;local c_a=nil;local d_a=nil;local _aa={}local aaa=0;local baa=type;local caa={}local daa=10;local _ba=0;local aba=false
 local function bba()
@@ -391,26 +391,16 @@ local function bda()
 if(_ca[_da])then if
 _aa[c_a]then
 _aa[c_a]:dispatchEvent(_da,table.unpack(ada))end elseif(aca[_da])then if(d_a~=nil)then
-d_a:dispatchEvent(_da,table.unpack(ada))end else for a_b,b_b in pairs(_aa)do
-b_b:dispatchEvent(_da,table.unpack(ada))end end end
-for a_b,b_b in pairs(b_a._eventQueue)do
+d_a:dispatchEvent(_da,table.unpack(ada))end else for cda,dda in pairs(_aa)do
+dda:dispatchEvent(_da,table.unpack(ada))end end end;bda()
+for i=#b_a._schedule,1,-1 do local cda=b_a._schedule[i]
 if
-coroutine.status(b_b.coroutine)=="suspended"then
-if b_b.filter==_da or b_b.filter==nil then b_b.filter=nil
-local c_b,d_b=coroutine.resume(b_b.coroutine,_da,...)
-if not c_b then dd.header="Basalt Event Error"dd.error(d_b)end;b_b.filter=d_b end end;if coroutine.status(b_b.coroutine)=="dead"then
-table.remove(b_a._eventQueue,a_b)end end;local cda={coroutine=coroutine.create(bda),filter=_da}
-local dda,__b=coroutine.resume(cda.coroutine,_da,...)
-if(not dda)then dd.header="Basalt Event Error"dd.error(__b)end;if(__b~=nil)then cda.filter=__b end
-table.insert(b_a._eventQueue,cda)
-for a_b,b_b in ipairs(b_a._schedule)do
+coroutine.status(cda.coroutine)=="suspended"then
 if
-coroutine.status(b_b.coroutine)=="suspended"then
-if _da==b_b.filter or b_b.filter==nil then b_b.filter=nil
-local c_b,d_b=coroutine.resume(b_b.coroutine,_da,...)
-if(not c_b)then dd.header="Basalt Schedule Error"dd.error(d_b)end;b_b.filter=d_b end end;if(coroutine.status(b_b.coroutine)=="dead")then
-b_a.removeSchedule(b_b.coroutine)end end;if b_a._events[_da]then
-for a_b,b_b in ipairs(b_a._events[_da])do b_b(...)end end end;local cca=0;local function dca()local _da=os.clock()
+cda.filter==nil or cda.filter==_da then local dda,__b=coroutine.resume(cda.coroutine,_da,...)if not dda then
+dd.header="Basalt Schedule Error"dd.error(__b)end;cda.filter=__b end end;if coroutine.status(cda.coroutine)=="dead"then
+table.remove(b_a._schedule,i)end end;if b_a._events[_da]then
+for cda,dda in ipairs(b_a._events[_da])do dda(...)end end end;local cca=0;local function dca()local _da=os.clock()
 if _da-cca>=aaa then for ada,bda in pairs(_aa)do bda:render()
 bda:postRender()end;cca=_da end end
 function b_a.update(...)local _da=function(...)
