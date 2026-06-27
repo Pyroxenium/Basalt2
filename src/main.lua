@@ -12,7 +12,6 @@ local expect = require("libraries/expect")
 --- @field traceback boolean Whether to show a traceback on errors
 --- @field _events table A table of events and their callbacks
 --- @field _schedule function[] A table of scheduled functions
---- @field _eventQueue table A table of unfinished events
 --- @field _plugins table A table of plugins
 --- @field isRunning boolean Whether the Basalt runtime is active
 --- @field LOGGER Log The logger instance
@@ -21,7 +20,6 @@ local basalt = {}
 basalt.traceback = true
 basalt._events = {}
 basalt._schedule = {}
-basalt._eventQueue = {}
 basalt._plugins = {}
 basalt.isRunning = false
 basalt.LOGGER = require("log")
@@ -245,50 +243,27 @@ local function updateEvent(event, ...)
         end
     end
 
-    -- Main event coroutine system
-    for k,v in pairs(basalt._eventQueue) do
-        if coroutine.status(v.coroutine) == "suspended" then
-            if v.filter == event or v.filter == nil then
-                v.filter = nil
-                local ok, result = coroutine.resume(v.coroutine, event, ...)
-                if not ok then
-                    errorManager.header = "Basalt Event Error"
-                    errorManager.error(result)
-                end
-                v.filter = result
-            end
-        end
-        if coroutine.status(v.coroutine) == "dead" then
-            table.remove(basalt._eventQueue, k)
-        end
-    end
+    -- Dispatch the current event directly in the main loop. Handlers must run synchronously
+    -- and must not yield; blocking code (sleep/read/pullEvent) has to be wrapped by the user
+    -- in basalt.schedule(...).
+    basaltEvent()
 
-    local newEvent = {coroutine=coroutine.create(basaltEvent), filter=event}
-    local ok, result = coroutine.resume(newEvent.coroutine, event, ...)
-    if(not ok)then
-        errorManager.header = "Basalt Event Error"
-        errorManager.error(result)
-    end
-    if(result~=nil)then
-        newEvent.filter = result
-    end
-    table.insert(basalt._eventQueue, newEvent)
-
-    -- Schedule event coroutine system
-    for _, func in ipairs(basalt._schedule) do
-        if coroutine.status(func.coroutine)=="suspended" then
-            if event==func.filter or func.filter==nil then
-                func.filter = nil
+    -- Schedule coroutine system: drive basalt.schedule() coroutines with this event.
+    -- Iterate backwards so in-place removal stays safe.
+    for i = #basalt._schedule, 1, -1 do
+        local func = basalt._schedule[i]
+        if coroutine.status(func.coroutine) == "suspended" then
+            if func.filter == nil or func.filter == event then
                 local ok, result = coroutine.resume(func.coroutine, event, ...)
-                if(not ok)then
+                if not ok then
                     errorManager.header = "Basalt Schedule Error"
                     errorManager.error(result)
                 end
                 func.filter = result
             end
         end
-        if(coroutine.status(func.coroutine)=="dead")then
-            basalt.removeSchedule(func.coroutine)
+        if coroutine.status(func.coroutine) == "dead" then
+            table.remove(basalt._schedule, i)
         end
     end
 
