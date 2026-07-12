@@ -92,7 +92,7 @@ end
 function Graph:addPoint(name, value)
     local series = self:getSeries(name)
     if not series then
-        error("Basalt 2.5 charts: unknown series '" .. tostring(name) .. "'", 2)
+        error("Basalt charts: unknown series '" .. tostring(name) .. "'", 2)
     end
     local points = series.points
     points[#points + 1] = value

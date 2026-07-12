@@ -69,7 +69,7 @@ local function descendantBox(container, el)
         p = rawget(p, "parent")
     end
     if p ~= container then
-        error("Basalt 2.5 scroll: element is not a descendant of this container", 3)
+        error("Basalt scroll: element is not a descendant of this container", 3)
     end
     return x, y, el.width, el.height
 end

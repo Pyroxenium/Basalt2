@@ -12,7 +12,7 @@ local Element = require("core/element")
 local Container = require("core/container")
 local palette = require("core/palette")
 
--- charOf maps any Basalt 2.5 color (including rgb handles) to the buffer's
+-- charOf maps any Basalt color (including rgb handles) to the buffer's
 -- byte encoding; the font engine only substitutes single characters, so
 -- rendering goes through Render:rawBlit.
 local tHex = palette.charOf
@@ -150,7 +150,7 @@ local function makeText(nSize, sString, nFC, nBC, bBlit)
 end
 
 ----------------------------------------------------------------------------
--- Basalt 2.5 element wrapper
+-- Basalt element wrapper
 ----------------------------------------------------------------------------
 
 local BigFont = class.create("BigFont", Element)
@@ -159,7 +159,7 @@ class.property(BigFont, "text", "BigFont")
 class.property(BigFont, "fontSize", 1, {
     onChange = function(self, size)
         if size < 1 or size > 3 or size % 1 ~= 0 then
-            error("Basalt 2.5 bigfont: fontSize must be 1, 2 or 3", 3)
+            error("Basalt bigfont: fontSize must be 1, 2 or 3", 3)
         end
     end,
 })

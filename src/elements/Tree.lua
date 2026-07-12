@@ -14,7 +14,7 @@ local Tree = class.create("Tree", Element)
 class.property(Tree, "nodes", false, {      -- fresh table per instance (setup)
     onChange = function(self, nodes)
         if type(nodes) ~= "table" then
-            error("Basalt 2.5 Tree: nodes must be a table", 3)
+            error("Basalt Tree: nodes must be a table", 3)
         end
         local old = self.selected
         self.offset = 0
@@ -139,7 +139,7 @@ end
 
 function Tree:setExpandedNodes(expanded)
     if type(expanded) ~= "table" then
-        error("Basalt 2.5 Tree: expandedNodes must be a table", 2)
+        error("Basalt Tree: expandedNodes must be a table", 2)
     end
     local function walk(nodes)
         for _, node in ipairs(nodes) do

@@ -51,7 +51,7 @@ end
 
 local function replaceItems(self, values, oldItems)
     if type(values) ~= "table" then
-        error("Basalt 2.5 Collection: items must be a table", 3)
+        error("Basalt Collection: items must be a table", 3)
     end
     local oldIndex, oldItem
     local selected = rawget(self, "_collectionSelection")

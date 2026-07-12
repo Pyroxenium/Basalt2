@@ -184,17 +184,17 @@ end
 ---   element:getRawPosition()    -- authored/default values
 function class.combinedProperty(c, combinedName, propertyNames)
     if type(combinedName) ~= "string" or combinedName == "" then
-        error("Basalt 2.5 class: combined property name must be a non-empty string", 2)
+        error("Basalt class: combined property name must be a non-empty string", 2)
     end
     if type(propertyNames) ~= "table" or #propertyNames == 0 then
-        error("Basalt 2.5 class: combined property list must not be empty", 2)
+        error("Basalt class: combined property list must not be empty", 2)
     end
 
     local names = {}
     for i = 1, #propertyNames do
         local propName = propertyNames[i]
         if type(propName) ~= "string" or c.__props[propName] == nil then
-            error("Basalt 2.5 class: unknown property '" .. tostring(propName)
+            error("Basalt class: unknown property '" .. tostring(propName)
                 .. "' in combined property " .. combinedName, 2)
         end
         names[i] = propName
@@ -207,7 +207,7 @@ function class.combinedProperty(c, combinedName, propertyNames)
     c[setterName] = function(self, ...)
         local values = table.pack(...)
         if values.n ~= #names then
-            error("Basalt 2.5: " .. setterName .. " expects " .. #names
+            error("Basalt: " .. setterName .. " expects " .. #names
                 .. " values, got " .. values.n, 2)
         end
         for i = 1, #names do self[names[i]] = values[i] end

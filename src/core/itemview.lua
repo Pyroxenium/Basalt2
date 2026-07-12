@@ -21,7 +21,7 @@ end
 
 function itemview.geometry(count, rows, offset, mode)
     if mode ~= "auto" and mode ~= "always" and mode ~= "hidden" then
-        error("Basalt 2.5 item scrollbar: expected 'auto', 'always' or 'hidden'", 3)
+        error("Basalt item scrollbar: expected 'auto', 'always' or 'hidden'", 3)
     end
     rows = math.max(0, math.floor(rows or 0))
     local maximum = itemview.maxOffset(count, rows)

@@ -19,14 +19,14 @@ end
 function layout.fill(weight)
     weight = weight or 1
     if type(weight) ~= "number" or weight <= 0 then
-        error("Basalt 2.5 layout: fill weight must be greater than zero", 2)
+        error("Basalt layout: fill weight must be greater than zero", 2)
     end
     return token("fill", weight)
 end
 
 function layout.percent(amount)
     if type(amount) ~= "number" or amount < 0 then
-        error("Basalt 2.5 layout: percent must be a non-negative number", 2)
+        error("Basalt layout: percent must be a non-negative number", 2)
     end
     return token("percent", amount)
 end

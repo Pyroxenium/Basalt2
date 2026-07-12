@@ -122,13 +122,13 @@ function Program:execute(path, ...)
         resolved = shell.resolveProgram(path)
     end
     if not resolved then
-        error("Basalt 2.5 Program: program not found: " .. tostring(path), 2)
+        error("Basalt Program: program not found: " .. tostring(path), 2)
     end
 
     local root = self:getRoot()
     local parentTerm = rawget(root, "term")
     if not parentTerm then
-        error("Basalt 2.5 Program: element must be inside a frame before execute()", 2)
+        error("Basalt Program: element must be inside a frame before execute()", 2)
     end
 
     local file = fs.open(resolved, "r")
@@ -138,7 +138,7 @@ function Program:execute(path, ...)
     local win = window.create(parentTerm, 1, 1, self.width, self.height, false)
     local fn, err = load(content, "@/" .. resolved, nil, buildEnv(self, resolved, win))
     if not fn then
-        error("Basalt 2.5 Program: failed to load " .. resolved .. ": " .. tostring(err), 2)
+        error("Basalt Program: failed to load " .. resolved .. ": " .. tostring(err), 2)
     end
 
     local proc = {

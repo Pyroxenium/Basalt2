@@ -20,7 +20,7 @@ end
 local function barMode(self)
     local mode = self.scrollbar
     if mode ~= "auto" and mode ~= "always" and mode ~= "hidden" then
-        error("Basalt 2.5 scroll: scrollbar must be 'auto', 'always' or 'hidden'", 3)
+        error("Basalt scroll: scrollbar must be 'auto', 'always' or 'hidden'", 3)
     end
     return mode
 end

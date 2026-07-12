@@ -101,7 +101,7 @@ local function colorChar(color)
     if not color then return nil end
     local c = charOf[color]
     if not c then
-        error("Basalt 2.5: unknown color value " .. tostring(color)
+        error("Basalt: unknown color value " .. tostring(color)
             .. " (use colors.* or basalt.rgb)", 3)
     end
     return c

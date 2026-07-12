@@ -1,10 +1,3 @@
--- Basalt 2.5 runtime: event loop, frame management, scheduling.
-
--- Modules are normally loaded through init.lua, whose module loader arrives
--- as the first vararg (this deliberately SHADOWS the global require with a
--- local one — no package.path pollution, no package.loaded collisions).
--- If main.lua is loaded directly via CC's require("main") instead, the first
--- vararg is the module name (a string): bootstrap through init.lua then.
 local require = ...
 if type(require) ~= "function" then
     local name, path = ...
@@ -45,7 +38,7 @@ Container.register("Toast", require("elements/Toast"))
 
 local basalt = {}
 basalt.VERSION = "2.5.0-dev"
-basalt.traceback = true -- show the traceback section on the error screen
+basalt.traceback = true
 basalt.errors = errors
 
 --- Registers a custom RGB color; returns a handle usable like a colors.* value.
@@ -80,6 +73,8 @@ local schedules = {}
 --- Creates a root frame bound to a terminal (default: current term).
 --- For monitors, pass the wrapped peripheral; touch events are routed
 --- automatically. monitorName only needs to be given if auto-detection fails.
+---@param t table|nil The terminal to bind to (default: current term)
+---@param monitorName string|nil The name of the monitor peripheral (optional)
 function basalt.createFrame(t, monitorName)
     t = t or term.current()
     local f = BaseFrame.new()
@@ -140,7 +135,6 @@ local KEY = { key = true, key_up = true, char = true, paste = true }
 
 local function dispatch(event, a, b, c, ...)
     if event == "mouse_move" and type(a) == "string" then
-        -- Monitor mouse movement includes the peripheral side before x/y.
         for i = 1, #frames do
             local f = frames[i]
             if rawget(f, "monitor") == a then
@@ -176,6 +170,8 @@ local function draw()
 end
 
 --- Feeds a single event through Basalt manually (alternative to run()).
+---@param event string The event name (e.g. "mouse_click", "key", "term_resize")
+---@param ... any Additional event arguments
 function basalt.update(event, ...)
     if event then dispatch(event, ...) end
     draw()
@@ -194,7 +190,7 @@ end
 
 --- Starts the event loop; returns when basalt.stop() is called or on error.
 function basalt.run()
-    if running then error("Basalt 2.5 is already running", 2) end
+    if running then error("Basalt is already running", 2) end
     running = true
 
     local ok, err = xpcall(function()
@@ -214,7 +210,7 @@ function basalt.run()
     end)
 
     running = false
-    cleanup() -- restore palette FIRST so the error screen renders correctly
+    cleanup()
     if not ok then
         errors.show(err.err, err.trace, basalt.traceback)
     end

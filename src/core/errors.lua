@@ -89,7 +89,7 @@ function errors.show(err, trace, showTrace)
     term.clear()
     term.setCursorPos(1, 1)
 
-    cprint("Basalt 2.5 Error", colors.red)
+    cprint("Basalt Error", colors.red)
     print()
     cprint(info.message, colors.white)
     print()

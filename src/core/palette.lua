@@ -1,4 +1,4 @@
--- Color engine for Basalt 2.5: more than 16 colors on a 16-color terminal.
+-- Color engine for Basalt: more than 16 colors on a 16-color terminal.
 --
 -- Every color that can appear on screen is an entry in a global registry
 -- (index 0-255). Indices 0-15 are the native CC colors; palette.rgb()
@@ -55,14 +55,14 @@ local function parse(r, g, b)
         elseif hex:match("^%x%x%x%x%x%x%x%x$") then -- #AARRGGBB: ignore alpha
             hex = hex:sub(3)
         elseif not hex:match("^%x%x%x%x%x%x$") then
-            error("Basalt 2.5: invalid color string '" .. r
+            error("Basalt: invalid color string '" .. r
                 .. "' (expected #RGB, #RRGGBB or #AARRGGBB)", 3)
         end
         return hexToRGB(tonumber(hex, 16))
     end
     if g == nil then
         if r < 0 or r > 0xFFFFFF or r % 1 ~= 0 then
-            error("Basalt 2.5: invalid color number "
+            error("Basalt: invalid color number "
                 .. tostring(r) .. " (expected 0x000000-0xFFFFFF)", 3)
         end
         return hexToRGB(r)
@@ -83,7 +83,7 @@ function palette.rgb(r, g, b)
     if known then return known end
 
     if regCount > 255 then
-        error("Basalt 2.5: color registry is full (max 240 custom colors)", 2)
+        error("Basalt: color registry is full (max 240 custom colors)", 2)
     end
     local idx = regCount
     regCount = regCount + 1

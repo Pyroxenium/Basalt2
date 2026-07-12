@@ -20,21 +20,21 @@ local theme = {}
 
 local function validateStateStyle(cls, typeName, stateName, style)
     if type(style) ~= "table" then
-        error("Basalt 2.5 theme: state '" .. stateName .. "' for "
+        error("Basalt theme: state '" .. stateName .. "' for "
             .. typeName .. " must be a table", 3)
     end
     for propName, value in pairs(style) do
         local prop = cls.__props[propName]
         if not prop then
-            error("Basalt 2.5 theme: unknown property '" .. propName
+            error("Basalt theme: unknown property '" .. propName
                 .. "' for " .. typeName .. " state " .. stateName, 3)
         end
         if not prop.styleable then
-            error("Basalt 2.5 theme: property '" .. propName
+            error("Basalt theme: property '" .. propName
                 .. "' cannot be state-styled", 3)
         end
         if type(value) == "string" and value:sub(1, 1) == "{" then
-            error("Basalt 2.5 theme: reactive strings are not allowed in set() "
+            error("Basalt theme: reactive strings are not allowed in set() "
                 .. "state styles; use a function instead", 3)
         end
     end
@@ -76,12 +76,12 @@ function theme.set(themeTable)
     for typeName, props in pairs(themeTable) do
         local cls = theme.classes[typeName]
         if not cls then
-            error("Basalt 2.5 theme: unknown element type '" .. typeName .. "'", 2)
+            error("Basalt theme: unknown element type '" .. typeName .. "'", 2)
         end
         for k, v in pairs(props) do
             if k == "states" then
                 if type(v) ~= "table" then
-                    error("Basalt 2.5 theme: states for " .. typeName
+                    error("Basalt theme: states for " .. typeName
                         .. " must be a table", 2)
                 end
                 for stateName, style in pairs(v) do
@@ -89,10 +89,10 @@ function theme.set(themeTable)
                     cls.__stateStyles[stateName] = style
                 end
             elseif cls.__props[k] == nil then
-                error("Basalt 2.5 theme: unknown property '" .. k
+                error("Basalt theme: unknown property '" .. k
                     .. "' for " .. typeName, 2)
             elseif type(v) == "string" and v:sub(1, 1) == "{" then
-                error("Basalt 2.5 theme: reactive strings are not allowed in "
+                error("Basalt theme: reactive strings are not allowed in "
                     .. "set() (defaults are shared); use a function instead", 2)
             else
                 cls.__defaults[k] = v
@@ -231,7 +231,7 @@ function theme.applyPreset(presetOrName)
     local preset = type(presetOrName) == "table"
         and presetOrName or theme.presets[presetOrName]
     if not preset then
-        error("Basalt 2.5 theme: unknown preset '"
+        error("Basalt theme: unknown preset '"
             .. tostring(presetOrName) .. "'", 2)
     end
     theme.set(preset.styles)
@@ -252,7 +252,7 @@ local function resolveColor(value, tokens)
     if value:sub(1, 1) == "$" then
         local token = tokens[value:sub(2)]
         if token == nil then
-            error("Basalt 2.5 theme: unknown color token '" .. value .. "'", 0)
+            error("Basalt theme: unknown color token '" .. value .. "'", 0)
         end
         return token
     end
@@ -272,7 +272,7 @@ end
 function theme.load(path)
     local handle = fs.open(path, "r")
     if not handle then
-        error("Basalt 2.5 theme: cannot open " .. tostring(path), 2)
+        error("Basalt theme: cannot open " .. tostring(path), 2)
     end
     local content = handle.readAll()
     handle.close()
@@ -285,7 +285,7 @@ function theme.load(path)
         data = textutils.unserialize(content)
     end
     if type(data) ~= "table" then
-        error("Basalt 2.5 theme: " .. path .. " is not a valid theme file", 2)
+        error("Basalt theme: " .. path .. " is not a valid theme file", 2)
     end
 
     -- resolve the colors table first (plain values, then $references)

@@ -1,4 +1,4 @@
--- Basalt 2.5 installer (a tool, not part of the framework).
+-- Basalt installer (a tool, not part of the framework).
 --
 -- Without arguments it starts a GUI wizard: like Basalt2's installer it
 -- bootstraps Basalt itself first (from the local repository, or by
@@ -16,7 +16,7 @@
 
 local args = { ... }
 
--- Basalt 2.5 ships as its own branch of the Basalt2 repository.
+-- Basalt ships as its own branch of the Basalt2 repository.
 -- Adjust BRANCH if the published branch ends up with a different name.
 local BRANCH = "basalt2.5"
 local REPO_URL = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/"
@@ -151,7 +151,7 @@ local function installBundle(fromRoot, target, minify, progress)
         root = fromRoot, output = target, minify = minify,
     })
     progress(1, 1, "Done")
-    return ("Basalt 2.5 %s -> %s (%d KB)"):format(stats.version, target,
+    return ("Basalt %s -> %s (%d KB)"):format(stats.version, target,
         math.floor(stats.bytesOut / 1024 + 0.5))
 end
 
@@ -228,7 +228,7 @@ local function runGui(urlOverride)
     local main = bas.getMainFrame()
 
     main:addBigFont({
-        x = 2, y = 2, text = "Basalt 2.5",
+        x = 2, y = 2, text = "Basalt",
         foreground = accent, background = dark,
     })
 

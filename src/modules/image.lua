@@ -97,13 +97,13 @@ end
 function image.load(path)
     local handle = fs.open(path, "r")
     if not handle then
-        error("Basalt 2.5 image: cannot open " .. tostring(path), 2)
+        error("Basalt image: cannot open " .. tostring(path), 2)
     end
     local content = handle.readAll()
     handle.close()
     local bimg = textutils.unserialize(content)
     if type(bimg) ~= "table" then
-        error("Basalt 2.5 image: " .. path .. " is not a valid bimg file", 2)
+        error("Basalt image: " .. path .. " is not a valid bimg file", 2)
     end
     return bimg
 end

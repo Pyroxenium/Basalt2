@@ -41,28 +41,28 @@ function xml.parse(src)
 
         if src:sub(lt + 1, lt + 3) == "!--" then
             local close = src:find("-->", lt + 4, true)
-            if not close then error("Basalt 2.5 XML: unclosed comment", 2) end
+            if not close then error("Basalt XML: unclosed comment", 2) end
             pos = close + 3
         elseif src:sub(lt + 1, lt + 1) == "/" then
             local gt = src:find(">", lt, true)
-            if not gt then error("Basalt 2.5 XML: malformed closing tag", 2) end
+            if not gt then error("Basalt XML: malformed closing tag", 2) end
             local tagName = trim(src:sub(lt + 2, gt - 1))
             local top = stack[#stack]
             if top.tag ~= tagName then
-                error("Basalt 2.5 XML: unexpected </" .. tagName .. ">"
+                error("Basalt XML: unexpected </" .. tagName .. ">"
                     .. (top.tag and (", open tag is <" .. top.tag .. ">") or ""), 2)
             end
             stack[#stack] = nil
             pos = gt + 1
         else
             local gt = src:find(">", lt, true)
-            if not gt then error("Basalt 2.5 XML: unclosed tag", 2) end
+            if not gt then error("Basalt XML: unclosed tag", 2) end
             local inner = src:sub(lt + 1, gt - 1)
             local selfClosing = inner:sub(-1) == "/"
             if selfClosing then inner = inner:sub(1, -2) end
 
             local tagName = inner:match("^([%w_]+)")
-            if not tagName then error("Basalt 2.5 XML: malformed tag near pos " .. lt, 2) end
+            if not tagName then error("Basalt XML: malformed tag near pos " .. lt, 2) end
 
             local node = { tag = tagName, attrs = {}, children = {} }
             for k, _, v in inner:gmatch([=[([%w_]+)%s*=%s*(["'])(.-)%2]=]) do
@@ -79,7 +79,7 @@ function xml.parse(src)
     end
 
     if #stack ~= 1 then
-        error("Basalt 2.5 XML: unclosed <" .. stack[#stack].tag .. ">", 2)
+        error("Basalt XML: unclosed <" .. stack[#stack].tag .. ">", 2)
     end
     return root.children
 end
@@ -99,7 +99,7 @@ local function build(parent, nodes, scope)
         local addName = "add" .. node.tag:sub(1, 1):upper() .. node.tag:sub(2)
         local add = parent[addName]
         if not add then
-            error("Basalt 2.5 XML: unknown element <" .. node.tag .. ">", 2)
+            error("Basalt XML: unknown element <" .. node.tag .. ">", 2)
         end
         local el = add(parent)
 
@@ -107,7 +107,7 @@ local function build(parent, nodes, scope)
             if k:find("^on%u") then
                 local fn = scope and scope[v]
                 if type(fn) ~= "function" then
-                    error("Basalt 2.5 XML: scope has no handler '" .. v
+                    error("Basalt XML: scope has no handler '" .. v
                         .. "' for " .. k .. " on <" .. node.tag .. ">", 2)
                 end
                 el[k](el, fn)
@@ -137,7 +137,7 @@ end
 --- Like xml.load, but reads the markup from a file.
 function xml.loadFile(parent, path, scope)
     local h = fs.open(path, "r")
-    if not h then error("Basalt 2.5 XML: cannot open " .. path, 2) end
+    if not h then error("Basalt XML: cannot open " .. path, 2) end
     local src = h.readAll()
     h.close()
     return xml.load(parent, src, scope)

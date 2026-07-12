@@ -88,7 +88,7 @@ end
 
 function Signal:update(fn)
     if type(fn) ~= "function" then
-        error("Basalt 2.5 state: update expects a function", 2)
+        error("Basalt state: update expects a function", 2)
     end
     return self:set(fn(self._value))
 end
@@ -111,7 +111,7 @@ end
 --- Subscribes to writes. Returns an unsubscribe function.
 function Signal:subscribe(fn, immediate)
     if type(fn) ~= "function" then
-        error("Basalt 2.5 state: subscribe expects a function", 2)
+        error("Basalt state: subscribe expects a function", 2)
     end
     self._listeners[fn] = true
     if immediate then fn(self._value, nil) end
@@ -126,7 +126,7 @@ end
 
 function Signal:map(fn)
     if type(fn) ~= "function" then
-        error("Basalt 2.5 state: map expects a function", 2)
+        error("Basalt state: map expects a function", 2)
     end
     local source = self
     return state.computed(function()
@@ -144,7 +144,7 @@ end
 
 function Computed:map(fn)
     if type(fn) ~= "function" then
-        error("Basalt 2.5 state: map expects a function", 2)
+        error("Basalt state: map expects a function", 2)
     end
     local source = self
     return state.computed(function()
@@ -168,7 +168,7 @@ end
 --- Creates a lazily evaluated, read-only value with implicit dependencies.
 function state.computed(fn)
     if type(fn) ~= "function" then
-        error("Basalt 2.5 computed: expected a function", 2)
+        error("Basalt computed: expected a function", 2)
     end
     return setmetatable({ _compute = fn }, Computed)
 end

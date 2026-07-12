@@ -66,13 +66,13 @@ function animation.to(el, props, duration, easing, onDone)
         start = os.clock(),
         duration = duration or 0.3,
         easing = easings[easing or "easeInOut"]
-            or error("Basalt 2.5 animation: unknown easing '" .. tostring(easing) .. "'", 2),
+            or error("Basalt animation: unknown easing '" .. tostring(easing) .. "'", 2),
         onDone = onDone,
     }
     for prop in pairs(props) do
         local v = el[prop]
         if type(v) ~= "number" then
-            error("Basalt 2.5 animation: property '" .. prop .. "' is not a number", 2)
+            error("Basalt animation: property '" .. prop .. "' is not a number", 2)
         end
         a.from[prop] = v
     end

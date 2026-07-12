@@ -51,7 +51,7 @@ function reactive.compile(str, element)
 
     local fn, err = load("return " .. expr, "reactive" .. str, "t", env)
     if not fn then
-        error("Basalt 2.5: invalid reactive expression " .. str
+        error("Basalt: invalid reactive expression " .. str
             .. ": " .. tostring(err), 3)
     end
     return fn

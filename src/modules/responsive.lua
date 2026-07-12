@@ -24,10 +24,10 @@ end
 
 function responsive.apply(element, rules)
     if type(rules) ~= "table" then
-        error("Basalt 2.5 responsive: rules must be a table", 2)
+        error("Basalt responsive: rules must be a table", 2)
     end
     if not element.getChildren then
-        error("Basalt 2.5 responsive: target must be a container", 2)
+        error("Basalt responsive: target must be a container", 2)
     end
 
     local old = rawget(element, "_responsiveController")
@@ -37,20 +37,20 @@ function responsive.apply(element, rules)
     for i = 1, #rules do
         local rule = rules[i]
         if type(rule) ~= "table" then
-            error("Basalt 2.5 responsive: rule " .. i .. " must be a table", 2)
+            error("Basalt responsive: rule " .. i .. " must be a table", 2)
         end
         if rule.when ~= nil and type(rule.when) ~= "function" then
-            error("Basalt 2.5 responsive: rule.when must be a function", 2)
+            error("Basalt responsive: rule.when must be a function", 2)
         end
         if rule.props ~= nil and type(rule.props) ~= "table" then
-            error("Basalt 2.5 responsive: rule.props must be a table", 2)
+            error("Basalt responsive: rule.props must be a table", 2)
         end
         if rule.name then
             if type(rule.name) ~= "string" or rule.name == "" then
-                error("Basalt 2.5 responsive: rule.name must be a non-empty string", 2)
+                error("Basalt responsive: rule.name must be a non-empty string", 2)
             end
             if names[rule.name] then
-                error("Basalt 2.5 responsive: duplicate state name '" .. rule.name .. "'", 2)
+                error("Basalt responsive: duplicate state name '" .. rule.name .. "'", 2)
             end
             names[rule.name] = true
         end

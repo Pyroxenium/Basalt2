@@ -36,7 +36,7 @@ function Flex:measure(availableWidth, availableHeight)
     local direction = self.direction
     local isRow = direction == "row"
     if not isRow and direction ~= "column" then
-        error("Basalt 2.5 layout: direction must be 'row' or 'column'", 2)
+        error("Basalt layout: direction must be 'row' or 'column'", 2)
     end
 
     local padding = math.max(0, math.floor(tonumber(self.padding) or 0))
@@ -64,7 +64,7 @@ function Flex:layoutChildren()
     local direction = self.direction
     local isRow = direction == "row"
     if not isRow and direction ~= "column" then
-        error("Basalt 2.5 layout: direction must be 'row' or 'column'", 2)
+        error("Basalt layout: direction must be 'row' or 'column'", 2)
     end
 
     local padding, contentWidth, contentHeight = contentSize(self)
@@ -173,7 +173,7 @@ function Flex:layoutChildren()
     local free = math.max(0, contentMain - used)
     local justify, offset, actualGap = self.justify, 0, gap
     if self.overflow ~= "clip" then
-        error("Basalt 2.5 layout: only overflow='clip' is currently supported", 2)
+        error("Basalt layout: only overflow='clip' is currently supported", 2)
     end
     if justify == "center" then
         offset = math.floor(free / 2)
@@ -182,7 +182,7 @@ function Flex:layoutChildren()
     elseif justify == "spaceBetween" and #items > 1 then
         actualGap = gap + math.floor(free / (#items - 1))
     elseif justify ~= "start" then
-        error("Basalt 2.5 layout: invalid justify '" .. tostring(justify) .. "'", 2)
+        error("Basalt layout: invalid justify '" .. tostring(justify) .. "'", 2)
     end
 
     local cursor = padding + offset + 1
@@ -200,7 +200,7 @@ function Flex:layoutChildren()
         elseif align == "end" then
             crossOffset = contentCross - cross
         elseif align ~= "start" and align ~= "stretch" then
-            error("Basalt 2.5 layout: invalid align '" .. tostring(align) .. "'", 2)
+            error("Basalt layout: invalid align '" .. tostring(align) .. "'", 2)
         end
         crossOffset = math.max(0, crossOffset)
 

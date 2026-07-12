@@ -41,7 +41,7 @@ local function ensureOverlay()
     })
     header = overlay:addLabel({
         x = 2, y = 1,
-        text = "Basalt 2.5 Debug",
+        text = "Basalt Debug",
         foreground = colors.orange,
     })
     rowLabels = {}

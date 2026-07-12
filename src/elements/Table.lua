@@ -21,7 +21,7 @@ end
 
 local function normalizeColumns(columns)
     if type(columns) ~= "table" then
-        error("Basalt 2.5 Table: columns must be a table", 3)
+        error("Basalt Table: columns must be a table", 3)
     end
     local result = {}
     for i, column in ipairs(columns) do
@@ -37,7 +37,7 @@ local function normalizeColumns(columns)
                 maxWidth = column.maxWidth,
             }
         else
-            error("Basalt 2.5 Table: column " .. i .. " must be a string or table", 3)
+            error("Basalt Table: column " .. i .. " must be a string or table", 3)
         end
     end
     return result
@@ -282,7 +282,7 @@ end
 
 function Table:setSortDirection(direction)
     if direction ~= "asc" and direction ~= "desc" then
-        error("Basalt 2.5 Table: sortDirection must be 'asc' or 'desc'", 2)
+        error("Basalt Table: sortDirection must be 'asc' or 'desc'", 2)
     end
     rawget(self, "_p").sortDirection = direction
     if self.sortColumn then self:sortBy(self.sortColumn, direction == "asc") end
@@ -307,7 +307,7 @@ end
 
 function Table:setData(rawData, formatters)
     if type(rawData) ~= "table" then
-        error("Basalt 2.5 Table: data must be a table", 2)
+        error("Basalt Table: data must be a table", 2)
     end
     self:clear()
     local data, sortValues = {}, rawget(self, "_sortValues")

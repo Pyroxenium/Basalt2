@@ -195,7 +195,7 @@ end
 --- Activates or deactivates a named state. State changes are idempotent.
 function Element:setState(stateName, active)
     if type(stateName) ~= "string" or stateName == "" then
-        error("Basalt 2.5: state name must be a non-empty string", 2)
+        error("Basalt: state name must be a non-empty string", 2)
     end
     active = active ~= false and active ~= nil
     local states = rawget(self, "_states")
@@ -237,17 +237,17 @@ end
 --- Defines per-element property overrides for a state.
 function Element:setStateStyle(stateName, props, priority)
     if type(props) ~= "table" then
-        error("Basalt 2.5: state style must be a table", 2)
+        error("Basalt: state style must be a table", 2)
     end
     local c = rawget(self, "_class")
     local style = {}
     for propName, value in pairs(props) do
         local prop = c.__props[propName]
         if not prop then
-            error("Basalt 2.5: unknown state style property '" .. tostring(propName) .. "'", 2)
+            error("Basalt: unknown state style property '" .. tostring(propName) .. "'", 2)
         end
         if not prop.styleable then
-            error("Basalt 2.5: property '" .. propName .. "' cannot be state-styled", 2)
+            error("Basalt: property '" .. propName .. "' cannot be state-styled", 2)
         end
         style[propName] = value
     end
@@ -263,7 +263,7 @@ end
 
 function Element:setStatePriority(stateName, priority)
     if type(priority) ~= "number" then
-        error("Basalt 2.5: state priority must be a number", 2)
+        error("Basalt: state priority must be a number", 2)
     end
     rawget(self, "_statePriorities")[stateName] = priority
     rawset(self, "_activeStates", nil)
@@ -330,10 +330,10 @@ local defaultBindingEvents = {
 function Element:bind(propName, source, options)
     local c = rawget(self, "_class")
     if not c.__props[propName] then
-        error("Basalt 2.5: cannot bind unknown property '" .. tostring(propName) .. "'", 2)
+        error("Basalt: cannot bind unknown property '" .. tostring(propName) .. "'", 2)
     end
     if not state.is(source) then
-        error("Basalt 2.5: bind expects a state or computed value", 2)
+        error("Basalt: bind expects a state or computed value", 2)
     end
 
     if type(options) == "function" then
@@ -342,7 +342,7 @@ function Element:bind(propName, source, options)
         options = options or {}
     end
     if type(options) ~= "table" then
-        error("Basalt 2.5: bind options must be a function or table", 2)
+        error("Basalt: bind options must be a function or table", 2)
     end
 
     self:unbind(propName)
@@ -351,7 +351,7 @@ function Element:bind(propName, source, options)
     if options.fromState then
         local transform = options.fromState
         if type(transform) ~= "function" then
-            error("Basalt 2.5: fromState must be a function", 2)
+            error("Basalt: fromState must be a function", 2)
         end
         local el = self
         boundValue = state.computed(function()
@@ -367,7 +367,7 @@ function Element:bind(propName, source, options)
     if twoWay then
         local toState = options.toState
         if toState ~= nil and type(toState) ~= "function" then
-            error("Basalt 2.5: toState must be a function", 2)
+            error("Basalt: toState must be a function", 2)
         end
         binding.event = eventName
         binding.handler = function(_, value, ...)
