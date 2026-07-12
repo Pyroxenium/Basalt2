@@ -1,0 +1,49 @@
+-- ProgressBar: progress 0-100, fills in any direction, optional % text.
+
+local require = ...
+local class = require("core/class")
+local Element = require("core/element")
+
+local ProgressBar = class.create("ProgressBar", Element)
+
+class.property(ProgressBar, "progress", 0, {
+    onChange = function(self, v)
+        local p = rawget(self, "_p")
+        if v < 0 then p.progress = 0 elseif v > 100 then p.progress = 100 end
+    end,
+})
+class.property(ProgressBar, "barColor", colors.lime)
+class.property(ProgressBar, "background", colors.gray)
+class.property(ProgressBar, "width", 16)
+class.property(ProgressBar, "direction", "right") -- right, left, up, down
+class.property(ProgressBar, "showPercentage", false)
+
+function ProgressBar:render(buf)
+    Element.render(self, buf)
+    local w, h = self.width, self.height
+    -- clamp again: dynamic/reactive progress skips the onChange clamp
+    local pr = math.min(100, math.max(0, self.progress))
+    local dir = self.direction
+
+    if dir == "up" or dir == "down" then
+        local filled = math.floor(h * pr / 100 + 0.5)
+        if filled > 0 then
+            buf:fill(1, dir == "up" and (h - filled + 1) or 1, w, filled,
+                " ", self.foreground, self.barColor)
+        end
+    else
+        local filled = math.floor(w * pr / 100 + 0.5)
+        if filled > 0 then
+            buf:fill(dir == "left" and (w - filled + 1) or 1, 1, filled, h,
+                " ", self.foreground, self.barColor)
+        end
+    end
+
+    if self.showPercentage then
+        local label = math.floor(pr + 0.5) .. "%"
+        buf:drawText(math.floor((w - #label) / 2) + 1,
+            math.floor((h - 1) / 2) + 1, label)
+    end
+end
+
+return ProgressBar

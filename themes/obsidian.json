@@ -1,0 +1,114 @@
+{
+    "name": "obsidian",
+    "colors": {
+        "bg": "#101014",
+        "surface": "#1A1B21",
+        "raised": "#24262E",
+        "border": "#333640",
+        "text": "#E4E7EB",
+        "muted": "#8B919C",
+        "accent": "#4FD6C4",
+        "accentSoft": "#7EE6D8",
+        "selection": "#2F4A57",
+        "success": "#8FBB56",
+        "warning": "#E5B95C",
+        "danger": "#D9534F",
+        "info": "#5E9BD6"
+    },
+    "styles": {
+        "Element": { "foreground": "$text" },
+        "BaseFrame": { "background": "$bg" },
+        "Frame": { "background": "$surface" },
+        "Button": {
+            "background": "$raised",
+            "states": { "hover": { "background": "$border" } }
+        },
+        "Input": {
+            "background": "$raised",
+            "foreground": "$text",
+            "placeholderColor": "$muted"
+        },
+        "Switch": {
+            "onColor": "$accent",
+            "offColor": "$border",
+            "knobColor": "$text"
+        },
+        "ProgressBar": { "background": "$border", "barColor": "$accent" },
+        "Slider": { "barColor": "$border", "knobColor": "$accent" },
+        "List": {
+            "background": "$surface",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "emptyTextColor": "$muted",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "Dropdown": {
+            "background": "$raised",
+            "dropBackground": "$surface",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "ComboBox": {
+            "background": "$raised",
+            "foreground": "$text",
+            "placeholderColor": "$muted",
+            "dropBackground": "$surface",
+            "dropForeground": "$text",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "Menu": {
+            "background": "$surface",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "separatorColor": "$muted",
+            "dropBackground": "$raised"
+        },
+        "TabControl": {
+            "background": "$bg",
+            "headerBackground": "$surface",
+            "activeBackground": "$accent",
+            "activeForeground": "$bg"
+        },
+        "Tree": {
+            "background": "$surface",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "Table": {
+            "background": "$surface",
+            "headerBackground": "$raised",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "TextBox": {
+            "background": "$surface",
+            "selectionBackground": "$selection",
+            "selectionForeground": "$text",
+            "scrollbarColor": "$raised",
+            "scrollbarThumbColor": "$border"
+        },
+        "ContextMenu": {
+            "background": "$raised",
+            "selectionBackground": "$accent",
+            "selectionForeground": "$bg",
+            "separatorColor": "$muted"
+        },
+        "Dialog": {
+            "boxBackground": "$surface",
+            "boxForeground": "$text",
+            "titleBackground": "$accent",
+            "titleForeground": "$bg"
+        },
+        "Program": { "background": "$bg" }
+    }
+}

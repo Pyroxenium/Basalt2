@@ -1,0 +1,9 @@
+# AI/session tooling
+.claude/
+.agents/
+.codex/
+.idea/
+
+# OS noise
+.DS_Store
+Thumbs.db
