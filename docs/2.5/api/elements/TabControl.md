@@ -1,0 +1,80 @@
+# TabControl
+
+*extends Container*
+
+TabControl: header row of tab titles, one content container per tab.
+addTab(title) returns the tab's container; fires "change" on switch.
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| active | `integer` | `0` | Index of the active tab; switching updates the tab containers' visibility |
+| headerBackground | `number` | `colors.gray` | inactive header row |
+| activeBackground | `number` | `colors.blue` | active tab title |
+| activeForeground | `number` | `colors.white` | Text color of the active tab title |
+| background | `number\|false` | `colors.black` | Background color (false = transparent) |
+| width | `number` | `24` | Width in terminal cells |
+| height | `number` | `10` | Height in terminal cells |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| change | :onChange(fn) | Fired after a tab switch with (index, title) |
+
+## Methods
+
+### TabControl:setup()
+
+Initializes per-instance state and input handlers.
+
+### TabControl:addTab(title)
+
+Adds a tab and returns its content container (fills the area below the
+header). The first tab becomes active automatically.
+
+- **title** (`string`) The tab title shown in the header
+
+- **returns** **tab** (`Frame`) The tab's content container
+
+```lua
+local settings = tc:addTab("Settings")
+```
+
+### TabControl:setActiveTab(index, emit)
+
+Switches to a tab and fires the change event.
+
+- **index** (`integer`) The tab index
+- **emit** (`boolean`, optional) false suppresses the change event
+
+- **returns** (`self`) 
+
+### TabControl:getTab(index)
+
+Returns a tab's content container.
+
+- **index** (`integer`) The tab index
+
+- **returns** **tab** (`Frame|nil`) The tab container, or nil
+
+### TabControl:getTabCount()
+
+Returns the number of registered tabs.
+
+- **returns** **count** (`integer`) 
+
+### TabControl:handleKey(event, a, b)
+
+Handles keyboard input while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed text
+- **b** (`any`, optional) Secondary key-event value
+
+### TabControl:render(buf)
+
+Renders the element into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)

@@ -1,0 +1,44 @@
+# debug
+
+Debug module: on-screen log overlay, toggled with a key (default F12).
+
+  basalt.use("debug")
+  basalt.debug("value:", x)   -- log; also dbg.log(...)
+
+Standalone module: builds its overlay out of ordinary elements on the
+main frame and watches for its toggle key via a scheduled coroutine.
+
+## Methods
+
+### dbg.log(...)
+
+Logs a message to the overlay (arguments are tostring-ed and joined).
+Appends a line to the debug overlay log.
+
+- **...** (`any`) Values converted with tostring
+
+### dbg.show(state)
+
+Shows/hides the overlay (nil toggles).
+Explicitly shows or hides the debug overlay.
+
+- **state** (`boolean`) Visibility
+
+### dbg.setToggleKey(key)
+
+Changes the toggle key (a keys.* constant).
+Changes the keyboard key used to toggle the overlay.
+
+- **key** (`number`) ComputerCraft key code
+
+### dbg.getOverlay()
+
+Returns the lazily created overlay frame.
+
+- **returns** **overlay** (`Frame`) 
+
+### dbg.clear()
+
+Clears all captured debug lines.
+
+- **returns** (`nil`) 

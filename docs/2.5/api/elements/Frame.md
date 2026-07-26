@@ -1,0 +1,43 @@
+# Frame
+
+*extends Container*
+
+Frame: a nestable child container with its own background.
+Set draggable = true to move it by its top row (customize via draggingMap).
+
+## Types
+
+### `FrameDragZone`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| x | `number` | Local x coordinate |
+| y | `number` | Local y coordinate |
+| width *(optional)* | `number\|"full"` | Zone width |
+| height *(optional)* | `number\|"full"` | Zone height |
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| background | `number\|false` | `colors.gray` | Background color (false = transparent) |
+| width | `number` | `20` | Width in terminal cells |
+| height | `number` | `8` | Height in terminal cells |
+| draggable | `boolean` | `false` | move the frame by its grab zones |
+| draggingMap | `FrameDragZone[]\|false` | `false` | List of grab zones in local coordinates, e.g. {{x=1, y=1, width="full", height=1}}; false = the whole top row |
+
+## Methods
+
+### Frame:setup()
+
+Initializes per-instance state and input handlers.
+
+### Frame:toFront()
+
+Moves the frame above its siblings (highest z + 1).
+
+- **returns** (`self`) 
+
+```lua
+frame:onFocus(function(f) f:toFront() end)
+```

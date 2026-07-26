@@ -1,0 +1,35 @@
+# Button
+
+*extends Element*
+
+Button: clickable element with centered text and pressed feedback.
+While the mouse button is held, foreground and background swap
+("pressed" state); the click event fires on press.
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| text | `any` | `"Button"` | Label text, rendered centered |
+| width | `number` | `10` | Width in terminal cells |
+| height | `number` | `3` | Height in terminal cells |
+| background | `number\|false` | `colors.gray` | Background color (false = transparent) |
+
+## Methods
+
+### Button:render(buf)
+
+Renders the button into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)
+
+### Button:measure()
+
+Intrinsic size for basalt.auto(): text width + padding, 3 rows.
+
+- **returns** **width** (`number`) The measured width
+- **returns** **height** (`number`) The measured height
+
+```lua
+local btn = frame:addButton({ width = basalt.auto(), text = "Ok" })
+```

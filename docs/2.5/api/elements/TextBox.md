@@ -1,0 +1,106 @@
+# TextBox
+
+*extends Element*
+
+TextBox: multiline text editor with cursor, viewport scrolling, an
+optional vertical scrollbar and text selection. Fires "change".
+
+Selection: shift + arrows/home/end/pageUp/pageDown, or mouse dragging.
+Ctrl+A selects all, Ctrl+C copies, Ctrl+X cuts (Basalt-internal clipboard,
+shared between all TextBoxes; the system clipboard arrives via the normal
+CC paste event). Typing, enter, paste, backspace and delete replace or
+remove the selection first. Escape collapses it.
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| text | `string` | `""` | Full buffer content joined with newlines (rawString: never reactive) |
+| background | `number\|false` | `colors.black` | Background color (false = transparent) |
+| width | `number` | `20` | Width in terminal cells |
+| height | `number` | `8` | Height in terminal cells |
+| scrollbar | `ItemViewScrollbarMode` | `"auto"` | "auto", "always" or "hidden" |
+| scrollbarColor | `number` | `colors.gray` | Scrollbar track color |
+| scrollbarThumbColor | `number` | `colors.lightGray` | Scrollbar thumb color |
+| selectionBackground | `number` | `colors.blue` | text selection overlay |
+| selectionForeground | `number` | `colors.white` | Text color of selected entries |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| change | :onChange(fn) | Fired after every edit with the full new text |
+
+## Methods
+
+### TextBox:getSelection()
+
+Returns the selected text (with newlines), or nil.
+
+- **returns** **selection** (`string?`) The selected text
+
+### TextBox:deleteSelection()
+
+Removes the selected text.
+
+- **returns** **deleted** (`boolean`) True if there was a selection to remove
+
+### TextBox:selectAll()
+
+Selects the whole buffer (what ctrl+a does).
+
+- **returns** (`self`) 
+
+### TextBox:copy()
+
+Copies the selection to the Basalt-internal clipboard (ctrl+c).
+
+- **returns** **copied** (`string?`) The copied text
+
+### TextBox:cut()
+
+Cuts the selection into the Basalt-internal clipboard (ctrl+x).
+
+- **returns** **cut** (`string?`) The removed text
+
+### TextBox:getClipboard()
+
+Returns the Basalt-internal clipboard (shared between all TextBoxes).
+
+- **returns** **clipboard** (`string`) The clipboard content
+
+### TextBox:setup()
+
+Initializes per-instance state and input handlers.
+
+### TextBox:handleMouse(event, btn, x, y)
+
+Routes mouse input in local coordinates (wheel scrolling etc.).
+
+- **event** (`string`) The mouse event name
+- **btn** (`number`) Button or scroll direction
+- **x** (`number`) Local x coordinate
+- **y** (`number`) Local y coordinate
+
+- **returns** **consumer** (`Element|nil`) The consuming element, or nil to pass through
+
+### TextBox:handleKey(event, a, b)
+
+Handles keyboard input while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed text
+- **b** (`any`, optional) Secondary key-event value
+
+### TextBox:measure()
+
+Intrinsic size for basalt.auto().
+
+- **returns** **width** (`number`) The measured width
+- **returns** **height** (`number`) The measured height
+
+### TextBox:render(buf)
+
+Renders the element into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)

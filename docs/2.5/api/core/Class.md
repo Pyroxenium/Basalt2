@@ -1,0 +1,53 @@
+# Class
+
+Minimal class & property system for Basalt.
+
+## Methods
+
+### class.create(name, parent)
+
+Creates a new Basalt class deriving from an optional parent class.
+
+- **name** (`string`) Class name
+- **parent** (`table|nil`) Parent class
+
+- **returns** **class** (`table`) 
+
+### class.property(c, propName, default, opts)
+
+Defines a property on a class and generates :setX()/:getX() accessors.
+opts.visual (default true): marks the UI dirty when the value changes.
+opts.onChange(self, new, old): runs after the value is stored.
+opts.rawFunction: functions are stored as-is instead of being treated
+as dynamic values.
+opts.rawString: "{...}" strings are stored as-is instead of being
+compiled as reactive expressions (for user-entered text).
+opts.state: mirrors the property's truthiness to a named element state.
+opts.stateWhen(value, self): custom predicate for the mirrored state.
+opts.styleable=false: state styles cannot override this property.
+
+- **c** (`table`) Target class
+- **propName** (`string`) Property name
+- **default** (`any`) Shared default value
+- **opts** (`table|nil`) Property behavior options
+
+### class.combinedProperty(c, combinedName, propertyNames)
+
+Defines a fluent setter plus effective/raw getters spanning multiple
+existing properties. The combination stores no value of its own.
+
+class.combinedProperty(Element, "Position", { "x", "y" }) creates:
+  element:setPosition(x, y)
+  element:getPosition()       -- effective/resolved values
+  element:getRawPosition()    -- authored/default values
+
+- **c** (`table`) Target class
+- **combinedName** (`string`) Public combined-property name
+- **propertyNames** (`string[]`) Ordered component property names
+
+### class.event(c, eventName)
+
+Declares an event on a class and generates its :onX(fn) registrar.
+
+- **c** (`table`) Target class
+- **eventName** (`string`) Event name

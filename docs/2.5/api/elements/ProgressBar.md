@@ -1,0 +1,32 @@
+# ProgressBar
+
+*extends Element*
+
+ProgressBar: progress 0-100, fills in any direction, optional % text.
+
+## Types
+
+### `ProgressBarDirection`
+
+```lua
+ProgressBarDirection = "right"|"left"|"up"|"down"
+```
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| progress | `number` | `0` | Fill level 0-100, clamped automatically |
+| barColor | `number` | `colors.lime` | color of the filled part |
+| background | `number\|false` | `colors.gray` | Background color (false = transparent) |
+| width | `number` | `16` | Width in terminal cells |
+| direction | `ProgressBarDirection` | `"right"` | right, left, up or down |
+| showPercentage | `boolean` | `false` | centered "42%" text |
+
+## Methods
+
+### ProgressBar:render(buf)
+
+Renders the bar; the fill grows in the configured direction.
+
+- **buf** (`Render`) The render buffer

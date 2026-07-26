@@ -1,0 +1,97 @@
+# itemview
+
+Shared vertical item viewport helpers for List and Dropdown.
+
+## Types
+
+### `ItemViewScrollbarMode`
+
+```lua
+ItemViewScrollbarMode = "auto"|"always"|"hidden"
+```
+
+### `ItemViewGeometry`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| show | `boolean` | Whether the scrollbar is visible |
+| rows | `integer` | Visible row count |
+| maximum | `integer` | Greatest valid item offset |
+| offset | `integer` | Clamped current item offset |
+| thumbSize | `integer` | Scrollbar thumb size |
+| thumbPos | `integer` | Zero-based scrollbar thumb position |
+
+## Methods
+
+### itemview.maxOffset(count, rows)
+
+Returns the greatest valid item offset for a viewport.
+
+- **count** (`integer`) Item count
+- **rows** (`integer`) Visible row count
+
+- **returns** **offset** (`integer`) 
+
+### itemview.clampOffset(offset, count, rows)
+
+Clamps an item offset to the visible collection range.
+
+- **offset** (`number`, optional) Requested offset
+- **count** (`integer`) Item count
+- **rows** (`integer`) Visible row count
+
+- **returns** **offset** (`integer`) 
+
+### itemview.ensureVisible(offset, index, count, rows)
+
+Adjusts an offset until the requested item is visible.
+
+- **offset** (`number`) Current offset
+- **index** (`integer`, optional) Item index
+- **count** (`integer`) Item count
+- **rows** (`integer`) Visible row count
+
+- **returns** **offset** (`integer`) 
+
+### itemview.geometry(count, rows, offset, mode)
+
+Calculates scrollbar geometry for an item viewport.
+
+- **count** (`integer`) Item count
+- **rows** (`integer`) Visible row count
+- **offset** (`number`, optional) Current item offset
+- **mode** (`ItemViewScrollbarMode`) Scrollbar mode
+
+- **returns** **geometry** (`ItemViewGeometry`) 
+
+### itemview.draw(buf, x, y, geometry, foreground, track, thumb)
+
+Draws the scrollbar(s) into the buffer.
+
+- **buf** (`Render`) Render buffer
+- **x** (`integer`) Scrollbar x position
+- **y** (`integer`) Scrollbar y position
+- **geometry** (`ItemViewGeometry`) Viewport geometry
+- **foreground** (`number`) Foreground color
+- **track** (`number`) Track color
+- **thumb** (`number`) Thumb color
+
+### itemview.pointerDown(coordinate, geometry)
+
+Resolves a scrollbar press into a new offset or drag grab position.
+
+- **coordinate** (`integer`) Coordinate along the scrollbar
+- **geometry** (`ItemViewGeometry`) Geometry returned by itemview.geometry
+
+- **returns** **offset** (`integer|nil`) 
+- **returns** **grab** (`integer|nil`) 
+
+### itemview.drag(coordinate, grab, geometry)
+
+Converts a scrollbar drag position into an item offset.
+
+- **coordinate** (`integer`) Coordinate along the scrollbar
+- **grab** (`integer`) Thumb grab offset
+- **geometry** (`ItemViewGeometry`) Geometry returned by itemview.geometry
+
+- **returns** **offset** (`integer`) 

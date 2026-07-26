@@ -1,0 +1,61 @@
+# errors
+
+Error handling for Basalt 2.
+
+errors.parse() turns an error + traceback into structured info and is
+side-effect free (testable). errors.show() renders the error screen; it
+must be called AFTER the terminal/palette has been cleaned up, so the
+message is never displayed with hijacked palette slots.
+
+The screen highlights two locations:
+ * the error site (where it was thrown, often inside Basalt 2)
+ * the first stack frame in USER code — that's usually the actual cause,
+   so its source line is shown as an excerpt.
+
+## Types
+
+### `BasaltErrorInfo`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| message | `string` | Normalized error message |
+| file *(optional)* | `string` | Source file of the error site |
+| line *(optional)* | `integer` | Source line of the error site |
+| userFile *(optional)* | `string` | Source file of the first user-code frame |
+| userLine *(optional)* | `integer` | Source line of the first user-code frame |
+| trace | `string[]` | Cleaned traceback lines |
+
+### `BasaltWrappedError`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| err | `any` | Original error value |
+| trace *(optional)* | `string` | Captured traceback |
+
+## Methods
+
+### errors.parse(err, trace)
+
+Normalizes an error value and traceback into displayable lines.
+
+- **err** (`any`) Error value
+- **trace** (`string`, optional) Traceback text
+
+- **returns** **info** (`BasaltErrorInfo`) 
+
+### errors.show(err, trace, showTrace)
+
+Renders an error screen on the active terminal.
+
+- **err** (`any`) Error value
+- **trace** (`string`, optional) Traceback text
+- **showTrace** (`boolean`, optional) Whether traceback lines are shown
+
+### errors.wrap(err, trace)
+
+Wraps an error and traceback for Basalt's protected event loop.
+
+- **err** (`any`) Error value
+- **trace** (`string`, optional) Traceback text
+
+- **returns** **wrapped** (`BasaltWrappedError`) 

@@ -1,0 +1,99 @@
+# Dialog
+
+*extends Container*
+
+Dialog: modal message box with helpers.
+
+  local dialog = frame:addDialog()
+  dialog:alert("Info", "Saved successfully", function() ... end)
+  dialog:confirm("Delete?", "Really delete this?", function(yes) ... end)
+  dialog:prompt("Name", "Enter your name:", "Steve", function(text) ... end)
+
+The element spans its whole parent while open and swallows every click
+outside the box (modal). Fires "close"(result).
+
+## Types
+
+### `DialogAlertCallback`
+
+```lua
+DialogAlertCallback = fun()
+```
+
+### `DialogConfirmCallback`
+
+```lua
+DialogConfirmCallback = fun(confirmed: boolean)
+```
+
+### `DialogPromptCallback`
+
+```lua
+DialogPromptCallback = fun(value: string?)
+```
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| title | `string` | `""` | Title bar text |
+| titleBackground | `number` | `colors.blue` | Title bar background |
+| titleForeground | `number` | `colors.white` | Title bar text color |
+| boxBackground | `number` | `colors.lightGray` | Message box background |
+| boxForeground | `number` | `colors.black` | Message box text color |
+| boxWidth | `number` | `26` | Maximum width of the message box |
+| visible | `boolean` | `false` | Whether the element is shown and hit by events |
+| background | `number\|false` | `false` | invisible modal backdrop |
+| width | `number` | *dynamic* | Width in terminal cells |
+| height | `number` | *dynamic* | Height in terminal cells |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| close | :onClose(fn) | Fired when the dialog closes, with the result |
+
+## Methods
+
+### Dialog:setup()
+
+Initializes per-instance state and input handlers.
+
+### Dialog:close(result)
+
+Closes the dialog and fires its callback/close event.
+
+- **result** (`any`, optional) Optional dialog result
+
+- **returns** (`self`) 
+
+### Dialog:alert(title, message, callback)
+
+Message + OK button; callback() runs after closing.
+
+- **title** (`string`) The title bar text
+- **message** (`string`) The message (word-wrapped)
+- **callback** (`DialogAlertCallback`, optional) Called after the dialog closes
+
+- **returns** (`self`) 
+
+### Dialog:confirm(title, message, callback)
+
+Yes/No question; callback(true|false).
+
+- **title** (`string`) The title bar text
+- **message** (`string`) The question (word-wrapped)
+- **callback** (`DialogConfirmCallback`, optional) Receives true (Yes) or false (No)
+
+- **returns** (`self`) 
+
+### Dialog:prompt(title, message, default, callback)
+
+Text input; callback(text) on OK, callback(nil) on Cancel.
+
+- **title** (`string`) The title bar text
+- **message** (`string`) The prompt text (word-wrapped)
+- **default** (`string`, optional) Prefilled input value
+- **callback** (`DialogPromptCallback`, optional) Receives the entered text, or nil
+
+- **returns** (`self`) 

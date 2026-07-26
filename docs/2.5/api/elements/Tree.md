@@ -1,0 +1,268 @@
+# Tree
+
+*extends Element*
+
+Tree: hierarchical nodes with expand/collapse and selection.
+
+Nodes are plain tables: { text = "...", children = { ... }, expanded = bool }
+(the expanded flag is stored in the node itself). Fires "select"(node) and
+"toggle"(node, expanded).
+
+## Types
+
+### `TreeNode`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| text *(optional)* | `any` | Display value rendered with `tostring` |
+| children *(optional)* | `TreeNode[]` | Child nodes |
+| expanded *(optional)* | `boolean` | Whether children are visible |
+| [string] | `any` | Application-defined node data |
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| nodes | `TreeNode[]` | `false` | Root node list; nodes are { text, children = {...}, expanded = bool } |
+| selected | `TreeNode\|false` | `false` | The selected node table (not an index), or false |
+| offset | `number` | `0` | Vertical scroll offset |
+| horizontalOffset | `number` | `0` | Horizontal scroll offset for deep trees |
+| background | `number\|false` | `colors.black` | Background color (false = transparent) |
+| selectionBackground | `number` | `colors.blue` | Background of selected entries |
+| selectionForeground | `number` | `colors.white` | Text color of selected entries |
+| width | `number` | `16` | Width in terminal cells |
+| height | `number` | `8` | Height in terminal cells |
+| scrollbar | `ItemViewScrollbarMode` | `"auto"` | "auto", "always" or "hidden" |
+| scrollbarColor | `number` | `colors.gray` | Scrollbar track color |
+| scrollbarThumbColor | `number` | `colors.lightGray` | Scrollbar thumb color |
+| scrollBarSymbol | `string` | `" "` | Basalt2 compat: scrollbar thumb symbol |
+| scrollBarBackground | `string` | `"\127"` | Basalt2 compat: scrollbar track symbol |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| select | :onSelect(fn) | Fired on item selection with (index, item) |
+| change | :onChange(fn) | Fired when the value changes |
+| toggle | :onToggle(fn) | Fired on expand/collapse with (node, expanded) |
+
+## Methods
+
+### Tree:toggle(node, expanded)
+
+Expands or collapses a node (nil toggles) and fires the toggle event.
+
+- **node** (`TreeNode`) The node to toggle
+- **expanded** (`boolean`, optional) Explicit target state, nil = flip
+
+- **returns** (`self`) 
+
+### Tree:select(node, emit)
+
+Selects a node, scrolls it into view and fires the select event.
+
+- **node** (`TreeNode|false`) The node to select, or false to clear
+- **emit** (`boolean`, optional) false suppresses the select event
+
+- **returns** (`self`) 
+
+### Tree:expandNode(node)
+
+Expands one node if it has children.
+
+- **node** (`TreeNode`) Node to expand
+
+- **returns** (`self`) 
+
+### Tree:collapseNode(node)
+
+Collapses one node.
+
+- **node** (`TreeNode`) Node to collapse
+
+- **returns** (`self`) 
+
+### Tree:toggleNode(node)
+
+Toggles one node's expanded state.
+
+- **node** (`TreeNode`) Node to toggle
+
+- **returns** (`self`) 
+
+### Tree:setSelectedNode(node)
+
+Programmatically selects a node without firing the select event.
+
+- **node** (`TreeNode|false`) Node, or false to clear
+
+- **returns** (`self`) 
+
+### Tree:getSelectedNode()
+
+Returns the currently selected node.
+
+- **returns** **node** (`TreeNode|nil`) 
+
+### Tree:getExpandedNodes()
+
+Returns a set keyed by expanded node tables.
+
+- **returns** **expanded** (`table<TreeNode,boolean>`) 
+
+### Tree:setExpandedNodes(expanded)
+
+Applies a set keyed by nodes that should be expanded.
+
+- **expanded** (`table<TreeNode,boolean>`) Expanded-node set
+
+- **returns** (`self`) 
+
+### Tree:getNodeSize()
+
+Measures the currently visible flattened node tree.
+
+- **returns** **width** (`number`) 
+- **returns** **height** (`number`) 
+
+### Tree:setHorizontalOffset(offset)
+
+Sets and clamps the horizontal text offset.
+
+- **offset** (`number`) Horizontal character offset
+
+- **returns** (`self`) 
+
+### Tree:setSelectedForegroundColor(color)
+
+Sets selected-node foreground color.
+
+- **color** (`number`) Color value
+
+- **returns** (`self`) 
+
+### Tree:getSelectedForegroundColor()
+
+Returns selected-node foreground color.
+
+- **returns** **color** (`number`) 
+
+### Tree:setSelectedBackgroundColor(color)
+
+Sets selected-node background color.
+
+- **color** (`number`) Color value
+
+- **returns** (`self`) 
+
+### Tree:getSelectedBackgroundColor()
+
+Returns selected-node background color.
+
+- **returns** **color** (`number`) 
+
+### Tree:setSelectionColor(foreground, background)
+
+Sets selected-node foreground and background colors.
+
+- **foreground** (`number`) Foreground color
+- **background** (`number`) Background color
+
+- **returns** (`self`) 
+
+### Tree:getSelectionColor()
+
+Returns selected-node foreground and background colors.
+
+- **returns** **foreground** (`number`) 
+- **returns** **background** (`number`) 
+
+### Tree:setShowScrollBar(show)
+
+Enables or hides the tree scrollbar.
+
+- **show** (`boolean`) Whether the bar may be shown
+
+- **returns** (`self`) 
+
+### Tree:getShowScrollBar()
+
+Returns whether the tree scrollbar is enabled.
+
+- **returns** **enabled** (`boolean`) 
+
+### Tree:setScrollBarColor(color)
+
+Sets the scrollbar thumb color.
+
+- **color** (`number`) Color value
+
+- **returns** (`self`) 
+
+### Tree:getScrollBarColor()
+
+Returns the scrollbar thumb color.
+
+- **returns** **color** (`number`) 
+
+### Tree:setScrollBarBackgroundColor(color)
+
+Sets the scrollbar track color.
+
+- **color** (`number`) Color value
+
+- **returns** (`self`) 
+
+### Tree:getScrollBarBackgroundColor()
+
+Returns the scrollbar track color.
+
+- **returns** **color** (`number`) 
+
+### Tree:expandAll()
+
+Expands every node that has children.
+
+- **returns** (`self`) 
+
+### Tree:collapseAll()
+
+Collapses every node.
+
+- **returns** (`self`) 
+
+### Tree:setup()
+
+Initializes per-instance state and input handlers.
+
+### Tree:handleMouse(event, btn, x, y)
+
+Routes mouse input in local coordinates (wheel scrolling etc.).
+
+- **event** (`string`) The mouse event name
+- **btn** (`number`) Button or scroll direction
+- **x** (`number`) Local x coordinate
+- **y** (`number`) Local y coordinate
+
+- **returns** **consumer** (`Element|nil`) The consuming element, or nil to pass through
+
+### Tree:handleKey(event, a, b)
+
+Handles keyboard input while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed text
+- **b** (`any`, optional) Secondary key-event value
+
+### Tree:measure()
+
+Intrinsic size for basalt.auto().
+
+- **returns** **width** (`number`) The measured width
+- **returns** **height** (`number`) The measured height
+
+### Tree:render(buf)
+
+Renders the element into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)

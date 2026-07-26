@@ -1,0 +1,66 @@
+# Menu
+
+*extends Collection*
+
+Menu: horizontal menu bar with optional dropdown submenus and separators.
+
+items entries:
+  "Save"                                 plain item
+  { text = "File", items = {"New", "Open"} }   item with submenu
+  { separator = true }                   vertical separator
+
+Fires "select"(index, item) for plain items and
+"select"(subIndex, subItem, parentIndex) for submenu entries.
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| spacing | `number` | `1` | Gap between menu entries |
+| background | `number\|false` | `colors.gray` | Background color (false = transparent) |
+| separatorColor | `number` | `colors.lightGray` | Color of separator entries |
+| dropBackground | `number` | `colors.black` | Background of the expanded list |
+| width | `number` | *dynamic* | Width in terminal cells |
+| height | `number` | *dynamic* | Height in terminal cells |
+
+## Methods
+
+### Menu:select(index, emit)
+
+Selects a top-level item; items with a submenu toggle it open instead.
+
+- **index** (`integer`) The item index
+- **emit** (`boolean`, optional) false suppresses the select event
+
+- **returns** (`self`) 
+
+### Menu:setup()
+
+Initializes per-instance state and input handlers.
+
+### Menu:handleKey(event, a, b)
+
+Handles keyboard input while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed text
+- **b** (`any`, optional) Secondary key-event value
+
+### Menu:clear()
+
+Removes all menu entries and closes any open submenu.
+
+- **returns** (`self`) 
+
+### Menu:measure()
+
+Intrinsic size for basalt.auto().
+
+- **returns** **width** (`number`) The measured width
+- **returns** **height** (`number`) The measured height
+
+### Menu:render(buf)
+
+Renders the element into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)

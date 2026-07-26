@@ -1,0 +1,22 @@
+# text
+
+Shared text helpers (word wrapping for Label, Dialog, Toast, ...).
+
+## Types
+
+### `TextLines`
+
+```lua
+TextLines = string[]
+```
+
+## Methods
+
+### textutil.wrap(str, width)
+
+Greedily word-wraps text; long words are hard-broken and blank lines kept.
+
+- **str** (`string`) Input text
+- **width** (`integer`) Maximum line width
+
+- **returns** **lines** (`TextLines`) Always contains at least one line

@@ -1,0 +1,22 @@
+# reactive
+
+Reactive expressions: "{parent.width - 12}" compiles to a dynamic value.
+
+## Types
+
+### `ReactiveResolver`
+
+```lua
+ReactiveResolver = fun(element?: Element): any
+```
+
+## Methods
+
+### reactive.compile(str, element)
+
+Compiles a {property/path/expression} string into a dynamic property value.
+
+- **str** (`string`) Braced reactive expression
+- **element** (`Element`) Expression owner
+
+- **returns** **resolver** (`ReactiveResolver`) 

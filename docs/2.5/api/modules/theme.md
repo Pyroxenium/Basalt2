@@ -1,0 +1,59 @@
+# theme
+
+Theme module: restyle elements without touching them individually.
+
+  local theme = basalt.use("theme")
+  theme.set({ Button = { background = basalt.rgb("#89b4fa") } })
+  theme.apply(frame, { Label = { foreground = colors.yellow } })
+
+theme.set() changes CLASS defaults: every element that never set the
+property explicitly follows immediately (including existing ones).
+theme.apply() assigns per element (explicit override) on a subtree.
+A `states` table defines property overrides while named states are active.
+
+Values may be plain values or functions (dynamic values). Reactive
+"{...}" strings only work in apply(), not in set() — defaults are shared
+between elements, use a function instead.
+
+## Methods
+
+### theme.set(themeTable)
+
+Changes class-level defaults for the given element types.
+
+- **themeTable** (`table`) Map of type name -> { property = value, states = {...} }
+
+```lua
+theme.set({ Button = { background = colors.blue } })
+```
+
+### theme.applyPreset(presetOrName)
+
+Applies a preset (by name or as a table from theme.load) via theme.set.
+
+- **presetOrName** (`string|table`) Preset name or loaded preset table
+
+- **returns** **colors** (`table`) The preset's color tokens
+
+```lua
+local pal = theme.applyPreset("basalt")
+```
+
+### theme.load(path)
+
+Loads a theme file and registers it as a preset. Returns (name, preset);
+pass the name straight into applyPreset:
+  theme.applyPreset(theme.load("themes/obsidian.json"))
+.json files are parsed as JSON, everything else with textutils.unserialize.
+
+- **path** (`string`) Path to the theme file
+
+- **returns** **name** (`string`) The registered preset name
+- **returns** **preset** (`table`) The resolved preset ({ colors, styles })
+
+### theme.apply(root, themeTable)
+
+Applies properties to every matching element in a subtree (by type name).
+
+- **root** (`Element`) Root element
+- **themeTable** (`table`) Map of class names to properties/state styles

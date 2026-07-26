@@ -1,0 +1,55 @@
+# Input
+
+*extends Element*
+
+Input: single-line text input with cursor, horizontal scrolling and
+placeholder. Fires "change" while typing and "enter" on return.
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| text | `string` | `""` | Current input value (rawString: typed braces stay literal text) |
+| placeholder | `string` | `""` | shown while empty and unfocused |
+| placeholderColor | `number` | `colors.gray` | Color of the placeholder text |
+| maxLength | `number\|false` | `false` | maximum text length, false = unlimited |
+| replaceChar | `string\|false` | `false` | e.g. "*" for password fields |
+| pattern | `string\|false` | `false` | Lua pattern each char must match |
+| width | `number` | `12` | Width in terminal cells |
+| height | `number` | `1` | Height in terminal cells |
+| background | `number\|false` | `colors.lightGray` | Background color (false = transparent) |
+| foreground | `number` | `colors.black` | Text color |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| change | :onChange(fn) | Fired after every text edit with the new text |
+| enter | :onEnter(fn) | Fired on the enter key with the current text |
+
+## Methods
+
+### Input:setup()
+
+Initializes per-instance state and input handlers.
+
+### Input:handleKey(event, a, b)
+
+Handles typing, paste and editing keys while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed/pasted text
+- **b** (`any`, optional) Secondary key-event value
+
+### Input:render(buf)
+
+Renders the text (or placeholder) and requests the cursor while focused.
+
+- **buf** (`Render`) The render buffer
+
+### Input:measure()
+
+Intrinsic size for basalt.auto(): longest of text/placeholder x 1.
+
+- **returns** **width** (`number`) The measured width
+- **returns** **height** (`number`) The measured height

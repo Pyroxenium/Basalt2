@@ -1,0 +1,114 @@
+# CollectionEntry
+
+*extends CollectionItem*
+
+## Methods
+
+### CollectionEntry.new(parent, item)
+
+Creates the stable entry wrapper used by collection-like elements.
+
+- **parent** (`CollectionMixin`) Owning collection-like element
+- **item** (`CollectionItem|string`) Initial item data or display text
+
+- **returns** **entry** (`CollectionEntry`) 
+
+### CollectionEntry.is(value)
+
+Tests whether a value is a collection entry wrapper.
+
+- **value** (`any`) Candidate value
+
+- **returns** **isEntry** (`boolean`) 
+
+### CollectionEntry:getData()
+
+Returns the mutable data table backing this entry.
+
+- **returns** **data** (`CollectionItem`) 
+
+### CollectionEntry:getParent()
+
+Returns the collection that currently owns this entry.
+
+- **returns** **parent** (`CollectionMixin|nil`) 
+
+### CollectionEntry:setText(text)
+
+Changes the display text and invalidates the owning collection.
+
+- **text** (`string`) New display text
+
+- **returns** (`self`) 
+
+### CollectionEntry:getText()
+
+Returns the entry's display text.
+
+- **returns** **text** (`string|nil`) 
+
+### CollectionEntry:getIndex()
+
+Resolves the entry's current index after moves/removals.
+
+- **returns** **index** (`integer|nil`) 
+
+### CollectionEntry:moveUp(amount)
+
+Moves the entry towards the beginning of the collection.
+
+- **amount** (`integer|nil`) Number of positions, default 1
+
+- **returns** (`self`) 
+
+### CollectionEntry:moveDown(amount)
+
+Moves the entry towards the end of the collection.
+
+- **amount** (`integer|nil`) Number of positions, default 1
+
+- **returns** (`self`) 
+
+### CollectionEntry:moveToTop()
+
+Moves the entry to index 1.
+
+- **returns** (`self`) 
+
+### CollectionEntry:moveToBottom()
+
+Moves the entry to the final index.
+
+- **returns** (`self`) 
+
+### CollectionEntry:swapWith(other)
+
+Swaps two entries belonging to the same collection.
+
+- **other** (`CollectionEntry`) Entry to exchange positions with
+
+- **returns** (`self`) 
+
+### CollectionEntry:remove()
+
+Removes this entry from its collection.
+
+- **returns** **removed** (`boolean`) False when the entry no longer has a parent
+
+### CollectionEntry:select()
+
+Selects this entry through its owning collection.
+
+- **returns** (`self`) 
+
+### CollectionEntry:unselect()
+
+Removes this entry from the current selection.
+
+- **returns** (`self`) 
+
+### CollectionEntry:isSelected()
+
+Returns whether this entry is currently selected.
+
+- **returns** **selected** (`boolean`) 

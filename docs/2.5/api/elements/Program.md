@@ -1,0 +1,98 @@
+# Program
+
+*extends Element*
+
+Program: runs another CC program inside the element.
+
+  local prog = frame:addProgram({ x = 2, y = 2, width = 30, height = 12 })
+  prog:execute("rom/programs/fun/worm.lua")
+
+The program draws into an invisible window; its content is copied into
+the render buffer every frame. Mouse events arrive element-relative when
+the element is hit, keyboard events while it is focused, and every other
+event (timers, redstone, ...) is forwarded by a scheduled pump coroutine.
+Fires "done"(ok, result) and "error"(err, traceback); without an error
+handler a crashing program takes down the app through the normal Basalt 2
+error screen (with the program's own traceback).
+
+## Properties
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| path | `string` | `""` | Resolved path of the running program (read-only) |
+| running | `boolean` | `false` | Whether a program is currently running (read-only) |
+| env | `table<string, any>\|false` | `false` | Extra globals merged into the program environment |
+| background | `number\|false` | `colors.black` | Background color (false = transparent) |
+| width | `number` | `30` | Width in terminal cells |
+| height | `number` | `12` | Height in terminal cells |
+
+## Events
+
+| Event | Registrar | Description |
+| --- | --- | --- |
+| done | :onDone(fn) | Fired when the program finishes, with (ok, result) |
+| error | :onError(fn) | Fired when the program crashes, with (err, traceback) |
+
+## Methods
+
+### Program:execute(path, ...)
+
+Loads and starts a program; extra arguments are passed to it.
+
+- **path** (`string`) Program path (resolved via shell if not found directly)
+- **...** (`any`) Program arguments
+
+- **returns** (`self`) 
+
+```lua
+prog:execute("rom/programs/fun/worm.lua")
+```
+
+### Program:stop()
+
+Stops (closes) the running program coroutine. Unlike a program that
+finishes on its own, a manual stop fires no "done" event.
+
+- **returns** (`self`) 
+
+### Program:terminate()
+
+Requests a native, graceful program shutdown and then force-stops a
+coroutine that ignored the terminate event. Programs using pullEventRaw
+can release resources; programs using pullEvent end normally via the
+conventional "Terminated" error.
+
+- **returns** (`self`) 
+
+### Program:sendEvent(event, ...)
+
+Injects an event into the program (as if it came from the event queue).
+
+- **event** (`string`) The event name
+- **...** (`any`) Event arguments
+
+- **returns** (`self`) 
+
+### Program:setup()
+
+Initializes per-instance state and input handlers.
+
+### Program:handleKey(event, a, b)
+
+Handles keyboard input while focused.
+
+- **event** (`string`) The key event name (key, key_up, char, paste)
+- **a** (`any`) Key code or typed text
+- **b** (`any`, optional) Secondary key-event value
+
+### Program:destroy()
+
+Stops the program before removing the element.
+
+- **returns** (`self`) 
+
+### Program:render(buf)
+
+Renders the element into the buffer.
+
+- **buf** (`Render`) The render buffer (local coordinates, pre-clipped)
