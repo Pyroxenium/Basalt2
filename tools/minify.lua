@@ -1,5 +1,5 @@
 local MAX_SECONDS_WITHOUT_YIELD=1
-local MAX_OPERATIONS_WITHOUT_CHECK=4096
+local MAX_OPERATIONS_WITHOUT_CHECK=128
 local operationsSinceCheck=0
 local lastYield=os.clock()
 local function yieldSometimes()
@@ -55,10 +55,10 @@ caa()end end;local aca=cd:sub(_ca,_aa-1)for i=0,dba+1 do caa()end
 local bca=cd:sub(cba,_aa-1)return aca,bca else return nil end else return nil end end
 while true do local cba=''
 while true do local dca=daa()
-if bb[dca]then cba=cba..caa()elseif
-dca=='-'and daa(1)=='-'then caa()caa()cba=cba..'--'local _da,ada=bba()
-if ada then cba=cba..ada else while daa()~='\n'and
-daa()~=''do cba=cba..caa()end end else break end end;local dba=aaa;local _ca=baa
+if bb[dca]then caa()elseif
+dca=='-'and daa(1)=='-'then caa()caa()local _da,ada=bba()
+if not ada then while daa()~='\n'and
+daa()~=''do caa()end end else break end end;local dba=aaa;local _ca=baa
 local aca=":"..aaa..":"..baa..":> "local bca=daa()local cca=nil
 if bca==''then cca={Type='Eof'}elseif
 _c[bca]or db[bca]or bca=='_'then local dca=_aa;repeat caa()bca=daa()until not
