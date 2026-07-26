@@ -143,7 +143,6 @@ local function compressPayload(input)
     local output = {}
     local positions = {}
     local position, length = 1, #input
-    local lastYield = 0
 
     local function remember(at)
         if at + 2 > length then return end
@@ -211,10 +210,6 @@ local function compressPayload(input)
         end
 
         output[controlIndex] = string.char(control)
-        if position - lastYield >= 4096 and sleep then
-            sleep(0)
-            lastYield = position
-        end
     end
 
     return table.concat(output)
