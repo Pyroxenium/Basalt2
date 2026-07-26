@@ -2531,69 +2531,116 @@ function dd:render(__a)local a_a=self:getBigText()for i=1,#a_a[1]do
 __a:rawBlit(1,i,a_a[1][i],a_a[2][i],a_a[3][i])end end;ac.register("BigFont",dd)return{BigFont=dd}
 ]=]
 sources["modules/charts"] = [=[
-local ab=...local bb=ab("core/class")local cb=ab("core/element")
-local db=ab("core/container")local _c={}
-local function ac(ad)if ad<0 then return 0 end;if ad>1 then return 1 end;return ad end;local function bc(ad,bd,cd,dd)
-local __a=cd>bd and ac((ad-bd)/ (cd-bd))or 0
-return dd-math.floor(__a* (dd-1)+0.5)end
-local cc=bb.create("Graph",cb)bb.property(cc,"minValue",0)
-bb.property(cc,"maxValue",100)bb.property(cc,"background",colors.black)
-bb.property(cc,"width",20)bb.property(cc,"height",8)function cc:setup()cb.setup(self)
-rawset(self,"_series",{})end
-function cc:addSeries(ad,bd)bd=bd or{}
-local cd=rawget(self,"_series")
-cd[#cd+1]={name=ad,symbol=(bd.symbol or" "):sub(1,1),fg=bd.fg or colors.white,bg=
-bd.bg or colors.white,pointCount=bd.pointCount or self.width,visible=bd.visible~=false,points={}}self:markDirty()return self end
-function cc:getSeries(ad)for bd,cd in ipairs(rawget(self,"_series"))do
-if cd.name==ad then return cd end end;return nil end
-function cc:removeSeries(ad)local bd=rawget(self,"_series")for i=1,#bd do if bd[i].name==ad then
-table.remove(bd,i)break end end
+local _c=...local ac=_c("core/class")local bc=_c("core/element")
+local cc=_c("core/container")local dc=_c("core/palette")local _d={}local function ad(d_a)if d_a<0 then return 0 end
+if d_a>1 then return 1 end;return d_a end
+local function bd(d_a,_aa,aaa,baa)local caa=aaa>_aa and
+ad((d_a-_aa)/ (aaa-_aa))or 0;return baa-math.floor(caa* (baa-
+1)+0.5)end;local cd=ac.create("Graph",bc)
+ac.property(cd,"minValue",0)ac.property(cd,"maxValue",100)
+ac.property(cd,"background",colors.black)ac.property(cd,"width",20)
+ac.property(cd,"height",8)
+function cd:setup()bc.setup(self)rawset(self,"_series",{})end
+function cd:addSeries(d_a,_aa)_aa=_aa or{}local aaa=rawget(self,"_series")
+aaa[#aaa+1]={name=d_a,symbol=(
+_aa.symbol or" "):sub(1,1),fg=_aa.fg or colors.white,bg=_aa.bg or
+colors.white,pointCount=_aa.pointCount or self.width,visible=_aa.visible~=false,points={}}self:markDirty()return self end
+function cd:getSeries(d_a)for _aa,aaa in ipairs(rawget(self,"_series"))do
+if aaa.name==d_a then return aaa end end;return nil end
+function cd:removeSeries(d_a)local _aa=rawget(self,"_series")for i=1,#_aa do if _aa[i].name==d_a then
+table.remove(_aa,i)break end end
 self:markDirty()return self end
-function cc:setSeriesVisible(ad,bd)local cd=self:getSeries(ad)if cd then cd.visible=bd~=false
+function cd:setSeriesVisible(d_a,_aa)local aaa=self:getSeries(d_a)if aaa then aaa.visible=_aa~=false
 self:markDirty()end;return self end
-function cc:addPoint(ad,bd)local cd=self:getSeries(ad)if not cd then
+function cd:addPoint(d_a,_aa)local aaa=self:getSeries(d_a)if not aaa then
 error("Basalt charts: unknown series '"..
-tostring(ad).."'",2)end;local dd=cd.points;dd[#dd+1]=bd;while#dd>
-cd.pointCount do table.remove(dd,1)end
+tostring(d_a).."'",2)end;local baa=aaa.points
+baa[#baa+1]=_aa
+while#baa>aaa.pointCount do table.remove(baa,1)end;self:markDirty()return self end
+function cd:clear(d_a)
+if d_a then local _aa=self:getSeries(d_a)if _aa then _aa.points={}end else for _aa,aaa in
+ipairs(rawget(self,"_series"))do aaa.points={}end end;self:markDirty()return self end
+function cd:render(d_a)bc.render(self,d_a)local _aa,aaa=self.width,self.height
+local baa,caa=self.minValue,self.maxValue
+for daa,_ba in ipairs(rawget(self,"_series"))do
+if _ba.visible then local aba=_ba.points
+local bba=math.max(_ba.pointCount,2)
+for i=1,#aba do local cba=1 +
+math.floor((i-1)/ (bba-1)* (_aa-1)+0.5)
+local dba=bd(aba[i],baa,caa,aaa)d_a:blit(cba,dba,_ba.symbol,_ba.fg,_ba.bg)end end end end;local dd=ac.create("BarChart",bc)
+ac.property(dd,"data",false)ac.property(dd,"barColor",colors.lime)
+ac.property(dd,"minValue",0)ac.property(dd,"maxValue",false)
+ac.property(dd,"background",colors.black)ac.property(dd,"width",20)
+ac.property(dd,"height",8)
+function dd:setup()bc.setup(self)rawget(self,"_p").data={}end
+function dd:render(d_a)bc.render(self,d_a)local _aa=self.data;local aaa=#_aa
+if aaa==0 then return end;local baa,caa=self.width,self.height;local daa=self.maxValue
+if not daa then
+daa=-math.huge;for i=1,aaa do daa=math.max(daa,_aa[i])end end;local _ba=self.minValue
+local aba=math.max(1,math.floor((baa- (aaa-1))/aaa))local bba=1
+for i=1,aaa do if bba>baa then break end;local cba=bd(_aa[i],_ba,daa,caa)
+d_a:fill(bba,cba,math.min(aba,
+baa-bba+1),caa-cba+1," ",self.foreground,self.barColor)bba=bba+aba+1 end end;local __a=ac.create("LineChart",bc)
+ac.property(__a,"data",false)ac.property(__a,"lineColor",colors.lime)
+ac.property(__a,"minValue",0)ac.property(__a,"maxValue",100)
+ac.property(__a,"background",colors.black)ac.property(__a,"width",20)
+ac.property(__a,"height",8)
+function __a:setup()bc.setup(self)rawget(self,"_p").data={}end
+function __a:render(d_a)bc.render(self,d_a)local _aa=self.data;local aaa=#_aa
+if aaa==0 then return end;local baa,caa=self.width,self.height;local daa,_ba=self.minValue,self.maxValue
+for col=1,baa do
+local aba=
+aaa>1 and( (col-1)/ (baa-1)* (aaa-1)+1)or 1;local bba=math.floor(aba)local cba=math.min(aaa,bba+1)
+local dba=_aa[bba]+ (
+_aa[cba]-_aa[bba])* (aba-bba)local _ca=bd(dba,daa,_ba,caa)
+d_a:fill(col,_ca,1,1," ",self.foreground,self.lineColor)end end
+local function a_a(d_a,_aa,aaa,baa,caa,daa)
+if baa<1 or baa>_aa or caa<1 or caa>aaa then return end;d_a[caa][baa]=daa end
+local function b_a(d_a,_aa,aaa,baa,caa,daa,_ba,aba)
+local bba,cba=math.abs(daa-baa),-math.abs(_ba-caa)local dba=baa<daa and 1 or-1
+local _ca=caa<_ba and 1 or-1;local aca=bba+cba;local bca,cca=baa,caa
+while true do a_a(d_a,_aa,aaa,bca,cca,aba)if
+bca==daa and cca==_ba then break end;local dca=2 *aca;if dca>=cba then
+aca,bca=aca+cba,bca+dba end
+if dca<=bba then aca,cca=aca+bba,cca+_ca end end end;local c_a=ac.create("PixelGraph",bc)
+ac.property(c_a,"minValue",0)ac.property(c_a,"maxValue",100)
+ac.property(c_a,"background",colors.black)ac.property(c_a,"width",20)
+ac.property(c_a,"height",8)
+function c_a:setup()bc.setup(self)rawset(self,"_series",{})end
+function c_a:addSeries(d_a,_aa)_aa=_aa or{}local aaa=rawget(self,"_series")
+aaa[#aaa+1]={name=d_a,color=
+_aa.color or colors.white,pointCount=_aa.pointCount or self.width*2,visible=_aa.visible~=false,points={}}self:markDirty()return self end
+function c_a:getSeries(d_a)for _aa,aaa in ipairs(rawget(self,"_series"))do
+if aaa.name==d_a then return aaa end end;return nil end
+function c_a:removeSeries(d_a)local _aa=rawget(self,"_series")for i=1,#_aa do if _aa[i].name==d_a then
+table.remove(_aa,i)break end end
 self:markDirty()return self end
-function cc:clear(ad)
-if ad then local bd=self:getSeries(ad)if bd then bd.points={}end else for bd,cd in
-ipairs(rawget(self,"_series"))do cd.points={}end end;self:markDirty()return self end
-function cc:render(ad)cb.render(self,ad)local bd,cd=self.width,self.height
-local dd,__a=self.minValue,self.maxValue
-for a_a,b_a in ipairs(rawget(self,"_series"))do
-if b_a.visible then local c_a=b_a.points
-local d_a=math.max(b_a.pointCount,2)
-for i=1,#c_a do local _aa=1 +
-math.floor((i-1)/ (d_a-1)* (bd-1)+0.5)
-local aaa=bc(c_a[i],dd,__a,cd)ad:blit(_aa,aaa,b_a.symbol,b_a.fg,b_a.bg)end end end end;local dc=bb.create("BarChart",cb)
-bb.property(dc,"data",false)bb.property(dc,"barColor",colors.lime)
-bb.property(dc,"minValue",0)bb.property(dc,"maxValue",false)
-bb.property(dc,"background",colors.black)bb.property(dc,"width",20)
-bb.property(dc,"height",8)
-function dc:setup()cb.setup(self)rawget(self,"_p").data={}end
-function dc:render(ad)cb.render(self,ad)local bd=self.data;local cd=#bd;if cd==0 then return end
-local dd,__a=self.width,self.height;local a_a=self.maxValue;if not a_a then a_a=-math.huge;for i=1,cd do
-a_a=math.max(a_a,bd[i])end end
-local b_a=self.minValue
-local c_a=math.max(1,math.floor((dd- (cd-1))/cd))local d_a=1
-for i=1,cd do if d_a>dd then break end;local _aa=bc(bd[i],b_a,a_a,__a)
-ad:fill(d_a,_aa,math.min(c_a,
-dd-d_a+1),__a-_aa+1," ",self.foreground,self.barColor)d_a=d_a+c_a+1 end end;local _d=bb.create("LineChart",cb)
-bb.property(_d,"data",false)bb.property(_d,"lineColor",colors.lime)
-bb.property(_d,"minValue",0)bb.property(_d,"maxValue",100)
-bb.property(_d,"background",colors.black)bb.property(_d,"width",20)
-bb.property(_d,"height",8)
-function _d:setup()cb.setup(self)rawget(self,"_p").data={}end
-function _d:render(ad)cb.render(self,ad)local bd=self.data;local cd=#bd;if cd==0 then return end
-local dd,__a=self.width,self.height;local a_a,b_a=self.minValue,self.maxValue
-for col=1,dd do
-local c_a=cd>1 and(
-(col-1)/ (dd-1)* (cd-1)+1)or 1;local d_a=math.floor(c_a)local _aa=math.min(cd,d_a+1)local aaa=bd[d_a]+ (bd[_aa]-
-bd[d_a])* (c_a-d_a)
-local baa=bc(aaa,a_a,b_a,__a)
-ad:fill(col,baa,1,1," ",self.foreground,self.lineColor)end end;db.register("Graph",cc)db.register("BarChart",dc)
-db.register("LineChart",_d)_c.Graph=cc;_c.BarChart=dc;_c.LineChart=_d;return _c
+function c_a:setSeriesVisible(d_a,_aa)local aaa=self:getSeries(d_a)if aaa then aaa.visible=_aa~=false
+self:markDirty()end;return self end
+function c_a:addPoint(d_a,_aa)local aaa=self:getSeries(d_a)if not aaa then
+error("Basalt charts: unknown series '"..
+tostring(d_a).."'",2)end;local baa=aaa.points
+baa[#baa+1]=_aa
+while#baa>aaa.pointCount do table.remove(baa,1)end;self:markDirty()return self end
+function c_a:clear(d_a)
+if d_a then local _aa=self:getSeries(d_a)if _aa then _aa.points={}end else for _aa,aaa in
+ipairs(rawget(self,"_series"))do aaa.points={}end end;self:markDirty()return self end
+function c_a:render(d_a)bc.render(self,d_a)
+local _aa,aaa=self.width*2,self.height*3;local baa,caa=self.minValue,self.maxValue;local daa={}for y=1,aaa do daa[y]={}end
+local _ba,aba,bba,cba={},{},1,false
+for _ca,aca in ipairs(rawget(self,"_series"))do
+if
+aca.visible and#aca.points>0 then local bca=aba[aca.color]if not bca then bca=bba;bba=bba+1;aba[aca.color]=bca
+_ba[bca]=dc.charOf[aca.color]end;local cca=aca.points
+local dca=math.max(aca.pointCount,2)local _da,ada
+for i=1,#cca do local bda=1 +
+math.floor((i-1)/ (dca-1)* (_aa-1)+0.5)
+local cda=bd(cca[i],baa,caa,aaa)if _da then b_a(daa,_aa,aaa,_da,ada,bda,cda,bca)else
+a_a(daa,_aa,aaa,bda,cda,bca)end;_da,ada=bda,cda end;cba=true end end;if not cba then return end;local dba={}
+for y=1,aaa do local _ca,aca={},daa[y]for x=1,_aa do
+_ca[x]=string.char(aca[x]or 0)end;dba[y]=table.concat(_ca)end;d_a:drawPixels(1,1,_aa,aaa,dba,_ba)end;cc.register("Graph",cd)cc.register("BarChart",dd)
+cc.register("LineChart",__a)cc.register("PixelGraph",c_a)_d.Graph=cd;_d.BarChart=dd
+_d.LineChart=__a;_d.PixelGraph=c_a;return _d
 ]=]
 sources["modules/debug"] = [=[
 local cb=...local db=cb("main")local _c={}local ac=8;local bc={}local cc=40;local dc,_d,ad;local bd=keys.f12
@@ -2894,6 +2941,7 @@ local loaded = {}
 local function loader(name)
     local cached = loaded[name]
     if cached ~= nil then return cached end
+
     local source = sources[name]
         or error("Basalt: module not bundled: " .. tostring(name), 0)
     local chunk = assert(load(source, "@basalt/" .. name .. ".lua"))

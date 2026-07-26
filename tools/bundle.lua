@@ -262,7 +262,11 @@ local function build(options)
     local minifySource
     if minify then
         local minifierPath = fs.combine(root, "tools/minify.lua")
-        local loader, loadError = loadfile(minifierPath, nil, _ENV)
+        -- The legacy minifier declares several helpers globally. Keep each
+        -- build isolated so consecutive bundle variants cannot affect one
+        -- another inside the same CraftOS process.
+        local minifierEnv = setmetatable({}, { __index = _ENV })
+        local loader, loadError = loadfile(minifierPath, nil, minifierEnv)
         if not loader then
             error("bundler: cannot load minifier: "
                 .. tostring(loadError), 0)

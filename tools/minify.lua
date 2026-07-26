@@ -1,3 +1,15 @@
+local MAX_SECONDS_WITHOUT_YIELD=1
+local MAX_OPERATIONS_WITHOUT_CHECK=4096
+local operationsSinceCheck=0
+local lastYield=os.clock()
+local function yieldSometimes()
+operationsSinceCheck=operationsSinceCheck+1
+if operationsSinceCheck<MAX_OPERATIONS_WITHOUT_CHECK then return end
+operationsSinceCheck=0
+if os.clock()-lastYield<MAX_SECONDS_WITHOUT_YIELD then return end
+if type(sleep)=="function"then sleep(0)end
+lastYield=os.clock()
+end
 function lookupify(cd)for dd,__a in pairs(cd)do cd[__a]=true end;return cd end
 function CountTable(cd)local dd=0;for __a in pairs(cd)do dd=dd+1 end;return dd end
 function PrintTable(cd,dd)if cd.Print then return cd.Print()end;dd=dd or 0
@@ -24,7 +36,7 @@ local cc=lookupify{'+','-','*','/','^','%',',','{','}','[',']','(',')',';','#'}
 local dc=lookupify{'and','break','do','else','elseif','end','false','for','function','goto','if','in','local','nil','not','or','repeat','return','then','true','until','while'}
 function LexLua(cd)local dd={}
 local __a,a_a=pcall(function()local _aa=1;local aaa=1;local baa=1
-local function caa()local cba=cd:sub(_aa,_aa)if cba=='\n'then baa=1
+local function caa()yieldSometimes()local cba=cd:sub(_aa,_aa)if cba=='\n'then baa=1
 aaa=aaa+1 else baa=baa+1 end;_aa=_aa+1;return cba end
 local function daa(cba)cba=cba or 0;return cd:sub(_aa+cba,_aa+cba)end;local function _ba(cba)local dba=daa()
 for i=1,#cba do if dba==cba:sub(i,i)then return caa()end end end;local function aba(cba)
@@ -78,9 +90,9 @@ cca.Print=function()
 return"<".. (cca.Type..string.rep(' ',7 -#
 cca.Type))..
 "  ".. (cca.Data or'').." >"end;dd[#dd+1]=cca;if cca.Type=='Eof'then break end end end)if not __a then return false,a_a end;local b_a={}local c_a={}local d_a=1
-function b_a:Peek(_aa)_aa=_aa or 0;return dd[math.min(
+function b_a:Peek(_aa)yieldSometimes()_aa=_aa or 0;return dd[math.min(
 #dd,d_a+_aa)]end
-function b_a:Get()local _aa=dd[d_a]d_a=math.min(d_a+1,#dd)return _aa end;function b_a:Is(_aa)return b_a:Peek().Type==_aa end;function b_a:Save()c_a[
+function b_a:Get()yieldSometimes()local _aa=dd[d_a]d_a=math.min(d_a+1,#dd)return _aa end;function b_a:Is(_aa)return b_a:Peek().Type==_aa end;function b_a:Save()c_a[
 #c_a+1]=d_a end
 function b_a:Commit()c_a[#c_a]=nil end;function b_a:Restore()d_a=c_a[#c_a]c_a[#c_a]=nil end
 function b_a:ConsumeSymbol(_aa)
@@ -109,13 +121,13 @@ bda=bda.."   ^---"break end end;return bda end;local b_a=0;local c_a={}local d_a
 local function _aa(ada)local bda={}bda.Parent=ada
 bda.LocalList={}bda.LocalMap={}
 function bda:RenameVars()
-for cda,dda in pairs(bda.LocalList)do local __b;b_a=0
+for cda,dda in pairs(bda.LocalList)do yieldSometimes()local __b;b_a=0
 repeat b_a=b_a+1;local a_b=b_a
 __b=''while a_b>0 do local b_b=a_b%#d_a;a_b=(a_b-b_b)/#d_a
 __b=__b..d_a[b_b+1]end until
 not c_a[__b]and
 not ada:GetLocal(__b)and not bda.LocalMap[__b]dda.Name=__b;bda.LocalMap[__b]=dda end end
-function bda:GetLocal(cda)local dda=bda.LocalMap[cda]if dda then return dda end;if bda.Parent then
+function bda:GetLocal(cda)yieldSometimes()local dda=bda.LocalMap[cda]if dda then return dda end;if bda.Parent then
 local __b=bda.Parent:GetLocal(cda)if __b then return __b end end;return nil end
 function bda:CreateLocal(cda)local dda={}dda.Scope=bda;dda.Name=cda;dda.CanRename=true;bda.LocalList[#
 bda.LocalList+1]=dda
@@ -297,7 +309,7 @@ local _d=lookupify{'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','
 local ad=lookupify{'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'}
 local bd=lookupify{'0','1','2','3','4','5','6','7','8','9'}
 function Format_Mini(cd)local dd,__a;local a_a=0
-local function b_a(d_a,_aa,aaa)
+local function b_a(d_a,_aa,aaa)yieldSometimes()
 if a_a>150 then a_a=0;return d_a.."\n".._aa end;aaa=aaa or' 'local baa,caa=d_a:sub(-1,-1),_aa:sub(1,1)
 if
 ad[baa]or _d[baa]or baa=='_'then
@@ -306,7 +318,7 @@ if not
 return d_a..aaa.._aa else return d_a..aaa.._aa end elseif bd[baa]then
 if caa=='('then return d_a.._aa else return d_a..aaa.._aa end elseif baa==''then return d_a.._aa else
 if caa=='('then return d_a..aaa.._aa else return d_a.._aa end end end
-__a=function(d_a)local _aa=string.rep('(',d_a.ParenCount or 0)
+__a=function(d_a)yieldSometimes()local _aa=string.rep('(',d_a.ParenCount or 0)
 if
 d_a.AstType=='VarExpr'then if d_a.Local then _aa=_aa..d_a.Local.Name else
 _aa=_aa..d_a.Name end elseif d_a.AstType=='NumberExpr'then _aa=_aa..
@@ -340,7 +352,7 @@ __a(aaa.Key).."]="..__a(aaa.Value)elseif aaa.Type==
 _aa=_aa..
 aaa.Key.."="..__a(aaa.Value)end;if i~=#d_a.EntryList then _aa=_aa..","end end;_aa=_aa.."}"end
 _aa=_aa..string.rep(')',d_a.ParenCount or 0)a_a=a_a+#_aa;return _aa end
-local c_a=function(d_a)local _aa=''
+local c_a=function(d_a)yieldSometimes()local _aa=''
 if d_a.AstType=='AssignmentStatement'then
 for i=1,#d_a.Lhs do
 _aa=_aa..__a(d_a.Lhs[i])if i~=#d_a.Lhs then _aa=_aa..","end end;if#d_a.Rhs>0 then _aa=_aa.."="
@@ -385,7 +397,7 @@ d_a.Variable.Name.."="_aa=_aa..
 __a(d_a.Start)..","..__a(d_a.End)if d_a.Step then
 _aa=_aa..","..__a(d_a.Step)end;_aa=b_a(_aa,"do")
 _aa=b_a(_aa,dd(d_a.Body))_aa=b_a(_aa,"end")end;a_a=a_a+#_aa;return _aa end
-dd=function(d_a)local _aa=''d_a.Scope:RenameVars()for aaa,baa in pairs(d_a.Body)do
+dd=function(d_a)yieldSometimes()local _aa=''d_a.Scope:RenameVars()for aaa,baa in pairs(d_a.Body)do
 _aa=b_a(_aa,c_a(baa),';')end;return _aa end;cd.Scope:RenameVars()return dd(cd)end
 return function(cd)local dd,__a=ParseLua(cd)if not dd then return false,__a end
 return true,Format_Mini(__a)end

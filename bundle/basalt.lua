@@ -6473,6 +6473,7 @@ local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 local Container = require("core/container")
+local palette = require("core/palette")
 local charts = {}
 local function clamp01(v)
     if v < 0 then return 0 end
@@ -6636,12 +6637,148 @@ function LineChart:render(buf)
         buf:fill(col, row, 1, 1, " ", self.foreground, self.lineColor)
     end
 end
+local function plotPixel(rows, pixelWidth, pixelHeight, x, y, index)
+    if x < 1 or x > pixelWidth or y < 1 or y > pixelHeight then return end
+    rows[y][x] = index
+end
+local function plotLine(rows, pixelWidth, pixelHeight, x0, y0, x1, y1, index)
+    local dx, dy = math.abs(x1 - x0), -math.abs(y1 - y0)
+    local sx = x0 < x1 and 1 or -1
+    local sy = y0 < y1 and 1 or -1
+    local err = dx + dy
+    local x, y = x0, y0
+    while true do
+        plotPixel(rows, pixelWidth, pixelHeight, x, y, index)
+        if x == x1 and y == y1 then break end
+        local e2 = 2 * err
+        if e2 >= dy then err, x = err + dy, x + sx end
+        if e2 <= dx then err, y = err + dx, y + sy end
+    end
+end
+local PixelGraph = class.create("PixelGraph", Element)
+class.property(PixelGraph, "minValue", 0)
+class.property(PixelGraph, "maxValue", 100)
+class.property(PixelGraph, "background", colors.black)
+class.property(PixelGraph, "width", 20)
+class.property(PixelGraph, "height", 8)
+function PixelGraph:setup()
+    Element.setup(self)
+    rawset(self, "_series", {})
+end
+function PixelGraph:addSeries(name, opts)
+    opts = opts or {}
+    local series = rawget(self, "_series")
+    series[#series + 1] = {
+        name = name,
+        color = opts.color or colors.white,
+        pointCount = opts.pointCount or self.width * 2,
+        visible = opts.visible ~= false,
+        points = {},
+    }
+    self:markDirty()
+    return self
+end
+function PixelGraph:getSeries(name)
+    for _, series in ipairs(rawget(self, "_series")) do
+        if series.name == name then return series end
+    end
+    return nil
+end
+function PixelGraph:removeSeries(name)
+    local series = rawget(self, "_series")
+    for i = 1, #series do
+        if series[i].name == name then
+            table.remove(series, i)
+            break
+        end
+    end
+    self:markDirty()
+    return self
+end
+function PixelGraph:setSeriesVisible(name, visible)
+    local series = self:getSeries(name)
+    if series then
+        series.visible = visible ~= false
+        self:markDirty()
+    end
+    return self
+end
+function PixelGraph:addPoint(name, value)
+    local series = self:getSeries(name)
+    if not series then
+        error("Basalt charts: unknown series '" .. tostring(name) .. "'", 2)
+    end
+    local points = series.points
+    points[#points + 1] = value
+    while #points > series.pointCount do
+        table.remove(points, 1)
+    end
+    self:markDirty()
+    return self
+end
+function PixelGraph:clear(name)
+    if name then
+        local series = self:getSeries(name)
+        if series then series.points = {} end
+    else
+        for _, series in ipairs(rawget(self, "_series")) do
+            series.points = {}
+        end
+    end
+    self:markDirty()
+    return self
+end
+function PixelGraph:render(buf)
+    Element.render(self, buf)
+    local pixelWidth, pixelHeight = self.width * 2, self.height * 3
+    local minV, maxV = self.minValue, self.maxValue
+    local rows = {}
+    for y = 1, pixelHeight do rows[y] = {} end
+    local paletteBytes, indexOf, nextIndex, used = {}, {}, 1, false
+    for _, series in ipairs(rawget(self, "_series")) do
+        if series.visible and #series.points > 0 then
+            local index = indexOf[series.color]
+            if not index then
+                index = nextIndex
+                nextIndex = nextIndex + 1
+                indexOf[series.color] = index
+                paletteBytes[index] = palette.charOf[series.color]
+            end
+            local points = series.points
+            local count = math.max(series.pointCount, 2)
+            local prevCol, prevRow
+            for i = 1, #points do
+                local col = 1 + math.floor((i - 1) / (count - 1) * (pixelWidth - 1) + 0.5)
+                local row = ratioToRow(points[i], minV, maxV, pixelHeight)
+                if prevCol then
+                    plotLine(rows, pixelWidth, pixelHeight, prevCol, prevRow, col, row, index)
+                else
+                    plotPixel(rows, pixelWidth, pixelHeight, col, row, index)
+                end
+                prevCol, prevRow = col, row
+            end
+            used = true
+        end
+    end
+    if not used then return end
+    local rowStrings = {}
+    for y = 1, pixelHeight do
+        local chars, row = {}, rows[y]
+        for x = 1, pixelWidth do
+            chars[x] = string.char(row[x] or 0)
+        end
+        rowStrings[y] = table.concat(chars)
+    end
+    buf:drawPixels(1, 1, pixelWidth, pixelHeight, rowStrings, paletteBytes)
+end
 Container.register("Graph", Graph)
 Container.register("BarChart", BarChart)
 Container.register("LineChart", LineChart)
+Container.register("PixelGraph", PixelGraph)
 charts.Graph = Graph
 charts.BarChart = BarChart
 charts.LineChart = LineChart
+charts.PixelGraph = PixelGraph
 return charts
 ]=]
 sources["modules/debug"] = [=[
@@ -7542,6 +7679,7 @@ local loaded = {}
 local function loader(name)
     local cached = loaded[name]
     if cached ~= nil then return cached end
+
     local source = sources[name]
         or error("Basalt: module not bundled: " .. tostring(name), 0)
     local chunk = assert(load(source, "@basalt/" .. name .. ".lua"))
