@@ -11,6 +11,8 @@ Basalt 2.5 is an improved and extended release of Basalt 2. It modernizes
 the internals and developer experience while keeping the familiar approach
 to building terminal interfaces.
 
+![Basalt 2.5 interface showcase](.github/assets/preview.gif)
+
 ## Features
 
 - A broad component set including buttons, inputs, lists, tables, dialogs,
@@ -94,6 +96,13 @@ be updated directly later:
 label.text = "A new value"
 label.x = 4
 ```
+
+## Examples
+
+- [`examples/basic.lua`](examples/basic.lua) is a small, commented starter
+  application intended for copying and modification.
+- [`examples/showcase.lua`](examples/showcase.lua) is the full animated
+  Basalt 2.5 feature showcase.
 
 ## Documentation
 
