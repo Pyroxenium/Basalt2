@@ -14,10 +14,16 @@ concurrency:
 
 jobs:
   build:
-    name: Generate and build docs
+    name: Generate and build versioned docs
     runs-on: ubuntu-22.04
 
     steps:
+      - name: Checkout deployment automation
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: automation
+
       - name: Checkout Basalt 2.5
         uses: actions/checkout@v6
         with:
@@ -49,19 +55,21 @@ jobs:
           mv "$RUNNER_TEMP/basalt-docs/README.md" \
             "$RUNNER_TEMP/basalt-docs/index.md"
 
-      - name: Update versioned documentation
+      - name: Update Basalt 2.5 documentation source
         run: |
           mkdir -p site/docs/2.5/api
+          mkdir -p site/docs/2.5/.vitepress
           rsync --archive --delete \
             "$RUNNER_TEMP/basalt-docs/" \
             site/docs/2.5/api/
           cp source/.github/docs-2.5-index.md site/docs/2.5/index.md
+          cp source/.github/vitepress-2.5.config.mts \
+            site/docs/2.5/.vitepress/config.mts
 
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 20
-          package-manager-cache: false
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -70,11 +78,27 @@ jobs:
         working-directory: site
         run: npm ci
 
-      - name: Build VitePress site
+      - name: Build Basalt 2.0 and 2.5 sites
         working-directory: site
-        run: npm run docs:build
+        run: |
+          mkdir -p "$RUNNER_TEMP/pages/2.0"
+          mkdir -p "$RUNNER_TEMP/pages/2.5"
+          mv docs/.vitepress/config.mts \
+            docs/.vitepress/config.base.mts
+          cp ../automation/.github/vitepress-2.0.config.mts \
+            docs/.vitepress/config.mts
+          npx vitepress build docs \
+            --outDir "$RUNNER_TEMP/pages/2.0"
+          npx vitepress build docs/2.5 \
+            --outDir "$RUNNER_TEMP/pages/2.5"
+          cp ../automation/.github/pages-index.html \
+            "$RUNNER_TEMP/pages/index.html"
+          touch "$RUNNER_TEMP/pages/.nojekyll"
+          node ../automation/.github/scripts/create-version-redirects.mjs \
+            "$RUNNER_TEMP/pages/2.0" \
+            "$RUNNER_TEMP/pages"
 
-      - name: Commit Basalt 2.5 documentation
+      - name: Commit Basalt 2.5 documentation source
         working-directory: site
         run: |
           git config user.name "github-actions[bot]"
@@ -90,7 +114,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site/docs/.vitepress/dist
+          path: ${{ runner.temp }}/pages
 
   deploy:
     name: Deploy to GitHub Pages
