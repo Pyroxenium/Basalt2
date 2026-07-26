@@ -2,17 +2,18 @@
 --
 -- Without arguments it starts a GUI wizard: like Basalt2's installer it
 -- bootstraps Basalt itself first (from the local repository, or by
--- downloading bundle/basalt.lua via http and load()ing it in-memory) and
+-- downloading bundle/basalt.compressed.lua via http and load()ing it in-memory) and
 -- renders the wizard with it.
 --
--- Non-interactive:  installer <source|bundled|minified> [target]
+-- Non-interactive:  installer <source|bundled|minified|compressed> [target]
 --                   installer --make-manifest
 --                   installer --url <base>   (remote repository base URL)
 --
 -- Variants:
 --   source    editable folder with src/ and the loader shim (default: basalt)
 --   bundled   single file, readable sources               (default: basalt.lua)
---   minified  single file, comments stripped              (default: basalt.lua)
+--   minified  minified single file                        (default: basalt.lua)
+--   compressed minified and compressed single file       (default: basalt.lua)
 
 local args = { ... }
 
@@ -21,29 +22,38 @@ local args = { ... }
 local BRANCH = "basalt2.5"
 local REPO_URL = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/"
     .. BRANCH .. "/"
-local BUNDLE_URL = REPO_URL .. "bundle/basalt.lua"
+local BUNDLE_PATHS = {
+    bundled = "bundle/basalt.lua",
+    minified = "bundle/basalt.min.lua",
+    compressed = "bundle/basalt.compressed.lua",
+}
 
-local TMP_DIR = "/.basalt3_installer_tmp"
+local function bundleUrl(variant, override)
+    local base = override or REPO_URL
+    if base:sub(-1) ~= "/" then base = base .. "/" end
+    return base .. BUNDLE_PATHS[variant]
+end
+
+local TMP_DIR = "/.basalt_installer_tmp"
 
 ----------------------------------------------------------------------------
 -- repository discovery
 ----------------------------------------------------------------------------
 
 local function repoRoot()
-    local root = shell and fs.getDir(shell.getRunningProgram()) or "Basalt3"
-    if not fs.exists(fs.combine(root, "src/main.lua")) then
-        root = "Basalt3"
+    local root = shell and fs.getDir(shell.getRunningProgram()) or ""
+    for _ = 1, 4 do
+        if fs.exists(fs.combine(root, "src/main.lua")) then return root end
+        local parent = fs.getDir(root)
+        if parent == root then break end
+        root = parent
     end
-    return root
+    return "basalt"
 end
 
 local function isLocalRepo(root)
     return fs.exists(fs.combine(root, "src/main.lua"))
 end
-
-----------------------------------------------------------------------------
--- manifest
-----------------------------------------------------------------------------
 
 local function walk(dir, prefix, out)
     local entries = fs.list(dir)
@@ -58,9 +68,8 @@ local function walk(dir, prefix, out)
     end
 end
 
---- Everything a remote source install needs: shim, bundler and src/.
 local function manifestFiles(root)
-    local files = { "init.lua", "bundle.lua" }
+    local files = {}
     walk(fs.combine(root, "src"), "src/", files)
     return files
 end
@@ -72,10 +81,6 @@ local function writeManifest(root)
     handle.close()
     return #files
 end
-
-----------------------------------------------------------------------------
--- download helpers
-----------------------------------------------------------------------------
 
 local function requireHttp()
     if not http then
@@ -95,9 +100,9 @@ local function fetch(url)
     return content
 end
 
---- Downloads manifest + files into TMP_DIR; returns it as install root.
 local function downloadRepo(baseUrl, progress)
     requireHttp()
+    if baseUrl:sub(-1) ~= "/" then baseUrl = baseUrl .. "/" end
     if fs.exists(TMP_DIR) then fs.delete(TMP_DIR) end
 
     progress(0, 1, "Downloading manifest...")
@@ -110,21 +115,21 @@ local function downloadRepo(baseUrl, progress)
 
     for index, path in ipairs(files) do
         progress(index, #files, path)
-        local handle = fs.open(fs.combine(TMP_DIR, path), "w")
+        local destination = fs.combine(TMP_DIR, path)
+        fs.makeDir(fs.getDir(destination))
+        local handle = fs.open(destination, "w")
         handle.write(fetch(baseUrl .. path))
         handle.close()
     end
     return TMP_DIR
 end
 
-----------------------------------------------------------------------------
--- install variants
-----------------------------------------------------------------------------
 
 local function copyFile(from, to)
     local input = fs.open(from, "r")
     local content = input.readAll()
     input.close()
+    fs.makeDir(fs.getDir(to))
     local outputHandle = fs.open(to, "w")
     outputHandle.write(content)
     outputHandle.close()
@@ -134,29 +139,30 @@ local function installSource(fromRoot, target, progress)
     if fs.exists(target) then
         error("installer: target already exists: " .. target, 0)
     end
-    local files = { "init.lua" }
-    walk(fs.combine(fromRoot, "src"), "src/", files)
+    local files = {}
+    walk(fs.combine(fromRoot, "src"), "", files)
     for index, path in ipairs(files) do
         progress(index, #files, path)
-        copyFile(fs.combine(fromRoot, path), fs.combine(target, path))
+        copyFile(fs.combine(fromRoot, "src/" .. path), fs.combine(target, path))
     end
     return ("Installed %d files -> %s/"):format(#files, target)
 end
 
-local function installBundle(fromRoot, target, minify, progress)
+local function installBundle(fromRoot, target, minify, compress, progress)
     progress(0, 1, "Bundling src/ ...")
-    local bundlerPath = fs.combine(fromRoot, "bundle.lua")
+    local bundlerPath = fs.combine(fromRoot, "tools/bundle.lua")
     local bundler = assert(loadfile(bundlerPath, nil, _ENV))("--lib")
     local stats = bundler.build({
-        root = fromRoot, output = target, minify = minify,
+        root = fromRoot,
+        output = target,
+        minify = minify,
+        compress = compress,
     })
     progress(1, 1, "Done")
     return ("Basalt %s -> %s (%d KB)"):format(stats.version, target,
         math.floor(stats.bytesOut / 1024 + 0.5))
 end
 
---- Installs a variant from the local repository or (via manifest/bundle
---- download) from the remote one. progress(done, total, label) is optional.
 local function installVariant(variant, target, progress, urlOverride)
     progress = progress or function() end
     local root = repoRoot()
@@ -172,11 +178,14 @@ local function installVariant(variant, target, progress, urlOverride)
             root = downloadRepo(baseUrl, progress)
             downloaded = true
         else
-            -- bundled/minified: grab the prebuilt release directly
             requireHttp()
             progress(0, 1, "Downloading bundle...")
+            if fs.exists(target) then
+                error("installer: target already exists: " .. target, 0)
+            end
+            local content = fetch(bundleUrl(variant, urlOverride))
             local handle = fs.open(target, "w")
-            handle.write(fetch(BUNDLE_URL))
+            handle.write(content)
             handle.close()
             progress(1, 1, "Done")
             return "Downloaded bundle -> " .. target
@@ -187,7 +196,13 @@ local function installVariant(variant, target, progress, urlOverride)
     if variant == "source" then
         summary = installSource(root, target, progress)
     else
-        summary = installBundle(root, target, variant == "minified", progress)
+        summary = installBundle(
+            root,
+            target,
+            variant == "minified" or variant == "compressed",
+            variant == "compressed",
+            progress
+        )
     end
 
     if downloaded then
@@ -196,32 +211,28 @@ local function installVariant(variant, target, progress, urlOverride)
     return summary
 end
 
-----------------------------------------------------------------------------
--- GUI wizard (bootstraps Basalt itself, Basalt2-installer style)
-----------------------------------------------------------------------------
-
 local function getBasalt(root)
     if isLocalRepo(root) then
-        local initPath = fs.combine(root, "init.lua")
-        return assert(loadfile(initPath, nil, _ENV))("basalt3", initPath)
+        local initPath = fs.combine(root, "src/init.lua")
+        return assert(loadfile(initPath, nil, _ENV))("basalt", initPath)
     end
     requireHttp()
     print("Downloading Basalt bundle...")
-    return assert(load(fetch(BUNDLE_URL), "@basalt3-bundle", nil, _ENV))()
+    return assert(load(fetch(bundleUrl("compressed")), "@basalt-bundle", nil, _ENV))()
 end
 
-local VARIANTS = { "source", "bundled", "minified" }
+local VARIANTS = { "source", "bundled", "minified", "compressed" }
 local DEFAULT_TARGETS = {
     source = "basalt",
     bundled = "basalt.lua",
     minified = "basalt.lua",
+    compressed = "basalt.lua",
 }
 
 local function runGui(urlOverride)
     local bas = getBasalt(repoRoot())
     bas.use("bigfont")
 
-    -- Basalt's signature look: volcanic stone + lava accent
     local pal = bas.use("theme").applyPreset("basalt")
     local dark = pal.bg
     local accent = pal.lava
@@ -233,11 +244,12 @@ local function runGui(urlOverride)
     })
 
     local variantList = main:addList({
-        x = 2, y = 6, width = 36, height = 3,
+        x = 2, y = 6, width = 36, height = 4,
         items = {
             "source   - editable src/ folder",
             "bundled  - single file",
-            "minified - single file, stripped",
+            "minified - minified single file",
+            "compressed - smallest single file",
         },
         background = dark,
     })
@@ -245,12 +257,12 @@ local function runGui(urlOverride)
     main:addLabel({ x = 2, y = 10, text = "Ziel:" })
     local targetInput = main:addInput({
         x = 8, y = 10, width = 28,
-        placeholder = DEFAULT_TARGETS.minified,
+        placeholder = DEFAULT_TARGETS.compressed,
     })
     variantList:onSelect(function(_, index)
         targetInput.placeholder = DEFAULT_TARGETS[VARIANTS[index]]
     end)
-    variantList:select(3, false)
+    variantList:select(4, false)
 
     local status = main:addLabel({
         x = 2, y = 14, width = 47, height = 1,
@@ -266,7 +278,7 @@ local function runGui(urlOverride)
         text = "Install", background = accent,
         foreground = dark,
     }):onClick(function()
-        local variant = VARIANTS[variantList.selected or 3]
+        local variant = VARIANTS[variantList.selected or 4]
         local target = #targetInput.text > 0
             and targetInput.text or DEFAULT_TARGETS[variant]
         status.foreground = pal.text
@@ -277,7 +289,7 @@ local function runGui(urlOverride)
                 progressBar.progress =
                     math.floor(done / math.max(1, total) * 100)
                 status.text = tostring(label or "")
-                bas.update() -- repaint while the handler is still running
+                bas.update()
             end, urlOverride)
 
         if ok then
@@ -315,7 +327,8 @@ do
         elseif arg == "--url" then
             i = i + 1
             urlOverride = args[i]
-        elseif arg == "source" or arg == "bundled" or arg == "minified" then
+        elseif arg == "source" or arg == "bundled"
+            or arg == "minified" or arg == "compressed" then
             variant = arg
         elseif arg:sub(1, 2) ~= "--" then
             target = arg

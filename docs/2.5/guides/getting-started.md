@@ -10,10 +10,10 @@ interactive UI.
 
 ## Installation
 
-Download the Basalt single-file bundle and save it as `basalt.lua`:
+Download Basalt via the installer:
 
 ```shell
-wget https://raw.githubusercontent.com/Pyroxenium/Basalt2/basalt2.5/bundle/basalt.lua basalt.lua
+wget run https://basalt.madefor.cc/2.5/install.lua
 ```
 
 You can then load it from a program in the same directory:
