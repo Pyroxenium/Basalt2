@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   craftos:
@@ -45,7 +45,7 @@ jobs:
             --mount-ro "basalt=$GITHUB_WORKSPACE/src" \
             --exec "local ok=shell.run('basalt/main.lua'); os.shutdown(ok and 0 or 1)"
 
-      - name: Build release bundle
+      - name: Build release bundles
         run: |
           mkdir -p "$RUNNER_TEMP/craftos-bundle"
           mkdir -p "$RUNNER_TEMP/basalt-output"
@@ -54,15 +54,28 @@ jobs:
             --directory "$RUNNER_TEMP/craftos-bundle" \
             --mount-ro "Basalt=$GITHUB_WORKSPACE" \
             --mount-rw "output=$RUNNER_TEMP/basalt-output" \
-            --exec "local ok=shell.run('Basalt/tools/bundle.lua','output/basalt.lua'); os.shutdown(ok and 0 or 1)"
+            --exec "local bundled=shell.run('Basalt/tools/bundle.lua','--no-minify','output/basalt.lua'); local minified=bundled and shell.run('Basalt/tools/bundle.lua','output/basalt.min.lua'); local compressed=minified and shell.run('Basalt/tools/bundle.lua','--compress','output/basalt.compressed.lua'); if compressed then local normal=assert(loadfile('output/basalt.lua'))(); local compact=assert(loadfile('output/basalt.min.lua'))(); local packed=assert(loadfile('output/basalt.compressed.lua'))(); assert(normal.VERSION==compact.VERSION and compact.VERSION==packed.VERSION) end; os.shutdown(compressed and 0 or 1)"
 
-      - name: Verify committed bundle
-        run: cmp "$RUNNER_TEMP/basalt-output/basalt.lua" bundle/basalt.lua
+      - name: Update committed bundles
+        if: github.event_name == 'push'
+        run: |
+          cp "$RUNNER_TEMP/basalt-output/basalt.lua" bundle/basalt.lua
+          cp "$RUNNER_TEMP/basalt-output/basalt.min.lua" bundle/basalt.min.lua
+          cp "$RUNNER_TEMP/basalt-output/basalt.compressed.lua" \
+            bundle/basalt.compressed.lua
+          git add bundle/basalt.lua bundle/basalt.min.lua \
+            bundle/basalt.compressed.lua
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Build release bundles"
+          git push
 
-      - name: Upload release bundle
+      - name: Upload release bundles
         uses: actions/upload-artifact@v7
         with:
           name: basalt-2.5
-          path: ${{ runner.temp }}/basalt-output/basalt.lua
+          path: ${{ runner.temp }}/basalt-output/*.lua
           if-no-files-found: error
-

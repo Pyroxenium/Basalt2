@@ -1,5 +1,3 @@
-init.lua
-bundle.lua
 src/core/baseframe.lua
 src/core/class.lua
 src/core/collection.lua
@@ -16,6 +14,7 @@ src/core/scroll.lua
 src/core/state.lua
 src/core/text.lua
 src/elements/Button.lua
+src/elements/Canvas.lua
 src/elements/Checkbox.lua
 src/elements/Collection.lua
 src/elements/Column.lua
