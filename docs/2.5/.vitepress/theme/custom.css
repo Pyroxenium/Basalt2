@@ -26,3 +26,27 @@
     #ffc08a 90%
   );
 }
+
+.basalt-preview {
+  margin: 48px auto 0;
+  padding: 0 24px;
+  max-width: 1152px;
+}
+
+.basalt-preview video {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 860px;
+  background: #14161b;
+  box-shadow: var(--vp-shadow-3);
+  image-rendering: pixelated;
+}
+
+@media (min-width: 768px) {
+  .basalt-preview {
+    padding: 0 48px;
+  }
+}

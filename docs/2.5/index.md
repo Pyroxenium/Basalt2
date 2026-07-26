@@ -30,3 +30,10 @@ features:
   - title: Modular Design
     details: With a rich set of objects and modules, Basalt allows you to craft custom experiences, scaling up or down based on your needs.
 ---
+
+<div class="basalt-preview">
+  <video autoplay muted loop playsinline controls aria-label="Basalt 2.5 interface showcase">
+    <source src="/preview.mp4" type="video/mp4">
+    Your browser does not support embedded videos.
+  </video>
+</div>

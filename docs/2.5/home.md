@@ -57,7 +57,7 @@ basalt.run()
 
 ## Preview
 
-![Basalt Demo GIF](https://raw.githubusercontent.com/Pyroxenium/Basalt/master/docs/_media/basaltPreview2.gif)
+![Basalt 2.5 showcase](/2.5/preview.gif)
 
 ## Documentation
 
