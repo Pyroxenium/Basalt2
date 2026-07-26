@@ -72,6 +72,8 @@ theme.classes = {
 }
 
 --- Changes class-level defaults for the given element types.
+---@param themeTable table Map of type name -> { property = value, states = {...} }
+---@usage theme.set({ Button = { background = colors.blue } })
 function theme.set(themeTable)
     for typeName, props in pairs(themeTable) do
         local cls = theme.classes[typeName]
@@ -225,8 +227,10 @@ theme.presets = {
     },
 }
 
---- Applies a preset (by name or as a table from theme.load) via theme.set
---- and returns its color tokens: local pal = theme.applyPreset("basalt")
+--- Applies a preset (by name or as a table from theme.load) via theme.set.
+---@param presetOrName string|table Preset name or loaded preset table
+---@return table colors The preset's color tokens
+---@usage local pal = theme.applyPreset("basalt")
 function theme.applyPreset(presetOrName)
     local preset = type(presetOrName) == "table"
         and presetOrName or theme.presets[presetOrName]
@@ -269,6 +273,9 @@ end
 --- pass the name straight into applyPreset:
 ---   theme.applyPreset(theme.load("themes/obsidian.json"))
 --- .json files are parsed as JSON, everything else with textutils.unserialize.
+---@param path string Path to the theme file
+---@return string name The registered preset name
+---@return table preset The resolved preset ({ colors, styles })
 function theme.load(path)
     local handle = fs.open(path, "r")
     if not handle then
@@ -330,6 +337,8 @@ function theme.load(path)
 end
 
 --- Applies properties to every matching element in a subtree (by type name).
+---@param root Element Root element
+---@param themeTable table Map of class names to properties/state styles
 function theme.apply(root, themeTable)
     local props = themeTable[root.__name]
     if props then

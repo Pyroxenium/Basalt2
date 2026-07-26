@@ -1,11 +1,45 @@
--- Shared Basalt2-compatible API for flat item collections.
--- Installed as a mixin so ComboBox can retain Input as its base class.
-
 local require = ...
 local class = require("core/class")
 local CollectionEntry = require("core/collectionentry")
 
-local collection = {}
+--- Data accepted by collection-like elements when creating an entry.
+---@class CollectionItem
+---@field text? string Display text
+---@field label? string Fallback display text when text is omitted
+---@field value? any Item value and final fallback display text
+---@field callback? fun(collection: CollectionMixin, item: CollectionEntry|CollectionItem) Called when the item is activated
+---@field selectable? boolean Whether the entry can be selected
+---@field disabled? boolean Whether the entry is disabled
+---@field separator? boolean Whether the entry is rendered as a separator
+---@field selected? boolean Whether the entry should initially be selected
+---@field fg? number Foreground color
+---@field bg? number Background color
+---@field selectedFg? number Foreground color while selected
+---@field selectedBg? number Background color while selected
+---@field iconChar? string|number Optional single-cell icon
+---@field iconX? number Horizontal icon position
+---@field iconForeground? number Icon foreground color
+---@field iconBackground? number Icon background color
+---@field selectedIconForeground? number Icon foreground color while selected
+---@field selectedIconBackground? number Icon background color while selected
+---@field items? (CollectionItem|string)[] Submenu items
+---@field dropdown? (CollectionItem|string)[] Alias for submenu items
+
+--- CollectionMixin provides shared properties and methods for collection-like elements.
+---@class CollectionMixin
+---@field items CollectionEntry[] List of collection entries
+---@field selectable boolean Whether items can be selected
+---@field multiSelection boolean Whether multiple items can be selected
+---@field selected integer|false The first selected index, or false if none
+---@field selectionBackground number Selection background color
+---@field selectionForeground number Selection foreground color
+---@field _collectionSelection table<CollectionEntry, boolean> Internal selection map
+---@field _collectionChangeEvent string|nil Name of the change event to fire
+---@field _p table Properties table (items, selectable, multiSelection, selected, selectionBackground, selectionForeground)
+---@field _class table Class table with shared properties and methods
+local methods = {}
+
+local collection = { methods = methods }
 
 local function indexOf(self, value)
     if type(value) == "number" then
@@ -92,6 +126,9 @@ local function ensureProperty(c, name, default, options)
     if c.__props[name] == nil then class.property(c, name, default, options) end
 end
 
+--- Installs the shared collection properties, events and methods on a class.
+---@param c table Target element class
+---@param options? { changeEvent?: string|false } Mixin options
 function collection.install(c, options)
     options = options or {}
     ensureProperty(c, "items", false, {
@@ -123,6 +160,7 @@ function collection.install(c, options)
     ensureProperty(c, "selectionBackground", colors.blue)
     ensureProperty(c, "selectionForeground", colors.white)
 
+--- Fired on item selection with (index, item)
     class.event(c, "select")
     local changeEvent
     if options.changeEvent ~= false then
@@ -153,6 +191,8 @@ function collection.install(c, options)
     for name, method in pairs(collection.methods) do c[name] = method end
 end
 
+--- Initializes per-instance state and input handlers.
+---@param self CollectionMixin Collection-like element
 function collection.setup(self)
     rawset(self, "_collectionSelection", {})
     rawset(self, "_collectionChangeEvent", self._class._collectionChangeEventName)
@@ -165,21 +205,29 @@ function collection.setup(self)
     syncSelected(self)
 end
 
-collection.methods = {}
-local methods = collection.methods
-
+--- Resolves an item value or index to its current index.
+---@param value integer|CollectionEntry Item index or entry
+---@return integer|nil index The index, or nil if not found
 function methods:indexOfItem(value)
     return indexOf(self, value)
 end
 
+--- Returns one normalized entry by index.
+---@param index integer Item index
+---@return CollectionEntry|nil entry
 function methods:getItem(index)
     return self.items[index]
 end
 
+--- Returns the number of collection entries.
+---@return integer count
 function methods:getItemCount()
     return #self.items
 end
 
+--- Appends an item (string, table with text/fg/bg/callback, or entry).
+---@param item CollectionItem|string|CollectionEntry The item to add
+---@return CollectionEntry entry The normalized collection entry
 function methods:addItem(item)
     local wantsSelection = type(item) == "table" and not CollectionEntry.is(item)
         and item.selected == true
@@ -191,6 +239,10 @@ function methods:addItem(item)
     return entry
 end
 
+--- Inserts an item at a position (clamped to the valid range).
+---@param index number Target position
+---@param item CollectionItem|string|CollectionEntry The item to insert
+---@return CollectionEntry entry The normalized collection entry
 function methods:insertItem(index, item)
     index = math.max(1, math.min(#self.items + 1, math.floor(index)))
     local entry = normalize(self, item)
@@ -203,6 +255,9 @@ function methods:insertItem(index, item)
     return entry
 end
 
+--- Removes an item by value or index; selection is kept consistent.
+---@param value integer|CollectionEntry Item index or entry
+---@return self
 function methods:removeItem(value)
     local index = indexOf(self, value)
     if not index then return self end
@@ -217,6 +272,8 @@ function methods:removeItem(value)
     return self
 end
 
+--- Removes all entries and clears selection.
+---@return self
 function methods:clear()
     local oldIndex, oldItem = selectedSnapshot(self)
     for _, entry in ipairs(self.items) do rawset(entry, "_parent", nil) end
@@ -227,20 +284,30 @@ function methods:clear()
     return self
 end
 
+--- Alias for clear().
+---@return self
 function methods:clearItems()
     return self:clear()
 end
 
+--- Tests whether an entry or index is selected.
+---@param value integer|CollectionEntry Item index or entry
+---@return boolean selected
 function methods:isItemSelected(value)
     local index = indexOf(self, value)
     return index ~= nil
         and rawget(self, "_collectionSelection")[self.items[index]] == true
 end
 
+--- Basalt 2 compatibility alias for isItemSelected().
+---@param value integer|CollectionEntry Item index or entry
+---@return boolean selected
 function methods:isSelected(value)
     return self:isItemSelected(value)
 end
 
+--- Returns all selected entries in display order.
+---@return CollectionEntry[] entries List of selected collection entries
 function methods:getSelectedItems()
     local result = {}
     local selected = rawget(self, "_collectionSelection")
@@ -250,6 +317,8 @@ function methods:getSelectedItems()
     return result
 end
 
+--- Returns the first selected entry.
+---@return CollectionEntry|nil entry
 function methods:getSelectedItem()
     local selected = rawget(self, "_collectionSelection")
     for _, entry in ipairs(self.items) do
@@ -257,6 +326,8 @@ function methods:getSelectedItem()
     end
 end
 
+--- Returns the first selected entry's current index.
+---@return integer|nil index
 function methods:getSelectedIndex()
     local selected = rawget(self, "_collectionSelection")
     for i, entry in ipairs(self.items) do
@@ -264,6 +335,8 @@ function methods:getSelectedIndex()
     end
 end
 
+--- Returns all selected indices in ascending order.
+---@return integer[] indices
 function methods:getSelection()
     local result = {}
     local selected = rawget(self, "_collectionSelection")
@@ -273,6 +346,10 @@ function methods:getSelection()
     return result
 end
 
+--- Selects an item (adds to the selection when multiSelection is on).
+---@param value integer|CollectionEntry Item index or entry
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:selectItem(value, emit)
     if not self.selectable then return self end
     local index = indexOf(self, value)
@@ -293,6 +370,10 @@ function methods:selectItem(value, emit)
     return self
 end
 
+--- Removes an entry from selection.
+---@param value integer|CollectionEntry Item index or entry
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:unselectItem(value, emit)
     local index = indexOf(self, value)
     local entry = index and self.items[index]
@@ -304,6 +385,10 @@ function methods:unselectItem(value, emit)
     return self
 end
 
+--- Toggles an item's selection state.
+---@param value integer|CollectionEntry Item index or entry
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:toggleItem(value, emit)
     if self:isItemSelected(value) then
         return self:unselectItem(value, emit)
@@ -311,6 +396,9 @@ function methods:toggleItem(value, emit)
     return self:selectItem(value, emit)
 end
 
+--- Clears all selected entries.
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:clearItemSelection(emit)
     local oldIndex, oldItem = selectedSnapshot(self)
     if not oldItem then return self end
@@ -319,10 +407,16 @@ function methods:clearItemSelection(emit)
     return self
 end
 
+--- Alias for clearItemSelection().
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:clearSelection(emit)
     return self:clearItemSelection(emit)
 end
 
+--- Selects the next selectable entry after the current selection.
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:selectNext(emit)
     local start = self:getSelectedIndex() or 0
     for index = start + 1, #self.items do
@@ -331,6 +425,9 @@ function methods:selectNext(emit)
     return self
 end
 
+--- Selects the previous selectable entry before the current selection.
+---@param emit boolean|nil false suppresses the change event
+---@return self
 function methods:selectPrevious(emit)
     local start = self:getSelectedIndex() or (#self.items + 1)
     for index = start - 1, 1, -1 do
@@ -339,16 +436,26 @@ function methods:selectPrevious(emit)
     return self
 end
 
+--- Scrolls a collection view to its first item when supported.
+---@return self
 function methods:scrollToTop()
     if self.setOffset then self:setOffset(0) end
     return self
 end
 
+--- Scrolls a collection view to its final item when supported.
+---@return self
 function methods:scrollToBottom()
     if self.setOffset then self:setOffset(math.huge) end
     return self
 end
 
+--- Selects an item AND fires its callback plus the select event
+--- (what a mouse click or the enter key does).
+---@param value integer|CollectionEntry Item index or entry
+---@param emit boolean|nil false suppresses callback and select event
+---@param toggle boolean|nil true toggles instead of selecting
+---@return self
 function methods:activateItem(value, emit, toggle)
     local index = indexOf(self, value)
     local entry = index and self.items[index]
@@ -362,16 +469,26 @@ function methods:activateItem(value, emit, toggle)
     return self
 end
 
+--- Selects and optionally activates an entry.
+---@param value integer|CollectionEntry Item index or entry
+---@param emit boolean|nil false suppresses callback/select event
+---@return self
 function methods:select(value, emit)
     return self:activateItem(value, emit, self.multiSelection)
 end
 
+---@param entry CollectionEntry Entry to move
+---@param delta number Relative position change
+---@return self
 function methods:_moveCollectionEntry(entry, delta)
     local index = indexOf(self, entry)
     if index then self:_moveCollectionEntryTo(entry, index + delta) end
     return self
 end
 
+---@param entry CollectionEntry Entry to move
+---@param target number Target index
+---@return self
 function methods:_moveCollectionEntryTo(entry, target)
     local index = indexOf(self, entry)
     if not index then return self end
@@ -385,6 +502,9 @@ function methods:_moveCollectionEntryTo(entry, target)
     return self
 end
 
+---@param a CollectionEntry First entry
+---@param b CollectionEntry Second entry
+---@return self
 function methods:_swapCollectionEntries(a, b)
     local ai, bi = indexOf(self, a), indexOf(self, b)
     if ai and bi and ai ~= bi then

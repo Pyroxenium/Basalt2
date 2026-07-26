@@ -1,29 +1,86 @@
--- Base class for everything visible in Basalt3.
+-- Base class for everything visible in Basalt 2.
 
 local require = ...
 local class = require("core/class")
 local state = require("core/state")
 local layout = require("core/layout")
 
+---@alias ElementPositionMode "flow"|"absolute"
+---@alias ElementAlignment "start"|"center"|"end"|"stretch"
+---@alias ElementEventHandler fun(self: Element, ...: any)
+
+---@class ElementLayoutBox
+---@field x number Resolved parent-local x position
+---@field y number Resolved parent-local y position
+---@field width number Resolved width
+---@field height number Resolved height
+
+---@class ElementBindingOptions
+---@field fromState? fun(value: any, element: Element): any State-to-property transform
+---@field toState? fun(value: any, element: Element, ...: any): any Property-to-state transform
+---@field event? string Event used for two-way updates
+---@field twoWay? boolean Whether writable state is updated from the element
+
+---@class ElementBinding
+---@field source Signal|Computed Bound state value
+---@field value Signal|Computed State or transformed computed value
+---@field event? string Event registered for two-way updates
+---@field handler? ElementEventHandler Registered two-way event handler
+
+---@class Element
+---@field public x number Parent-local horizontal position
+---@field public y number Parent-local vertical position
+---@field public z number Stacking order among siblings
+---@field public width number Resolved width
+---@field public height number Resolved height
+---@field public minWidth number|false Minimum width, or false for none
+---@field public maxWidth number|false Maximum width, or false for none
+---@field public minHeight number|false Minimum height, or false for none
+---@field public maxHeight number|false Maximum height, or false for none
+---@field public position ElementPositionMode Positioning mode inside flex layouts
+---@field public alignSelf ElementAlignment|false Per-child cross-axis alignment
+---@field public shrink number|false Flex shrink weight, or false for automatic behavior
+---@field public visible boolean Whether the element is rendered and receives input
+---@field public background number|false Background color, or false for transparency
+---@field public foreground number Foreground color
+---@field public name string Lookup name
+---@field public disabled boolean Whether input is disabled
+---@field public parent? Container Owning container
+---@field private _p table<string, any> Authored property values
+---@field private _handlers table<string, ElementEventHandler[]> Event handlers by name
+---@field private _class table Runtime class table
+---@field private _layoutBox? ElementLayoutBox Resolved layout override
+---@field private _order? integer Stable insertion order within the parent
+---@field private _states table<string, boolean> Active-state map
+---@field private _stateStyles table<string, table<string, any>> Per-state property overrides
+---@field private _statePriorities table<string, number> Per-state priority overrides
+---@field private _stateSequence table<string, integer> State activation sequence
+---@field private _stateSequenceN integer Latest activation sequence number
+---@field private _activeStates? string[] Cached active states in resolution order
+---@field private _bindings table<string, ElementBinding> Property bindings
+---@field private _stateDependencies? table<Signal|Computed, boolean> Reactive dependencies
+---@field private _dirty? boolean Root render-dirty flag
 local Element = class.create("Element")
 
-class.property(Element, "x", 1)
-class.property(Element, "y", 1)
+class.property(Element, "x", 1) -- horizontal position, parent-local, 1-based
+class.property(Element, "y", 1) -- vertical position, parent-local, 1-based
+--- Stacking order among siblings; higher z renders on top
 class.property(Element, "z", 0, {
     onChange = function(self)
         local p = rawget(self, "parent")
         if p then p._sortDirty = true end
     end,
 })
-class.property(Element, "width", 1)
-class.property(Element, "height", 1)
-class.property(Element, "minWidth", false)
-class.property(Element, "maxWidth", false)
-class.property(Element, "minHeight", false)
-class.property(Element, "maxHeight", false)
-class.property(Element, "position", "flow")
-class.property(Element, "alignSelf", false)
-class.property(Element, "shrink", false)
+class.property(Element, "width", 1) -- number, basalt.auto/fill/percent or dynamic
+class.property(Element, "height", 1) -- number, basalt.auto/fill/percent or dynamic
+class.property(Element, "minWidth", false) -- layout constraint, false = none
+class.property(Element, "maxWidth", false) -- layout constraint, false = none
+class.property(Element, "minHeight", false) -- layout constraint, false = none
+class.property(Element, "maxHeight", false) -- layout constraint, false = none
+class.property(Element, "position", "flow") -- "flow" or "absolute" (flex layouts)
+class.property(Element, "alignSelf", false) -- per-child cross-axis override
+class.property(Element, "shrink", false) -- may shrink below its desired size
+--- Hidden elements are neither rendered nor hit by events
 class.property(Element, "visible", true, {
     onChange = function(self, visible)
         if not visible then
@@ -32,9 +89,10 @@ class.property(Element, "visible", true, {
         end
     end,
 })
-class.property(Element, "background", false)      -- false = transparent
-class.property(Element, "foreground", colors.white)
-class.property(Element, "name", "", { visual = false })
+class.property(Element, "background", false) -- colors.*, basalt.rgb or false = transparent
+class.property(Element, "foreground", colors.white) -- text color
+class.property(Element, "name", "", { visual = false }) -- lookup key for find() and reactive refs
+--- Disabled elements ignore all input; mirrored to the "disabled" state
 class.property(Element, "disabled", false, {
     state = "disabled",
     styleable = false,
@@ -53,19 +111,33 @@ class.combinedProperty(Element, "Colors", { "foreground", "background" })
 class.combinedProperty(Element, "MinSize", { "minWidth", "minHeight" })
 class.combinedProperty(Element, "MaxSize", { "maxWidth", "maxHeight" })
 
+--- Fired on mouse press with (button, x, y) in local coordinates
 class.event(Element, "click")
+--- Fired on mouse release with (button, x, y), also when released outside
 class.event(Element, "clickUp")
+--- Fired while dragging with (button, x, y) relative to the element
 class.event(Element, "drag")
+--- Fired on mouse wheel with (direction, x, y)
 class.event(Element, "scroll")
+--- Fired when the element gains keyboard focus
 class.event(Element, "focus")
+--- Fired when the element loses keyboard focus
 class.event(Element, "blur")
+--- Fired on key press with the key code (while focused)
 class.event(Element, "key")
+--- Fired on key release with the key code
 class.event(Element, "keyUp")
+--- Fired on character input with the typed character
 class.event(Element, "char")
+--- Fired on ctrl+v with the pasted text
 class.event(Element, "paste")
+--- Fired when a named state toggles, with (stateName, active)
 class.event(Element, "stateChange")
+--- Fired when the pointer moves onto the element
 class.event(Element, "mouseEnter")
+--- Fired when the pointer leaves the element
 class.event(Element, "mouseLeave")
+--- Fired before children are laid out, with (width, height)
 class.event(Element, "layout")
 
 local statePriorities = {
@@ -193,6 +265,9 @@ function Element:setup()
 end
 
 --- Activates or deactivates a named state. State changes are idempotent.
+---@param stateName string The state name (e.g. "hover", "checked")
+---@param active? boolean false or nil deactivates the state
+---@return self
 function Element:setState(stateName, active)
     if type(stateName) ~= "string" or stateName == "" then
         error("Basalt: state name must be a non-empty string", 2)
@@ -217,14 +292,22 @@ function Element:setState(stateName, active)
     return self
 end
 
+--- Returns whether a named state is active.
+---@param stateName string State name
+---@return boolean active
 function Element:hasState(stateName)
     return rawget(self, "_states")[stateName] == true
 end
 
+--- Toggles a named state.
+---@param stateName string State name
+---@return self
 function Element:toggleState(stateName)
     return self:setState(stateName, not self:hasState(stateName))
 end
 
+--- Returns active state names sorted alphabetically.
+---@return string[] states
 function Element:getStates()
     local result = {}
     for stateName, active in pairs(rawget(self, "_states")) do
@@ -235,6 +318,11 @@ function Element:getStates()
 end
 
 --- Defines per-element property overrides for a state.
+---@param stateName string The state the style applies to
+---@param props table<string, any> Property overrides while the state is active
+---@param priority? number Optional state priority override
+---@return self
+---@usage btn:setStateStyle("hover", { background = colors.blue })
 function Element:setStateStyle(stateName, props, priority)
     if type(props) ~= "table" then
         error("Basalt: state style must be a table", 2)
@@ -261,6 +349,10 @@ function Element:setStateStyle(stateName, props, priority)
     return self
 end
 
+--- Overrides the resolution priority of a named state.
+---@param stateName string State name
+---@param priority number Higher priorities win
+---@return self
 function Element:setStatePriority(stateName, priority)
     if type(priority) ~= "number" then
         error("Basalt: state priority must be a number", 2)
@@ -271,8 +363,9 @@ function Element:setStatePriority(stateName, priority)
     return self
 end
 
---- Applies a table of properties; keys like onClick with a function value
---- are registered as event handlers.
+--- Applies properties and onX callback entries from a table.
+---@param props table<string, any> Property/callback map
+---@return self
 function Element:apply(props)
     for k, v in pairs(props) do
         if type(v) == "function" and k:find("^on%u") and self[k] then
@@ -284,12 +377,17 @@ function Element:apply(props)
     return self
 end
 
---- Returns the stored property value without evaluating dynamic values
---- (i.e. the function itself instead of its result).
+--- Returns an authored property without resolving state/functions/signals.
+---@param propName string Property name
+---@return any value
 function Element:raw(propName)
     return rawget(self, "_p")[propName]
 end
 
+--- Registers an event handler; fn(self, ...) runs on every fire.
+---@param eventName string The event name (e.g. "click", "change")
+---@param fn ElementEventHandler The handler
+---@return self
 function Element:on(eventName, fn)
     local hs = self._handlers[eventName]
     if not hs then
@@ -300,7 +398,10 @@ function Element:on(eventName, fn)
     return self
 end
 
---- Removes one previously registered event handler.
+--- Removes one registered event handler.
+---@param eventName string Event name
+---@param fn ElementEventHandler Previously registered handler
+---@return self
 function Element:off(eventName, fn)
     local hs = self._handlers[eventName]
     if not hs then return self end
@@ -320,13 +421,11 @@ local defaultBindingEvents = {
     selected = "select",
 }
 
---- Binds a property to application state.
----
---- options may be a function (state -> property transform) or a table:
----   fromState(value, self) -> displayed property value
----   toState(value, self, ...) -> value written back by control events
----   event = "change" / "select" / custom event name
----   twoWay = false to explicitly disable automatic event write-back
+--- Binds a property to a State/Computed value with optional two-way mapping.
+---@param propName string Property name
+---@param source Signal|Computed State or computed value
+---@param options? ElementBindingOptions|fun(value: any, element: Element): any Binding options or fromState transform
+---@return self
 function Element:bind(propName, source, options)
     local c = rawget(self, "_class")
     if not c.__props[propName] then
@@ -369,10 +468,12 @@ function Element:bind(propName, source, options)
         if toState ~= nil and type(toState) ~= "function" then
             error("Basalt: toState must be a function", 2)
         end
+        local writableSource = source
+        ---@cast writableSource Signal
         binding.event = eventName
         binding.handler = function(_, value, ...)
             if toState then value = toState(value, self, ...) end
-            source:set(value)
+            writableSource:set(value)
             -- Controls assign their property before firing change/select.
             -- Restore the reactive property after the write-back.
             self[propName] = boundValue
@@ -386,8 +487,10 @@ function Element:bind(propName, source, options)
     return self
 end
 
---- Removes a binding. By default the currently displayed value is retained;
---- pass false to fall back to the class default instead.
+--- Removes a property binding.
+---@param propName string Property name
+---@param keepCurrent? boolean false restores the class/default value
+---@return self
 function Element:unbind(propName, keepCurrent)
     local bindings = rawget(self, "_bindings")
     local binding = bindings and bindings[propName]
@@ -406,6 +509,10 @@ function Element:unbind(propName, keepCurrent)
     return self
 end
 
+--- Fires an event synchronously on all registered handlers.
+---@param eventName string Event name
+---@param ... any Event arguments
+---@return boolean handled True when handlers existed
 function Element:fire(eventName, ...)
     local hs = self._handlers[eventName]
     if not hs then return false end
@@ -418,12 +525,14 @@ end
 --- Marks the UI tree this element belongs to as needing a redraw.
 --- Only the root's flag matters: the tree is redrawn as a whole and the line
 --- diff in the render buffer keeps the actual terminal IO minimal.
+---@return self
 function Element:markDirty()
     return self:markLayoutDirty()
 end
 
 --- Marks only the retained render tree dirty. Scrolling and paint-only state
 --- changes use this path so cached layout remains valid.
+---@return self
 function Element:markRenderDirty()
     local n = self
     local p = rawget(n, "parent")
@@ -437,6 +546,8 @@ end
 
 --- Invalidates cached layout/content bounds for this element's container
 --- chain. Paint-only properties deliberately skip this expensive path.
+---@param propName? string Changed property, if known
+---@return self
 function Element:invalidateLayout(propName)
     if propName and not propertyAffectsLayout(propName) then return self end
     local n = self
@@ -450,17 +561,24 @@ function Element:invalidateLayout(propName)
     return self
 end
 
+--- Invalidates layout and marks the retained render tree dirty.
+---@return self
 function Element:markLayoutDirty()
     self:invalidateLayout()
     return self:markRenderDirty()
 end
 
---- Point test in parent-local coordinates.
+--- Tests parent-local coordinates against this element's bounds.
+---@param px number Parent-local x
+---@param py number Parent-local y
+---@return boolean inside
 function Element:contains(px, py)
     local x, y = self.x, self.y
     return px >= x and py >= y and px < x + self.width and py < y + self.height
 end
 
+--- Returns the root element of this UI tree.
+---@return Element root
 function Element:getRoot()
     local n = self
     while rawget(n, "parent") do
@@ -469,6 +587,9 @@ function Element:getRoot()
     return n
 end
 
+--- Returns terminal-local coordinates after ancestor scroll offsets.
+---@return number x
+---@return number y
 function Element:getAbsolutePosition()
     local x, y = self.x, self.y
     local p = rawget(self, "parent")
@@ -482,11 +603,15 @@ end
 
 --- Returns the intrinsic size used by basalt.auto(). Elements with content
 --- override this; the base implementation keeps numeric authored dimensions.
+---@return number width
+---@return number height
 function Element:measure()
     local w, h = layout.spec(self, "width"), layout.spec(self, "height")
     return type(w) == "number" and w or 1, type(h) == "number" and h or 1
 end
 
+--- Gives this element keyboard focus.
+---@return self
 function Element:focus()
     if self.disabled then return self end
     local root = self:getRoot()
@@ -494,8 +619,12 @@ function Element:focus()
     return self
 end
 
---- Requests the terminal cursor at a local position; only honored while this
---- element has focus. Pass blink=false to hide it.
+--- Requests a cursor using element-local coordinates.
+---@param x number Local x
+---@param y number Local y
+---@param blink boolean Cursor blink state
+---@param color? number Cursor color
+---@return self
 function Element:setCursor(x, y, blink, color)
     local root = self:getRoot()
     if root ~= self and root.setCursor and root.getFocused
@@ -521,6 +650,8 @@ function Element:setCursor(x, y, blink, color)
     return self
 end
 
+--- Removes this element from its parent.
+---@return self
 function Element:destroy()
     local p = rawget(self, "parent")
     if p then p:removeChild(self) end
@@ -528,6 +659,7 @@ function Element:destroy()
 end
 
 --- Draws the element into the buffer (local coordinates, pre-clipped).
+---@param buf Render Render buffer
 function Element:render(buf)
     local bg = self.background
     if bg then
@@ -537,6 +669,11 @@ end
 
 --- Handles a positional mouse event in local coordinates.
 --- Returns the consuming element, or nil to let it pass through.
+---@param event string Mouse event name
+---@param btn number Mouse button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer
 function Element:handleMouse(event, btn, x, y)
     if self.disabled then return nil end
     if event == "mouse_click" then
@@ -556,6 +693,9 @@ function Element:handleMouse(event, btn, x, y)
 end
 
 --- Handles a keyboard event (element must be focused).
+---@param event string Keyboard event name
+---@param a any Key code or text
+---@param b? any Secondary event value
 function Element:handleKey(event, a, b)
     if self.disabled then return end
     if event == "key" then

@@ -13,28 +13,51 @@ local class = require("core/class")
 local Container = require("core/container")
 local textutil = require("core/text")
 
+---@alias DialogAlertCallback fun()
+---@alias DialogConfirmCallback fun(confirmed: boolean)
+---@alias DialogPromptCallback fun(value: string?)
+---@alias DialogButtonDefinition [string, fun()]
+
+---@class Dialog : Container
+---@field public title string Title-bar text
+---@field public titleBackground number Title-bar background
+---@field public titleForeground number Title-bar foreground
+---@field public boxBackground number Message-box background
+---@field public boxForeground number Message-box foreground
+---@field public boxWidth number Maximum message-box width
 local Dialog = class.create("Dialog", Container)
 
+--- Title bar text
 class.property(Dialog, "title", "")
+--- Title bar background
 class.property(Dialog, "titleBackground", colors.blue)
+--- Title bar text color
 class.property(Dialog, "titleForeground", colors.white)
+--- Message box background
 class.property(Dialog, "boxBackground", colors.lightGray)
+--- Message box text color
 class.property(Dialog, "boxForeground", colors.black)
+--- Maximum width of the message box
 class.property(Dialog, "boxWidth", 26)
+--- Whether the element is shown and hit by events
 class.property(Dialog, "visible", false)
 class.property(Dialog, "background", false) -- invisible modal backdrop
 -- backdrop always covers the parent
+--- Width in terminal cells
 class.property(Dialog, "width", function(self)
     local parent = rawget(self, "parent")
     return parent and parent.width or 1
 end)
+--- Height in terminal cells
 class.property(Dialog, "height", function(self)
     local parent = rawget(self, "parent")
     return parent and parent.height or 1
 end)
 
+--- Fired when the dialog closes, with the result
 class.event(Dialog, "close")
 
+--- Initializes per-instance state and input handlers.
 function Dialog:setup()
     Container.setup(self)
     self.x, self.y = 1, 1
@@ -43,6 +66,7 @@ function Dialog:setup()
     self:on("click", function() end)
 end
 
+---@param self Dialog
 local function clearChildren(self)
     local children = self:getChildren()
     for i = #children, 1, -1 do
@@ -50,6 +74,9 @@ local function clearChildren(self)
     end
 end
 
+--- Closes the dialog and fires its callback/close event.
+---@param result? any Optional dialog result
+---@return self
 function Dialog:close(result)
     clearChildren(self)
     self.visible = false
@@ -58,6 +85,12 @@ function Dialog:close(result)
 end
 
 --- Builds the box: message + a row of buttons; returns box and content y.
+---@param self Dialog
+---@param title any
+---@param message string
+---@param extraRows? integer
+---@return Frame box
+---@return number contentY
 local function buildBox(self, title, message, extraRows)
     clearChildren(self)
     self.title = tostring(title or "")
@@ -90,6 +123,10 @@ local function buildBox(self, title, message, extraRows)
     return box, 2 + #lines + 1
 end
 
+---@param self Dialog
+---@param box Frame
+---@param buttons DialogButtonDefinition[]
+---@param contentY number
 local function addButtons(self, box, buttons, contentY)
     local totalWidth = 0
     for _, buttonDef in ipairs(buttons) do
@@ -110,6 +147,10 @@ local function addButtons(self, box, buttons, contentY)
 end
 
 --- Message + OK button; callback() runs after closing.
+---@param title string The title bar text
+---@param message string The message (word-wrapped)
+---@param callback? DialogAlertCallback Called after the dialog closes
+---@return self
 function Dialog:alert(title, message, callback)
     local box, contentY = buildBox(self, title, message, 0)
     addButtons(self, box, {
@@ -122,6 +163,10 @@ function Dialog:alert(title, message, callback)
 end
 
 --- Yes/No question; callback(true|false).
+---@param title string The title bar text
+---@param message string The question (word-wrapped)
+---@param callback? DialogConfirmCallback Receives true (Yes) or false (No)
+---@return self
 function Dialog:confirm(title, message, callback)
     local box, contentY = buildBox(self, title, message, 0)
     addButtons(self, box, {
@@ -138,6 +183,11 @@ function Dialog:confirm(title, message, callback)
 end
 
 --- Text input; callback(text) on OK, callback(nil) on Cancel.
+---@param title string The title bar text
+---@param message string The prompt text (word-wrapped)
+---@param default? string Prefilled input value
+---@param callback? DialogPromptCallback Receives the entered text, or nil
+---@return self
 function Dialog:prompt(title, message, default, callback)
     local box, contentY = buildBox(self, title, message, 2)
     local input = box:addInput({

@@ -1,7 +1,7 @@
 local require = ...
 if type(require) ~= "function" then
     local name, path = ...
-    local initPath = fs.combine(fs.getDir(path or "Basalt3/src/main.lua"), "init.lua")
+    local initPath = fs.combine(fs.getDir(path or "basalt/main.lua"), "init.lua")
     return assert(loadfile(initPath, nil, _ENV))(name, initPath)
 end
 local errors = require("core/errors")
@@ -12,6 +12,7 @@ local Container = require("core/container")
 local BaseFrame = require("core/baseframe")
 
 Container.register("Label", require("elements/Label"))
+Container.register("Canvas", require("elements/Canvas"))
 Container.register("Button", require("elements/Button"))
 Container.register("Frame", require("elements/Frame"))
 Container.register("Input", require("elements/Input"))
@@ -41,7 +42,8 @@ basalt.VERSION = "2.5.0-dev"
 basalt.traceback = true
 basalt.errors = errors
 
---- Registers a custom RGB color; returns a handle usable like a colors.* value.
+--- Registers a custom RGB color; returns a handle usable like a colors.*
+--- value. Accepts "#RRGGBB", "#RGB", "#AARRGGBB", 0xRRGGBB or r,g,b.
 basalt.rgb = palette.rgb
 
 --- Creates writable application state. Signals can be assigned directly to
@@ -61,6 +63,9 @@ basalt.percent = layout.percent
 --- Loads an optional module from modules/ (e.g. "debug", "animation",
 --- "theme", "xml") and returns its API. Modules extend Basalt from the
 --- outside; the core has no knowledge of them.
+---@param moduleName string The module name
+---@return table api The module's API table
+---@usage local theme = basalt.use("theme")
 function basalt.use(moduleName)
     return require("modules/" .. moduleName)
 end
@@ -90,12 +95,17 @@ function basalt.createFrame(t, monitorName)
 end
 
 --- Returns (or lazily creates) the main frame.
+--- Returns the first frame created by basalt.createFrame().
+---@return BaseFrame|nil frame
 function basalt.getMainFrame()
     return mainFrame or basalt.createFrame()
 end
 
 --- Runs a function in a coroutine driven by the event loop; blocking calls
 --- like sleep() are allowed inside.
+---@param fn function The function to run
+---@return thread co The coroutine handle
+---@usage basalt.schedule(function() sleep(1) label.text = "later" end)
 function basalt.schedule(fn)
     local co = coroutine.create(fn)
     local ok, filter = coroutine.resume(co)
@@ -178,6 +188,7 @@ function basalt.update(event, ...)
 end
 
 --- Stops the event loop.
+--- Stops the active basalt.run() event loop after the current event.
 function basalt.stop()
     running = false
 end
@@ -188,7 +199,9 @@ local function cleanup()
     end
 end
 
---- Starts the event loop; returns when basalt.stop() is called or on error.
+--- Starts the event loop; returns when basalt.stop() is called or on error
+--- (after showing the error screen).
+--- Runs the blocking event loop until stop() or terminate.
 function basalt.run()
     if running then error("Basalt is already running", 2) end
     running = true

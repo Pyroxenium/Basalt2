@@ -24,6 +24,8 @@ local function trim(s)
 end
 
 --- Parses an XML string into a tree of {tag, attrs, children, text} nodes.
+---@param src string XML source
+---@return table root Parsed root node
 function xml.parse(src)
     local root = { tag = nil, children = {} }
     local stack = { root }
@@ -128,13 +130,19 @@ local function build(parent, nodes, scope)
 end
 
 --- Builds elements from an XML string under `parent`.
---- `scope` provides the functions referenced by on* attributes.
---- Returns the list of top-level created elements.
+---@param parent table The container the elements are added to
+---@param src string The XML markup
+---@param scope table|nil Functions referenced by on* attributes
+---@return table elements The top-level created elements
 function xml.load(parent, src, scope)
     return build(parent, xml.parse(src), scope)
 end
 
 --- Like xml.load, but reads the markup from a file.
+---@param parent Container Parent container
+---@param path string XML file path
+---@param scope table|nil Event/function lookup scope
+---@return table elements Top-level created elements
 function xml.loadFile(parent, path, scope)
     local h = fs.open(path, "r")
     if not h then error("Basalt XML: cannot open " .. path, 2) end

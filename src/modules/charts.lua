@@ -30,13 +30,20 @@ end
 -- Graph: multiple named series of points
 ----------------------------------------------------------------------------
 
+---@class Graph : Element
 local Graph = class.create("Graph", Element)
+--- Lower bound of the value axis
 class.property(Graph, "minValue", 0)
+--- Upper bound of the value axis
 class.property(Graph, "maxValue", 100)
+--- Background color (false = transparent)
 class.property(Graph, "background", colors.black)
+--- Width in terminal cells
 class.property(Graph, "width", 20)
+--- Height in terminal cells
 class.property(Graph, "height", 8)
 
+--- Initializes per-instance state and input handlers.
 function Graph:setup()
     Element.setup(self)
     rawset(self, "_series", {})
@@ -44,6 +51,10 @@ end
 
 --- opts: symbol (default " "), fg, bg, pointCount (default width),
 --- visible (default true)
+--- Adds a named graph series.
+---@param name string Series name
+---@param opts table|nil symbol/fg/bg/pointCount/visible options
+---@return self
 function Graph:addSeries(name, opts)
     opts = opts or {}
     local series = rawget(self, "_series")
@@ -60,6 +71,9 @@ function Graph:addSeries(name, opts)
     return self
 end
 
+--- Returns a named series definition.
+---@param name string Series name
+---@return table|nil series
 function Graph:getSeries(name)
     for _, series in ipairs(rawget(self, "_series")) do
         if series.name == name then return series end
@@ -67,6 +81,9 @@ function Graph:getSeries(name)
     return nil
 end
 
+--- Removes a named series.
+---@param name string Series name
+---@return self
 function Graph:removeSeries(name)
     local series = rawget(self, "_series")
     for i = 1, #series do
@@ -79,6 +96,10 @@ function Graph:removeSeries(name)
     return self
 end
 
+--- Changes visibility of one series.
+---@param name string Series name
+---@param visible boolean Visibility
+---@return self
 function Graph:setSeriesVisible(name, visible)
     local series = self:getSeries(name)
     if series then
@@ -89,6 +110,9 @@ function Graph:setSeriesVisible(name, visible)
 end
 
 --- Appends a point; the series scrolls once pointCount is reached.
+---@param name string Series name
+---@param value number Point value
+---@return self
 function Graph:addPoint(name, value)
     local series = self:getSeries(name)
     if not series then
@@ -103,6 +127,9 @@ function Graph:addPoint(name, value)
     return self
 end
 
+--- Clears one series or every series when name is nil.
+---@param name string|nil Series name
+---@return self
 function Graph:clear(name)
     if name then
         local series = self:getSeries(name)
@@ -116,6 +143,8 @@ function Graph:clear(name)
     return self
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Graph:render(buf)
     Element.render(self, buf)
     local w, h = self.width, self.height
@@ -137,20 +166,29 @@ end
 -- BarChart: one bar per value in `data`
 ----------------------------------------------------------------------------
 
+---@class BarChart : Element
 local BarChart = class.create("BarChart", Element)
 class.property(BarChart, "data", false) -- fresh table per instance
+--- Color of the bar/track
 class.property(BarChart, "barColor", colors.lime)
+--- Lower bound of the value axis
 class.property(BarChart, "minValue", 0)
 class.property(BarChart, "maxValue", false) -- false = auto (data maximum)
+--- Background color (false = transparent)
 class.property(BarChart, "background", colors.black)
+--- Width in terminal cells
 class.property(BarChart, "width", 20)
+--- Height in terminal cells
 class.property(BarChart, "height", 8)
 
+--- Initializes per-instance state and input handlers.
 function BarChart:setup()
     Element.setup(self)
     rawget(self, "_p").data = {}
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function BarChart:render(buf)
     Element.render(self, buf)
     local data = self.data
@@ -180,20 +218,30 @@ end
 -- LineChart: `data` sampled across the width, gaps interpolated
 ----------------------------------------------------------------------------
 
+---@class LineChart : Element
 local LineChart = class.create("LineChart", Element)
 class.property(LineChart, "data", false) -- fresh table per instance
+--- Color of the plotted line
 class.property(LineChart, "lineColor", colors.lime)
+--- Lower bound of the value axis
 class.property(LineChart, "minValue", 0)
+--- Upper bound of the value axis
 class.property(LineChart, "maxValue", 100)
+--- Background color (false = transparent)
 class.property(LineChart, "background", colors.black)
+--- Width in terminal cells
 class.property(LineChart, "width", 20)
+--- Height in terminal cells
 class.property(LineChart, "height", 8)
 
+--- Initializes per-instance state and input handlers.
 function LineChart:setup()
     Element.setup(self)
     rawget(self, "_p").data = {}
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function LineChart:render(buf)
     Element.render(self, buf)
     local data = self.data

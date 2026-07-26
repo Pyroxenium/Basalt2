@@ -12,8 +12,24 @@ local require = ...
 local class = require("core/class")
 local Collection = require("elements/Collection")
 
+---@alias MenuSpan [number, number, string]
+
+---@class MenuSubmenuBox
+---@field x number Local x coordinate
+---@field width number Box width
+---@field items (CollectionItem|string)[]
+---@field parent integer Parent item index
+
+---@class Menu : Collection
+---@field public spacing number Gap between top-level entries
+---@field public separatorColor number Separator color
+---@field public dropBackground number Expanded-list background
+---@field private _openIndex? integer Open top-level submenu index
+---@field private _zBefore? number Stacking order before expansion
 local Menu = class.create("Menu", Collection)
 
+---@param item any
+---@return string label
 local function labelOf(item)
     if type(item) == "table" then
         if item.separator then return "\149" end
@@ -22,15 +38,22 @@ local function labelOf(item)
     return tostring(item)
 end
 
+---@param item any
+---@return boolean separator
 local function isSeparator(item)
     return type(item) == "table" and item.separator == true
 end
 
+---@param item any
+---@return (CollectionItem|string)[]? items
 local function submenuItems(item)
     return type(item) == "table" and (item.items or item.dropdown) or nil
 end
 
 --- Returns {x1, x2, label} per item plus the total width.
+---@param self Menu
+---@return MenuSpan[] spans
+---@return number width
 local function spans(self)
     local out = {}
     local x = 1
@@ -43,6 +66,8 @@ local function spans(self)
     return out, math.max(1, x - self.spacing - 1)
 end
 
+---@param self Menu
+---@return MenuSubmenuBox? box
 local function submenuBox(self)
     local index = rawget(self, "_openIndex")
     if not index then return nil end
@@ -58,19 +83,26 @@ local function submenuBox(self)
     return { x = x, width = w, items = children, parent = index }
 end
 
+--- Gap between menu entries
 class.property(Menu, "spacing", 1)
+--- Background color (false = transparent)
 class.property(Menu, "background", colors.gray)
+--- Color of separator entries
 class.property(Menu, "separatorColor", colors.lightGray)
+--- Background of the expanded list
 class.property(Menu, "dropBackground", colors.black)
+--- Width in terminal cells
 class.property(Menu, "width", function(self)
     local _, total = spans(self)
     return total
 end)
+--- Height in terminal cells
 class.property(Menu, "height", function(self)
     local box = submenuBox(self)
     return box and (1 + #box.items) or 1
 end)
 
+---@param self Menu
 local function closeSubmenu(self)
     if rawget(self, "_openIndex") then
         rawset(self, "_openIndex", nil)
@@ -79,6 +111,8 @@ local function closeSubmenu(self)
     end
 end
 
+---@param self Menu
+---@param index integer
 local function openSubmenu(self, index)
     rawset(self, "_zBefore", self.z)
     rawset(self, "_openIndex", index)
@@ -86,6 +120,10 @@ local function openSubmenu(self, index)
     self:markDirty()
 end
 
+--- Selects a top-level item; items with a submenu toggle it open instead.
+---@param index integer The item index
+---@param emit? boolean false suppresses the select event
+---@return self
 function Menu:select(index, emit)
     local item = self.items[index]
     if item == nil or isSeparator(item) then return self end
@@ -102,6 +140,7 @@ function Menu:select(index, emit)
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function Menu:setup()
     Collection.setup(self)
 
@@ -133,6 +172,10 @@ function Menu:setup()
     self:on("blur", function(s) closeSubmenu(s) end)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function Menu:handleKey(event, a, b)
     if event == "key" and #self.items > 0 then
         local selected = self.selected or 0
@@ -150,6 +193,8 @@ function Menu:handleKey(event, a, b)
     Collection.handleKey(self, event, a, b)
 end
 
+--- Removes all menu entries and closes any open submenu.
+---@return self
 function Menu:clear()
     Collection.clear(self)
     closeSubmenu(self)
@@ -157,11 +202,16 @@ function Menu:clear()
     return self
 end
 
+--- Intrinsic size for basalt.auto().
+---@return number width The measured width
+---@return number height The measured height
 function Menu:measure()
     local _, total = spans(self)
     return total, 1
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Menu:render(buf)
     local fg, bg = self.foreground, self.background
     buf:fill(1, 1, self.width, 1, " ", fg, bg)

@@ -1,6 +1,6 @@
 -- BigFont module: registers the BigFont element (large text via teletext
 -- drawing characters). Font engine by Wojbie (see license below), element
--- wrapper rewritten for Basalt3. Font sizes 1-3; colors may be any
+-- wrapper rewritten for Basalt 2. Font sizes 1-3; colors may be any
 -- colors.* value or basalt.rgb() handle.
 --
 --   basalt.use("bigfont")
@@ -153,9 +153,12 @@ end
 -- Basalt element wrapper
 ----------------------------------------------------------------------------
 
+---@class BigFont : Element
 local BigFont = class.create("BigFont", Element)
 
+--- Displayed text
 class.property(BigFont, "text", "BigFont")
+--- Scale 1-3 (one character is 3x3 cells at size 1)
 class.property(BigFont, "fontSize", 1, {
     onChange = function(self, size)
         if size < 1 or size > 3 or size % 1 ~= 0 then
@@ -164,16 +167,19 @@ class.property(BigFont, "fontSize", 1, {
     end,
 })
 -- size follows the rendered text unless width/height are set explicitly
+--- Width in terminal cells
 class.property(BigFont, "width", function(self)
     local lines = self:getBigText()[1]
     return math.max(1, #(lines[1] or ""))
 end)
+--- Height in terminal cells
 class.property(BigFont, "height", function(self)
     return math.max(1, #self:getBigText()[1])
 end)
 
 --- Builds (and caches) the {text, fg, bg} line triples for the current
 --- text, size and colors.
+---@return table data Text/foreground/background line arrays
 function BigFont:getBigText()
     local fg = self.foreground
     local bg = self.background or colors.black
@@ -188,11 +194,16 @@ function BigFont:getBigText()
     return data
 end
 
+--- Intrinsic size for basalt.auto().
+---@return number width The measured width
+---@return number height The measured height
 function BigFont:measure()
     local data = self:getBigText()
     return math.max(1, #(data[1][1] or "")), math.max(1, #data[1])
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function BigFont:render(buf)
     local data = self:getBigText()
     for i = 1, #data[1] do

@@ -8,44 +8,104 @@
 -- the element is hit, keyboard events while it is focused, and every other
 -- event (timers, redstone, ...) is forwarded by a scheduled pump coroutine.
 -- Fires "done"(ok, result) and "error"(err, traceback); without an error
--- handler a crashing program takes down the app through the normal Basalt3
+-- handler a crashing program takes down the app through the normal Basalt 2
 -- error screen (with the program's own traceback).
 
 local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 local errors = require("core/errors")
+local palette = require("core/palette")
 
+---@class ProgramWindow : PaletteTerminal
+---@field getSize fun(): integer, integer
+---@field reposition fun(x: number, y: number, width: number, height: number)
+---@field getLine fun(y: number): string?, string?, string?
+---@field getCursorPos fun(): number, number
+---@field getCursorBlink fun(): boolean
+---@field getTextColor fun(): number
+---@field native? fun(): ProgramWindow
+---@field current? fun(): table
+---@field redirect? fun(target: table): table
+
+---@class ProgramPackedValues
+---@field n integer Number of packed values
+---@field [integer] any
+
+---@class ProgramProcess
+---@field window ProgramWindow Hosted window
+---@field term table Current program redirect target
+---@field args ProgramPackedValues Initial program arguments
+---@field filter? string Yielded event filter
+---@field co thread Program coroutine
+
+---@class Program : Element
+---@field public path string Resolved program path
+---@field public running boolean Whether the program is active
+---@field public env table<string, any>|false Globals merged into the environment
+---@field private _proc? ProgramProcess Active hosted process
 local Program = class.create("Program", Element)
 
 -- events the element already receives through normal routing; everything
 -- else is forwarded by the pump
+---@type table<string, boolean>
 local ROUTED = {
     mouse_click = true, mouse_up = true, mouse_drag = true,
     mouse_scroll = true, mouse_move = true,
     key = true, key_up = true, char = true, paste = true,
 }
 
+---@type fun(self: Program, proc: ProgramProcess, event: string, ...: any)
 local resume -- forward declaration (used by property hooks)
 
-local function onResize(self)
-    local proc = rawget(self, "_proc")
-    if proc then
-        proc.window.reposition(1, 1, self.width, self.height)
-        resume(self, proc, "term_resize")
-    end
+-- Reactive properties are evaluated lazily, so their effective value may
+-- change without class.__newindex running the property's onChange hook. Keep
+-- the redirected CC window synchronized with the resolved element size at
+-- render/event boundaries as well as for ordinary numeric assignments.
+---@param self Program
+---@param proc? ProgramProcess
+---@param notify boolean
+---@return boolean resized
+local function syncWindowSize(self, proc, notify)
+    if not proc or not proc.window then return false end
+    local width = math.max(1, math.floor(tonumber(self.width) or 1))
+    local height = math.max(1, math.floor(tonumber(self.height) or 1))
+    local current_width, current_height = proc.window.getSize()
+    if current_width == width and current_height == height then return false end
+
+    proc.window.reposition(1, 1, width, height)
+    if notify and resume then resume(self, proc, "term_resize") end
+    return true
 end
 
+---@param self Program
+local function onResize(self)
+    local proc = rawget(self, "_proc")
+    if proc then syncWindowSize(self, proc, true) end
+end
+
+--- Resolved path of the running program (read-only)
 class.property(Program, "path", "", { visual = false })
+--- Whether a program is currently running (read-only)
 class.property(Program, "running", false, { visual = false, styleable = false })
+--- Extra globals merged into the program environment
 class.property(Program, "env", false, { visual = false })
+--- Background color (false = transparent)
 class.property(Program, "background", colors.black)
+--- Width in terminal cells
 class.property(Program, "width", 30, { onChange = onResize })
+--- Height in terminal cells
 class.property(Program, "height", 12, { onChange = onResize })
 
+--- Fired when the program finishes, with (ok, result)
 class.event(Program, "done")
+--- Fired when the program crashes, with (err, traceback)
 class.event(Program, "error")
 
+---@param self Program
+---@param proc ProgramProcess
+---@param ok boolean
+---@param result any
 local function finish(self, proc, ok, result)
     if rawget(self, "_proc") == proc then
         rawset(self, "_proc", nil)
@@ -54,8 +114,27 @@ local function finish(self, proc, ok, result)
     self:fire("done", ok, result)
 end
 
-local function afterResume(self, proc, ok, result)
+---@param result any
+---@return boolean terminated
+local function isTerminationError(result)
+    local message = tostring(result or "")
+    return message == "Terminated" or message:match(": Terminated$") ~= nil
+end
+
+---@param self Program
+---@param proc ProgramProcess
+---@param ok boolean
+---@param result any
+---@param terminating? boolean
+local function afterResume(self, proc, ok, result, terminating)
     if not ok then
+        -- os.pullEvent raises "Terminated" when it receives the native
+        -- terminate event. Closing a hosted Program is therefore a normal
+        -- completion, not an application crash.
+        if terminating and isTerminationError(result) then
+            finish(self, proc, true, nil)
+            return
+        end
         local trace = debug.traceback(proc.co) or ""
         finish(self, proc, false, result)
         if self._handlers.error then
@@ -75,6 +154,10 @@ end
 resume = function(self, proc, event, ...)
     local co = proc.co
     if not co or coroutine.status(co) == "dead" then return end
+    if event ~= "term_resize" then
+        syncWindowSize(self, proc, true)
+        if rawget(self, "_proc") ~= proc or coroutine.status(co) == "dead" then return end
+    end
     if proc.filter ~= nil and event ~= proc.filter and event ~= "terminate" then
         return
     end
@@ -85,9 +168,13 @@ resume = function(self, proc, event, ...)
     local ok, result = coroutine.resume(co, event, ...)
     proc.term = term.current()
     term.redirect(previous)
-    afterResume(self, proc, ok, result)
+    afterResume(self, proc, ok, result, event == "terminate")
 end
 
+---@param self Program
+---@param path string
+---@param win ProgramWindow
+---@return table<string, any> environment
 local function buildEnv(self, path, win)
     -- programs see the window as their terminal; term.redirect() around
     -- every resume makes term.current() correct inside the program
@@ -112,6 +199,10 @@ local function buildEnv(self, path, win)
 end
 
 --- Loads and starts a program; extra arguments are passed to it.
+---@param path string Program path (resolved via shell if not found directly)
+---@param ... any Program arguments
+---@return self
+---@usage prog:execute("rom/programs/fun/worm.lua")
 function Program:execute(path, ...)
     self:stop()
 
@@ -176,7 +267,9 @@ function Program:execute(path, ...)
     return self
 end
 
---- Stops the running program (no "done" event is fired).
+--- Stops (closes) the running program coroutine. Unlike a program that
+--- finishes on its own, a manual stop fires no "done" event.
+---@return self
 function Program:stop()
     local proc = rawget(self, "_proc")
     if not proc then return self end
@@ -188,13 +281,30 @@ function Program:stop()
     return self
 end
 
+--- Requests a native, graceful program shutdown and then force-stops a
+--- coroutine that ignored the terminate event. Programs using pullEventRaw
+--- can release resources; programs using pullEvent end normally via the
+--- conventional "Terminated" error.
+---@return self
+function Program:terminate()
+    local proc = rawget(self, "_proc")
+    if not proc then return self end
+    resume(self, proc, "terminate")
+    if rawget(self, "_proc") == proc then self:stop() end
+    return self
+end
+
 --- Injects an event into the program (as if it came from the event queue).
+---@param event string The event name
+---@param ... any Event arguments
+---@return self
 function Program:sendEvent(event, ...)
     local proc = rawget(self, "_proc")
     if proc then resume(self, proc, event, ...) end
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function Program:setup()
     Element.setup(self)
     self:on("click", function(s, btn, x, y)
@@ -215,28 +325,46 @@ function Program:setup()
     end)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function Program:handleKey(event, a, b)
     local proc = rawget(self, "_proc")
     if proc then resume(self, proc, event, a, b) end
     Element.handleKey(self, event, a, b)
 end
 
+--- Stops the program before removing the element.
+---@return self
 function Program:destroy()
-    self:stop()
+    self:terminate()
     return Element.destroy(self)
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Program:render(buf)
     Element.render(self, buf)
     local proc = rawget(self, "_proc")
     if not proc then return end
+    syncWindowSize(self, proc, true)
+    if rawget(self, "_proc") ~= proc then return end
 
     local win = proc.window
     local _, height = win.getSize()
+    -- Programs that manage the window palette themselves (e.g. Obsidian's
+    -- renderer) get their colors registered instead of silently reset.
+    local translate = palette.windowTranslation(win)
     for y = 1, height do
         local text, fg, bg = win.getLine(y)
         if text then
-            buf:drawBlit(1, y, text, fg, bg)
+            if translate then
+                buf:rawBlit(1, y, text,
+                    (fg:gsub(".", translate)), (bg:gsub(".", translate)))
+            else
+                buf:drawBlit(1, y, text, fg, bg)
+            end
         end
     end
 

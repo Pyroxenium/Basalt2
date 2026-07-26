@@ -54,6 +54,8 @@ local function ensureOverlay()
 end
 
 --- Logs a message to the overlay (arguments are tostring-ed and joined).
+--- Appends a line to the debug overlay log.
+---@param ... any Values converted with tostring
 function dbg.log(...)
     local parts = {}
     for i = 1, select("#", ...) do
@@ -67,6 +69,8 @@ function dbg.log(...)
 end
 
 --- Shows/hides the overlay (nil toggles).
+--- Explicitly shows or hides the debug overlay.
+---@param state boolean Visibility
 function dbg.show(state)
     ensureOverlay()
     if state == nil then state = not overlay.visible end
@@ -75,15 +79,21 @@ function dbg.show(state)
 end
 
 --- Changes the toggle key (a keys.* constant).
+--- Changes the keyboard key used to toggle the overlay.
+---@param key number ComputerCraft key code
 function dbg.setToggleKey(key)
     toggleKey = key
 end
 
+--- Returns the lazily created overlay frame.
+---@return Frame overlay
 function dbg.getOverlay()
     ensureOverlay()
     return overlay
 end
 
+--- Clears all captured debug lines.
+---@return nil
 function dbg.clear()
     lines = {}
     refresh()

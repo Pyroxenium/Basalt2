@@ -1,10 +1,11 @@
--- CollectionEntry: mutable item wrapper shared by Collection-like elements.
--- Item fields remain directly accessible (entry.text, entry.callback, ...),
--- while all mutations notify the owning element.
+--- A stable wrapper for a collection item that forwards reads/writes to the owning collection.
+---@class CollectionEntry : CollectionItem
+---@field selected boolean Whether the entry is currently selected
+---@field _parent CollectionMixin|nil Owning collection-like element, or nil after removal
+---@field _data CollectionItem Mutable item data
+local methods = {}
 
 local CollectionEntry = {}
-
-local methods = {}
 
 CollectionEntry.__index = function(entry, key)
     local method = methods[key]
@@ -15,8 +16,6 @@ CollectionEntry.__index = function(entry, key)
     end
     local data = rawget(entry, "_data")
     if data and data[key] ~= nil then return data[key] end
-    -- Keeps fluent code useful even though addItem() returns the new entry:
-    -- list:addItem("A"):addItem("B") forwards the second call to the list.
     local parent = rawget(entry, "_parent")
     local parentMethod = parent and parent[key]
     if type(parentMethod) == "function" then
@@ -54,6 +53,10 @@ CollectionEntry.__tostring = function(entry)
     return "Entry"
 end
 
+--- Creates the stable entry wrapper used by collection-like elements.
+---@param parent CollectionMixin Owning collection-like element
+---@param item CollectionItem|string Initial item data or display text
+---@return CollectionEntry entry
 function CollectionEntry.new(parent, item)
     local data
     if type(item) == "table" then
@@ -67,56 +70,83 @@ function CollectionEntry.new(parent, item)
     return setmetatable({ _parent = parent, _data = data }, CollectionEntry)
 end
 
+--- Tests whether a value is a collection entry wrapper.
+---@param value any Candidate value
+---@return boolean isEntry
 function CollectionEntry.is(value)
     return getmetatable(value) == CollectionEntry
 end
 
+--- Returns the mutable data table backing this entry.
+---@return CollectionItem data
 function methods:getData()
     return rawget(self, "_data")
 end
 
+--- Returns the collection that currently owns this entry.
+---@return CollectionMixin|nil parent
 function methods:getParent()
     return rawget(self, "_parent")
 end
 
+--- Changes the display text and invalidates the owning collection.
+---@param text string New display text
+---@return self
 function methods:setText(text)
     self.text = text
     return self
 end
 
+--- Returns the entry's display text.
+---@return string|nil text
 function methods:getText()
     return self.text
 end
 
+--- Resolves the entry's current index after moves/removals.
+---@return integer|nil index
 function methods:getIndex()
     local parent = rawget(self, "_parent")
     return parent and parent:indexOfItem(self) or nil
 end
 
+--- Moves the entry towards the beginning of the collection.
+---@param amount integer|nil Number of positions, default 1
+---@return self
 function methods:moveUp(amount)
     local parent = rawget(self, "_parent")
     if parent then parent:_moveCollectionEntry(self, -(amount or 1)) end
     return self
 end
 
+--- Moves the entry towards the end of the collection.
+---@param amount integer|nil Number of positions, default 1
+---@return self
 function methods:moveDown(amount)
     local parent = rawget(self, "_parent")
     if parent then parent:_moveCollectionEntry(self, amount or 1) end
     return self
 end
 
+--- Moves the entry to index 1.
+---@return self
 function methods:moveToTop()
     local parent = rawget(self, "_parent")
     if parent then parent:_moveCollectionEntryTo(self, 1) end
     return self
 end
 
+--- Moves the entry to the final index.
+---@return self
 function methods:moveToBottom()
     local parent = rawget(self, "_parent")
     if parent then parent:_moveCollectionEntryTo(self, #parent.items) end
     return self
 end
 
+--- Swaps two entries belonging to the same collection.
+---@param other CollectionEntry Entry to exchange positions with
+---@return self
 function methods:swapWith(other)
     local parent = rawget(self, "_parent")
     if parent and rawget(other, "_parent") == parent then
@@ -125,6 +155,8 @@ function methods:swapWith(other)
     return self
 end
 
+--- Removes this entry from its collection.
+---@return boolean removed False when the entry no longer has a parent
 function methods:remove()
     local parent = rawget(self, "_parent")
     if not parent then return false end
@@ -132,18 +164,24 @@ function methods:remove()
     return true
 end
 
+--- Selects this entry through its owning collection.
+---@return self
 function methods:select()
     local parent = rawget(self, "_parent")
     if parent then parent:selectItem(self) end
     return self
 end
 
+--- Removes this entry from the current selection.
+---@return self
 function methods:unselect()
     local parent = rawget(self, "_parent")
     if parent then parent:unselectItem(self) end
     return self
 end
 
+--- Returns whether this entry is currently selected.
+---@return boolean selected
 function methods:isSelected()
     local parent = rawget(self, "_parent")
     return parent and parent:isItemSelected(self) or false

@@ -5,8 +5,18 @@ local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 
+---@class Input : Element
+---@field public text string Current input value
+---@field public placeholder string Placeholder shown while empty and unfocused
+---@field public placeholderColor number Placeholder color
+---@field public maxLength number|false Maximum length, or false when unlimited
+---@field public replaceChar string|false Replacement character for password input
+---@field public pattern string|false Lua pattern accepted by inserted characters
+---@field protected _cursor integer One-based insertion position
+---@field protected _scroll integer Horizontal text offset
 local Input = class.create("Input", Element)
 
+--- Current input value (rawString: typed braces stay literal text)
 class.property(Input, "text", "", {
     rawString = true, -- user-typed text must never compile as reactive
     onChange = function(self, v)
@@ -18,20 +28,28 @@ class.property(Input, "text", "", {
         end
     end,
 })
-class.property(Input, "placeholder", "")
+class.property(Input, "placeholder", "") -- shown while empty and unfocused
+--- Color of the placeholder text
 class.property(Input, "placeholderColor", colors.gray)
-class.property(Input, "maxLength", false)
+class.property(Input, "maxLength", false) -- maximum text length, false = unlimited
 class.property(Input, "replaceChar", false) -- e.g. "*" for password fields
 class.property(Input, "pattern", false)     -- Lua pattern each char must match
 -- class-level defaults so themes can restyle inputs
+--- Width in terminal cells
 class.property(Input, "width", 12)
+--- Height in terminal cells
 class.property(Input, "height", 1)
+--- Background color (false = transparent)
 class.property(Input, "background", colors.lightGray)
+--- Text color
 class.property(Input, "foreground", colors.black)
 
+--- Fired after every text edit with the new text
 class.event(Input, "change")
+--- Fired on the enter key with the current text
 class.event(Input, "enter")
 
+--- Initializes per-instance state and input handlers.
 function Input:setup()
     Element.setup(self)
     rawset(self, "_cursor", 1) -- insert position, 1..#text+1
@@ -45,6 +63,8 @@ function Input:setup()
     self:on("blur", function(s) s:markDirty() end)
 end
 
+--- Moves the insertion cursor and keeps it inside the visible text slice.
+---@param pos number New one-based insertion position
 function Input:_moveCursor(pos)
     local n = #self.text
     if pos < 1 then pos = 1 end
@@ -59,6 +79,8 @@ function Input:_moveCursor(pos)
     self:markDirty()
 end
 
+--- Inserts text at the cursor after applying pattern and length constraints.
+---@param str string Text to insert
 function Input:_insert(str)
     local pattern = self.pattern
     if pattern then -- keep only characters matching the pattern
@@ -76,6 +98,10 @@ function Input:_insert(str)
     self:fire("change", self.text)
 end
 
+--- Handles typing, paste and editing keys while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed/pasted text
+---@param b? any Secondary key-event value
 function Input:handleKey(event, a, b)
     if event == "char" or event == "paste" then
         self:_insert(a)
@@ -108,6 +134,8 @@ function Input:handleKey(event, a, b)
     Element.handleKey(self, event, a, b)
 end
 
+--- Renders the text (or placeholder) and requests the cursor while focused.
+---@param buf Render The render buffer
 function Input:render(buf)
     Element.render(self, buf)
     local root = self:getRoot()
@@ -129,6 +157,9 @@ function Input:render(buf)
     end
 end
 
+--- Intrinsic size for basalt.auto(): longest of text/placeholder x 1.
+---@return number width The measured width
+---@return number height The measured height
 function Input:measure()
     return math.max(1, #tostring(self.text), #tostring(self.placeholder)), 1
 end

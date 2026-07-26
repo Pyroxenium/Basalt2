@@ -5,15 +5,37 @@ local require = ...
 local class = require("core/class")
 local Container = require("core/container")
 
+---@class FrameDragZone
+---@field x number Local x coordinate
+---@field y number Local y coordinate
+---@field width? number|"full" Zone width
+---@field height? number|"full" Zone height
+
+---@class FrameDragPoint
+---@field x number Grab x coordinate
+---@field y number Grab y coordinate
+
+---@class Frame : Container
+---@field public draggable boolean Whether the frame can be dragged
+---@field public draggingMap FrameDragZone[]|false Custom grab zones
+---@field private _dragFrom? FrameDragPoint Active grab position
 local Frame = class.create("Frame", Container)
 
+--- Background color (false = transparent)
 class.property(Frame, "background", colors.gray)
+--- Width in terminal cells
 class.property(Frame, "width", 20)
+--- Height in terminal cells
 class.property(Frame, "height", 8)
-class.property(Frame, "draggable", false)
--- list of grab zones in local coordinates; width/height accept "full"
+class.property(Frame, "draggable", false) -- move the frame by its grab zones
+--- List of grab zones in local coordinates, e.g. {{x=1, y=1, width="full",
+--- height=1}}; false = the whole top row
 class.property(Frame, "draggingMap", false, { visual = false })
 
+---@param self Frame
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return boolean inside
 local function inDragZone(self, x, y)
     local zones = self.draggingMap
     if not zones then
@@ -31,6 +53,7 @@ local function inDragZone(self, x, y)
     return false
 end
 
+--- Initializes per-instance state and input handlers.
 function Frame:setup()
     Container.setup(self)
 
@@ -54,6 +77,8 @@ function Frame:setup()
 end
 
 --- Moves the frame above its siblings (highest z + 1).
+---@return self
+---@usage frame:onFocus(function(f) f:toFront() end)
 function Frame:toFront()
     local parent = rawget(self, "parent")
     if not parent then return self end

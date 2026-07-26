@@ -1,10 +1,16 @@
 -- Shared text helpers (word wrapping for Label, Dialog, Toast, ...).
 
+---@alias TextLines string[]
+
 local textutil = {}
 
---- Greedy word wrap; long words are hard-broken. Blank lines are kept.
+--- Greedily word-wraps text; long words are hard-broken and blank lines kept.
+---@param str string Input text
+---@param width integer Maximum line width
+---@return TextLines lines Always contains at least one line
 function textutil.wrap(str, width)
     width = math.max(1, width)
+    ---@type TextLines
     local lines = {}
     for paragraph in (tostring(str) .. "\n"):gmatch("(.-)\n") do
         local line = ""

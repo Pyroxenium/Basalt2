@@ -7,21 +7,76 @@ local state = require("core/state")
 local layout = require("core/layout")
 local scroll = require("core/scroll")
 
+---@alias ContainerScrollbarMode "auto"|"always"|"hidden"
+
+---@class ContainerScrollbarGeometry
+---@field showX boolean Whether the horizontal scrollbar is visible
+---@field showY boolean Whether the vertical scrollbar is visible
+---@field horizontalLength number Horizontal scrollbar track length
+---@field verticalLength number Vertical scrollbar track length
+---@field horizontalThumbSize number Horizontal thumb size
+---@field horizontalThumbPos number Horizontal thumb offset
+---@field verticalThumbSize number Vertical thumb size
+---@field verticalThumbPos number Vertical thumb offset
+---@field maxX number Maximum horizontal scroll offset
+---@field maxY number Maximum vertical scroll offset
+
+---@class ContainerScrollInfo : ContainerScrollbarGeometry
+---@field x number Current horizontal scroll offset
+---@field y number Current vertical scroll offset
+---@field contentWidth number Laid-out content width
+---@field contentHeight number Laid-out content height
+
+---@class ContainerScrollDrag
+---@field axis "x"|"y" Dragged scrollbar axis
+---@field grab number Offset within the scrollbar thumb
+
+---@class Container : Element
+---@field public scrollable boolean Whether content scrolling is enabled
+---@field public scrollbar ContainerScrollbarMode Scrollbar visibility mode
+---@field public scrollXEnabled boolean Whether horizontal scrolling is enabled
+---@field public scrollYEnabled boolean Whether vertical scrolling is enabled
+---@field public scrollStep number Cells scrolled per mouse-wheel tick
+---@field public scrollbarColor number Scrollbar track color
+---@field public scrollbarThumbColor number Scrollbar thumb color
+---@field public layoutChildren? fun(self: Container) Optional custom child layout
+---@field private _children Element[] Live direct-child array
+---@field private _visibleChildren Element[] Cached visible children
+---@field private _addIndex integer Monotonic child insertion index
+---@field private _sortDirty boolean Whether children need z-order sorting
+---@field private _layoutDirty boolean Whether child layout must be recomputed
+---@field private _viewportDirty boolean Whether the visible-child cache is stale
+---@field private _scrollX number Current horizontal scroll offset
+---@field private _scrollY number Current vertical scroll offset
+---@field private _contentWidth number Cached content width
+---@field private _contentHeight number Cached content height
+---@field private _showScrollX? boolean Whether the horizontal scrollbar is visible
+---@field private _showScrollY? boolean Whether the vertical scrollbar is visible
+---@field private _scrollDrag? ContainerScrollDrag Active scrollbar drag
 local Container = class.create("Container", Element)
 
+--- Enables content scrolling for this container
 class.property(Container, "scrollable", false, {
     onChange = function(self, enabled)
         if not enabled then scroll.disable(self) end
     end,
 })
+--- "auto", "always" or "hidden"
 class.property(Container, "scrollbar", "auto")
+--- Allow horizontal scrolling
 class.property(Container, "scrollXEnabled", true)
+--- Allow vertical scrolling
 class.property(Container, "scrollYEnabled", true)
+--- Cells scrolled per mouse wheel tick
 class.property(Container, "scrollStep", 3)
+--- Scrollbar track color
 class.property(Container, "scrollbarColor", colors.gray)
+--- Scrollbar thumb color
 class.property(Container, "scrollbarThumbColor", colors.lightGray)
+--- Fired when the scroll offset changes, with (x, y)
 class.event(Container, "scrollChange")
 
+--- Initializes per-instance state and input handlers.
 function Container:setup()
     Element.setup(self)
     rawset(self, "_children", {})
@@ -33,27 +88,44 @@ function Container:setup()
     scroll.setup(self)
 end
 
+--- Returns the current horizontal and vertical scroll offsets.
+---@return number x
+---@return number y
 function Container:getScroll()
     return rawget(self, "_scrollX") or 0, rawget(self, "_scrollY") or 0
 end
 
+--- Returns cached content bounds after the latest layout pass.
+---@return number width
+---@return number height
 function Container:getContentSize()
     return rawget(self, "_contentWidth") or 0,
         rawget(self, "_contentHeight") or 0
 end
 
+--- Returns scrollbar visibility, ranges, offsets and content size.
+---@return ContainerScrollInfo info
 function Container:getScrollInfo()
     local info = scroll.geometry(self)
     info.x, info.y = self:getScroll()
     info.contentWidth, info.contentHeight = self:getContentSize()
+    ---@cast info ContainerScrollInfo
     return info
 end
 
+--- Scrolls to absolute content offsets.
+---@param x? number Horizontal offset, default 0
+---@param y? number Vertical offset, default 0
+---@return self
 function Container:scrollTo(x, y)
     scroll.set(self, x or 0, y or 0)
     return self
 end
 
+--- Scrolls relative to the current offsets.
+---@param dx? number Horizontal delta, default 0
+---@param dy? number Vertical delta, default 0
+---@return self
 function Container:scrollBy(dx, dy)
     local x, y = self:getScroll()
     scroll.set(self, x + (dx or 0), y + (dy or 0))
@@ -74,11 +146,17 @@ local function descendantBox(container, el)
     return x, y, el.width, el.height
 end
 
+--- Aligns a descendant's top-left corner with the viewport.
+---@param el Element Descendant element
+---@return self
 function Container:scrollToElement(el)
     local x, y = descendantBox(self, el)
     return self:scrollTo(x - 1, y - 1)
 end
 
+--- Applies the smallest scroll needed to reveal a descendant.
+---@param el Element Descendant element
+---@return self
 function Container:ensureVisible(el)
     local x, y, w, h = descendantBox(self, el)
     local sx, sy = self:getScroll()
@@ -89,6 +167,10 @@ function Container:ensureVisible(el)
     return self:scrollTo(sx, sy)
 end
 
+--- Attaches an existing element as the final child.
+---@generic T : Element
+---@param child T Element to attach
+---@return T child
 function Container:addChild(child)
     local oldParent = rawget(child, "parent")
     if oldParent then oldParent:removeChild(child) end
@@ -104,6 +186,9 @@ function Container:addChild(child)
     return child
 end
 
+--- Detaches a direct child and releases its interaction state.
+---@param child Element Child to remove
+---@return boolean removed
 function Container:removeChild(child)
     local ch = self._children
     for i = 1, #ch do
@@ -119,11 +204,31 @@ function Container:removeChild(child)
     return false
 end
 
+--- Recursively destroys every descendant before detaching this container.
+--- This is important for stateful children such as Program: merely removing
+--- their parent frame would otherwise leave their scheduled coroutines alive.
+---@return self
+function Container:destroy()
+    local children = rawget(self, "_children")
+    while children and #children > 0 do
+        local child = children[#children]
+        if child.destroy then child:destroy() end
+        -- Custom elements may override destroy without detaching themselves.
+        -- Always make forward progress while keeping ordinary destroy hooks.
+        if children[#children] == child then self:removeChild(child) end
+    end
+    return Element.destroy(self)
+end
+
+--- Returns the live direct-child array.
+---@return Element[] children
 function Container:getChildren()
     return self._children
 end
 
 --- Finds a descendant element by its name property (depth-first).
+---@param childName string Element name
+---@return Element|nil element
 function Container:find(childName)
     local ch = self._children
     for i = 1, #ch do
@@ -146,6 +251,7 @@ local function zLess(a, b)
 end
 
 --- Children sorted by z (stable: insertion order breaks ties), cached.
+---@return Element[] children
 function Container:_sorted()
     if self._sortDirty then
         table.sort(self._children, zLess)
@@ -171,6 +277,7 @@ end
 
 --- Sorted children intersecting the current viewport. The cache is shared by
 --- rendering and hit-testing and is invalidated by layout, z or scroll changes.
+---@return Element[] children
 function Container:_visibleSorted()
     local cached = rawget(self, "_visibleChildren")
     if not rawget(self, "_viewportDirty") and cached then return cached end
@@ -189,6 +296,8 @@ function Container:_visibleSorted()
     return cached
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Container:render(buf)
     Element.render(self, buf)
     local children = self._children
@@ -226,6 +335,11 @@ function Container:render(buf)
 end
 
 --- Routes a mouse event to children (topmost first), falling back to self.
+---@param event string Mouse event name
+---@param btn number Mouse button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil
 function Container:handleMouse(event, btn, x, y)
     if event == "mouse_click" and scroll.pointerDown(self, x, y) then
         return self
@@ -246,6 +360,9 @@ function Container:handleMouse(event, btn, x, y)
 end
 
 --- Returns the deepest visible element at a point, regardless of handlers.
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element element
 function Container:findAt(x, y)
     if scroll.isBarPoint(self, x, y) then return self end
     local scrollX, scrollY = self:getScroll()
@@ -266,6 +383,9 @@ function Container:findAt(x, y)
 end
 
 --- Registers an element class: creates Container:add<Name>(props).
+---@generic T : Element
+---@param elementName string Public element name
+---@param elementClass { new: fun(props?: table): T } Element class
 function Container.register(elementName, elementClass)
     Container["add" .. elementName] = function(self, props)
         local el = elementClass.new(props)

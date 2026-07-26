@@ -1,9 +1,9 @@
 -- Basalt bundler tool (not part of the framework itself).
 --
 -- Packs everything under src/ into one release file that behaves exactly
--- like require("Basalt3"): every source file is embedded as a string and
+-- like require("Basalt"): every source file is embedded as a string and
 -- compiled on first require with its own chunk name, so error tracebacks
--- still show "basalt3/core/render.lua:123" instead of bundle offsets.
+-- still show "basalt/core/render.lua:123" instead of bundle offsets.
 --
 -- CLI usage (from the repository root):
 --   bundle                      -> writes basalt.lua, comments stripped
@@ -11,7 +11,7 @@
 --   bundle --no-minify          -> keep sources verbatim (line numbers match src/)
 --
 -- Library usage (e.g. from the installer):
---   local bundler = assert(loadfile("Basalt3/bundle.lua"))("--lib")
+--   local bundler = assert(loadfile("Basalt/bundle.lua"))("--lib")
 --   local stats = bundler.build({ output = "basalt.lua", minify = true })
 
 local args = { ... }
@@ -86,9 +86,9 @@ end
 ----------------------------------------------------------------------------
 
 local function defaultRoot()
-    local root = shell and fs.getDir(shell.getRunningProgram()) or "Basalt3"
+    local root = shell and fs.getDir(shell.getRunningProgram()) or "Basalt"
     if not fs.exists(fs.combine(root, "src/main.lua")) then
-        root = "Basalt3" -- fallback when loaded outside the repository root
+        root = "Basalt" -- fallback when loaded outside the repository root
     end
     return root
 end
@@ -172,8 +172,8 @@ local function loader(name)
     if cached ~= nil then return cached end
     local source = sources[name]
         or error("Basalt: module not bundled: " .. tostring(name), 0)
-    local chunk = assert(load(source, "@basalt3/" .. name .. ".lua"))
-    local result = chunk(loader, "basalt3")
+    local chunk = assert(load(source, "@basalt/" .. name .. ".lua"))
+    local result = chunk(loader, "basalt")
     loaded[name] = result == nil and true or result
     return loaded[name]
 end

@@ -8,24 +8,49 @@ local Input = require("elements/Input")
 local itemview = require("core/itemview")
 local collection = require("core/collection")
 
+---@class ComboBoxDisplayEntry
+---@field index integer Original collection index
+---@field text string Display text
+---@field item CollectionEntry Original collection entry
+
+---@class ComboBox : Input, CollectionMixin
+---@field public dropHeight number Maximum expanded-list height
+---@field public autoComplete boolean Whether typed text filters suggestions
+---@field public offset number Expanded-list item offset
+---@field public dropBackground number Expanded-list background
+---@field public dropForeground number Expanded-list foreground
+---@field public scrollbar ItemViewScrollbarMode Expanded-list scrollbar mode
+---@field public scrollbarColor number Scrollbar track color
+---@field public scrollbarThumbColor number Scrollbar thumb color
+---@field public open boolean Whether the suggestion list is expanded
+---@field private _zBefore? number Stacking order before expansion
+---@field private _highlighted? integer Highlighted displayed-row index
+---@field private _selecting? boolean Whether text is changing from selection
+---@field private _itemScrollDrag? integer Active scrollbar grab offset
 local ComboBox = class.create("ComboBox", Input)
 
 collection.install(ComboBox, { changeEvent = "selectionChange" })
-class.property(ComboBox, "dropHeight", 6)
-class.property(ComboBox, "autoComplete", false)
-class.property(ComboBox, "offset", 0)
-class.property(ComboBox, "dropBackground", colors.black)
+class.property(ComboBox, "dropHeight", 6) -- maximum visible list rows
+class.property(ComboBox, "autoComplete", false) -- filter the list while typing
+class.property(ComboBox, "offset", 0) -- list scroll offset
+class.property(ComboBox, "dropBackground", colors.black) -- open list background
+--- Text color of the expanded list
 class.property(ComboBox, "dropForeground", colors.white)
-class.property(ComboBox, "scrollbar", "auto")
+class.property(ComboBox, "scrollbar", "auto") -- "auto", "always" or "hidden"
+--- Scrollbar track color
 class.property(ComboBox, "scrollbarColor", colors.gray)
+--- Scrollbar thumb color
 class.property(ComboBox, "scrollbarThumbColor", colors.lightGray)
+--- Width in terminal cells
 class.property(ComboBox, "width", 14)
+--- Follows the open state; setting it explicitly breaks expansion
 class.property(ComboBox, "height", function(self)
     if self.open then
         return 1 + math.min(#self:getDisplayItems(), self.dropHeight)
     end
     return 1
 end)
+--- Whether the list is expanded; floats above siblings while open
 class.property(ComboBox, "open", false, {
     onChange = function(self, isOpen)
         if isOpen then
@@ -40,7 +65,8 @@ class.property(ComboBox, "open", false, {
 })
 
 --- The list as displayed: filtered while typing with autoComplete,
---- otherwise all items. Returns { {index=originalIndex, text=...}, ... }.
+--- otherwise all items.
+---@return ComboBoxDisplayEntry[] entries
 function ComboBox:getDisplayItems()
     local items = self.items
     local out = {}
@@ -54,15 +80,25 @@ function ComboBox:getDisplayItems()
     return out
 end
 
+---@param self ComboBox
+---@param display ComboBoxDisplayEntry[]
+---@return integer rows
 local function visibleRows(self, display)
     return math.min(#display, math.max(0, self.dropHeight))
 end
 
+---@param self ComboBox
+---@param display ComboBoxDisplayEntry[]
+---@return ItemViewGeometry geometry
 local function geometry(self, display)
     return itemview.geometry(#display, visibleRows(self, display),
         self.offset, self.scrollbar)
 end
 
+--- Accepts an entry of the displayed (possibly filtered) list: fills the
+--- text, closes the list and activates the underlying item.
+---@param displayIndex integer Row in the displayed list
+---@return self
 function ComboBox:selectDisplayed(displayIndex)
     local display = self:getDisplayItems()
     local entry = display[displayIndex]
@@ -76,6 +112,8 @@ function ComboBox:selectDisplayed(displayIndex)
     return self
 end
 
+--- Removes all suggestions and closes the dropdown.
+---@return self
 function ComboBox:clear()
     collection.methods.clear(self)
     self.open = false
@@ -84,6 +122,7 @@ function ComboBox:clear()
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function ComboBox:setup()
     Input.setup(self)
     collection.setup(self)
@@ -127,6 +166,12 @@ function ComboBox:setup()
     end)
 end
 
+--- Routes mouse input in local coordinates (wheel scrolling etc.).
+---@param event string The mouse event name
+---@param btn number Button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil to pass through
 function ComboBox:handleMouse(event, btn, x, y)
     if event == "mouse_scroll" and self.open then
         if self.disabled then return nil end
@@ -138,6 +183,10 @@ function ComboBox:handleMouse(event, btn, x, y)
     return Input.handleMouse(self, event, btn, x, y)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function ComboBox:handleKey(event, a, b)
     if event == "key" then
         if self.open then
@@ -167,6 +216,8 @@ function ComboBox:handleKey(event, a, b)
     Input.handleKey(self, event, a, b)
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function ComboBox:render(buf)
     Input.render(self, buf)
     local w = self.width

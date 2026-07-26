@@ -6,24 +6,41 @@ local class = require("core/class")
 local Collection = require("elements/Collection")
 local itemview = require("core/itemview")
 
+---@class Dropdown : Collection
+---@field public text any Placeholder rendered with `tostring`
+---@field public dropHeight number Maximum expanded-list height
+---@field public offset number Expanded-list item offset
+---@field public dropBackground number Expanded-list background
+---@field public scrollbar ItemViewScrollbarMode Expanded-list scrollbar mode
+---@field public scrollbarColor number Scrollbar track color
+---@field public scrollbarThumbColor number Scrollbar thumb color
+---@field public open boolean Whether the list is expanded
+---@field private _zBefore? number Stacking order before expansion
+---@field private _highlighted? integer Highlighted item index
+---@field private _itemScrollDrag? integer Active scrollbar grab offset
 local Dropdown = class.create("Dropdown", Collection)
 
-class.property(Dropdown, "text", "Select...")
-class.property(Dropdown, "dropHeight", 6)
-class.property(Dropdown, "offset", 0)
+class.property(Dropdown, "text", "Select...") -- placeholder while nothing is selected
+class.property(Dropdown, "dropHeight", 6) -- maximum visible list rows
+class.property(Dropdown, "offset", 0) -- list scroll offset
+--- Background color (false = transparent)
 class.property(Dropdown, "background", colors.gray)
-class.property(Dropdown, "dropBackground", colors.black)
+class.property(Dropdown, "dropBackground", colors.black) -- open list background
+--- Width in terminal cells
 class.property(Dropdown, "width", 14)
-class.property(Dropdown, "scrollbar", "auto")
+class.property(Dropdown, "scrollbar", "auto") -- "auto", "always" or "hidden"
+--- Scrollbar track color
 class.property(Dropdown, "scrollbarColor", colors.gray)
+--- Scrollbar thumb color
 class.property(Dropdown, "scrollbarThumbColor", colors.lightGray)
--- height follows the open state; setting it explicitly breaks expansion
+--- Follows the open state; setting it explicitly breaks expansion
 class.property(Dropdown, "height", function(self)
     if self.open then
         return 1 + math.min(#self.items, self.dropHeight)
     end
     return 1
 end)
+--- Whether the list is expanded; the element floats above siblings while open
 class.property(Dropdown, "open", false, {
     onChange = function(self, v)
         -- float above siblings while expanded
@@ -41,26 +58,40 @@ class.property(Dropdown, "open", false, {
     end,
 })
 
+---@param self Dropdown
+---@return integer rows
 local function visibleRows(self)
     return math.min(#self.items, math.max(0, self.dropHeight))
 end
 
+--- Returns the scrollbar geometry of the open list.
+---@return ItemViewGeometry geometry The itemview geometry
 function Dropdown:getScrollInfo()
     return itemview.geometry(#self.items, visibleRows(self),
         self.offset, self.scrollbar)
 end
 
+--- Scrolls the open list to an absolute offset (clamped).
+---@param offset number Items scrolled past above the viewport
+---@return self
 function Dropdown:setOffset(offset)
     self.offset = itemview.clampOffset(offset, #self.items, visibleRows(self))
     return self
 end
 
+--- Scrolls the given item index into the visible list area.
+---@param index number The item index to make visible
+---@return self
 function Dropdown:scrollToItem(index)
     self.offset = itemview.ensureVisible(self.offset, index,
         #self.items, visibleRows(self))
     return self
 end
 
+--- Selects an item, closes the list and fires the select event.
+---@param index integer The item index to select
+---@param emit? boolean false suppresses the select event
+---@return self
 function Dropdown:select(index, emit)
     if not index or self.items[index] == nil then return self end
     Collection.select(self, index, emit)
@@ -70,6 +101,7 @@ function Dropdown:select(index, emit)
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function Dropdown:setup()
     Collection.setup(self)
 
@@ -104,6 +136,8 @@ function Dropdown:setup()
     end)
 end
 
+--- Removes all entries and resets selection, scroll and open state.
+---@return self
 function Dropdown:clear()
     Collection.clear(self)
     self.open = false
@@ -113,6 +147,9 @@ function Dropdown:clear()
     return self
 end
 
+--- Removes an entry and clamps the dropdown scroll offset.
+---@param index integer|CollectionEntry Item index or entry
+---@return self
 function Dropdown:removeItem(index)
     Collection.removeItem(self, index)
     self:setOffset(self.offset)
@@ -120,6 +157,12 @@ function Dropdown:removeItem(index)
     return self
 end
 
+--- Routes mouse input in local coordinates (wheel scrolling etc.).
+---@param event string The mouse event name
+---@param btn number Button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil to pass through
 function Dropdown:handleMouse(event, btn, x, y)
     if event == "mouse_scroll" and not self.open then return nil end
     if event == "mouse_scroll" then
@@ -133,6 +176,10 @@ function Dropdown:handleMouse(event, btn, x, y)
     return Collection.handleMouse(self, event, btn, x, y)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function Dropdown:handleKey(event, a, b)
     if event == "key" then
         if not self.open then
@@ -170,6 +217,8 @@ function Dropdown:handleKey(event, a, b)
     Collection.handleKey(self, event, a, b)
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Dropdown:render(buf)
     local w = self.width
     local fg, bg = self.foreground, self.background

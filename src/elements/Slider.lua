@@ -4,23 +4,39 @@ local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 
+---@class Slider : Element
+---@field public min number Lowest selectable value
+---@field public max number Highest selectable value
+---@field public step number Value increment
+---@field public value number Current value
+---@field public horizontal boolean Whether the slider uses its width as track
+---@field public barColor number Track color
+---@field public knobColor number Knob color
 local Slider = class.create("Slider", Element)
 
-class.property(Slider, "min", 0)
-class.property(Slider, "max", 100)
-class.property(Slider, "step", 1)
-class.property(Slider, "value", 0)
-class.property(Slider, "horizontal", true)
-class.property(Slider, "barColor", colors.gray)
+class.property(Slider, "min", 0) -- lowest selectable value
+class.property(Slider, "max", 100) -- highest selectable value
+class.property(Slider, "step", 1) -- rounding step for clicks/drags/wheel
+class.property(Slider, "value", 0) -- current value
+class.property(Slider, "horizontal", true) -- false = vertical (uses height)
+class.property(Slider, "barColor", colors.gray) -- track color
+--- Color of the knob
 class.property(Slider, "knobColor", colors.blue)
+--- Width in terminal cells
 class.property(Slider, "width", 10)
 
+--- Fired whenever the value changes through user interaction
 class.event(Slider, "change")
 
+---@param self Slider
+---@return number length
 local function trackLength(self)
     return self.horizontal and self.width or self.height
 end
 
+---@param self Slider
+---@param x number Local x coordinate
+---@param y number Local y coordinate
 local function setFromPos(self, x, y)
     local len = trackLength(self)
     local pos = self.horizontal and x or y
@@ -37,13 +53,19 @@ local function setFromPos(self, x, y)
     end
 end
 
+--- Initializes per-instance state and input handlers.
 function Slider:setup()
     Element.setup(self)
     self:on("click", function(s, _, x, y) setFromPos(s, x, y) end)
     self:on("drag", function(s, _, x, y) setFromPos(s, x, y) end)
 end
 
---- The mouse wheel adjusts the value by one step (Basalt2 parity).
+--- The mouse wheel adjusts the value by one step.
+---@param event string The mouse event name
+---@param btn number Button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil to pass through
 function Slider:handleMouse(event, btn, x, y)
     if event == "mouse_scroll" then
         if self.disabled then return nil end
@@ -58,6 +80,8 @@ function Slider:handleMouse(event, btn, x, y)
     return Element.handleMouse(self, event, btn, x, y)
 end
 
+--- Renders the track and knob (horizontal or vertical).
+---@param buf Render The render buffer
 function Slider:render(buf)
     Element.render(self, buf)
     local len = trackLength(self)

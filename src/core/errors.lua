@@ -1,4 +1,4 @@
--- Error handling for Basalt3.
+-- Error handling for Basalt 2.
 --
 -- errors.parse() turns an error + traceback into structured info and is
 -- side-effect free (testable). errors.show() renders the error screen; it
@@ -6,18 +6,35 @@
 -- message is never displayed with hijacked palette slots.
 --
 -- The screen highlights two locations:
---  * the error site (where it was thrown, often inside Basalt3)
+--  * the error site (where it was thrown, often inside Basalt 2)
 --  * the first stack frame in USER code — that's usually the actual cause,
 --    so its source line is shown as an excerpt.
 
 local require, basaltDir = ...
 
+---@class BasaltErrorInfo
+---@field message string Normalized error message
+---@field file? string Source file of the error site
+---@field line? integer Source line of the error site
+---@field userFile? string Source file of the first user-code frame
+---@field userLine? integer Source line of the first user-code frame
+---@field trace string[] Cleaned traceback lines
+
+---@class BasaltWrappedError
+---@field __basaltError boolean Wrapped-error marker
+---@field err any Original error value
+---@field trace? string Captured traceback
+
 local errors = {}
 
+---@param s string Text to trim
+---@return string trimmed
 local function trim(s)
     return s:match("^%s*(.-)%s*$")
 end
 
+---@param file string Source identifier
+---@return boolean|integer internal
 local function isInternal(file)
     return file == "[C]"
         or file:sub(1, 1) == "("            -- e.g. (...tail calls...)
@@ -25,9 +42,10 @@ local function isInternal(file)
         or (basaltDir ~= "" and file:find(basaltDir, 1, true) == 1)
 end
 
---- Parses an error value and an optional traceback into a table:
---- message, file, line (error site), userFile, userLine (first user frame),
---- trace (cleaned traceback lines).
+--- Normalizes an error value and traceback into displayable lines.
+---@param err any Error value
+---@param trace? string Traceback text
+---@return BasaltErrorInfo info
 function errors.parse(err, trace)
     local msg = tostring(err)
     local file, line, rest = msg:match("^(.-):(%d+): (.*)$")
@@ -62,11 +80,16 @@ function errors.parse(err, trace)
     }
 end
 
+---@param text any Text to print
+---@param color number Text color
 local function cprint(text, color)
     term.setTextColor(color)
     print(text)
 end
 
+---@param file string Source file
+---@param lineNo integer One-based line number
+---@return string|nil line
 local function readSourceLine(file, lineNo)
     if not fs.exists(file) or fs.isDir(file) then return nil end
     local h = fs.open(file, "r")
@@ -80,8 +103,10 @@ local function readSourceLine(file, lineNo)
     return content
 end
 
---- Renders the error screen and waits for a key press.
---- showTrace=false hides the traceback section.
+--- Renders an error screen on the active terminal.
+---@param err any Error value
+---@param trace? string Traceback text
+---@param showTrace? boolean Whether traceback lines are shown
 function errors.show(err, trace, showTrace)
     local info = errors.parse(err, trace)
 
@@ -133,10 +158,10 @@ function errors.show(err, trace, showTrace)
     term.setCursorPos(1, 1)
 end
 
---- Wraps an error value so the runtime keeps an already-captured traceback
---- (used for coroutine errors, where the stack is gone once resume returns).
---- tostring() falls back to the original message, so a wrapped error that
---- escapes to the shell still prints readably.
+--- Wraps an error and traceback for Basalt's protected event loop.
+---@param err any Error value
+---@param trace? string Traceback text
+---@return BasaltWrappedError wrapped
 function errors.wrap(err, trace)
     return setmetatable({ __basaltError = true, err = err, trace = trace }, {
         __tostring = function(t) return tostring(t.err) end,

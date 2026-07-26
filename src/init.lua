@@ -1,9 +1,7 @@
 -- Basalt entry point.
--- Uses its own tiny module loader instead of touching package.path, so it
--- never collides with other libraries (or another Basalt version) and the
--- whole project can later be bundled into a single file trivially.
+-- Uses its own tiny module loader instead of touching package.path
 local args = { ... }
-local dir = fs.getDir(args[2] or "Basalt3/src")
+local dir = fs.getDir(args[2] or "basalt")
 
 local modules = {}
 local function load(name)

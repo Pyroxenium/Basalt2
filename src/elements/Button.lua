@@ -1,18 +1,26 @@
 -- Button: clickable element with centered text and pressed feedback.
+-- While the mouse button is held, foreground and background swap
+-- ("pressed" state); the click event fires on press.
 
 local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 
+---@class Button : Element
+---@field public text any Label rendered with `tostring`
 local Button = class.create("Button", Element)
 
+--- Label text, rendered centered
 class.property(Button, "text", "Button")
--- class-level defaults (instead of per-instance writes) so themes can
--- restyle buttons by changing the defaults
+--- Width in terminal cells
 class.property(Button, "width", 10)
+--- Height in terminal cells
 class.property(Button, "height", 3)
+--- Background color (false = transparent)
 class.property(Button, "background", colors.gray)
 
+--- Renders the button into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Button:render(buf)
     local fg, bg = self.foreground, self.background
     if self:hasState("pressed") and bg then
@@ -28,6 +36,10 @@ function Button:render(buf)
     )
 end
 
+--- Intrinsic size for basalt.auto(): text width + padding, 3 rows.
+---@return number width The measured width
+---@return number height The measured height
+---@usage local btn = frame:addButton({ width = basalt.auto(), text = "Ok" })
 function Button:measure()
     return math.max(3, #tostring(self.text) + 2), 3
 end

@@ -5,16 +5,43 @@ local class = require("core/class")
 local layout = require("core/layout")
 local Container = require("core/container")
 
+---@alias FlexDirection "row"|"column"
+---@alias FlexJustify "start"|"center"|"end"|"spaceBetween"
+---@alias FlexOverflow "clip"
+
+---@class FlexLayoutItem
+---@field child Element Element being laid out
+---@field mainSpec LayoutSpecification Main-axis size specification
+---@field crossSpec LayoutSpecification Cross-axis size specification
+---@field fill boolean Whether main size consumes remaining space
+---@field weight number Fill distribution weight
+---@field shrink number Shrink distribution weight
+---@field main? number Resolved main-axis size
+---@field cross number Resolved cross-axis size
+---@field minimum? number Resolved minimum main-axis size
+
+---@class Flex : Container
+---@field public direction FlexDirection Main-axis direction
+---@field public gap number Spacing between children
+---@field public padding number Inner spacing on every side
+---@field public align ElementAlignment Default cross-axis alignment
+---@field public justify FlexJustify Main-axis distribution
+---@field public overflow FlexOverflow Overflow behavior
 local Flex = class.create("Flex", Container)
 
-class.property(Flex, "direction", "row")
-class.property(Flex, "gap", 0)
-class.property(Flex, "padding", 0)
-class.property(Flex, "align", "start")
-class.property(Flex, "justify", "start")
-class.property(Flex, "overflow", "clip")
+class.property(Flex, "direction", "row") -- "row" or "column"
+class.property(Flex, "gap", 0) -- cells between children on the main axis
+class.property(Flex, "padding", 0) -- inner spacing on all sides
+class.property(Flex, "align", "start") -- cross axis: start, center, end, stretch
+class.property(Flex, "justify", "start") -- main axis: start, center, end, between
+class.property(Flex, "overflow", "clip") -- how overflowing children behave
+--- Background color (false = transparent)
 class.property(Flex, "background", false)
 
+---@param self Flex
+---@return number padding
+---@return number width
+---@return number height
 local function contentSize(self)
     local padding = math.max(0, math.floor(tonumber(self.padding) or 0))
     return padding,
@@ -22,6 +49,12 @@ local function contentSize(self)
         math.max(0, self.height - padding * 2)
 end
 
+---@param child Element
+---@param axis LayoutAxis
+---@param spec LayoutSpecification
+---@param availableWidth number
+---@param availableHeight number
+---@return number size
 local function desiredSize(child, axis, spec, availableWidth, availableHeight)
     if layout.is(spec) and (spec.kind == "auto" or spec.kind == "fill") then
         local mw, mh = layout.measure(child, availableWidth, availableHeight)
@@ -30,6 +63,12 @@ local function desiredSize(child, axis, spec, availableWidth, availableHeight)
     return layout.resolveSize(child, axis, spec, availableWidth, availableHeight)
 end
 
+--- Intrinsic size: sum of the children along the main axis plus gaps
+--- and padding (used by basalt.auto()).
+---@param availableWidth? number Space offered by the parent
+---@param availableHeight? number Space offered by the parent
+---@return number width The measured width
+---@return number height The measured height
 function Flex:measure(availableWidth, availableHeight)
     availableWidth = availableWidth or 1
     availableHeight = availableHeight or 1
@@ -60,6 +99,8 @@ function Flex:measure(availableWidth, availableHeight)
     return isRow and main or cross, isRow and cross or main
 end
 
+--- Positions all children according to direction/gap/align/justify;
+--- called automatically before every render pass.
 function Flex:layoutChildren()
     local direction = self.direction
     local isRow = direction == "row"
@@ -71,7 +112,9 @@ function Flex:layoutChildren()
     local contentMain = isRow and contentWidth or contentHeight
     local contentCross = isRow and contentHeight or contentWidth
     local gap = math.max(0, math.floor(tonumber(self.gap) or 0))
-    local items, fillWeight, fixed, lastFill = {}, 0, 0, nil
+    ---@type FlexLayoutItem[]
+    local items = {}
+    local fillWeight, fixed, lastFill = 0, 0, nil
     local children = self:getChildren()
 
     for i = 1, #children do

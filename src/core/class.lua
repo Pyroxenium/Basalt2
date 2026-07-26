@@ -1,19 +1,12 @@
--- Minimal class & property system for Basalt3.
---
--- Design goals compared to Basalt2's PropertySystem:
---  * ONE shared metatable per class instead of one per instance.
---  * Property values live in the instance's `_p` table; unset properties fall
---    back to a shared class defaults table, so they cost zero memory.
---  * `element.text = "hi"` and `element:setText("hi")` are both supported;
---    the fluent setters are thin wrappers around plain assignment.
---  * Dirty-marking and change hooks happen in __newindex, reads are a single
---    table lookup + one metamethod call.
+-- Minimal class & property system for Basalt.
 
 local require = ...
 local reactive = require("core/reactive")
 local state = require("core/state")
 local layout = require("core/layout")
 
+--- A minimal class system with property support.
+---@class Class
 local class = {}
 local unpack = table.unpack or unpack
 
@@ -38,7 +31,10 @@ local function capitalize(s)
     return s:sub(1, 1):upper() .. s:sub(2)
 end
 
---- Creates a new class deriving from `parent` (optional).
+--- Creates a new Basalt class deriving from an optional parent class.
+---@param name string Class name
+---@param parent table|nil Parent class
+---@return table class
 function class.create(name, parent)
     local c = {}
     c.__name = name
@@ -50,8 +46,6 @@ function class.create(name, parent)
 
     if parent then setmetatable(c, { __index = parent }) end
 
-    -- Returns an effective property value before layout tokens turn into
-    -- numbers. This includes active state styles, signals and functions.
     c.__getPropertySpec = function(t, k)
         local prop = c.__props[k]
         if not prop then return false end
@@ -83,8 +77,6 @@ function class.create(name, parent)
         __newindex = function(t, k, v)
             local prop = c.__props[k]
             if prop then
-                -- reactive expression: "{...}" compiles to a dynamic value
-                -- (rawString properties, e.g. user-typed text, are exempt)
                 if type(v) == "string" and not prop.rawString
                     and v:sub(1, 1) == "{" and v:sub(-1) == "}" then
                     v = reactive.compile(v, t)
@@ -95,8 +87,6 @@ function class.create(name, parent)
                     p[k] = v
                     if (type(v) == "function" and not prop.rawFunction)
                         or state.is(v) then
-                        -- dynamic value: evaluated lazily on read, so change
-                        -- hooks don't run here (they'd receive a function)
                         if prop.visual then
                             if t.invalidateLayout then t:invalidateLayout(k) end
                             if t.markRenderDirty then
@@ -127,7 +117,6 @@ function class.create(name, parent)
         end,
     }
 
-    -- Default constructor. Subclasses normally only override :setup().
     c.new = function(props)
         local self = setmetatable({
             _p = setmetatable({}, c.__pmeta),
@@ -152,6 +141,10 @@ end
 --- opts.state: mirrors the property's truthiness to a named element state.
 --- opts.stateWhen(value, self): custom predicate for the mirrored state.
 --- opts.styleable=false: state styles cannot override this property.
+---@param c table Target class
+---@param propName string Property name
+---@param default any Shared default value
+---@param opts table|nil Property behavior options
 function class.property(c, propName, default, opts)
     opts = opts or {}
     c.__props[propName] = {
@@ -182,6 +175,9 @@ end
 ---   element:setPosition(x, y)
 ---   element:getPosition()       -- effective/resolved values
 ---   element:getRawPosition()    -- authored/default values
+---@param c table Target class
+---@param combinedName string Public combined-property name
+---@param propertyNames string[] Ordered component property names
 function class.combinedProperty(c, combinedName, propertyNames)
     if type(combinedName) ~= "string" or combinedName == "" then
         error("Basalt class: combined property name must be a non-empty string", 2)
@@ -227,7 +223,9 @@ function class.combinedProperty(c, combinedName, propertyNames)
     end
 end
 
---- Declares an event on a class; generates the :onX(fn) registrar.
+--- Declares an event on a class and generates its :onX(fn) registrar.
+---@param c table Target class
+---@param eventName string Event name
 function class.event(c, eventName)
     c["on" .. capitalize(eventName)] = function(self, fn)
         return self:on(eventName, fn)

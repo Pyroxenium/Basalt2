@@ -4,20 +4,32 @@ local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 
+---@alias ProgressBarDirection "right"|"left"|"up"|"down"
+
+---@class ProgressBar : Element
+---@field public progress number Fill percentage from 0 through 100
+---@field public barColor number Filled-region color
+---@field public direction ProgressBarDirection Fill direction
+---@field public showPercentage boolean Whether to render a centered percentage
 local ProgressBar = class.create("ProgressBar", Element)
 
+--- Fill level 0-100, clamped automatically
 class.property(ProgressBar, "progress", 0, {
     onChange = function(self, v)
         local p = rawget(self, "_p")
         if v < 0 then p.progress = 0 elseif v > 100 then p.progress = 100 end
     end,
 })
-class.property(ProgressBar, "barColor", colors.lime)
+class.property(ProgressBar, "barColor", colors.lime) -- color of the filled part
+--- Background color (false = transparent)
 class.property(ProgressBar, "background", colors.gray)
+--- Width in terminal cells
 class.property(ProgressBar, "width", 16)
-class.property(ProgressBar, "direction", "right") -- right, left, up, down
-class.property(ProgressBar, "showPercentage", false)
+class.property(ProgressBar, "direction", "right") -- right, left, up or down
+class.property(ProgressBar, "showPercentage", false) -- centered "42%" text
 
+--- Renders the bar; the fill grows in the configured direction.
+---@param buf Render The render buffer
 function ProgressBar:render(buf)
     Element.render(self, buf)
     local w, h = self.width, self.height

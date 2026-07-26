@@ -57,7 +57,12 @@ local function startLoop()
 end
 
 --- Tweens the given numeric properties to their target values.
---- Returns a handle with :cancel().
+---@param el table The element to animate
+---@param props table Target values, e.g. { x = 20, y = 5 }
+---@param duration number|nil Seconds, default 0.3
+---@param easing string|nil "linear", "easeIn", "easeOut" or "easeInOut"
+---@param onDone function|nil Called with the element after completion
+---@return table handle Handle with :cancel()
 function animation.to(el, props, duration, easing, onDone)
     local a = {
         el = el,
@@ -92,6 +97,12 @@ function animation.to(el, props, duration, easing, onDone)
 end
 
 --- Sugar on Element: el:animate({x = 20}, 0.5, "easeOut", onDone)
+--- Fluent element shortcut for animation.to().
+---@param props table Target property values
+---@param duration number|nil Seconds, default 0.3
+---@param easing string|nil Easing name
+---@param onDone function|nil Completion callback
+---@return table handle Cancellable animation handle
 function Element:animate(props, duration, easing, onDone)
     return animation.to(self, props, duration, easing, onDone)
 end

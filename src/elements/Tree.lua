@@ -9,8 +9,33 @@ local class = require("core/class")
 local Element = require("core/element")
 local itemview = require("core/itemview")
 
+---@class TreeNode
+---@field text? any Display value rendered with `tostring`
+---@field children? TreeNode[] Child nodes
+---@field expanded? boolean Whether children are visible
+---@field [string] any Application-defined node data
+
+---@class TreeFlatEntry
+---@field node TreeNode Visible node
+---@field depth integer Zero-based nesting depth
+---@field parent? TreeNode Parent node
+
+---@class Tree : Element
+---@field public nodes TreeNode[] Root nodes
+---@field public selected TreeNode|false Selected node
+---@field public offset number Vertical viewport offset
+---@field public horizontalOffset number Horizontal text offset
+---@field public selectionBackground number Selected-node background
+---@field public selectionForeground number Selected-node foreground
+---@field public scrollbar ItemViewScrollbarMode Scrollbar mode
+---@field public scrollbarColor number Scrollbar track color
+---@field public scrollbarThumbColor number Scrollbar thumb color
+---@field public scrollBarSymbol string Basalt2-compatible thumb symbol
+---@field public scrollBarBackground string Basalt2-compatible track symbol
+---@field private _itemScrollDrag? integer Active scrollbar grab offset
 local Tree = class.create("Tree", Element)
 
+--- Root node list; nodes are { text, children = {...}, expanded = bool }
 class.property(Tree, "nodes", false, {      -- fresh table per instance (setup)
     onChange = function(self, nodes)
         if type(nodes) ~= "table" then
@@ -26,31 +51,53 @@ class.property(Tree, "nodes", false, {      -- fresh table per instance (setup)
         end
     end,
 })
+--- The selected node table (not an index), or false
 class.property(Tree, "selected", false, {  -- the selected node table
     state = "selected",
     stateWhen = function(v) return v ~= false and v ~= nil end,
     styleable = false,
 })
+--- Vertical scroll offset
 class.property(Tree, "offset", 0)
+--- Horizontal scroll offset for deep trees
 class.property(Tree, "horizontalOffset", 0)
+--- Background color (false = transparent)
 class.property(Tree, "background", colors.black)
+--- Background of selected entries
 class.property(Tree, "selectionBackground", colors.blue)
+--- Text color of selected entries
 class.property(Tree, "selectionForeground", colors.white)
+--- Width in terminal cells
 class.property(Tree, "width", 16)
+--- Height in terminal cells
 class.property(Tree, "height", 8)
+--- "auto", "always" or "hidden"
 class.property(Tree, "scrollbar", "auto")
+--- Scrollbar track color
 class.property(Tree, "scrollbarColor", colors.gray)
+--- Scrollbar thumb color
 class.property(Tree, "scrollbarThumbColor", colors.lightGray)
+--- Basalt2 compat: scrollbar thumb symbol
 class.property(Tree, "scrollBarSymbol", " ")
+--- Basalt2 compat: scrollbar track symbol
 class.property(Tree, "scrollBarBackground", "\127")
 
+--- Fired on item selection with (index, item)
 class.event(Tree, "select")
+--- Fired when the value changes
 class.event(Tree, "change")
+--- Fired on expand/collapse with (node, expanded)
 class.event(Tree, "toggle")
 
 --- Flattens the visible part of the tree into { node, depth, parent } rows.
+---@param self Tree
+---@return TreeFlatEntry[] entries
 local function flatten(self)
+    ---@type TreeFlatEntry[]
     local out = {}
+    ---@param nodes TreeNode[]
+    ---@param depth integer
+    ---@param parent? TreeNode
     local function walk(nodes, depth, parent)
         for i = 1, #nodes do
             local node = nodes[i]
@@ -64,6 +111,9 @@ local function flatten(self)
     return out
 end
 
+---@param flat TreeFlatEntry[]
+---@param node TreeNode|false
+---@return integer? index
 local function flatIndexOf(flat, node)
     for i = 1, #flat do
         if flat[i].node == node then return i end
@@ -71,10 +121,17 @@ local function flatIndexOf(flat, node)
     return nil
 end
 
+---@param self Tree
+---@param flat TreeFlatEntry[]
+---@return ItemViewGeometry geometry
 local function geometry(self, flat)
     return itemview.geometry(#flat, self.height, self.offset, self.scrollbar)
 end
 
+--- Expands or collapses a node (nil toggles) and fires the toggle event.
+---@param node TreeNode The node to toggle
+---@param expanded? boolean Explicit target state, nil = flip
+---@return self
 function Tree:toggle(node, expanded)
     if not node or not node.children then return self end
     if expanded == nil then expanded = not node.expanded end
@@ -86,6 +143,10 @@ function Tree:toggle(node, expanded)
     return self
 end
 
+--- Selects a node, scrolls it into view and fires the select event.
+---@param node TreeNode|false The node to select, or false to clear
+---@param emit? boolean false suppresses the select event
+---@return self
 function Tree:select(node, emit)
     local old = self.selected
     if node == false or node == nil then
@@ -105,28 +166,46 @@ function Tree:select(node, emit)
     return self
 end
 
+--- Expands one node if it has children.
+---@param node TreeNode Node to expand
+---@return self
 function Tree:expandNode(node)
     return self:toggle(node, true)
 end
 
+--- Collapses one node.
+---@param node TreeNode Node to collapse
+---@return self
 function Tree:collapseNode(node)
     return self:toggle(node, false)
 end
 
+--- Toggles one node's expanded state.
+---@param node TreeNode Node to toggle
+---@return self
 function Tree:toggleNode(node)
     return self:toggle(node)
 end
 
+--- Programmatically selects a node without firing the select event.
+---@param node TreeNode|false Node, or false to clear
+---@return self
 function Tree:setSelectedNode(node)
     return self:select(node, false)
 end
 
+--- Returns the currently selected node.
+---@return TreeNode|nil node
 function Tree:getSelectedNode()
     return self.selected or nil
 end
 
+--- Returns a set keyed by expanded node tables.
+---@return table<TreeNode,boolean> expanded
 function Tree:getExpandedNodes()
+    ---@type table<TreeNode, boolean>
     local result = {}
+    ---@param nodes TreeNode[]
     local function walk(nodes)
         for _, node in ipairs(nodes) do
             if node.expanded then result[node] = true end
@@ -137,10 +216,14 @@ function Tree:getExpandedNodes()
     return result
 end
 
+--- Applies a set keyed by nodes that should be expanded.
+---@param expanded table<TreeNode,boolean> Expanded-node set
+---@return self
 function Tree:setExpandedNodes(expanded)
     if type(expanded) ~= "table" then
         error("Basalt Tree: expandedNodes must be a table", 2)
     end
+    ---@param nodes TreeNode[]
     local function walk(nodes)
         for _, node in ipairs(nodes) do
             if node.children then
@@ -155,6 +238,9 @@ function Tree:setExpandedNodes(expanded)
     return self
 end
 
+--- Measures the currently visible flattened node tree.
+---@return number width
+---@return number height
 function Tree:getNodeSize()
     local flat = flatten(self)
     local width = 1
@@ -165,6 +251,9 @@ function Tree:getNodeSize()
     return width, #flat
 end
 
+--- Sets and clamps the horizontal text offset.
+---@param offset number Horizontal character offset
+---@return self
 function Tree:setHorizontalOffset(offset)
     local width = self:getNodeSize()
     rawget(self, "_p").horizontalOffset = math.max(0,
@@ -173,40 +262,75 @@ function Tree:setHorizontalOffset(offset)
     return self
 end
 
+--- Sets selected-node foreground color.
+---@param color number Color value
+---@return self
 function Tree:setSelectedForegroundColor(color)
     self.selectionForeground = color
     return self
 end
+--- Returns selected-node foreground color.
+---@return number color
 function Tree:getSelectedForegroundColor() return self.selectionForeground end
+--- Sets selected-node background color.
+---@param color number Color value
+---@return self
 function Tree:setSelectedBackgroundColor(color)
     self.selectionBackground = color
     return self
 end
+--- Returns selected-node background color.
+---@return number color
 function Tree:getSelectedBackgroundColor() return self.selectionBackground end
+--- Sets selected-node foreground and background colors.
+---@param foreground number Foreground color
+---@param background number Background color
+---@return self
 function Tree:setSelectionColor(foreground, background)
     self.selectionForeground, self.selectionBackground = foreground, background
     return self
 end
+--- Returns selected-node foreground and background colors.
+---@return number foreground
+---@return number background
 function Tree:getSelectionColor()
     return self.selectionForeground, self.selectionBackground
 end
+--- Enables or hides the tree scrollbar.
+---@param show boolean Whether the bar may be shown
+---@return self
 function Tree:setShowScrollBar(show)
     self.scrollbar = show and "auto" or "hidden"
     return self
 end
+--- Returns whether the tree scrollbar is enabled.
+---@return boolean enabled
 function Tree:getShowScrollBar() return self.scrollbar ~= "hidden" end
+--- Sets the scrollbar thumb color.
+---@param color number Color value
+---@return self
 function Tree:setScrollBarColor(color)
     self.scrollbarThumbColor = color
     return self
 end
+--- Returns the scrollbar thumb color.
+---@return number color
 function Tree:getScrollBarColor() return self.scrollbarThumbColor end
+--- Sets the scrollbar track color.
+---@param color number Color value
+---@return self
 function Tree:setScrollBarBackgroundColor(color)
     self.scrollbarColor = color
     return self
 end
+--- Returns the scrollbar track color.
+---@return number color
 function Tree:getScrollBarBackgroundColor() return self.scrollbarColor end
 
+--- Expands every node that has children.
+---@return self
 function Tree:expandAll()
+    ---@param nodes TreeNode[]
     local function walk(nodes)
         for i = 1, #nodes do
             if nodes[i].children then
@@ -220,7 +344,10 @@ function Tree:expandAll()
     return self
 end
 
+--- Collapses every node.
+---@return self
 function Tree:collapseAll()
+    ---@param nodes TreeNode[]
     local function walk(nodes)
         for i = 1, #nodes do
             if nodes[i].children then
@@ -234,6 +361,7 @@ function Tree:collapseAll()
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function Tree:setup()
     Element.setup(self)
     rawget(self, "_p").nodes = {}
@@ -267,6 +395,12 @@ function Tree:setup()
     end)
 end
 
+--- Routes mouse input in local coordinates (wheel scrolling etc.).
+---@param event string The mouse event name
+---@param btn number Button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil to pass through
 function Tree:handleMouse(event, btn, x, y)
     if event == "mouse_scroll" then
         if self.disabled then return nil end
@@ -280,6 +414,10 @@ function Tree:handleMouse(event, btn, x, y)
     return Element.handleMouse(self, event, btn, x, y)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function Tree:handleKey(event, a, b)
     if event == "key" then
         local flat = flatten(self)
@@ -312,6 +450,9 @@ function Tree:handleKey(event, a, b)
     Element.handleKey(self, event, a, b)
 end
 
+--- Intrinsic size for basalt.auto().
+---@return number width The measured width
+---@return number height The measured height
 function Tree:measure()
     local flat = flatten(self)
     local w = 1
@@ -321,6 +462,8 @@ function Tree:measure()
     return w, math.max(1, #flat)
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Tree:render(buf)
     Element.render(self, buf)
     local flat = flatten(self)

@@ -13,12 +13,60 @@ local class = require("core/class")
 local Element = require("core/element")
 local itemview = require("core/itemview")
 
+---@alias TableSortDirection "asc"|"desc"
+---@alias TableRow any[]
+---@alias TableValueComparator fun(a: any, b: any, ascending: boolean, rowA: TableRow, rowB: TableRow): boolean
+---@alias TableRowComparator fun(rowA: TableRow, rowB: TableRow, direction: TableSortDirection): boolean
+---@alias TableFormatter fun(value: any): any
+
+---@class TableColumn
+---@field title? string Header title
+---@field name? string Column name
+---@field width? number|string Fixed or percentage width
+---@field minWidth? number Minimum width
+---@field maxWidth? number Maximum width
+
+---@class TableColumnLayout
+---@field x number Local x coordinate
+---@field width number Visible width
+
+---@class TableCalculatedColumn
+---@field name? string Column name
+---@field width? number|string Requested width
+---@field visibleWidth number Resolved width
+
+---@class Table : Element
+---@field public columns TableColumn[] Normalized column definitions
+---@field public data TableRow[] Stable source rows
+---@field public selected integer|false Selected data-row index
+---@field public offset number Row viewport offset
+---@field public sortable boolean Whether header clicks sort
+---@field public sortColumn integer|false Active sort column
+---@field public sortDirection TableSortDirection Active sort direction
+---@field public headerBackground number Header background color
+---@field public gridColor number Grid color
+---@field public selectionBackground number Selected-row background
+---@field public selectionForeground number Selected-row foreground
+---@field public scrollbar ItemViewScrollbarMode Scrollbar mode
+---@field public scrollbarColor number Scrollbar track color
+---@field public scrollbarThumbColor number Scrollbar thumb color
+---@field public scrollBarSymbol string Basalt2-compatible thumb symbol
+---@field public scrollBarBackground string Basalt2-compatible track symbol
+---@field private _viewOrder? integer[] Display-row to data-row mapping
+---@field private _sortCol? integer Internal active sort column
+---@field private _sortAsc? boolean Internal sort direction
+---@field private _columnSorters table<integer, TableValueComparator> Custom comparators
+---@field private _sortValues table<TableRow, TableRow> Display rows to original sort values
+---@field private _itemScrollDrag? integer Active scrollbar grab offset
 local Table = class.create("Table", Element)
 
+---@param self Table
 local function invalidateView(self)
     rawset(self, "_viewOrder", nil)
 end
 
+---@param columns (string|TableColumn)[]
+---@return TableColumn[] columns
 local function normalizeColumns(columns)
     if type(columns) ~= "table" then
         error("Basalt Table: columns must be a table", 3)
@@ -43,50 +91,79 @@ local function normalizeColumns(columns)
     return result
 end
 
+--- Column definitions: { { title, width?, minWidth?, maxWidth? }, ... }
 class.property(Table, "columns", false, {
     onChange = function(self, value)
         rawget(self, "_p").columns = normalizeColumns(value)
         invalidateView(self)
     end,
 })
+--- Row data: list of cell-value lists; never mutated by sorting
 class.property(Table, "data", false, { onChange = invalidateView })
+--- Selected DATA row index, or false
 class.property(Table, "selected", false, {
     state = "selected",
     stateWhen = function(v) return v ~= false and v ~= nil end,
     styleable = false,
 })
+--- Scroll offset of the row viewport
 class.property(Table, "offset", 0)
+--- Header clicks sort the view
 class.property(Table, "sortable", true)
+--- Currently sorted column index, or false
 class.property(Table, "sortColumn", false, { styleable = false })
+--- "asc" or "desc"
 class.property(Table, "sortDirection", "asc", { styleable = false })
+--- Background color (false = transparent)
 class.property(Table, "background", colors.black)
+--- Header row background
 class.property(Table, "headerBackground", colors.gray)
+--- Color of the column gap / grid lines
 class.property(Table, "gridColor", colors.gray)
+--- Background of selected entries
 class.property(Table, "selectionBackground", colors.blue)
+--- Text color of selected entries
 class.property(Table, "selectionForeground", colors.white)
+--- Width in terminal cells
 class.property(Table, "width", 26)
+--- Height in terminal cells
 class.property(Table, "height", 8)
+--- "auto", "always" or "hidden"
 class.property(Table, "scrollbar", "auto")
+--- Scrollbar track color
 class.property(Table, "scrollbarColor", colors.gray)
+--- Scrollbar thumb color
 class.property(Table, "scrollbarThumbColor", colors.lightGray)
+--- Basalt2 compat: scrollbar thumb symbol
 class.property(Table, "scrollBarSymbol", " ")
+--- Basalt2 compat: scrollbar track symbol
 class.property(Table, "scrollBarBackground", "\127")
 
+--- Fired on item selection with (index, item)
 class.event(Table, "select")
+--- Fired on row selection, with (dataIndex, row) - Basalt2 compat
 class.event(Table, "rowSelect")
+--- Fired when the value changes
 class.event(Table, "change")
+--- Fired after sorting, with (columnIndex, ascending)
 class.event(Table, "sort")
 
+---@param self Table
+---@return integer rows
 local function rowArea(self)
     return math.max(0, self.height - 1)
 end
 
+---@param self Table
+---@return ItemViewGeometry geometry
 local function geometry(self)
     return itemview.geometry(#self.data, rowArea(self), self.offset,
         self.scrollbar)
 end
 
 --- Display order as a list of data indices (identity unless sorted).
+---@param self Table
+---@return integer[] order
 local function viewOrder(self)
     local data = self.data
     local view = rawget(self, "_viewOrder")
@@ -117,6 +194,9 @@ local function viewOrder(self)
 end
 
 --- Returns { x, width } per column for the given usable width.
+---@param self Table
+---@param usable number
+---@return TableColumnLayout[] columns
 local function columnLayout(self, usable)
     local cols = self.columns
     local gaps = math.max(0, #cols - 1)
@@ -158,6 +238,11 @@ local function columnLayout(self, usable)
     return out
 end
 
+--- Sorts the display order by a column; repeating flips the direction.
+--- The data table itself is never mutated.
+---@param columnIndex integer The column to sort by
+---@param ascending? boolean Explicit direction, nil = toggle
+---@return self
 function Table:sortBy(columnIndex, ascending)
     if self.columns[columnIndex] == nil then return self end
     if ascending == nil then
@@ -174,6 +259,10 @@ function Table:sortBy(columnIndex, ascending)
     return self
 end
 
+--- Selects a row by its DATA index and scrolls it into view.
+---@param dataIndex integer|false The data row index, or false to clear
+---@param emit? boolean false suppresses the select event
+---@return self
 function Table:select(dataIndex, emit)
     local oldIndex = self.selected
     local oldRow = oldIndex and self.data[oldIndex] or nil
@@ -202,6 +291,10 @@ function Table:select(dataIndex, emit)
     return self
 end
 
+--- Appends a row: either one table or the cell values as arguments.
+---@usage tbl:addRow("Wheat", 12)  -- or tbl:addRow({ "Wheat", 12 })
+---@param ... any Cell values, or one TableRow
+---@return self
 function Table:addRow(...)
     local count = select("#", ...)
     local row = count == 1 and type((...)) == "table" and (...) or { ... }
@@ -213,6 +306,9 @@ function Table:addRow(...)
     return self
 end
 
+--- Removes a data row; the selection index is kept consistent.
+---@param dataIndex integer The data row index
+---@return self
 function Table:removeRow(dataIndex)
     local data = self.data
     if data[dataIndex] == nil then return self end
@@ -233,10 +329,18 @@ function Table:removeRow(dataIndex)
     return self
 end
 
+--- Returns one row by stable data index.
+---@param dataIndex integer Data index
+---@return TableRow|nil row
 function Table:getRow(dataIndex)
     return self.data[dataIndex]
 end
 
+--- Changes one cell; a sorted view re-sorts automatically.
+---@param dataIndex integer The data row index
+---@param columnIndex integer The column index
+---@param value any The new cell value
+---@return self
 function Table:updateCell(dataIndex, columnIndex, value)
     local row = self.data[dataIndex]
     if row == nil then return self end
@@ -248,7 +352,10 @@ function Table:updateCell(dataIndex, columnIndex, value)
     return self
 end
 
---- Sets a custom comparator for one column: fn(a, b, ascending) -> boolean.
+--- Registers a value comparator receiving valueA, valueB and ascending.
+---@param columnIndex integer Column index
+---@param fn? TableValueComparator Value comparator
+---@return self
 function Table:setColumnSort(columnIndex, fn)
     local sorters = rawget(self, "_columnSorters")
     sorters[columnIndex] = fn
@@ -257,6 +364,10 @@ function Table:setColumnSort(columnIndex, fn)
     return self
 end
 
+--- Registers a Basalt2-style row comparator for one column.
+---@param columnIndex integer Column index
+---@param fn? TableRowComparator Comparator receiving rowA, rowB and direction
+---@return self
 function Table:setColumnSortFunction(columnIndex, fn)
     if fn == nil then return self:setColumnSort(columnIndex, nil) end
     return self:setColumnSort(columnIndex, function(_, _, ascending, rowA, rowB)
@@ -264,11 +375,18 @@ function Table:setColumnSortFunction(columnIndex, fn)
     end)
 end
 
+--- Sorts the table view without mutating the underlying data order.
+---@param columnIndex integer Column index
+---@param fn? TableRowComparator Optional Basalt2-style row comparator
+---@return self
 function Table:sortByColumn(columnIndex, fn)
     if fn then self:setColumnSortFunction(columnIndex, fn) end
     return self:sortBy(columnIndex, self.sortDirection ~= "desc")
 end
 
+--- Selects the active sort column, or clears sorting with false/nil.
+---@param columnIndex? integer|false Column index
+---@return self
 function Table:setSortColumn(columnIndex)
     if columnIndex == false or columnIndex == nil then
         rawset(self, "_sortCol", nil)
@@ -280,6 +398,9 @@ function Table:setSortColumn(columnIndex)
     return self:sortBy(columnIndex, self.sortDirection ~= "desc")
 end
 
+--- Sets the active sort direction.
+---@param direction TableSortDirection Direction
+---@return self
 function Table:setSortDirection(direction)
     if direction ~= "asc" and direction ~= "desc" then
         error("Basalt Table: sortDirection must be 'asc' or 'desc'", 2)
@@ -289,14 +410,22 @@ function Table:setSortDirection(direction)
     return self
 end
 
+--- Returns the selected row using its stable data index.
+---@return TableRow|nil row
 function Table:getSelectedRow()
     return self.selected and self.data[self.selected] or nil
 end
 
+--- Removes all rows and clears selection/scroll state.
+---@return self
 function Table:clearData()
     return self:clear()
 end
 
+--- Appends a named column definition.
+---@param name string Header label
+---@param width? number|string Fixed, percent or "auto" width
+---@return self
 function Table:addColumn(name, width)
     local columns = {}
     for i, column in ipairs(self.columns) do columns[i] = column end
@@ -305,6 +434,10 @@ function Table:addColumn(name, width)
     return self
 end
 
+--- Replaces all rows and optionally formats individual columns for display.
+---@param rawData TableRow[] Source rows
+---@param formatters? table<integer, TableFormatter> Column formatter map
+---@return self
 function Table:setData(rawData, formatters)
     if type(rawData) ~= "table" then
         error("Basalt Table: data must be a table", 2)
@@ -326,6 +459,10 @@ function Table:setData(rawData, formatters)
     return self
 end
 
+--- Resolves fixed, percent and automatic column widths.
+---@param columns (string|TableColumn)[] Column definitions
+---@param totalWidth number Available width
+---@return TableCalculatedColumn[] columns Definitions containing visibleWidth
 function Table:calculateColumnWidths(columns, totalWidth)
     local original = self.columns
     rawget(self, "_p").columns = normalizeColumns(columns)
@@ -342,40 +479,79 @@ function Table:calculateColumnWidths(columns, totalWidth)
     return result
 end
 
+--- Sets the table header background color.
+---@param color number Color value
+---@return self
 function Table:setHeaderColor(color)
     self.headerBackground = color
     return self
 end
 
+--- Returns the table header background color.
+---@return number color
 function Table:getHeaderColor() return self.headerBackground end
+--- Sets selected-row foreground color.
+---@param color number Color value
+---@return self
 function Table:setSelectedForeground(color) self.selectionForeground = color return self end
+--- Returns selected-row foreground color.
+---@return number color
 function Table:getSelectedForeground() return self.selectionForeground end
+--- Sets selected-row background color.
+---@param color number Color value
+---@return self
 function Table:setSelectedBackground(color) self.selectionBackground = color return self end
+--- Returns selected-row background color.
+---@return number color
 function Table:getSelectedBackground() return self.selectionBackground end
+--- Sets selected-row foreground and background colors.
+---@param foreground number Foreground color
+---@param background number Background color
+---@return self
 function Table:setSelectionColor(foreground, background)
     self.selectionForeground, self.selectionBackground = foreground, background
     return self
 end
+--- Returns selected-row foreground and background colors.
+---@return number foreground
+---@return number background
 function Table:getSelectionColor()
     return self.selectionForeground, self.selectionBackground
 end
 
+--- Enables or hides the table scrollbar.
+---@param show boolean Whether the bar may be shown
+---@return self
 function Table:setShowScrollBar(show)
     self.scrollbar = show and "auto" or "hidden"
     return self
 end
+--- Returns whether the table scrollbar is enabled.
+---@return boolean enabled
 function Table:getShowScrollBar() return self.scrollbar ~= "hidden" end
+--- Sets the scrollbar thumb color.
+---@param color number Color value
+---@return self
 function Table:setScrollBarColor(color)
     self.scrollbarThumbColor = color
     return self
 end
+--- Returns the scrollbar thumb color.
+---@return number color
 function Table:getScrollBarColor() return self.scrollbarThumbColor end
+--- Sets the scrollbar track color.
+---@param color number Color value
+---@return self
 function Table:setScrollBarBackgroundColor(color)
     self.scrollbarColor = color
     return self
 end
+--- Returns the scrollbar track color.
+---@return number color
 function Table:getScrollBarBackgroundColor() return self.scrollbarColor end
 
+--- Clears all rows, selection, sorting view and scroll state.
+---@return self
 function Table:clear()
     local oldIndex = self.selected
     local oldRow = oldIndex and self.data[oldIndex] or nil
@@ -389,6 +565,7 @@ function Table:clear()
     return self
 end
 
+--- Initializes per-instance state and input handlers.
 function Table:setup()
     Element.setup(self)
     local p = rawget(self, "_p")
@@ -432,6 +609,12 @@ function Table:setup()
     end)
 end
 
+--- Routes mouse input in local coordinates (wheel scrolling etc.).
+---@param event string The mouse event name
+---@param btn number Button or scroll direction
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return Element|nil consumer The consuming element, or nil to pass through
 function Table:handleMouse(event, btn, x, y)
     if event == "mouse_scroll" then
         if self.disabled then return nil end
@@ -444,6 +627,10 @@ function Table:handleMouse(event, btn, x, y)
     return Element.handleMouse(self, event, btn, x, y)
 end
 
+--- Handles keyboard input while focused.
+---@param event string The key event name (key, key_up, char, paste)
+---@param a any Key code or typed text
+---@param b? any Secondary key-event value
 function Table:handleKey(event, a, b)
     if event == "key" and #self.data > 0 then
         local view = viewOrder(self)
@@ -471,6 +658,9 @@ function Table:handleKey(event, a, b)
     Element.handleKey(self, event, a, b)
 end
 
+--- Intrinsic size for basalt.auto().
+---@return number width The measured width
+---@return number height The measured height
 function Table:measure()
     local w = 0
     for i = 1, #self.columns do
@@ -479,6 +669,8 @@ function Table:measure()
     return math.max(1, w - 1), math.max(2, #self.data + 1)
 end
 
+--- Renders the element into the buffer.
+---@param buf Render The render buffer (local coordinates, pre-clipped)
 function Table:render(buf)
     Element.render(self, buf)
     local w = self.width

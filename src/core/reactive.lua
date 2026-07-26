@@ -1,23 +1,32 @@
 -- Reactive expressions: "{parent.width - 12}" compiles to a dynamic value.
---
--- The string between the braces is a plain Lua expression. It runs in a
--- sandboxed environment where identifiers resolve lazily on every read:
---   self    -> the element the expression is set on
---   parent  -> its current parent
---   <name>  -> the element with that .name, searched from the root
---   colors, math, rgb, tostring, tonumber, clamp, round, floor, ceil,
---   abs, min, max
--- Because identifier lookup happens at evaluation time (not compile time),
--- expressions can be set before the element is added to a parent.
---
--- No observers are needed: the compiled function is stored as a dynamic
--- value, so it is re-evaluated on every read / redraw automatically.
 
 local require = ...
 local palette = require("core/palette")
 
+---@alias ReactiveResolver fun(element?: Element): any
+
+---@class ReactiveHelpers
+---@field colors table CC color constants
+---@field math table Lua math library
+---@field rgb fun(r: number|string, g?: number, b?: number): number RGB color helper
+---@field tostring fun(value: any): string
+---@field tonumber fun(value: any, base?: integer): number|nil
+---@field clamp fun(value: number, minimum: number, maximum: number): number
+---@field round fun(value: number): integer
+---@field floor fun(value: number): integer
+---@field ceil fun(value: number): integer
+---@field abs fun(value: number): number
+---@field min fun(value: number, ...: number): number
+---@field max fun(value: number, ...: number): number
+
+---@class ReactiveEnvironment : ReactiveHelpers
+---@field self Element Expression owner
+---@field parent? Container Current parent
+---@field [string] any Named elements are resolved dynamically
+
 local reactive = {}
 
+---@type ReactiveHelpers
 local helpers = {
     colors = colors,
     math = math,
@@ -33,10 +42,14 @@ local helpers = {
     max = math.max,
 }
 
---- Compiles "{expr}" for an element; returns a dynamic-value function.
+--- Compiles a {property/path/expression} string into a dynamic property value.
+---@param str string Braced reactive expression
+---@param element Element Expression owner
+---@return ReactiveResolver resolver
 function reactive.compile(str, element)
     local expr = str:sub(2, -2)
 
+    ---@type ReactiveEnvironment
     local env = setmetatable({}, {
         __index = function(_, key)
             if key == "self" then return element end

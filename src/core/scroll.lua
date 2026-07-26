@@ -1,22 +1,36 @@
 -- Shared scrolling and internal scrollbar rendering for all Containers.
 
+---@alias ScrollbarAxis "x"|"y"
+
 local scroll = {}
 
+---@param value number Value to constrain
+---@param minimum number Lower bound
+---@param maximum number Upper bound
+---@return number value
 local function clamp(value, minimum, maximum)
     if value < minimum then return minimum end
     if value > maximum then return maximum end
     return value
 end
 
+---@param self Container Scrollable container
+---@return number x
+---@return number y
 local function offsets(self)
     return rawget(self, "_scrollX") or 0, rawget(self, "_scrollY") or 0
 end
 
+---@param self Container Scrollable container
+---@return number maxX
+---@return number maxY
 local function maxOffsets(self)
     return math.max(0, (rawget(self, "_contentWidth") or 0) - self.width),
         math.max(0, (rawget(self, "_contentHeight") or 0) - self.height)
 end
 
+---@param self Container Scrollable container
+---@return ContainerScrollbarMode mode
 local function barMode(self)
     local mode = self.scrollbar
     if mode ~= "auto" and mode ~= "always" and mode ~= "hidden" then
@@ -25,6 +39,8 @@ local function barMode(self)
     return mode
 end
 
+--- Resets all scroll state when scrolling is disabled.
+---@param self Container Scrollable container
 function scroll.disable(self)
     rawset(self, "_scrollX", 0)
     rawset(self, "_scrollY", 0)
@@ -34,6 +50,8 @@ function scroll.disable(self)
     rawset(self, "_viewportDirty", true)
 end
 
+--- Initializes per-instance state and input handlers.
+---@param self Container Scrollable container
 function scroll.setup(self)
     rawset(self, "_scrollX", 0)
     rawset(self, "_scrollY", 0)
@@ -49,6 +67,7 @@ function scroll.setup(self)
 end
 
 --- Recomputes content bounds and visible scrollbar state after layout.
+---@param self Container Scrollable container
 function scroll.update(self)
     local children = self:getChildren()
     local contentWidth, contentHeight = 0, 0
@@ -82,6 +101,13 @@ function scroll.update(self)
     rawset(self, "_viewportDirty", true)
 end
 
+---@param trackLength number Available scrollbar track length
+---@param viewport number Viewport length
+---@param content number Content length
+---@param offset number Current scroll offset
+---@param maximum number Maximum scroll offset
+---@return number size
+---@return number position
 local function thumb(trackLength, viewport, content, offset, maximum)
     if trackLength <= 0 then return 1, 0 end
     local size = math.max(1, math.floor(trackLength * viewport
@@ -92,6 +118,9 @@ local function thumb(trackLength, viewport, content, offset, maximum)
     return size, pos
 end
 
+--- Returns viewport and scrollbar geometry for a container.
+---@param self Container Scrollable container
+---@return ContainerScrollbarGeometry geometry
 function scroll.geometry(self)
     local showX = rawget(self, "_showScrollX") == true
     local showY = rawget(self, "_showScrollY") == true
@@ -115,6 +144,9 @@ function scroll.geometry(self)
     }
 end
 
+--- Draws the scrollbar(s) into the buffer.
+---@param self Container Scrollable container
+---@param buf Render Render buffer
 function scroll.draw(self, buf)
     if not self.scrollable then return end
     local g = scroll.geometry(self)
@@ -134,6 +166,12 @@ function scroll.draw(self, buf)
     end
 end
 
+--- Applies clamped scroll offsets.
+---@param self Container Scrollable container
+---@param x number Horizontal offset
+---@param y number Vertical offset
+---@param emit? boolean Emit the scroll event unless false
+---@return boolean changed
 function scroll.set(self, x, y, emit)
     if not self.scrollable then return false end
     local oldX, oldY = offsets(self)
@@ -149,6 +187,10 @@ function scroll.set(self, x, y, emit)
     return true
 end
 
+--- Handles a vertical mouse-wheel movement.
+---@param self Container Scrollable container
+---@param direction number Wheel direction
+---@return boolean handled
 function scroll.wheel(self, direction)
     if not self.scrollable then return false end
     local x, y = offsets(self)
@@ -161,6 +203,12 @@ function scroll.wheel(self, direction)
     return false
 end
 
+--- Hit-tests a point against the visible scrollbars.
+---@param self Container Scrollable container
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return 'x'|'y'|'corner'|false axis
+---@return ContainerScrollbarGeometry|nil geometry
 function scroll.isBarPoint(self, x, y)
     if not self.scrollable then return false end
     local g = scroll.geometry(self)
@@ -170,9 +218,16 @@ function scroll.isBarPoint(self, x, y)
     return false, g
 end
 
+--- Starts a thumb drag or performs a scrollbar page step.
+---@param self Container Scrollable container
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return boolean handled
 function scroll.pointerDown(self, x, y)
     local axis, g = scroll.isBarPoint(self, x, y)
     if axis == "corner" or not axis then return axis == "corner" end
+    ---@cast axis ScrollbarAxis
+    ---@cast g ContainerScrollbarGeometry
 
     local isY = axis == "y"
     local coordinate = isY and y or x
@@ -197,7 +252,13 @@ function scroll.pointerDown(self, x, y)
     return true
 end
 
+--- Updates an active scrollbar thumb drag.
+---@param self Container Scrollable container
+---@param x number Local x coordinate
+---@param y number Local y coordinate
+---@return boolean handled
 function scroll.drag(self, x, y)
+    ---@type ContainerScrollDrag?
     local dragState = rawget(self, "_scrollDrag")
     if not dragState then return false end
     local g = scroll.geometry(self)

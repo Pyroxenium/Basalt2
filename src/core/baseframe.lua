@@ -7,10 +7,38 @@ local Container = require("core/container")
 local Render = require("core/render")
 local state = require("core/state")
 
+--- BaseFrame is the root of a UI tree, bound to a terminal-like object.
+---@class BaseFrame : Container
+---@field public background number Background color (false = transparent)
+---@field private term table Terminal or monitor redirect
+---@field private _render Render Render buffer
+---@field private _focused Element|nil Element that currently owns keyboard focus
+---@field private _hovered Element|nil Element that currently owns mouse hover state
+---@field private _clicked Element|nil Element that currently owns mouse capture state
+---@field private _keysDown table<number, boolean> Keyboard keys currently held down
+---@field private _dirty boolean Whether the frame needs to be redrawn
+---@field private _p table Properties table (width, height)
 local BaseFrame = class.create("BaseFrame", Container)
 
+--- Background color (false = transparent)
 class.property(BaseFrame, "background", colors.black)
 
+--- Initializes a new BaseFrame instance.
+function BaseFrame:setup()
+    Container.setup(self)
+    rawset(self, "_keysDown", {})
+end
+
+--- Returns whether a keyboard key is currently held down.
+---@param keyCode number ComputerCraft key code
+---@return boolean down
+function BaseFrame:isKeyDown(keyCode)
+    return rawget(self, "_keysDown")[keyCode] == true
+end
+
+--- Binds the root frame to a terminal-like object and resizes its buffer.
+---@param t table Terminal or monitor redirect
+---@return self
 function BaseFrame:setTerm(t)
     rawset(self, "term", t)
     rawset(self, "_render", Render.new(t))
@@ -38,6 +66,8 @@ function BaseFrame:draw()
     self._render:flush()
 end
 
+--- Moves keyboard focus to an element, or clears it with nil.
+---@param el Element|nil New focused element
 function BaseFrame:setFocused(el)
     local old = rawget(self, "_focused")
     if old == el then return end
@@ -51,12 +81,20 @@ function BaseFrame:setFocused(el)
 end
 
 --- Applies a cursor request from a focused element (absolute coordinates).
+--- Forwards an absolute cursor request to the render buffer.
+---@param x number Absolute x coordinate
+---@param y number Absolute y coordinate
+---@param blink boolean Cursor blink state
+---@param color number|nil Cursor color
+---@return self
 function BaseFrame:setCursor(x, y, blink, color)
     local r = rawget(self, "_render")
     if r then r:setCursor(x, y, blink, color) end
     return self
 end
 
+--- Returns the element that currently owns keyboard focus.
+---@return Element|nil element
 function BaseFrame:getFocused()
     return rawget(self, "_focused")
 end
@@ -106,7 +144,17 @@ function BaseFrame:_releaseSubtree(el, keepHover)
 end
 
 --- Entry point for raw CC events, called by the runtime.
+--- Dispatches one raw ComputerCraft event into this frame.
+---@param event string Event name
+---@param a any First event argument
+---@param b any Second event argument
+---@param c any Third event argument
 function BaseFrame:handleEvent(event, a, b, c)
+    if event == "key" then
+        rawget(self, "_keysDown")[a] = true
+    elseif event == "key_up" then
+        rawget(self, "_keysDown")[a] = nil
+    end
     if event == "mouse_click" then
         self:_updateHovered(b, c)
         rawset(self, "_clicked", self:handleMouse(event, a, b, c))
