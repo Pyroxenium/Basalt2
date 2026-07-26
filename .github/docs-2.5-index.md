@@ -1,6 +1,6 @@
 # Basalt 2.5
 
-Basalt 2.5 is the improved and extended successor to Basalt 2.
+Basalt 2.5 is an improved and extended release of Basalt 2.
 
 - [API reference](./api/)
 - [Source code](https://github.com/Pyroxenium/Basalt2/tree/basalt2.5)
