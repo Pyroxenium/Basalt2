@@ -17,3 +17,4 @@ DockLayout.lua
 ContextMenu.lua
 Toast.lua
 src
+node_modules/

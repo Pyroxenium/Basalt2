@@ -20,20 +20,21 @@ function apiItems(folder: string) {
 }
 
 export default defineConfig({
-  title: 'Basalt 2.5',
-  description: 'Basalt 2.5 API documentation for CC:Tweaked',
+  title: 'Basalt',
+  description: 'Basalt API documentation for CC:Tweaked',
   lang: 'en-US',
   base: '/2.5/',
   lastUpdated: true,
   cacheDir: '../../.vitepress/cache-2.5',
 
   themeConfig: {
-    siteTitle: 'Basalt 2.5',
+    siteTitle: 'Basalt',
     search: {
       provider: 'local',
     },
     nav: [
-      { text: 'Overview', link: '/' },
+      { text: 'Home', link: '/home' },
+      { text: 'Guides', link: '/guides/' },
       { text: 'API Reference', link: '/api/' },
       {
         text: 'Basalt 2 Docs',
@@ -41,6 +42,18 @@ export default defineConfig({
       },
     ],
     sidebar: {
+      '/guides/': [
+        {
+          text: 'Guides',
+          items: [
+            { text: 'Overview', link: '/guides/' },
+            {
+              text: 'Getting Started',
+              link: '/guides/getting-started',
+            },
+          ],
+        },
+      ],
       '/api/': [
         {
           text: 'API Reference',
@@ -86,4 +99,3 @@ export default defineConfig({
     ],
   },
 })
-
