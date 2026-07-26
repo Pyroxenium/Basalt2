@@ -86,9 +86,11 @@ end
 ----------------------------------------------------------------------------
 
 local function defaultRoot()
-    local root = shell and fs.getDir(shell.getRunningProgram()) or "Basalt"
+    local root = shell
+        and fs.getDir(fs.getDir(shell.getRunningProgram()))
+        or "basalt"
     if not fs.exists(fs.combine(root, "src/main.lua")) then
-        root = "Basalt" -- fallback when loaded outside the repository root
+        root = "basalt" -- fallback when loaded outside the repository root
     end
     return root
 end

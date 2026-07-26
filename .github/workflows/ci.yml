@@ -1,0 +1,68 @@
+name: Basalt 2.5 CI
+
+on:
+  push:
+    branches:
+      - basalt2.5
+  pull_request:
+    branches:
+      - basalt2.5
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  craftos:
+    name: CraftOS checks
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install CraftOS-PC
+        run: |
+          sudo add-apt-repository --yes ppa:jackmacwindows/ppa
+          sudo apt-get update
+          sudo apt-get install --yes craftos-pc
+
+      - name: Validate documentation annotations
+        run: |
+          mkdir -p "$RUNNER_TEMP/craftos-docgen"
+          craftos \
+            --headless \
+            --directory "$RUNNER_TEMP/craftos-docgen" \
+            --mount-ro "Basalt=$GITHUB_WORKSPACE" \
+            --exec "local ok=shell.run('Basalt/tools/docgen.lua','--check'); os.shutdown(ok and 0 or 1)"
+
+      - name: Smoke-test the source loader
+        run: |
+          mkdir -p "$RUNNER_TEMP/craftos-smoke"
+          craftos \
+            --headless \
+            --directory "$RUNNER_TEMP/craftos-smoke" \
+            --mount-ro "basalt=$GITHUB_WORKSPACE/src" \
+            --exec "local ok=shell.run('basalt/main.lua'); os.shutdown(ok and 0 or 1)"
+
+      - name: Build release bundle
+        run: |
+          mkdir -p "$RUNNER_TEMP/craftos-bundle"
+          mkdir -p "$RUNNER_TEMP/basalt-output"
+          craftos \
+            --headless \
+            --directory "$RUNNER_TEMP/craftos-bundle" \
+            --mount-ro "Basalt=$GITHUB_WORKSPACE" \
+            --mount-rw "output=$RUNNER_TEMP/basalt-output" \
+            --exec "local ok=shell.run('Basalt/tools/bundle.lua','output/basalt.lua'); os.shutdown(ok and 0 or 1)"
+
+      - name: Verify committed bundle
+        run: cmp "$RUNNER_TEMP/basalt-output/basalt.lua" bundle/basalt.lua
+
+      - name: Upload release bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: basalt-2.5
+          path: ${{ runner.temp }}/basalt-output/basalt.lua
+          if-no-files-found: error
+
