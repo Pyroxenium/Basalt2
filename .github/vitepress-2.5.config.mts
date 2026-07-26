@@ -33,7 +33,8 @@ export default defineConfig({
       provider: 'local',
     },
     nav: [
-      { text: 'Overview', link: '/' },
+      { text: 'Home', link: '/home' },
+      { text: 'Guides', link: '/guides/' },
       { text: 'API Reference', link: '/api/' },
       {
         text: 'Basalt 2 Docs',
@@ -41,6 +42,18 @@ export default defineConfig({
       },
     ],
     sidebar: {
+      '/guides/': [
+        {
+          text: 'Guides',
+          items: [
+            { text: 'Overview', link: '/guides/' },
+            {
+              text: 'Getting Started',
+              link: '/guides/getting-started',
+            },
+          ],
+        },
+      ],
       '/api/': [
         {
           text: 'API Reference',
@@ -86,4 +99,3 @@ export default defineConfig({
     ],
   },
 })
-

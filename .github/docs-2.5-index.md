@@ -8,11 +8,13 @@ hero:
   actions:
     - theme: brand
       text: Home
-      link: /home/
+      link: /home
     - theme: alt
       text: Guides
+      link: /guides/
     - theme: alt
       text: Reference
+      link: /api/
     - theme: alt
       text: Github
       link: https://github.com/Pyroxenium/Basalt2/tree/basalt2.5
@@ -21,7 +23,7 @@ hero:
       link: https://basalt.madefor.cc/2.0/
 
 features:
-  - title: USer friendly
+  - title: User friendly
     details: Basalt's intuitive interface makes UI design a breeze, even for beginners. Experience seamless integration without the steep learning curve.
   - title: High Performance
     details: Designed with efficiency in mind, Basalt ensures smooth and responsive interfaces, even for the most complex applications.
