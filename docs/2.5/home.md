@@ -57,7 +57,7 @@ basalt.run()
 
 ## Preview
 
-![Basalt 2.5 showcase](/2.5/preview.gif)
+![Basalt 2.5 showcase](/preview.gif)
 
 ## Documentation
 
