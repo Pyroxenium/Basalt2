@@ -382,7 +382,7 @@ function Container:findAt(x, y)
     return self
 end
 
---- Registers an element class: creates Container:add<Name>(props).
+--- Registers an element class: creates `Container:add<Name>(props)`.
 ---@generic T : Element
 ---@param elementName string Public element name
 ---@param elementClass { new: fun(props?: table): T } Element class

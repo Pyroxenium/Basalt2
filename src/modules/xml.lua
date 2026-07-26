@@ -1,15 +1,19 @@
 -- XML module: build UI trees from XML markup.
 --
---   local xml = basalt.use("xml")
---   xml.load(frame, [[
---       <frame x="2" y="2" width="20" height="8">
---           <label text="Hello" foreground="#89b4fa"/>
---           <button text="Save" onClick="save"/>
---           <label text="{parent.width}"/>   <!-- reactive works -->
---       </frame>
---   ]], { save = function(btn) ... end })
+-- ```xml
+-- <frame x="2" y="2" width="20" height="8">
+--     <label text="Hello" foreground="#89b4fa"/>
+--     <button text="Save" onClick="save"/>
+--     <label text="{parent.width}"/> <!-- reactive works -->
+-- </frame>
+-- ```
 --
--- Tag names map to add<Name>() on the parent (label -> addLabel), so any
+-- ```lua
+-- local xml = basalt.use("xml")
+-- xml.load(frame, xmlSource, { save = function(btn) ... end })
+-- ```
+--
+-- Tag names map to `add<Name>()` on the parent (label -> addLabel), so any
 -- registered element works. Attribute values are converted: numbers,
 -- true/false, "#RRGGBB" -> basalt.rgb, "{...}" stays reactive, everything
 -- else is a string. on* attributes bind functions from the scope table.

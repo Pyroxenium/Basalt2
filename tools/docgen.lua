@@ -457,6 +457,10 @@ local function esc(s)
     return (s or ""):gsub("|", "\\|")
 end
 
+local function inlineCode(s)
+    return "`" .. (s or ""):gsub("`", "\\`") .. "`"
+end
+
 local function renderPage(page, category)
     local out = {}
     local function w(s) out[#out + 1] = s end
@@ -485,7 +489,7 @@ local function renderPage(page, category)
         w("")
         for _, alias in ipairs(page.aliases) do
             if visibleTypes[alias.name] then
-                w("### " .. alias.display)
+                w("### " .. inlineCode(alias.display))
                 w("")
                 if #alias.desc > 0 then
                     w(table.concat(alias.desc, "\n"))
@@ -499,7 +503,7 @@ local function renderPage(page, category)
         end
         for _, definition in ipairs(page.types) do
             if visibleTypes[definition.name] then
-                w("### " .. definition.display)
+                w("### " .. inlineCode(definition.display))
                 w("")
                 if #definition.bases > 0 then
                     w("*extends " .. table.concat(definition.bases, ", ") .. "*")
