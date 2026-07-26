@@ -1,8 +1,26 @@
-# Basalt 2.5
+---
+layout: home
 
-Basalt 2.5 is an improved and extended release of Basalt 2.
+hero:
+  name: Basalt 2.5
+  text: Official Documentation
+  tagline: An improved and extended Basalt 2 release
+  actions:
+    - theme: brand
+      text: API Reference
+      link: /api/
+    - theme: alt
+      text: Source Code
+      link: https://github.com/Pyroxenium/Basalt2/tree/basalt2.5
+    - theme: alt
+      text: Basalt 2 Docs
+      link: https://basalt.madefor.cc/2.0/
 
-- [API reference](./api/)
-- [Source code](https://github.com/Pyroxenium/Basalt2/tree/basalt2.5)
-
-The Basalt 2 documentation remains available separately on this site.
+features:
+  - title: Familiar Basalt API
+    details: Build interfaces with the familiar Basalt 2 concepts while benefiting from the improvements introduced in Basalt 2.5.
+  - title: Reactive UI
+    details: Connect application state to your interface and keep elements synchronized as values change.
+  - title: Generated API Reference
+    details: Explore documented core APIs, elements, and modules generated directly from the annotated source code.
+---
