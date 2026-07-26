@@ -21,11 +21,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Install CraftOS-PC
+      - name: Install build dependencies
         run: |
           sudo add-apt-repository --yes ppa:jackmacwindows/ppa
           sudo apt-get update
-          sudo apt-get install --yes craftos-pc
+          sudo apt-get install --yes craftos-pc lua5.4
 
       - name: Validate documentation annotations
         run: |
@@ -47,14 +47,22 @@ jobs:
 
       - name: Build release bundles
         run: |
-          mkdir -p "$RUNNER_TEMP/craftos-bundle"
           mkdir -p "$RUNNER_TEMP/basalt-output"
+          lua5.4 tools/bundle-host.lua \
+            --no-minify "$RUNNER_TEMP/basalt-output/basalt.lua"
+          lua5.4 tools/bundle-host.lua \
+            "$RUNNER_TEMP/basalt-output/basalt.min.lua"
+          lua5.4 tools/bundle-host.lua \
+            --compress "$RUNNER_TEMP/basalt-output/basalt.compressed.lua"
+
+      - name: Smoke-test release bundles
+        run: |
+          mkdir -p "$RUNNER_TEMP/craftos-release-smoke"
           craftos \
             --headless \
-            --directory "$RUNNER_TEMP/craftos-bundle" \
-            --mount-ro "Basalt=$GITHUB_WORKSPACE" \
-            --mount-rw "output=$RUNNER_TEMP/basalt-output" \
-            --exec "local bundled=shell.run('Basalt/tools/bundle.lua','--no-minify','output/basalt.lua'); local minified=bundled and shell.run('Basalt/tools/bundle.lua','output/basalt.min.lua'); local compressed=minified and shell.run('Basalt/tools/bundle.lua','--compress','output/basalt.compressed.lua'); if compressed then local normal=assert(loadfile('output/basalt.lua'))(); local compact=assert(loadfile('output/basalt.min.lua'))(); local packed=assert(loadfile('output/basalt.compressed.lua'))(); assert(normal.VERSION==compact.VERSION and compact.VERSION==packed.VERSION) end; os.shutdown(compressed and 0 or 1)"
+            --directory "$RUNNER_TEMP/craftos-release-smoke" \
+            --mount-ro "output=$RUNNER_TEMP/basalt-output" \
+            --exec "local normal=assert(loadfile('output/basalt.lua'))(); local compact=assert(loadfile('output/basalt.min.lua'))(); local packed=assert(loadfile('output/basalt.compressed.lua'))(); assert(normal.VERSION==compact.VERSION and compact.VERSION==packed.VERSION); os.shutdown(0)"
 
       - name: Update committed bundles
         if: github.event_name == 'push'
