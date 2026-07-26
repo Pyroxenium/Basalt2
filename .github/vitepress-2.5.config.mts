@@ -20,15 +20,15 @@ function apiItems(folder: string) {
 }
 
 export default defineConfig({
-  title: 'Basalt 2.5',
-  description: 'Basalt 2.5 API documentation for CC:Tweaked',
+  title: 'Basalt',
+  description: 'Basalt API documentation for CC:Tweaked',
   lang: 'en-US',
   base: '/2.5/',
   lastUpdated: true,
   cacheDir: '../../.vitepress/cache-2.5',
 
   themeConfig: {
-    siteTitle: 'Basalt 2.5',
+    siteTitle: 'Basalt',
     search: {
       provider: 'local',
     },
