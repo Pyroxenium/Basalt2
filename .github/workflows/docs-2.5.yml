@@ -63,6 +63,7 @@ jobs:
             "$RUNNER_TEMP/basalt-docs/" \
             site/docs/2.5/api/
           cp source/.github/docs-2.5-index.md site/docs/2.5/index.md
+          cp source/.github/docs-2.5-home.md site/docs/2.5/home.md
           cp source/.github/vitepress-2.5.config.mts \
             site/docs/2.5/.vitepress/config.mts
 
