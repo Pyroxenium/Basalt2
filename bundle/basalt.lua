@@ -231,8 +231,8 @@ function BaseFrame:getFocused()
     return rawget(self, "_focused")
 end
 function BaseFrame:_updateHovered(x, y)
-    local hovered = self:findAt(x, y)
-    if hovered == self then hovered = nil end
+    local hit = self:findAt(x, y)
+    local hovered = hit ~= self and hit or nil
     local old = rawget(self, "_hovered")
     if old == hovered then return end
     rawset(self, "_hovered", hovered)
@@ -380,7 +380,9 @@ function class.create(name, parent)
             if box and box[k] ~= nil then return box[k] end
             local found, value = c.__getPropertySpec(t, k)
             if found then
-                if layout.is(value) then return layout.resolveToken(value, t, k) end
+                if layout.is(value) then
+                    return layout.resolveToken(value, t, k)
+                end
                 return value
             end
             return c[k]
@@ -1098,7 +1100,8 @@ function Container:destroy()
         if child.destroy then child:destroy() end
         if children[#children] == child then self:removeChild(child) end
     end
-    return Element.destroy(self)
+    Element.destroy(self)
+    return self
 end
 function Container:getChildren()
     return self._children
@@ -1492,16 +1495,17 @@ function Element:raw(propName)
     return rawget(self, "_p")[propName]
 end
 function Element:on(eventName, fn)
-    local hs = self._handlers[eventName]
+    local handlers = rawget(self, "_handlers")
+    local hs = handlers[eventName]
     if not hs then
         hs = {}
-        self._handlers[eventName] = hs
+        handlers[eventName] = hs
     end
     hs[#hs + 1] = fn
     return self
 end
 function Element:off(eventName, fn)
-    local hs = self._handlers[eventName]
+    local hs = rawget(self, "_handlers")[eventName]
     if not hs then return self end
     for i = #hs, 1, -1 do
         if hs[i] == fn then
@@ -1641,7 +1645,7 @@ function Element:getAbsolutePosition()
     end
     return x, y
 end
-function Element:measure()
+function Element:measure(_availableWidth, _availableHeight)
     local w, h = layout.spec(self, "width"), layout.spec(self, "height")
     return type(w) == "number" and w or 1, type(h) == "number" and h or 1
 end
@@ -1807,8 +1811,8 @@ function errors.show(err, trace, showTrace)
         print()
     end
     cprint("Press any key to exit", colors.orange)
-    while true do
-        local e = os.pullEventRaw()
+        while true do
+            local e = os.pullEventRaw()
         if e == "key" or e == "mouse_click"
             or e == "monitor_touch" or e == "terminate" then
             break
@@ -2097,6 +2101,9 @@ local function parse(r, g, b)
                 .. tostring(r) .. " (expected 0x000000-0xFFFFFF)", 3)
         end
         return hexToRGB(r)
+    end
+    if b == nil then
+        error("Basalt: blue component is required when green is provided", 3)
     end
     if r > 1 or g > 1 or b > 1 then
         r, g, b = r / 255, g / 255, b / 255
@@ -3199,12 +3206,12 @@ function ComboBox:setup()
             return
         end
         local display = s:getDisplayItems()
-        local g = geometry(s, display)
-        if g.show and x == s.width then
-            local target, grab = itemview.pointerDown(y - 1, g)
-            s.offset = target
-            if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
-            return
+            local g = geometry(s, display)
+            if g.show and x == s.width then
+                local target, grab = itemview.pointerDown(y - 1, g)
+                if target ~= nil then s.offset = target end
+                if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
+                return
         end
         s:selectDisplayed(s.offset + y - 1)
     end)
@@ -3556,7 +3563,7 @@ class.property(Dropdown, "open", false, {
         if v then
             rawset(self, "_zBefore", self.z)
             self.z = 999
-            local highlighted = self.selected or (#self.items > 0 and 1 or false)
+            local highlighted = self.selected or (#self.items > 0 and 1 or nil)
             rawset(self, "_highlighted", highlighted)
             self.offset = itemview.ensureVisible(self.offset, highlighted,
                 #self.items, math.min(#self.items, self.dropHeight))
@@ -3599,7 +3606,7 @@ function Dropdown:setup()
             local geometry = s:getScrollInfo()
             if geometry.show and x == s.width then
                 local target, grab = itemview.pointerDown(y - 1, geometry)
-                s:setOffset(target)
+                if target ~= nil then s:setOffset(target) end
                 if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
                 return
             end
@@ -4193,7 +4200,7 @@ function List:setup()
         local geometry = s:getScrollInfo()
         if geometry.show and x == s.width then
             local target, grab = itemview.pointerDown(y, geometry)
-            s:setOffset(target)
+            if target ~= nil then s:setOffset(target) end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end
@@ -4533,7 +4540,7 @@ local function afterResume(self, proc, ok, result, terminating)
         end
         local trace = debug.traceback(proc.co) or ""
         finish(self, proc, false, result)
-        if self._handlers.error then
+        if rawget(self, "_handlers").error then
             self:fire("error", result, trace)
         else
             error(errors.wrap(result, trace), 0)
@@ -4684,7 +4691,8 @@ function Program:handleKey(event, a, b)
 end
 function Program:destroy()
     self:terminate()
-    return Element.destroy(self)
+    Element.destroy(self)
+    return self
 end
 function Program:render(buf)
     Element.render(self, buf)
@@ -5356,7 +5364,7 @@ function Table:setup()
         end
         if g.show and x == s.width then
             local target, grab = itemview.pointerDown(y - 1, g)
-            s.offset = target
+            if target ~= nil then s.offset = target end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end
@@ -5716,6 +5724,7 @@ function TextBox:handleKey(event, a, b)
         local lines = self._lines
         local line, col = self._curLine, self._curCol
         local current = lines[line]
+        local movement = movementKeys[a]
         if a == keys.leftShift or a == keys.rightShift then
             rawset(self, "_shift", true)
         elseif a == keys.leftCtrl or a == keys.rightCtrl then
@@ -5726,13 +5735,13 @@ function TextBox:handleKey(event, a, b)
             self:copy()
         elseif rawget(self, "_ctrl") and a == keys.x then
             self:cut()
-        elseif movementKeys[a] then
+        elseif movement then
             if rawget(self, "_shift") then
                 anchorSelection(self)
             else
                 clearSelection(self)
             end
-            moveCursor(self, movementKeys[a](self, line, col, current))
+            moveCursor(self, movement(self, line, col, current))
         elseif a == keys.escape then
             clearSelection(self)
         elseif a == keys.enter then
@@ -6131,7 +6140,7 @@ function Tree:setup()
         local g = geometry(s, flat)
         if g.show and x == s.width then
             local target, grab = itemview.pointerDown(y, g)
-            s.offset = target
+            if target ~= nil then s.offset = target end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end
@@ -6385,7 +6394,7 @@ local function generateFontSize(size,yeld)
                 table.insert(temp2, table.concat(back3))
             end
             nextFont[thisChar] = {temp, temp2}
-            if yeld then yeld = "Font"..f.."Yeld"..char os.queueEvent(yeld) os.pullEvent(yeld) end
+                if yeld then yeld = "Font"..f.."Yeld"..char os.queueEvent(yeld) os.pullEvent(yeld) end
         end
         fonts[f] = nextFont
     end
@@ -6596,14 +6605,14 @@ function BarChart:render(buf)
     local maxV = self.maxValue
     if not maxV then
         maxV = -math.huge
-        for i = 1, count do maxV = math.max(maxV, data[i]) end
+        for i = 1, count do maxV = math.max(maxV, assert(data[i])) end
     end
     local minV = self.minValue
     local barWidth = math.max(1, math.floor((w - (count - 1)) / count))
     local x = 1
     for i = 1, count do
         if x > w then break end
-        local top = ratioToRow(data[i], minV, maxV, h)
+        local top = ratioToRow(assert(data[i]), minV, maxV, h)
         buf:fill(x, top, math.min(barWidth, w - x + 1), h - top + 1,
             " ", self.foreground, self.barColor)
         x = x + barWidth + 1
@@ -6632,7 +6641,8 @@ function LineChart:render(buf)
         local t = count > 1 and ((col - 1) / (w - 1) * (count - 1) + 1) or 1
         local lower = math.floor(t)
         local upper = math.min(count, lower + 1)
-        local value = data[lower] + (data[upper] - data[lower]) * (t - lower)
+        local lowerValue, upperValue = assert(data[lower]), assert(data[upper])
+        local value = lowerValue + (upperValue - lowerValue) * (t - lower)
         local row = ratioToRow(value, minV, maxV, h)
         buf:fill(col, row, 1, 1, " ", self.foreground, self.lineColor)
     end
@@ -7042,8 +7052,8 @@ sources["modules/responsive"] = [=[
 local require = ...
 local Element = require("core/element")
 local responsive = {}
-local Builder = {}
-Builder.__index = Builder
+local ResponsiveBuilder = {}
+ResponsiveBuilder.__index = ResponsiveBuilder
 local OPERATORS = { "<=", ">=", "==", "~=", "<", ">" }
 local function trim(value)
     return value:match("^%s*(.-)%s*$")
@@ -7191,11 +7201,11 @@ function responsive.apply(element, rules, options)
     controller:refresh()
     return controller
 end
-function Builder:_sync()
+function ResponsiveBuilder:_sync()
     responsive.apply(self.element, self.rules, { exclusive = true })
     return self
 end
-function Builder:when(condition)
+function ResponsiveBuilder:when(condition)
     if self.finished then
         error("Basalt responsive: otherwise() must be the final rule", 2)
     end
@@ -7205,7 +7215,7 @@ function Builder:when(condition)
     self.pending = { when = compileCondition(condition) }
     return self
 end
-function Builder:apply(props)
+function ResponsiveBuilder:apply(props)
     if not self.pending then
         error("Basalt responsive: apply() requires a preceding when()", 2)
     end
@@ -7217,7 +7227,7 @@ function Builder:apply(props)
     self.pending = nil
     return self:_sync()
 end
-function Builder:otherwise(props)
+function ResponsiveBuilder:otherwise(props)
     if self.pending then
         error("Basalt responsive: call apply() before otherwise()", 2)
     end
@@ -7232,7 +7242,7 @@ function Builder:otherwise(props)
     self:_sync()
     return self.element
 end
-function Builder:done()
+function ResponsiveBuilder:done()
     if self.pending then
         error("Basalt responsive: call apply() before done()", 2)
     end
@@ -7243,7 +7253,7 @@ function responsive.builder(element)
     if not element.getChildren then
         error("Basalt responsive: target must be a container", 2)
     end
-    return setmetatable({ element = element, rules = {} }, Builder)
+    return setmetatable({ element = element, rules = {} }, ResponsiveBuilder)
 end
 function responsive.get(element)
     return rawget(element, "_responsiveController")
