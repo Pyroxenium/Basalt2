@@ -1,17 +1,9 @@
-# Welcome to the Basalt 2.5 Wiki
+# Welcome to the Basalt Wiki
 
 Basalt 2.5 is an improved and extended release of the Basalt 2 UI
 framework for CC:Tweaked. It keeps the familiar approach to building
 terminal interfaces while modernizing the internals and developer
 experience.
-
-The main improvements include:
-
-- Clearer error messages that help developers identify and resolve issues
-- Documentation generated directly from the annotated source code
-- LuaLS annotations for better IDE completion and type information
-- Direct property access alongside the familiar chainable API
-- Reactive state, flexible layouts, responsive rules, and RGB palettes
 
 ## Features
 
@@ -31,9 +23,9 @@ The main improvements include:
 ## Quick Start
 
 ```lua
-local basalt = require("Basalt")
+local basalt = require("basalt")
 
-local frame = basalt.createFrame()
+local frame = basalt.getMainFrame()
 frame:setBackground(basalt.rgb("#1e1e2e"))
 
 local label = frame:addLabel({
@@ -57,7 +49,7 @@ basalt.run()
 
 ## Preview
 
-![Basalt 2.5 showcase](/preview.gif)
+![Basalt Demo GIF](https://raw.githubusercontent.com/Pyroxenium/Basalt/master/docs/_media/basaltPreview2.gif)
 
 ## Documentation
 
