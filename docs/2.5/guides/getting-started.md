@@ -1,153 +1,149 @@
 # Getting Started
 
-This guide walks through installing Basalt and creating a small
-interactive UI.
+In this guide you will install Basalt and build a complete small application
+with text input, buttons, and keyboard focus.
 
 ## Requirements
 
 - A CC:Tweaked computer running a current CraftOS version
 - HTTP access enabled when downloading Basalt with `wget`
 
-## Installation
+## Install Basalt
 
-Download Basalt via the installer:
+Run the installer inside the CC:Tweaked computer:
 
 ```shell
-wget run https://basalt.madefor.cc/2.5/install.lua
+wget run https://basalt.madefor.cc/2.5/install.lua minified
 ```
 
-You can then load it from a program in the same directory:
+The recommended minified build is saved as `basalt.lua`. Your application can
+load it with:
 
 ```lua
 local basalt = require("basalt")
 ```
 
-## Creating Your First UI
+See [Installation](./foundations/installation) for the interactive installer,
+other build variants, custom destinations, and troubleshooting.
 
-Create a root frame, add a label and button, and finally start the event
-loop:
+## Build a Small Application
 
-```lua
+Create a file named `app.lua` next to `basalt.lua`:
+
+```lua run title="Getting started app"
 local basalt = require("basalt")
 
-local frame = basalt.createFrame()
-frame.background = basalt.rgb("#1e1e2e")
+local frame = basalt.getMainFrame()
+frame.background = basalt.rgb("#14161b")
 
+frame:addLabel({
+    x = 2,
+    y = 2,
+    text = "What is your name?",
+    foreground = colors.orange,
+})
+
+local nameInput = frame:addInput({
+    x = 2,
+    y = 4,
+    width = 24,
+    placeholder = "Steve",
+})
+
+local result = frame:addLabel({
+    x = 2,
+    y = 6,
+    width = 30,
+    text = "Enter a name to continue.",
+    foreground = colors.lightGray,
+})
+
+local function greet()
+    local name = nameInput.text:match("^%s*(.-)%s*$")
+    if name == "" then
+        result.text = "Please enter a name."
+        result.foreground = colors.red
+        return
+    end
+
+    result.text = "Hello, " .. name .. "!"
+    result.foreground = colors.lime
+end
+
+frame:addButton({
+    x = 2,
+    y = 8,
+    width = 12,
+    text = "Say hello",
+}):onClick(greet)
+
+frame:addButton({
+    x = 16,
+    y = 8,
+    width = 10,
+    text = "Exit",
+}):onClick(function()
+    basalt.stop()
+end)
+
+nameInput:onEnter(greet)
+nameInput:focus()
+
+basalt.run()
+```
+
+Run the program:
+
+```shell
+app
+```
+
+You can activate **Say hello** with the mouse or press Enter while the input
+is focused. **Exit** calls `basalt.stop()` and lets the event loop finish
+cleanly.
+
+## What the Code Does
+
+`basalt.getMainFrame()` returns the root frame connected to the current
+terminal. Every label, input, and button is a child of that frame.
+
+Elements accept their initial properties in a table:
+
+```lua
 local label = frame:addLabel({
     x = 2,
     y = 2,
-    text = "Hello Basalt!",
+    text = "Hello",
 })
-
-frame:addButton({
-    x = 2,
-    y = 4,
-    width = 14,
-    text = "Click me",
-})
-    :onClick(function(self)
-        self.text = "Clicked!"
-        label.text = "It works!"
-    end)
-
-basalt.run()
 ```
 
-`basalt.run()` starts the blocking event loop and updates every frame until
-the program is terminated or calls `basalt.stop()`.
-
-## Properties and Method Chaining
-
-Properties can be assigned directly:
+Properties remain writable after creation:
 
 ```lua
-label.text = "Updated text"
-label.x = 4
+label.text = "Updated"
 label.foreground = colors.yellow
 ```
 
-The generated setters remain available when method chaining is more
-convenient:
+Events connect user actions to Lua functions:
 
 ```lua
-label
-    :setText("Updated text")
-    :setPosition(4, 2)
-    :setForeground(colors.yellow)
+button:onClick(function(self)
+    self.text = "Clicked"
+end)
 ```
 
-Elements also accept their initial properties as a table when they are
-created:
-
-```lua
-local input = frame:addInput({
-    x = 2,
-    y = 7,
-    width = 20,
-    placeholder = "Enter your name",
-})
-```
-
-## Reactive State
-
-A signal can be assigned directly to an element property. Updating the
-signal marks dependent UI elements for rendering automatically:
-
-```lua
-local count = basalt.state(0)
-
-local counter = frame:addLabel({
-    x = 2,
-    y = 10,
-    text = count:map(function(value)
-        return "Count: " .. value
-    end),
-})
-
-frame:addButton({
-    x = 2,
-    y = 12,
-    text = "Increment",
-})
-    :onClick(function()
-        count:update(function(value)
-            return value + 1
-        end)
-    end)
-```
-
-## Rendering to a Monitor
-
-Pass a wrapped monitor to `basalt.createFrame`. Basalt detects its peripheral
-name when possible and routes monitor touch events to the frame:
-
-```lua
-local basalt = require("Basalt")
-local monitor = peripheral.find("monitor")
-
-if not monitor then
-    error("No monitor connected")
-end
-
-monitor.setTextScale(0.5)
-
-local frame = basalt.createFrame(monitor)
-frame:addButton({
-    x = 2,
-    y = 2,
-    width = 18,
-    text = "Monitor Button",
-})
-
-basalt.run()
-```
-
-Multiple frames can share the same event loop. Create each frame before
-calling `basalt.run()` once at the end.
+Finally, `basalt.run()` draws every frame and waits for CC:Tweaked events.
+It blocks until the program terminates or calls `basalt.stop()`.
 
 ## Next Steps
 
-- Browse the [API Reference](/api/) for all core APIs, elements, and modules.
-- Read the [Basalt documentation](https://basalt.madefor.cc/2.0/) when
-  maintaining an application built against the frozen Basalt 2 release.
-- Explore the [Basalt 2.5 source code](https://github.com/Pyroxenium/Basalt2/tree/basalt2.5).
+- Read [How Basalt Works](./foundations/mental-model) for the complete
+  application lifecycle.
+- Learn the three supported configuration styles in
+  [Elements and Properties](./foundations/elements-and-properties).
+- Build interfaces that adapt to their terminal in
+  [Layout Basics](./foundations/layout-basics).
+- Connect data to controls with [Reactive State](./foundations/reactive-state).
+
+For detailed class and method information, see the
+[API Reference](/api/).
