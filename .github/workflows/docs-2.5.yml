@@ -52,14 +52,13 @@ jobs:
             --mount-ro "Basalt=$GITHUB_WORKSPACE/source" \
             --mount-rw "output=$RUNNER_TEMP/basalt-docs" \
             --exec "local ok=shell.run('Basalt/tools/docgen.lua','output'); os.shutdown(ok and 0 or 1)"
-          mv "$RUNNER_TEMP/basalt-docs/README.md" \
-            "$RUNNER_TEMP/basalt-docs/index.md"
 
       - name: Update Basalt 2.5 documentation source
         run: |
           mkdir -p site/docs/2.5/api
           mkdir -p site/docs/2.5/.vitepress
-          rsync --archive --delete \
+          # Docgen only owns generated API pages; keep the hand-written index.
+          rsync --archive --delete --exclude index.md \
             "$RUNNER_TEMP/basalt-docs/" \
             site/docs/2.5/api/
           cp source/.github/docs-2.5-index.md site/docs/2.5/index.md
