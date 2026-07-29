@@ -201,10 +201,6 @@ export default defineConfig({
           text: 'Development',
           items: [
             {
-              text: 'Interactive Examples',
-              link: '/guides/development/interactive-examples',
-            },
-            {
               text: 'Debugging',
               link: '/guides/development/debugging',
             },
