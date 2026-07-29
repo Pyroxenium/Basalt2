@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
+import { copyCatFencePlugin } from './markdown/copyCatFence'
 
 const docsRoot = fileURLToPath(new URL('..', import.meta.url))
 const apiRoot = resolve(docsRoot, 'api')
@@ -27,6 +28,12 @@ export default defineConfig({
   lastUpdated: true,
   cacheDir: '../../.vitepress/cache-2.5',
 
+  markdown: {
+    config(md) {
+      md.use(copyCatFencePlugin)
+    },
+  },
+
   themeConfig: {
     siteTitle: 'Basalt',
     search: {
@@ -44,12 +51,170 @@ export default defineConfig({
     sidebar: {
       '/guides/': [
         {
-          text: 'Guides',
+          text: 'Start Here',
           items: [
-            { text: 'Overview', link: '/guides/' },
+            { text: 'Guide Overview', link: '/guides/' },
             {
               text: 'Getting Started',
               link: '/guides/getting-started',
+            },
+            {
+              text: 'Migration Quickstart',
+              link: '/guides/migration-quickstart',
+            },
+            {
+              text: 'Migration Reference',
+              link: '/guides/migrating-from-basalt-2',
+            },
+          ],
+        },
+        {
+          text: 'Foundations',
+          items: [
+            {
+              text: 'Installation',
+              link: '/guides/foundations/installation',
+            },
+            {
+              text: 'How Basalt Works',
+              link: '/guides/foundations/mental-model',
+            },
+            {
+              text: 'Elements and Properties',
+              link: '/guides/foundations/elements-and-properties',
+            },
+            {
+              text: 'Events and Focus',
+              link: '/guides/foundations/events-and-focus',
+            },
+            {
+              text: 'Layout Basics',
+              link: '/guides/foundations/layout-basics',
+            },
+            {
+              text: 'Flex Layouts',
+              link: '/guides/foundations/flex-layouts',
+            },
+            {
+              text: 'Reactive State',
+              link: '/guides/foundations/reactive-state',
+            },
+            {
+              text: 'Styling, States, and Themes',
+              link: '/guides/foundations/styling-states-and-themes',
+            },
+          ],
+        },
+        {
+          text: 'Building Interfaces',
+          items: [
+            {
+              text: 'Text Inputs',
+              link: '/guides/building-interfaces/text-inputs',
+            },
+            {
+              text: 'Form Controls and Validation',
+              link: '/guides/building-interfaces/form-controls-and-validation',
+            },
+            {
+              text: 'Lists and Selection',
+              link: '/guides/building-interfaces/lists-and-selection',
+            },
+            {
+              text: 'Dropdowns and Suggestions',
+              link: '/guides/building-interfaces/dropdowns-and-suggestions',
+            },
+            {
+              text: 'Tables and Trees',
+              link: '/guides/building-interfaces/tables-and-trees',
+            },
+            {
+              text: 'Page Navigation',
+              link: '/guides/building-interfaces/page-navigation',
+            },
+            {
+              text: 'Tabs',
+              link: '/guides/building-interfaces/tabs',
+            },
+            {
+              text: 'Feedback and Progress',
+              link: '/guides/building-interfaces/feedback-and-progress',
+            },
+            {
+              text: 'Dialogs and Context Menus',
+              link: '/guides/building-interfaces/dialogs',
+            },
+            {
+              text: 'Canvas',
+              link: '/guides/building-interfaces/canvas',
+            },
+            {
+              text: 'Hosted Programs',
+              link: '/guides/building-interfaces/hosted-programs',
+            },
+            {
+              text: 'Multiple Roots and Monitors',
+              link: '/guides/building-interfaces/multiple-roots-and-monitors',
+            },
+          ],
+        },
+        {
+          text: 'Optional Modules',
+          items: [
+            {
+              text: 'Using Optional Modules',
+              link: '/guides/modules/',
+            },
+            {
+              text: 'Animation and Responsive',
+              link: '/guides/modules/animation-and-responsive',
+            },
+            {
+              text: 'Charts, Images, and BigFont',
+              link: '/guides/modules/charts-images-and-bigfont',
+            },
+          ],
+        },
+        {
+          text: 'Application Recipes',
+          items: [
+            {
+              text: 'Control Room Dashboard',
+              link: '/guides/recipes/control-room-dashboard',
+            },
+          ],
+        },
+        {
+          text: 'XML',
+          items: [
+            {
+              text: 'XML Interfaces',
+              link: '/guides/xml/',
+            },
+            {
+              text: 'Building with XML',
+              link: '/guides/xml/building-with-xml',
+            },
+          ],
+        },
+        {
+          text: 'Development',
+          items: [
+            {
+              text: 'Interactive Examples',
+              link: '/guides/development/interactive-examples',
+            },
+            {
+              text: 'Debugging',
+              link: '/guides/development/debugging',
+            },
+            {
+              text: 'Testing',
+              link: '/guides/development/testing',
+            },
+            {
+              text: 'Performance Tuning',
+              link: '/guides/development/performance-tuning',
             },
           ],
         },
@@ -62,12 +227,12 @@ export default defineConfig({
         {
           text: 'Runtime',
           items: [
-            { text: 'main', link: '/api/main' },
+            { text: 'basalt', link: '/api/basalt' },
           ],
         },
         {
           text: 'Core',
-          collapsed: false,
+          collapsed: true,
           items: apiItems('core'),
         },
         {
