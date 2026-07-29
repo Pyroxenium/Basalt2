@@ -86,8 +86,8 @@ Core write. fgChar/bgChar are single-byte strings or nil (keep existing).
 - **x** (`number`) X position
 - **y** (`number`) Y position
 - **str** (`string`) Text to write
-- **fgChar** (`string|nil`) Encoded foreground bytes
-- **bgChar** (`string|nil`) Encoded background bytes
+- **fgChar** (`string`, optional) Encoded foreground bytes
+- **bgChar** (`string`, optional) Encoded background bytes
 
 - **returns** (`self`) 
 
@@ -98,8 +98,8 @@ Writes text with optional fg/bg colors (public color values, nil = keep).
 - **x** (`number`) X position
 - **y** (`number`) Y position
 - **str** (`string`) Text to write
-- **fg** (`number|nil`) Foreground color
-- **bg** (`number|nil`) Background color
+- **fg** (`number|false`, optional) Foreground color; false keeps the existing color
+- **bg** (`number|false`, optional) Background color; false keeps the existing color
 
 - **returns** (`self`) 
 
@@ -136,8 +136,8 @@ indices) with the same length as str, or nil to keep existing colors.
 - **x** (`number`) X position
 - **y** (`number`) Y position
 - **str** (`string`) Text to write
-- **fgStr** (`string|nil`) Encoded foreground bytes
-- **bgStr** (`string|nil`) Encoded background bytes
+- **fgStr** (`string`, optional) Encoded foreground bytes
+- **bgStr** (`string`, optional) Encoded background bytes
 
 - **returns** (`self`) 
 
@@ -173,8 +173,8 @@ from window.getLine() — used to embed foreign terminal content.
 - **x** (`number`) X position
 - **y** (`number`) Y position
 - **str** (`string`) Text to write
-- **fgHex** (`string|nil`) Foreground blit string
-- **bgHex** (`string|nil`) Background blit string
+- **fgHex** (`string`, optional) Foreground blit string
+- **bgHex** (`string`, optional) Background blit string
 
 - **returns** (`self`) 
 
@@ -187,8 +187,8 @@ Fills a w*h area with a character and optional colors.
 - **w** (`number`) Width
 - **h** (`number`) Height
 - **ch** (`string`) Fill character
-- **fg** (`number|nil`) Foreground color
-- **bg** (`number|nil`) Background color
+- **fg** (`number|false`, optional) Foreground color; false keeps the existing color
+- **bg** (`number|false`, optional) Background color; false keeps the existing color
 
 - **returns** (`self`) 
 
@@ -199,7 +199,7 @@ Stores the cursor state to present during the next flush.
 - **x** (`number`) Cursor x
 - **y** (`number`) Cursor y
 - **blink** (`boolean`) Blink state
-- **color** (`number|nil`) Cursor color
+- **color** (`number`, optional) Cursor color
 
 - **returns** (`self`) 
 

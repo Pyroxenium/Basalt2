@@ -11,7 +11,7 @@ Minimal class & property system for Basalt.
 Creates a new Basalt class deriving from an optional parent class.
 
 - **name** (`string`) Class name
-- **parent** (`table|nil`) Parent class
+- **parent** (`table`, optional) Parent class
 
 - **returns** **class** (`table`) 
 
@@ -31,7 +31,7 @@ opts.styleable=false: state styles cannot override this property.
 - **c** (`table`) Target class
 - **propName** (`string`) Property name
 - **default** (`any`) Shared default value
-- **opts** (`table|nil`) Property behavior options
+- **opts** (`table`, optional) Property behavior options
 
 ### class.combinedProperty(c, combinedName, propertyNames)
 

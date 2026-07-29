@@ -20,6 +20,17 @@ local sidebar = parent:addFrame()
             :apply({ width = 10 })
         :otherwise({ width = 15 })
 
+## Types
+
+### `ResponsiveBuilder`
+
+| Field | Type | Description |
+| --- | --- | --- |
+| element | `Element` | Element receiving the responsive rules |
+| rules | `table[]` | Completed first-match rules |
+| pending *(optional)* | `table` | Rule currently being configured |
+| finished *(optional)* | `boolean` | Whether an otherwise rule completed the builder |
+
 ## Methods
 
 ### responsive.apply(element, rules, options)
@@ -28,11 +39,11 @@ Attaches ordered responsive breakpoint rules to an element.
 
 - **element** (`Element`) Target element
 - **rules** (`table[]`) Responsive rules
-- **options** (`table|nil`) Options; exclusive makes only the first match active
+- **options** (`table`, optional) Options; exclusive makes only the first match active
 
 - **returns** **element** (`Element`) 
 
-### Builder:when(condition)
+### ResponsiveBuilder:when(condition)
 
 Starts the next first-match responsive rule.
 
@@ -40,7 +51,7 @@ Starts the next first-match responsive rule.
 
 - **returns** **builder** (`ResponsiveBuilder`) 
 
-### Builder:apply(props)
+### ResponsiveBuilder:apply(props)
 
 Assigns properties to the preceding when() rule.
 
@@ -48,7 +59,7 @@ Assigns properties to the preceding when() rule.
 
 - **returns** **builder** (`ResponsiveBuilder`) 
 
-### Builder:otherwise(props)
+### ResponsiveBuilder:otherwise(props)
 
 Adds the fallback rule, installs the finished rules and returns the element.
 
@@ -56,7 +67,7 @@ Adds the fallback rule, installs the finished rules and returns the element.
 
 - **returns** **element** (`Element`) 
 
-### Builder:done()
+### ResponsiveBuilder:done()
 
 Installs rules without an otherwise() fallback and returns the element.
 

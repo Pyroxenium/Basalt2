@@ -44,7 +44,7 @@ the line diff to the terminal.
 
 Moves keyboard focus to an element, or clears it with nil.
 
-- **el** (`Element|nil`) New focused element
+- **el** (`Element`, optional) New focused element
 
 ### BaseFrame:setCursor(x, y, blink, color)
 
@@ -54,7 +54,7 @@ Forwards an absolute cursor request to the render buffer.
 - **x** (`number`) Absolute x coordinate
 - **y** (`number`) Absolute y coordinate
 - **blink** (`boolean`) Cursor blink state
-- **color** (`number|nil`) Cursor color
+- **color** (`number`, optional) Cursor color
 
 - **returns** (`self`) 
 

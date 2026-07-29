@@ -19,7 +19,7 @@ frame:addBigFont({ x = 2, y = 2, text = "Hi!", fontSize = 2 })
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | text | `string` | `"BigFont"` | Displayed text |
-| fontSize | `number` | `1` | Scale 1-3 (one character is 3x3 cells at size 1) |
+| fontSize | `integer` | `1` | Scale 1-3 (one character is 3x3 cells at size 1) |
 | width | `number` | *dynamic* | Width in terminal cells |
 | height | `number` | *dynamic* | Height in terminal cells |
 

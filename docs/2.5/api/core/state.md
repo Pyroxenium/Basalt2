@@ -25,6 +25,10 @@ StateUnsubscribe = fun()
 
 ### `Signal<T>`
 
+| Field | Type | Description |
+| --- | --- | --- |
+| package | `_watchers` | table<Element, boolean> Weak set of dependent elements |
+
 ### `Computed<T>`
 
 ## Methods

@@ -59,7 +59,7 @@ Resolves the entry's current index after moves/removals.
 
 Moves the entry towards the beginning of the collection.
 
-- **amount** (`integer|nil`) Number of positions, default 1
+- **amount** (`integer`, optional) Number of positions, default 1
 
 - **returns** (`self`) 
 
@@ -67,7 +67,7 @@ Moves the entry towards the beginning of the collection.
 
 Moves the entry towards the end of the collection.
 
-- **amount** (`integer|nil`) Number of positions, default 1
+- **amount** (`integer`, optional) Number of positions, default 1
 
 - **returns** (`self`) 
 

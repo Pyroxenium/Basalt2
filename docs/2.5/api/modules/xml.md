@@ -38,7 +38,7 @@ Builds elements from an XML string under `parent`.
 
 - **parent** (`table`) The container the elements are added to
 - **src** (`string`) The XML markup
-- **scope** (`table|nil`) Functions referenced by on* attributes
+- **scope** (`table`, optional) Functions referenced by on* attributes
 
 - **returns** **elements** (`table`) The top-level created elements
 
@@ -48,6 +48,6 @@ Like xml.load, but reads the markup from a file.
 
 - **parent** (`Container`) Parent container
 - **path** (`string`) XML file path
-- **scope** (`table|nil`) Event/function lookup scope
+- **scope** (`table`, optional) Event/function lookup scope
 
 - **returns** **elements** (`table`) Top-level created elements

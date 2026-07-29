@@ -41,15 +41,16 @@ Creates a root frame bound to a terminal (default: current term).
 For monitors, pass the wrapped peripheral; touch events are routed
 automatically. monitorName only needs to be given if auto-detection fails.
 
-- **t** (`table|nil`) The terminal to bind to (default: current term)
-- **monitorName** (`string|nil`) The name of the monitor peripheral (optional)
+- **t** (`table`, optional) The terminal to bind to (default: current term)
+- **monitorName** (`string`, optional) The name of the monitor peripheral
+
+- **returns** **frame** (`BaseFrame`) 
 
 ### basalt.getMainFrame()
 
-Returns (or lazily creates) the main frame.
-Returns the first frame created by basalt.createFrame().
+Returns the first frame created by basalt.createFrame(), creating one if needed.
 
-- **returns** **frame** (`BaseFrame|nil`) 
+- **returns** **frame** (`BaseFrame`) 
 
 ### basalt.schedule(fn)
 

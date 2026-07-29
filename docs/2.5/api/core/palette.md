@@ -65,8 +65,8 @@ Resolves a registry byte/index or public color handle to RGB floats.
 Registers or resolves an RGB color for use by the render buffer.
 
 - **r** (`number|string`) Red component or #RRGGBB string
-- **g** (`number`, optional) Green component
-- **b** (`number`, optional) Blue component
+- **g** (`number`) Green component
+- **b** (`number`) Blue component
 
 - **returns** **color** (`number`) 
 

@@ -29,7 +29,7 @@ visible (default true)
 Adds a named graph series.
 
 - **name** (`string`) Series name
-- **opts** (`table|nil`) symbol/fg/bg/pointCount/visible options
+- **opts** (`table`, optional) symbol/fg/bg/pointCount/visible options
 
 - **returns** (`self`) 
 
@@ -71,7 +71,7 @@ Appends a point; the series scrolls once pointCount is reached.
 
 Clears one series or every series when name is nil.
 
-- **name** (`string|nil`) Series name
+- **name** (`string`, optional) Series name
 
 - **returns** (`self`) 
 

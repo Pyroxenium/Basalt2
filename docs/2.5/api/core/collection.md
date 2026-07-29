@@ -2,6 +2,8 @@
 
 # collection
 
+*extends Element*
+
 ## Types
 
 ### `CollectionItem`
@@ -156,7 +158,7 @@ Returns all selected indices in ascending order.
 Selects an item (adds to the selection when multiSelection is on).
 
 - **value** (`integer|CollectionEntry`) Item index or entry
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -165,7 +167,7 @@ Selects an item (adds to the selection when multiSelection is on).
 Removes an entry from selection.
 
 - **value** (`integer|CollectionEntry`) Item index or entry
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -174,7 +176,7 @@ Removes an entry from selection.
 Toggles an item's selection state.
 
 - **value** (`integer|CollectionEntry`) Item index or entry
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -182,7 +184,7 @@ Toggles an item's selection state.
 
 Clears all selected entries.
 
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -190,7 +192,7 @@ Clears all selected entries.
 
 Alias for clearItemSelection().
 
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -198,7 +200,7 @@ Alias for clearItemSelection().
 
 Selects the next selectable entry after the current selection.
 
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -206,7 +208,7 @@ Selects the next selectable entry after the current selection.
 
 Selects the previous selectable entry before the current selection.
 
-- **emit** (`boolean|nil`) false suppresses the change event
+- **emit** (`boolean`, optional) false suppresses the change event
 
 - **returns** (`self`) 
 
@@ -228,8 +230,8 @@ Selects an item AND fires its callback plus the select event
 (what a mouse click or the enter key does).
 
 - **value** (`integer|CollectionEntry`) Item index or entry
-- **emit** (`boolean|nil`) false suppresses callback and select event
-- **toggle** (`boolean|nil`) true toggles instead of selecting
+- **emit** (`boolean`, optional) false suppresses callback and select event
+- **toggle** (`boolean`, optional) true toggles instead of selecting
 
 - **returns** (`self`) 
 
@@ -238,6 +240,6 @@ Selects an item AND fires its callback plus the select event
 Selects and optionally activates an entry.
 
 - **value** (`integer|CollectionEntry`) Item index or entry
-- **emit** (`boolean|nil`) false suppresses callback/select event
+- **emit** (`boolean`, optional) false suppresses callback/select event
 
 - **returns** (`self`) 

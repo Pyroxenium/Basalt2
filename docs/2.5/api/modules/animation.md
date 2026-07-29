@@ -27,9 +27,9 @@ Tweens the given numeric properties to their target values.
 
 - **el** (`table`) The element to animate
 - **props** (`table`) Target values, e.g. { x = 20, y = 5 }
-- **duration** (`number|nil`) Seconds, default 0.3
-- **easing** (`string|nil`) "linear", "easeIn", "easeOut" or "easeInOut"
-- **onDone** (`function|nil`) Called with the element after completion
+- **duration** (`number`, optional) Seconds, default 0.3
+- **easing** (`string`, optional) "linear", "easeIn", "easeOut" or "easeInOut"
+- **onDone** (`function`, optional) Called with the element after completion
 
 - **returns** **handle** (`table`) Handle with :cancel()
 
@@ -39,8 +39,8 @@ Sugar on Element: el:animate({x = 20}, 0.5, "easeOut", onDone)
 Fluent element shortcut for animation.to().
 
 - **props** (`table`) Target property values
-- **duration** (`number|nil`) Seconds, default 0.3
-- **easing** (`string|nil`) Easing name
-- **onDone** (`function|nil`) Completion callback
+- **duration** (`number`, optional) Seconds, default 0.3
+- **easing** (`string`, optional) Easing name
+- **onDone** (`function`, optional) Completion callback
 
 - **returns** **handle** (`table`) Cancellable animation handle

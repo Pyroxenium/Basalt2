@@ -28,8 +28,8 @@ unbaked 2x3 pixels. Both render through the retained Render buffer.
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| bimg | `boolean` | `false` | The bimg image table (list of blit-line frames) |
-| currentFrame | `number` | `1` | 1-based frame index of multi-frame images |
+| bimg | `table\|false` | `false` | The bimg image table (list of blit-line frames) |
+| currentFrame | `integer` | `1` | 1-based frame index of multi-frame images |
 | autoSize | `boolean` | `true` | Resize the element to the image size on assignment |
 | width | `number` | `8` | Width in terminal cells |
 | height | `number` | `4` | Height in terminal cells |
@@ -49,7 +49,7 @@ Returns the number of frames in the current bimg.
 Plays multi-frame images through the scheduler. fps defaults to the
 bimg's secondsPerFrame metadata (or 5 fps).
 
-- **fps** (`number|nil`) Playback frames per second
+- **fps** (`number`, optional) Playback frames per second
 
 - **returns** (`self`) 
 

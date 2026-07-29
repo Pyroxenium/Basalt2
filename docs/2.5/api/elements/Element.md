@@ -18,10 +18,10 @@ ElementPositionMode = "flow"|"absolute"
 ElementAlignment = "start"|"center"|"end"|"stretch"
 ```
 
-### `ElementEventHandler`
+### `ElementEventHandler<T>`
 
 ```lua
-ElementEventHandler = fun(self: Element, ...: any)
+ElementEventHandler<T> = fun(self: T, ...: any)
 ```
 
 ### `ElementBindingOptions`
@@ -154,19 +154,21 @@ Returns an authored property without resolving state/functions/signals.
 
 Registers an event handler; fn(self, ...) runs on every fire.
 
+- **self** (`T`) 
 - **eventName** (`string`) The event name (e.g. "click", "change")
-- **fn** (`ElementEventHandler`) The handler
+- **fn** (`ElementEventHandler<T>`) The handler
 
-- **returns** (`self`) 
+- **returns** **self** (`T`) 
 
 ### Element:off(eventName, fn)
 
 Removes one registered event handler.
 
+- **self** (`T`) 
 - **eventName** (`string`) Event name
-- **fn** (`ElementEventHandler`) Previously registered handler
+- **fn** (`ElementEventHandler<T>`) Previously registered handler
 
-- **returns** (`self`) 
+- **returns** **self** (`T`) 
 
 ### Element:bind(propName, source, options)
 
@@ -248,10 +250,13 @@ Returns terminal-local coordinates after ancestor scroll offsets.
 - **returns** **x** (`number`) 
 - **returns** **y** (`number`) 
 
-### Element:measure()
+### Element:measure(_availableWidth, _availableHeight)
 
 Returns the intrinsic size used by basalt.auto(). Elements with content
 override this; the base implementation keeps numeric authored dimensions.
+
+- **_availableWidth** (`number`, optional) Space offered by the parent
+- **_availableHeight** (`number`, optional) Space offered by the parent
 
 - **returns** **width** (`number`) 
 - **returns** **height** (`number`) 

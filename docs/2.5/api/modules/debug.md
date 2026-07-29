@@ -26,7 +26,7 @@ Appends a line to the debug overlay log.
 Shows/hides the overlay (nil toggles).
 Explicitly shows or hides the debug overlay.
 
-- **state** (`boolean`) Visibility
+- **state** (`boolean`, optional) Visibility; omitted toggles the overlay
 
 ### dbg.setToggleKey(key)
 
