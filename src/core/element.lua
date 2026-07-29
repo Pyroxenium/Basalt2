@@ -7,7 +7,7 @@ local layout = require("core/layout")
 
 ---@alias ElementPositionMode "flow"|"absolute"
 ---@alias ElementAlignment "start"|"center"|"end"|"stretch"
----@alias ElementEventHandler fun(self: Element, ...: any)
+---@alias ElementEventHandler<T> fun(self: T, ...: any)
 
 ---@class ElementLayoutBox
 ---@field x number Resolved parent-local x position
@@ -25,7 +25,7 @@ local layout = require("core/layout")
 ---@field source Signal|Computed Bound state value
 ---@field value Signal|Computed State or transformed computed value
 ---@field event? string Event registered for two-way updates
----@field handler? ElementEventHandler Registered two-way event handler
+---@field handler? ElementEventHandler<Element> Registered two-way event handler
 
 ---@class Element
 ---@field public x number Parent-local horizontal position
@@ -46,8 +46,33 @@ local layout = require("core/layout")
 ---@field public name string Lookup name
 ---@field public disabled boolean Whether input is disabled
 ---@field public parent? Container Owning container
+---@field __name? string Runtime class name resolved through the class metatable
+---@field find? fun(self: Element, name: string): Element? Optional container lookup
+---@field findAt? fun(self: Element, x: number, y: number): Element? Optional container hit test
+---@field getChildren? fun(self: Element): Element[] Optional container child access
+---@field setFocused? fun(self: Element, element?: Element) Optional root focus setter
+---@field getFocused? fun(self: Element): Element? Optional root focus getter
+---@field _releaseSubtree? fun(self: Element, element: Element) Optional root interaction cleanup
+---@field onClick fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onClickUp fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onDrag fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onScroll fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onFocus fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onBlur fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onKey fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onKeyUp fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onChar fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onPaste fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onStateChange fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onMouseEnter fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onMouseLeave fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field onLayout fun(self: Element, fn: ElementEventHandler<Element>): Element
+---@field animate? fun(self: Element, props: table, duration?: number, easing?: string, onDone?: function): Element Optional animation-module shortcut
+---@field setResponsive? fun(self: Element, rules: table[]): Element Optional responsive-module shortcut
+---@field responsive? fun(self: Element): ResponsiveBuilder Optional responsive rule builder
+---@field clearResponsive? fun(self: Element): Element Optional responsive-module cleanup
 ---@field private _p table<string, any> Authored property values
----@field private _handlers table<string, ElementEventHandler[]> Event handlers by name
+---@field package _handlers table<string, ElementEventHandler<Element>[]> Event handlers by name
 ---@field private _class table Runtime class table
 ---@field private _layoutBox? ElementLayoutBox Resolved layout override
 ---@field private _order? integer Stable insertion order within the parent
@@ -385,25 +410,30 @@ function Element:raw(propName)
 end
 
 --- Registers an event handler; fn(self, ...) runs on every fire.
+---@generic T : Element
+---@param self T
 ---@param eventName string The event name (e.g. "click", "change")
----@param fn ElementEventHandler The handler
----@return self
+---@param fn ElementEventHandler<T> The handler
+---@return T self
 function Element:on(eventName, fn)
-    local hs = self._handlers[eventName]
+    local handlers = rawget(self, "_handlers")
+    local hs = handlers[eventName]
     if not hs then
         hs = {}
-        self._handlers[eventName] = hs
+        handlers[eventName] = hs
     end
     hs[#hs + 1] = fn
     return self
 end
 
 --- Removes one registered event handler.
+---@generic T : Element
+---@param self T
 ---@param eventName string Event name
----@param fn ElementEventHandler Previously registered handler
----@return self
+---@param fn ElementEventHandler<T> Previously registered handler
+---@return T self
 function Element:off(eventName, fn)
-    local hs = self._handlers[eventName]
+    local hs = rawget(self, "_handlers")[eventName]
     if not hs then return self end
     for i = #hs, 1, -1 do
         if hs[i] == fn then
@@ -603,9 +633,11 @@ end
 
 --- Returns the intrinsic size used by basalt.auto(). Elements with content
 --- override this; the base implementation keeps numeric authored dimensions.
+---@param _availableWidth? number Space offered by the parent
+---@param _availableHeight? number Space offered by the parent
 ---@return number width
 ---@return number height
-function Element:measure()
+function Element:measure(_availableWidth, _availableHeight)
     local w, h = layout.spec(self, "width"), layout.spec(self, "height")
     return type(w) == "number" and w or 1, type(h) == "number" and h or 1
 end

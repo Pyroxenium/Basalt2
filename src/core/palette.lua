@@ -113,6 +113,9 @@ local function parse(r, g, b)
         end
         return hexToRGB(r)
     end
+    if b == nil then
+        error("Basalt: blue component is required when green is provided", 3)
+    end
     if r > 1 or g > 1 or b > 1 then
         r, g, b = r / 255, g / 255, b / 255
     end
@@ -121,8 +124,8 @@ end
 
 --- Registers or resolves an RGB color for use by the render buffer.
 ---@param r number|string Red component or #RRGGBB string
----@param g? number Green component
----@param b? number Blue component
+---@param g number Green component
+---@param b number Blue component
 ---@return number color
 ---@overload fun(hex: string): number
 ---@overload fun(rgb24: number): number

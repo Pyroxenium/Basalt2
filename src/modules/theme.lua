@@ -16,6 +16,9 @@
 local require = ...
 local palette = require("core/palette")
 
+---@class theme
+---@field classes table<string, table> Element classes available to themes
+---@field presets table<string, table> Registered named theme presets
 local theme = {}
 
 local function validateStateStyle(cls, typeName, stateName, style)

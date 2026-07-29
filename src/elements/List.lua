@@ -79,7 +79,7 @@ function List:setup()
         local geometry = s:getScrollInfo()
         if geometry.show and x == s.width then
             local target, grab = itemview.pointerDown(y, geometry)
-            s:setOffset(target)
+            if target ~= nil then s:setOffset(target) end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end

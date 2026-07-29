@@ -37,6 +37,19 @@ Container.register("ContextMenu", require("elements/ContextMenu"))
 Container.register("Dialog", require("elements/Dialog"))
 Container.register("Toast", require("elements/Toast"))
 
+---@class basalt
+---@field VERSION string Current Basalt version
+---@field traceback boolean Whether error screens include the Lua traceback
+---@field errors table Error parsing and display utilities
+---@field rgb fun(value: string|number, g?: number, b?: number): number RGB color helper
+---@field state fun(initialValue: any): Signal Creates writable reactive state
+---@field signal fun(initialValue: any): Signal Alias for `state`
+---@field computed fun(fn: fun(): any): Computed Creates a computed reactive value
+---@field isState fun(value: any): boolean Tests whether a value is reactive state
+---@field auto fun(): LayoutValue Creates an intrinsic-size layout value
+---@field fill fun(weight?: number): LayoutValue Creates a weighted fill layout value
+---@field percent fun(amount: number): LayoutValue Creates a fractional parent-size value
+---@field debug? fun(...: any) Logger installed by `basalt.use("debug")`
 local basalt = {}
 basalt.VERSION = "2.5.0-dev"
 basalt.traceback = true
@@ -78,8 +91,9 @@ local schedules = {}
 --- Creates a root frame bound to a terminal (default: current term).
 --- For monitors, pass the wrapped peripheral; touch events are routed
 --- automatically. monitorName only needs to be given if auto-detection fails.
----@param t table|nil The terminal to bind to (default: current term)
----@param monitorName string|nil The name of the monitor peripheral (optional)
+---@param t? table The terminal to bind to (default: current term)
+---@param monitorName? string The name of the monitor peripheral
+---@return BaseFrame frame
 function basalt.createFrame(t, monitorName)
     t = t or term.current()
     local f = BaseFrame.new()
@@ -94,9 +108,8 @@ function basalt.createFrame(t, monitorName)
     return f
 end
 
---- Returns (or lazily creates) the main frame.
---- Returns the first frame created by basalt.createFrame().
----@return BaseFrame|nil frame
+--- Returns the first frame created by basalt.createFrame(), creating one if needed.
+---@return BaseFrame frame
 function basalt.getMainFrame()
     return mainFrame or basalt.createFrame()
 end
@@ -209,6 +222,7 @@ function basalt.run()
     local ok, err = xpcall(function()
         draw()
         while running do
+            ---@diagnostic disable-next-line: undefined-field
             local ev = table.pack(os.pullEventRaw())
             if ev[1] == "terminate" then
                 running = false
@@ -225,6 +239,7 @@ function basalt.run()
     running = false
     cleanup()
     if not ok then
+        ---@cast err BasaltWrappedError
         errors.show(err.err, err.trace, basalt.traceback)
     end
 end

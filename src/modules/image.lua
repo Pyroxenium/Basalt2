@@ -20,6 +20,9 @@ local codecChunk, codecError = loadfile(codecPath)
 if not codecChunk then error("Basalt image: cannot load FLIMG codec: " .. tostring(codecError), 0) end
 local flimg = codecChunk()
 
+---@class image
+---@field Image Image Registered Image element class
+---@field flimg table FLIMG codec API
 local image = {}
 
 local function frameSize(frame)
@@ -48,6 +51,9 @@ local function prepareFlimg(source)
 end
 
 ---@class Image : Element
+---@field public bimg table|false BIMG or FLIMG image data
+---@field public currentFrame integer One-based frame index
+---@field public autoSize boolean Whether assignment resizes the element
 local Image = class.create("Image", Element)
 
 --- The bimg image table (list of blit-line frames)
@@ -108,7 +114,7 @@ end
 
 --- Plays multi-frame images through the scheduler. fps defaults to the
 --- bimg's secondsPerFrame metadata (or 5 fps).
----@param fps number|nil Playback frames per second
+---@param fps? number Playback frames per second
 ---@return self
 function Image:play(fps)
     local bimg = self.bimg

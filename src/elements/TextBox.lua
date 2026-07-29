@@ -25,11 +25,11 @@ local itemview = require("core/itemview")
 ---@field public scrollbarThumbColor number Scrollbar thumb color
 ---@field public selectionBackground number Selection background
 ---@field public selectionForeground number Selection foreground
----@field private _lines string[] Editable lines
----@field private _curLine integer Cursor line
----@field private _curCol integer Cursor column
----@field private _viewX integer Horizontal viewport offset
----@field private _viewY integer Vertical viewport offset
+---@field package _lines string[] Editable lines
+---@field package _curLine integer Cursor line
+---@field package _curCol integer Cursor column
+---@field package _viewX integer Horizontal viewport offset
+---@field package _viewY integer Vertical viewport offset
 ---@field private _selLine? integer Selection-anchor line
 ---@field private _selCol? integer Selection-anchor column
 ---@field private _syncing? boolean Whether `text` is being synchronized internally
@@ -167,6 +167,9 @@ end
 function TextBox:getSelection()
     local l1, c1, l2, c2 = orderedSelection(self)
     if not l1 then return nil end
+    ---@cast c1 integer
+    ---@cast l2 integer
+    ---@cast c2 integer
     local lines = self._lines
     if l1 == l2 then
         return lines[l1]:sub(c1, c2 - 1)
@@ -184,6 +187,9 @@ end
 function TextBox:deleteSelection()
     local l1, c1, l2, c2 = orderedSelection(self)
     if not l1 then return false end
+    ---@cast c1 integer
+    ---@cast l2 integer
+    ---@cast c2 integer
     local lines = self._lines
     lines[l1] = lines[l1]:sub(1, c1 - 1) .. lines[l2]:sub(c2)
     for i = l2, l1 + 1, -1 do
@@ -367,9 +373,11 @@ function TextBox:handleKey(event, a, b)
         end
     elseif event == "key" then
         if not movementKeys then initMovement() end
+        ---@cast movementKeys table<integer, TextBoxMovement>
         local lines = self._lines
         local line, col = self._curLine, self._curCol
         local current = lines[line]
+        local movement = movementKeys[a]
 
         if a == keys.leftShift or a == keys.rightShift then
             rawset(self, "_shift", true)
@@ -381,13 +389,13 @@ function TextBox:handleKey(event, a, b)
             self:copy()
         elseif rawget(self, "_ctrl") and a == keys.x then
             self:cut()
-        elseif movementKeys[a] then
+        elseif movement then
             if rawget(self, "_shift") then
                 anchorSelection(self)
             else
                 clearSelection(self)
             end
-            moveCursor(self, movementKeys[a](self, line, col, current))
+            moveCursor(self, movement(self, line, col, current))
         elseif a == keys.escape then
             clearSelection(self)
         elseif a == keys.enter then

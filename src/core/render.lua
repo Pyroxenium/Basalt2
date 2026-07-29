@@ -208,8 +208,8 @@ end
 ---@param x number X position
 ---@param y number Y position
 ---@param str string Text to write
----@param fgChar string|nil Encoded foreground bytes
----@param bgChar string|nil Encoded background bytes
+---@param fgChar? string Encoded foreground bytes
+---@param bgChar? string Encoded background bytes
 ---@return self
 function Render:write(x, y, str, fgChar, bgChar)
     local ay = y + self.oy
@@ -235,7 +235,7 @@ function Render:write(x, y, str, fgChar, bgChar)
     return self
 end
 
----@param color? number Public color value
+---@param color? number|false Public color value; false keeps the existing color
 ---@return string? byte Encoded registry byte
 local function colorChar(color)
     if not color then return nil end
@@ -251,8 +251,8 @@ end
 ---@param x number X position
 ---@param y number Y position
 ---@param str string Text to write
----@param fg number|nil Foreground color
----@param bg number|nil Background color
+---@param fg? number|false Foreground color; false keeps the existing color
+---@param bg? number|false Background color; false keeps the existing color
 ---@return self
 function Render:blit(x, y, str, fg, bg)
     return self:write(x, y, str, colorChar(fg), colorChar(bg))
@@ -291,8 +291,8 @@ end
 ---@param x number X position
 ---@param y number Y position
 ---@param str string Text to write
----@param fgStr string|nil Encoded foreground bytes
----@param bgStr string|nil Encoded background bytes
+---@param fgStr? string Encoded foreground bytes
+---@param bgStr? string Encoded background bytes
 ---@return self
 function Render:rawBlit(x, y, str, fgStr, bgStr)
     local ay = y + self.oy
@@ -435,8 +435,8 @@ end
 ---@param x number X position
 ---@param y number Y position
 ---@param str string Text to write
----@param fgHex string|nil Foreground blit string
----@param bgHex string|nil Background blit string
+---@param fgHex? string Foreground blit string
+---@param bgHex? string Background blit string
 ---@return self
 function Render:drawBlit(x, y, str, fgHex, bgHex)
     return self:rawBlit(x, y, str,
@@ -450,8 +450,8 @@ end
 ---@param w number Width
 ---@param h number Height
 ---@param ch string Fill character
----@param fg number|nil Foreground color
----@param bg number|nil Background color
+---@param fg? number|false Foreground color; false keeps the existing color
+---@param bg? number|false Background color; false keeps the existing color
 ---@return self
 function Render:fill(x, y, w, h, ch, fg, bg)
     local row = rep(ch, w)
@@ -466,7 +466,7 @@ end
 ---@param x number Cursor x
 ---@param y number Cursor y
 ---@param blink boolean Blink state
----@param color number|nil Cursor color
+---@param color? number Cursor color
 ---@return self
 function Render:setCursor(x, y, blink, color)
     self.cursorX, self.cursorY, self.cursorBlink = x, y, blink

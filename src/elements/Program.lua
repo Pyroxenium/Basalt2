@@ -137,7 +137,7 @@ local function afterResume(self, proc, ok, result, terminating)
         end
         local trace = debug.traceback(proc.co) or ""
         finish(self, proc, false, result)
-        if self._handlers.error then
+        if rawget(self, "_handlers").error then
             self:fire("error", result, trace)
         else
             error(errors.wrap(result, trace), 0)
@@ -257,6 +257,7 @@ function Program:execute(path, ...)
         basalt.schedule(function()
             while rawget(self, "_proc") == proc
                 and coroutine.status(proc.co) ~= "dead" do
+                ---@diagnostic disable-next-line: undefined-field
                 local ev = table.pack(os.pullEventRaw())
                 if not ROUTED[ev[1]] then
                     resume(self, proc, table.unpack(ev, 1, ev.n))
@@ -339,7 +340,8 @@ end
 ---@return self
 function Program:destroy()
     self:terminate()
-    return Element.destroy(self)
+    Element.destroy(self)
+    return self
 end
 
 --- Renders the element into the buffer.

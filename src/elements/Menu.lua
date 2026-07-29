@@ -1,9 +1,9 @@
 -- Menu: horizontal menu bar with optional dropdown submenus and separators.
 --
 -- items entries:
---   "Save"                                 plain item
---   { text = "File", items = {"New", "Open"} }   item with submenu
---   { separator = true }                   vertical separator
+--   "Save"                                       -- plain item
+--   { text = "File", items = {"New", "Open"} }   -- item with submenu
+--   { separator = true }                         -- vertical separator
 --
 -- Fires "select"(index, item) for plain items and
 -- "select"(subIndex, subItem, parentIndex) for submenu entries.

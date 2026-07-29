@@ -15,7 +15,7 @@ local currentWatcher = nil
 
 ---@class Signal<T>
 ---@field private _value T Current value
----@field private _watchers table<Element, boolean> Weak set of dependent elements
+---@field package _watchers table<Element, boolean> Weak set of dependent elements
 ---@field private _listeners table<StateListener<T>, boolean> Active write listeners
 local Signal = {}
 Signal.__index = Signal
@@ -81,6 +81,9 @@ end
 ---@param watcher? Element Dependent element
 ---@return T value
 function state.read(value, watcher)
+    --- LuaLS 3.18 treats the identical optional Element parameters on the
+    --- Signal and Computed branches as distinct while resolving this union.
+    ---@diagnostic disable-next-line: param-type-mismatch
     return value:get(watcher)
 end
 

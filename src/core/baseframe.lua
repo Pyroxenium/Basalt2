@@ -9,6 +9,7 @@ local state = require("core/state")
 
 --- BaseFrame is the root of a UI tree, bound to a terminal-like object.
 ---@class BaseFrame : Container
+---@field new fun(props?: table): BaseFrame Creates a BaseFrame instance
 ---@field public background number Background color (false = transparent)
 ---@field private term table Terminal or monitor redirect
 ---@field private _render Render Render buffer
@@ -67,7 +68,7 @@ function BaseFrame:draw()
 end
 
 --- Moves keyboard focus to an element, or clears it with nil.
----@param el Element|nil New focused element
+---@param el? Element New focused element
 function BaseFrame:setFocused(el)
     local old = rawget(self, "_focused")
     if old == el then return end
@@ -85,7 +86,7 @@ end
 ---@param x number Absolute x coordinate
 ---@param y number Absolute y coordinate
 ---@param blink boolean Cursor blink state
----@param color number|nil Cursor color
+---@param color? number Cursor color
 ---@return self
 function BaseFrame:setCursor(x, y, blink, color)
     local r = rawget(self, "_render")
@@ -100,8 +101,9 @@ function BaseFrame:getFocused()
 end
 
 function BaseFrame:_updateHovered(x, y)
-    local hovered = self:findAt(x, y)
-    if hovered == self then hovered = nil end
+    local hit = self:findAt(x, y)
+    ---@type Element?
+    local hovered = hit ~= self and hit or nil
     local old = rawget(self, "_hovered")
     if old == hovered then return end
     rawset(self, "_hovered", hovered)

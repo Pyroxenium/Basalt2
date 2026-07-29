@@ -70,7 +70,7 @@ end
 
 --- Shows/hides the overlay (nil toggles).
 --- Explicitly shows or hides the debug overlay.
----@param state boolean Visibility
+---@param state? boolean Visibility; omitted toggles the overlay
 function dbg.show(state)
     ensureOverlay()
     if state == nil then state = not overlay.visible end
@@ -104,6 +104,7 @@ ensureOverlay()
 -- watch for the toggle key; scheduled coroutines receive all events
 basalt.schedule(function()
     while true do
+        ---@diagnostic disable-next-line: undefined-field
         local _, key = os.pullEvent("key")
         if key == toggleKey then
             dbg.show()

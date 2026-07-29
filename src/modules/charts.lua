@@ -21,6 +21,11 @@ local Element = require("core/element")
 local Container = require("core/container")
 local palette = require("core/palette")
 
+---@class charts
+---@field Graph Graph Registered Graph element class
+---@field BarChart BarChart Registered BarChart element class
+---@field LineChart LineChart Registered LineChart element class
+---@field PixelGraph PixelGraph Registered PixelGraph element class
 local charts = {}
 
 local function clamp01(v)
@@ -38,7 +43,10 @@ end
 -- Graph: multiple named series of points
 ----------------------------------------------------------------------------
 
+--- Multi-series graph rendered with terminal-cell symbols and colors.
 ---@class Graph : Element
+---@field public minValue number Lower value-axis bound
+---@field public maxValue number Upper value-axis bound
 local Graph = class.create("Graph", Element)
 --- Lower bound of the value axis
 class.property(Graph, "minValue", 0)
@@ -61,7 +69,7 @@ end
 --- visible (default true)
 --- Adds a named graph series.
 ---@param name string Series name
----@param opts table|nil symbol/fg/bg/pointCount/visible options
+---@param opts? table symbol/fg/bg/pointCount/visible options
 ---@return self
 function Graph:addSeries(name, opts)
     opts = opts or {}
@@ -136,7 +144,7 @@ function Graph:addPoint(name, value)
 end
 
 --- Clears one series or every series when name is nil.
----@param name string|nil Series name
+---@param name? string Series name
 ---@return self
 function Graph:clear(name)
     if name then
@@ -174,9 +182,15 @@ end
 -- BarChart: one bar per value in `data`
 ----------------------------------------------------------------------------
 
+--- Bar chart with one vertical bar per value in `data`.
 ---@class BarChart : Element
+---@field public data number[]|false Values rendered as bars
+---@field public barColor number Bar color
+---@field public minValue number Lower value-axis bound
+---@field public maxValue number|false Upper bound, or false for automatic scaling
 local BarChart = class.create("BarChart", Element)
-class.property(BarChart, "data", false) -- fresh table per instance
+--- Values rendered as bars; initialized to a fresh table per instance
+class.property(BarChart, "data", false)
 --- Color of the bar/track
 class.property(BarChart, "barColor", colors.lime)
 --- Lower bound of the value axis
@@ -207,7 +221,9 @@ function BarChart:render(buf)
     local maxV = self.maxValue
     if not maxV then
         maxV = -math.huge
-        for i = 1, count do maxV = math.max(maxV, data[i]) end
+        -- `data` is a packed array; LuaLS does not narrow indexed array values.
+        ---@diagnostic disable-next-line: need-check-nil
+        for i = 1, count do maxV = math.max(maxV, assert(data[i])) end
     end
     local minV = self.minValue
 
@@ -215,7 +231,8 @@ function BarChart:render(buf)
     local x = 1
     for i = 1, count do
         if x > w then break end
-        local top = ratioToRow(data[i], minV, maxV, h)
+        ---@diagnostic disable-next-line: need-check-nil
+        local top = ratioToRow(assert(data[i]), minV, maxV, h)
         buf:fill(x, top, math.min(barWidth, w - x + 1), h - top + 1,
             " ", self.foreground, self.barColor)
         x = x + barWidth + 1
@@ -226,9 +243,15 @@ end
 -- LineChart: `data` sampled across the width, gaps interpolated
 ----------------------------------------------------------------------------
 
+--- Line chart with values sampled across the available width.
 ---@class LineChart : Element
+---@field public data number[]|false Values rendered as a line
+---@field public lineColor number Line color
+---@field public minValue number Lower value-axis bound
+---@field public maxValue number Upper value-axis bound
 local LineChart = class.create("LineChart", Element)
-class.property(LineChart, "data", false) -- fresh table per instance
+--- Values rendered as a line; initialized to a fresh table per instance
+class.property(LineChart, "data", false)
 --- Color of the plotted line
 class.property(LineChart, "lineColor", colors.lime)
 --- Lower bound of the value axis
@@ -262,7 +285,10 @@ function LineChart:render(buf)
         local t = count > 1 and ((col - 1) / (w - 1) * (count - 1) + 1) or 1
         local lower = math.floor(t)
         local upper = math.min(count, lower + 1)
-        local value = data[lower] + (data[upper] - data[lower]) * (t - lower)
+        -- lower/upper are bounded by the packed-array length above.
+        ---@diagnostic disable-next-line: need-check-nil
+        local lowerValue, upperValue = assert(data[lower]), assert(data[upper])
+        local value = lowerValue + (upperValue - lowerValue) * (t - lower)
         local row = ratioToRow(value, minV, maxV, h)
         buf:fill(col, row, 1, 1, " ", self.foreground, self.lineColor)
     end
@@ -294,7 +320,10 @@ local function plotLine(rows, pixelWidth, pixelHeight, x0, y0, x1, y1, index)
     end
 end
 
+--- Multi-series graph rendered at 2x3 subpixel resolution per cell.
 ---@class PixelGraph : Element
+---@field public minValue number Lower value-axis bound
+---@field public maxValue number Upper value-axis bound
 local PixelGraph = class.create("PixelGraph", Element)
 --- Lower bound of the value axis
 class.property(PixelGraph, "minValue", 0)
@@ -317,7 +346,7 @@ end
 --- columns), visible (default true)
 --- Adds a named graph series.
 ---@param name string Series name
----@param opts table|nil color/pointCount/visible options
+---@param opts? table color/pointCount/visible options
 ---@return self
 function PixelGraph:addSeries(name, opts)
     opts = opts or {}
@@ -390,7 +419,7 @@ function PixelGraph:addPoint(name, value)
 end
 
 --- Clears one series or every series when name is nil.
----@param name string|nil Series name
+---@param name? string Series name
 ---@return self
 function PixelGraph:clear(name)
     if name then

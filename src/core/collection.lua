@@ -26,7 +26,7 @@ local CollectionEntry = require("core/collectionentry")
 ---@field dropdown? (CollectionItem|string)[] Alias for submenu items
 
 --- CollectionMixin provides shared properties and methods for collection-like elements.
----@class CollectionMixin
+---@class CollectionMixin : Element
 ---@field items CollectionEntry[] List of collection entries
 ---@field selectable boolean Whether items can be selected
 ---@field multiSelection boolean Whether multiple items can be selected
@@ -37,6 +37,7 @@ local CollectionEntry = require("core/collectionentry")
 ---@field _collectionChangeEvent string|nil Name of the change event to fire
 ---@field _p table Properties table (items, selectable, multiSelection, selected, selectionBackground, selectionForeground)
 ---@field _class table Class table with shared properties and methods
+---@field setOffset? fun(self: CollectionMixin, offset: number): CollectionMixin Optional generated offset setter
 local methods = {}
 
 local collection = { methods = methods }
@@ -348,7 +349,7 @@ end
 
 --- Selects an item (adds to the selection when multiSelection is on).
 ---@param value integer|CollectionEntry Item index or entry
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:selectItem(value, emit)
     if not self.selectable then return self end
@@ -372,7 +373,7 @@ end
 
 --- Removes an entry from selection.
 ---@param value integer|CollectionEntry Item index or entry
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:unselectItem(value, emit)
     local index = indexOf(self, value)
@@ -387,7 +388,7 @@ end
 
 --- Toggles an item's selection state.
 ---@param value integer|CollectionEntry Item index or entry
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:toggleItem(value, emit)
     if self:isItemSelected(value) then
@@ -397,7 +398,7 @@ function methods:toggleItem(value, emit)
 end
 
 --- Clears all selected entries.
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:clearItemSelection(emit)
     local oldIndex, oldItem = selectedSnapshot(self)
@@ -408,14 +409,14 @@ function methods:clearItemSelection(emit)
 end
 
 --- Alias for clearItemSelection().
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:clearSelection(emit)
     return self:clearItemSelection(emit)
 end
 
 --- Selects the next selectable entry after the current selection.
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:selectNext(emit)
     local start = self:getSelectedIndex() or 0
@@ -426,7 +427,7 @@ function methods:selectNext(emit)
 end
 
 --- Selects the previous selectable entry before the current selection.
----@param emit boolean|nil false suppresses the change event
+---@param emit? boolean false suppresses the change event
 ---@return self
 function methods:selectPrevious(emit)
     local start = self:getSelectedIndex() or (#self.items + 1)
@@ -453,8 +454,8 @@ end
 --- Selects an item AND fires its callback plus the select event
 --- (what a mouse click or the enter key does).
 ---@param value integer|CollectionEntry Item index or entry
----@param emit boolean|nil false suppresses callback and select event
----@param toggle boolean|nil true toggles instead of selecting
+---@param emit? boolean false suppresses callback and select event
+---@param toggle? boolean true toggles instead of selecting
 ---@return self
 function methods:activateItem(value, emit, toggle)
     local index = indexOf(self, value)
@@ -471,7 +472,7 @@ end
 
 --- Selects and optionally activates an entry.
 ---@param value integer|CollectionEntry Item index or entry
----@param emit boolean|nil false suppresses callback/select event
+---@param emit? boolean false suppresses callback/select event
 ---@return self
 function methods:select(value, emit)
     return self:activateItem(value, emit, self.multiSelection)

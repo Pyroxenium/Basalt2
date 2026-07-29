@@ -47,7 +47,7 @@ class.property(Dropdown, "open", false, {
         if v then
             rawset(self, "_zBefore", self.z)
             self.z = 999
-            local highlighted = self.selected or (#self.items > 0 and 1 or false)
+            local highlighted = self.selected or (#self.items > 0 and 1 or nil)
             rawset(self, "_highlighted", highlighted)
             self.offset = itemview.ensureVisible(self.offset, highlighted,
                 #self.items, math.min(#self.items, self.dropHeight))
@@ -112,7 +112,7 @@ function Dropdown:setup()
             local geometry = s:getScrollInfo()
             if geometry.show and x == s.width then
                 local target, grab = itemview.pointerDown(y - 1, geometry)
-                s:setOffset(target)
+                if target ~= nil then s:setOffset(target) end
                 if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
                 return
             end

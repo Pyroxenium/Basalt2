@@ -144,8 +144,9 @@ function errors.show(err, trace, showTrace)
     end
 
     cprint("Press any key to exit", colors.orange)
-    while true do
-        local e = os.pullEventRaw()
+        while true do
+            ---@diagnostic disable-next-line: undefined-field
+            local e = os.pullEventRaw()
         if e == "key" or e == "mouse_click"
             or e == "monitor_touch" or e == "terminate" then
             break

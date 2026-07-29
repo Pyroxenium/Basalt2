@@ -16,6 +16,7 @@ local Container = require("core/container")
 ---@field y number Grab y coordinate
 
 ---@class Frame : Container
+---@field new fun(props?: table): Frame Creates a Frame instance
 ---@field public draggable boolean Whether the frame can be dragged
 ---@field public draggingMap FrameDragZone[]|false Custom grab zones
 ---@field private _dragFrom? FrameDragPoint Active grab position

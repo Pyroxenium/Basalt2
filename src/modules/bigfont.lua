@@ -99,7 +99,8 @@ local function generateFontSize(size,yeld)
             end
 
             nextFont[thisChar] = {temp, temp2}
-            if yeld then yeld = "Font"..f.."Yeld"..char os.queueEvent(yeld) os.pullEvent(yeld) end
+                ---@diagnostic disable-next-line: undefined-field
+                if yeld then yeld = "Font"..f.."Yeld"..char os.queueEvent(yeld) os.pullEvent(yeld) end
         end
         fonts[f] = nextFont
     end
@@ -154,6 +155,8 @@ end
 ----------------------------------------------------------------------------
 
 ---@class BigFont : Element
+---@field public text string Displayed text
+---@field public fontSize integer Scale from 1 to 3
 local BigFont = class.create("BigFont", Element)
 
 --- Displayed text

@@ -40,6 +40,37 @@ local scroll = require("core/scroll")
 ---@field public scrollbarColor number Scrollbar track color
 ---@field public scrollbarThumbColor number Scrollbar thumb color
 ---@field public layoutChildren? fun(self: Container) Optional custom child layout
+---@field addLabel fun(self: Container, props?: table): Label
+---@field addCanvas fun(self: Container, props?: table): Canvas
+---@field addButton fun(self: Container, props?: table): Button
+---@field addFrame fun(self: Container, props?: table): Frame
+---@field addInput fun(self: Container, props?: table): Input
+---@field addCheckbox fun(self: Container, props?: table): Checkbox
+---@field addSwitch fun(self: Container, props?: table): Switch
+---@field addProgressBar fun(self: Container, props?: table): ProgressBar
+---@field addSlider fun(self: Container, props?: table): Slider
+---@field addCollection fun(self: Container, props?: table): Collection
+---@field addList fun(self: Container, props?: table): List
+---@field addDropdown fun(self: Container, props?: table): Dropdown
+---@field addFlex fun(self: Container, props?: table): Flex
+---@field addRow fun(self: Container, props?: table): Row
+---@field addColumn fun(self: Container, props?: table): Column
+---@field addTextBox fun(self: Container, props?: table): TextBox
+---@field addMenu fun(self: Container, props?: table): Menu
+---@field addTabControl fun(self: Container, props?: table): TabControl
+---@field addTree fun(self: Container, props?: table): Tree
+---@field addTable fun(self: Container, props?: table): Table
+---@field addProgram fun(self: Container, props?: table): Program
+---@field addComboBox fun(self: Container, props?: table): ComboBox
+---@field addContextMenu fun(self: Container, props?: table): ContextMenu
+---@field addDialog fun(self: Container, props?: table): Dialog
+---@field addToast fun(self: Container, props?: table): Toast
+---@field addBigFont? fun(self: Container, props?: table): BigFont
+---@field addImage? fun(self: Container, props?: table): Image
+---@field addGraph? fun(self: Container, props?: table): Graph
+---@field addBarChart? fun(self: Container, props?: table): BarChart
+---@field addLineChart? fun(self: Container, props?: table): LineChart
+---@field addPixelGraph? fun(self: Container, props?: table): PixelGraph
 ---@field private _children Element[] Live direct-child array
 ---@field private _visibleChildren Element[] Cached visible children
 ---@field private _addIndex integer Monotonic child insertion index
@@ -107,9 +138,9 @@ end
 ---@return ContainerScrollInfo info
 function Container:getScrollInfo()
     local info = scroll.geometry(self)
+    ---@cast info ContainerScrollInfo
     info.x, info.y = self:getScroll()
     info.contentWidth, info.contentHeight = self:getContentSize()
-    ---@cast info ContainerScrollInfo
     return info
 end
 
@@ -217,7 +248,8 @@ function Container:destroy()
         -- Always make forward progress while keeping ordinary destroy hooks.
         if children[#children] == child then self:removeChild(child) end
     end
-    return Element.destroy(self)
+    Element.destroy(self)
+    return self
 end
 
 --- Returns the live direct-child array.

@@ -135,12 +135,12 @@ function ComboBox:setup()
             return
         end
         local display = s:getDisplayItems()
-        local g = geometry(s, display)
-        if g.show and x == s.width then
-            local target, grab = itemview.pointerDown(y - 1, g)
-            s.offset = target
-            if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
-            return
+            local g = geometry(s, display)
+            if g.show and x == s.width then
+                local target, grab = itemview.pointerDown(y - 1, g)
+                if target ~= nil then s.offset = target end
+                if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
+                return
         end
         s:selectDisplayed(s.offset + y - 1)
     end)

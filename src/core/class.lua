@@ -33,7 +33,7 @@ end
 
 --- Creates a new Basalt class deriving from an optional parent class.
 ---@param name string Class name
----@param parent table|nil Parent class
+---@param parent? table Parent class
 ---@return table class
 function class.create(name, parent)
     local c = {}
@@ -69,7 +69,10 @@ function class.create(name, parent)
             if box and box[k] ~= nil then return box[k] end
             local found, value = c.__getPropertySpec(t, k)
             if found then
-                if layout.is(value) then return layout.resolveToken(value, t, k) end
+                if layout.is(value) then
+                    ---@cast value LayoutValue
+                    return layout.resolveToken(value, t, k)
+                end
                 return value
             end
             return c[k]
@@ -144,7 +147,7 @@ end
 ---@param c table Target class
 ---@param propName string Property name
 ---@param default any Shared default value
----@param opts table|nil Property behavior options
+---@param opts? table Property behavior options
 function class.property(c, propName, default, opts)
     opts = opts or {}
     c.__props[propName] = {

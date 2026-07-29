@@ -12,8 +12,10 @@ local Element = require("core/element")
 ---@field public maxLength number|false Maximum length, or false when unlimited
 ---@field public replaceChar string|false Replacement character for password input
 ---@field public pattern string|false Lua pattern accepted by inserted characters
----@field protected _cursor integer One-based insertion position
----@field protected _scroll integer Horizontal text offset
+---@field onChange fun(self: Input, fn: ElementEventHandler<Input>): Input
+---@field onEnter fun(self: Input, fn: ElementEventHandler<Input>): Input
+---@field package _cursor integer One-based insertion position
+---@field package _scroll integer Horizontal text offset
 local Input = class.create("Input", Element)
 
 --- Current input value (rawString: typed braces stay literal text)

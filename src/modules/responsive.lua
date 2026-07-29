@@ -18,8 +18,14 @@ local require = ...
 local Element = require("core/element")
 
 local responsive = {}
-local Builder = {}
-Builder.__index = Builder
+
+---@class ResponsiveBuilder
+---@field element Element Element receiving the responsive rules
+---@field rules table[] Completed first-match rules
+---@field pending? table Rule currently being configured
+---@field finished? boolean Whether an otherwise rule completed the builder
+local ResponsiveBuilder = {}
+ResponsiveBuilder.__index = ResponsiveBuilder
 
 local OPERATORS = { "<=", ">=", "==", "~=", "<", ">" }
 
@@ -105,7 +111,7 @@ end
 --- Attaches ordered responsive breakpoint rules to an element.
 ---@param element Element Target element
 ---@param rules table[] Responsive rules
----@param options table|nil Options; exclusive makes only the first match active
+---@param options? table Options; exclusive makes only the first match active
 ---@return Element element
 function responsive.apply(element, rules, options)
     if type(rules) ~= "table" then
@@ -193,7 +199,7 @@ function responsive.apply(element, rules, options)
     return controller
 end
 
-function Builder:_sync()
+function ResponsiveBuilder:_sync()
     responsive.apply(self.element, self.rules, { exclusive = true })
     return self
 end
@@ -201,7 +207,7 @@ end
 --- Starts the next first-match responsive rule.
 ---@param condition string|function Comparison such as "parent.width < 20"
 ---@return ResponsiveBuilder builder
-function Builder:when(condition)
+function ResponsiveBuilder:when(condition)
     if self.finished then
         error("Basalt responsive: otherwise() must be the final rule", 2)
     end
@@ -215,7 +221,7 @@ end
 --- Assigns properties to the preceding when() rule.
 ---@param props table Responsive property overrides
 ---@return ResponsiveBuilder builder
-function Builder:apply(props)
+function ResponsiveBuilder:apply(props)
     if not self.pending then
         error("Basalt responsive: apply() requires a preceding when()", 2)
     end
@@ -231,7 +237,7 @@ end
 --- Adds the fallback rule, installs the finished rules and returns the element.
 ---@param props table Responsive property overrides
 ---@return Element element
-function Builder:otherwise(props)
+function ResponsiveBuilder:otherwise(props)
     if self.pending then
         error("Basalt responsive: call apply() before otherwise()", 2)
     end
@@ -249,7 +255,7 @@ end
 
 --- Installs rules without an otherwise() fallback and returns the element.
 ---@return Element element
-function Builder:done()
+function ResponsiveBuilder:done()
     if self.pending then
         error("Basalt responsive: call apply() before done()", 2)
     end
@@ -264,7 +270,7 @@ function responsive.builder(element)
     if not element.getChildren then
         error("Basalt responsive: target must be a container", 2)
     end
-    return setmetatable({ element = element, rules = {} }, Builder)
+    return setmetatable({ element = element, rules = {} }, ResponsiveBuilder)
 end
 
 --- Returns the responsive controller currently attached to an element.

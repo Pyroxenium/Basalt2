@@ -371,7 +371,7 @@ function Tree:setup()
         local g = geometry(s, flat)
         if g.show and x == s.width then
             local target, grab = itemview.pointerDown(y, g)
-            s.offset = target
+            if target ~= nil then s.offset = target end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end

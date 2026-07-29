@@ -17,4 +17,6 @@ local function load(name)
     return modules[name]
 end
 
-return load("main")
+---@type basalt
+local basalt = load("main")
+return basalt

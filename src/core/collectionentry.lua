@@ -111,7 +111,7 @@ function methods:getIndex()
 end
 
 --- Moves the entry towards the beginning of the collection.
----@param amount integer|nil Number of positions, default 1
+---@param amount? integer Number of positions, default 1
 ---@return self
 function methods:moveUp(amount)
     local parent = rawget(self, "_parent")
@@ -120,7 +120,7 @@ function methods:moveUp(amount)
 end
 
 --- Moves the entry towards the end of the collection.
----@param amount integer|nil Number of positions, default 1
+---@param amount? integer Number of positions, default 1
 ---@return self
 function methods:moveDown(amount)
     local parent = rawget(self, "_parent")

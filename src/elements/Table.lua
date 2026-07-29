@@ -1,8 +1,8 @@
 -- Table: column headers + data rows, click-to-sort, row selection.
 --
--- columns = { { title = "Name", width = 8 }, { title = "Qty" } }
---   (columns without width share the remaining space)
--- data = { { "Wheat", 12 }, { "Iron", 3 } }
+--   local columns = { { title = "Name", width = 8 }, { title = "Qty" } }
+--   -- Columns without width share the remaining space.
+--   local data = { { "Wheat", 12 }, { "Iron", 3 } }
 --
 -- Sorting never mutates `data`: a view order maps display rows to data
 -- indices. `selected` is always a DATA index. Fires "select"(dataIndex, row)
@@ -589,7 +589,7 @@ function Table:setup()
         end
         if g.show and x == s.width then
             local target, grab = itemview.pointerDown(y - 1, g)
-            s.offset = target
+            if target ~= nil then s.offset = target end
             if grab ~= nil then rawset(s, "_itemScrollDrag", grab) end
             return
         end

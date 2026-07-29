@@ -136,7 +136,7 @@ end
 --- Builds elements from an XML string under `parent`.
 ---@param parent table The container the elements are added to
 ---@param src string The XML markup
----@param scope table|nil Functions referenced by on* attributes
+---@param scope? table Functions referenced by on* attributes
 ---@return table elements The top-level created elements
 function xml.load(parent, src, scope)
     return build(parent, xml.parse(src), scope)
@@ -145,7 +145,7 @@ end
 --- Like xml.load, but reads the markup from a file.
 ---@param parent Container Parent container
 ---@param path string XML file path
----@param scope table|nil Event/function lookup scope
+---@param scope? table Event/function lookup scope
 ---@return table elements Top-level created elements
 function xml.loadFile(parent, path, scope)
     local h = fs.open(path, "r")
