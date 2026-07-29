@@ -9,7 +9,6 @@
 --   bundle                      -> writes bundle/basalt.min.lua, minified
 --   bundle myout.lua            -> custom output path
 --   bundle --no-minify          -> writes bundle/basalt.lua, comments removed
---   bundle --compress           -> writes bundle/basalt.compressed.lua
 --
 -- Library usage (e.g. from the installer):
 --   local bundler = assert(loadfile("Basalt/tools/bundle.lua"))("--lib")
@@ -133,127 +132,23 @@ local function bracketFor(content)
     return string.rep("=", level)
 end
 
-----------------------------------------------------------------------------
--- Bundle compression
-----------------------------------------------------------------------------
-
--- A small LZSS-style compressor. Matches use three bytes:
--- two bytes distance and one byte length (4-259 bytes).
-local function compressPayload(input)
-    local output = {}
-    local positions = {}
-    local position, length = 1, #input
-
-    local function remember(at)
-        if at + 2 > length then return end
-        local key = input:sub(at, at + 2)
-        local list = positions[key]
-        if not list then
-            list = {}
-            positions[key] = list
-        end
-        list[#list + 1] = at
-        if #list > 32 then table.remove(list, 1) end
-    end
-
-    while position <= length do
-        local controlIndex = #output + 1
-        output[controlIndex] = "\0"
-        local control = 0
-
-        for bit = 0, 7 do
-            if position > length then break end
-
-            local bestDistance, bestLength
-            if position + 3 <= length then
-                local candidates = positions[input:sub(position, position + 2)]
-                if candidates then
-                    local maximum = math.min(259, length - position + 1)
-                    for index = #candidates, 1, -1 do
-                        local previous = candidates[index]
-                        local distance = position - previous
-                        if distance <= 65535 then
-                            local matched = 3
-                            while matched < maximum
-                                and input:byte(previous + matched)
-                                    == input:byte(position + matched) do
-                                matched = matched + 1
-                            end
-                            if matched >= 4
-                                and (not bestLength or matched > bestLength) then
-                                bestDistance, bestLength = distance, matched
-                                if matched == maximum then break end
-                            end
-                        end
-                    end
-                end
-            end
-
-            local consumed
-            if bestLength then
-                control = control + 2 ^ bit
-                output[#output + 1] = string.char(
-                    math.floor(bestDistance / 256),
-                    bestDistance % 256,
-                    bestLength - 4
-                )
-                consumed = bestLength
-            else
-                output[#output + 1] = input:sub(position, position)
-                consumed = 1
-            end
-
-            for offset = 0, consumed - 1 do
-                remember(position + offset)
-            end
-            position = position + consumed
-        end
-
-        output[controlIndex] = string.char(control)
-    end
-
-    return table.concat(output)
-end
-
--- ASCII85 keeps the generated Lua file text-only while adding only 25%
--- encoding overhead to the compressed binary payload.
-local function encodePayload(input)
-    local alphabet = {}
-    for byte = 33, 117 do
-        alphabet[#alphabet + 1] = string.char(byte)
-    end
-    alphabet = table.concat(alphabet)
-
-    local output = {}
-    for position = 1, #input, 4 do
-        local a, b, c, d = input:byte(position, position + 3)
-        local value = (a or 0) * 16777216
-            + (b or 0) * 65536
-            + (c or 0) * 256
-            + (d or 0)
-        local block = {}
-        for index = 5, 1, -1 do
-            local digit = value % 85
-            block[index] = alphabet:sub(digit + 1, digit + 1)
-            value = math.floor(value / 85)
-        end
-        output[#output + 1] = table.concat(block)
-    end
-    return table.concat(output)
-end
-
 --- Builds a single-file bundle.
---- options: root, output, minify (default true), compress (default false).
+--- options: root, output, minify (default true).
 --- Returns stats: { output, files, bytesIn, bytesOut, version }.
 local function build(options)
     options = options or {}
+    if options.compress == true then
+        error(
+            "bundle: compression is provided by Shale; "
+                .. "build src/Shalefile.lua instead",
+            0
+        )
+    end
     local root = options.root or defaultRoot()
     local srcDir = fs.combine(root, "src")
-    local compress = options.compress == true
-    local minify = compress or options.minify ~= false
+    local minify = options.minify ~= false
     local output = options.output or fs.combine(root,
-        compress and "bundle/basalt.compressed.lua"
-            or (minify and "bundle/basalt.min.lua" or "bundle/basalt.lua"))
+        minify and "bundle/basalt.min.lua" or "bundle/basalt.lua")
     local minifySource
     if minify then
         local minifierPath = fs.combine(root, "tools/minify.lua")
@@ -298,90 +193,15 @@ local function build(options)
         }
     end
 
-    local out = {}
-    local compressedBytes
-    if compress then
-        out[#out + 1] = 'print("Decompressing basalt...")'
-        local payload, manifestNames, manifestSizes = {}, {}, {}
-        for _, module in ipairs(processed) do
-            payload[#payload + 1] = module.content
-            manifestNames[#manifestNames + 1] = module.name
-            manifestSizes[#manifestSizes + 1] = tostring(#module.content)
+    local out = { "local sources = {}" }
+    for _, module in ipairs(processed) do
+        local content = module.content
+        if content:sub(-1) ~= "\n" then
+            content = content .. "\n"
         end
-
-        local compressed = compressPayload(table.concat(payload))
-        local encoded = encodePayload(compressed)
-        compressedBytes = #compressed
-        local payloadBrackets = bracketFor(encoded)
-        local names = table.concat(manifestNames, "\n")
-        local namesBrackets = bracketFor(names)
-
-        out[#out + 1] = [[local function decode85(source, length)
-    local output = {}
-    for position = 1, #source, 5 do
-        local value = 0
-        for offset = 0, 4 do
-            value = value * 85 + source:byte(position + offset) - 33
-        end
-        output[#output + 1] = string.char(
-            math.floor(value / 16777216) % 256,
-            math.floor(value / 65536) % 256,
-            math.floor(value / 256) % 256,
-            value % 256
-        )
-    end
-    return table.concat(output):sub(1, length)
-end
-local function decompress(source)
-    local output = {}
-    local position = 1
-    while position <= #source do
-        local control = source:byte(position)
-        position = position + 1
-        for _ = 1, 8 do
-            if position > #source then break end
-            if control % 2 == 1 then
-                local distance = source:byte(position) * 256
-                    + source:byte(position + 1)
-                local length = source:byte(position + 2) + 4
-                position = position + 3
-                for _ = 1, length do
-                    output[#output + 1] =
-                        output[#output - distance + 1]
-                end
-            else
-                output[#output + 1] = source:sub(position, position)
-                position = position + 1
-            end
-            control = math.floor(control / 2)
-        end
-    end
-    return table.concat(output)
-end]]
-        out[#out + 1] = ("local payload = decompress(decode85([%s[%s]%s], %d))")
-            :format(payloadBrackets, encoded, payloadBrackets, #compressed)
-        out[#out + 1] = "local sources = {}"
-        out[#out + 1] = "local sizes = {"
-            .. table.concat(manifestSizes, ",") .. "}"
-        out[#out + 1] = ("local names = [%s[%s]%s]")
-            :format(namesBrackets, names, namesBrackets)
-        out[#out + 1] = [[local index, offset = 1, 1
-for name in names:gmatch("[^\n]+") do
-    local size = sizes[index]
-    sources[name] = payload:sub(offset, offset + size - 1)
-    index, offset = index + 1, offset + size
-end]]
-    else
-        out[#out + 1] = "local sources = {}"
-        for _, module in ipairs(processed) do
-            local content = module.content
-            if content:sub(-1) ~= "\n" then
-                content = content .. "\n"
-            end
-            local eqs = bracketFor(content)
-            out[#out + 1] = ("sources[%q] = [%s[\n%s]%s]")
-                :format(module.name, eqs, content, eqs)
-        end
+        local eqs = bracketFor(content)
+        out[#out + 1] = ("sources[%q] = [%s[\n%s]%s]")
+            :format(module.name, eqs, content, eqs)
     end
 
     out[#out + 1] = [[
@@ -390,9 +210,6 @@ local function loader(name)
     local cached = loaded[name]
     if cached ~= nil then return cached end
 ]]
-    if compress then
-        out[#out + 1] = '    print("Loading module: " .. name)'
-    end
     out[#out + 1] = [[
     local source = sources[name]
         or error("Basalt: module not bundled: " .. tostring(name), 0)
@@ -417,10 +234,8 @@ return loader("main")]]
         bytesIn = bytesIn,
         bytesOut = #generated,
         processedBytes = bytesOut,
-        compressedBytes = compressedBytes,
         version = version,
         minified = minify,
-        compressed = compress,
         commentsRemoved = true,
     }
 end
@@ -438,16 +253,17 @@ local api = {
 
 local output = nil
 local minify = true
-local compress = false
 for _, arg in ipairs(args) do
     if arg == "--lib" then
         return api -- library mode: hand the API to the caller (installer)
     elseif arg == "--no-minify" then
         minify = false
-        compress = false
     elseif arg == "--compress" then
-        minify = true
-        compress = true
+        error(
+            "bundle: --compress was replaced by Shale "
+                .. "(see src/Shalefile.lua)",
+            0
+        )
     elseif arg:sub(1, 2) ~= "--" then
         output = arg
     end
@@ -456,12 +272,10 @@ end
 local stats = build({
     output = output,
     minify = minify,
-    compress = compress,
 })
 print(("Basalt %s bundled: %d files -> %s"):format(
     stats.version, stats.files, stats.output))
 print(("%d KB -> %d KB%s"):format(
     math.floor(stats.bytesIn / 1024 + 0.5),
     math.floor(stats.bytesOut / 1024 + 0.5),
-    stats.compressed and " (minified + compressed)"
-        or (stats.minified and " (minified)" or " (comments stripped)")))
+    stats.minified and " (minified)" or " (comments stripped)"))

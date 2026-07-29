@@ -23,7 +23,7 @@ to building terminal interfaces.
 - Optional modules for animations, charts, images, XML, debugging, and more
 - Direct property access as well as method chaining
 - LuaLS annotations and generated API documentation
-- Readable, minified, and compressed single-file builds
+- Readable, minified, and Shale-compressed single-file builds
 
 ## Installation
 
@@ -54,7 +54,7 @@ wget run https://basalt.madefor.cc/2.5/install.lua
 | `source` | `basalt/` | Editable source files and development |
 | `bundled` | `basalt.lua` | Readable single-file build |
 | `minified` | `basalt.lua` | Smaller build with immediate startup; recommended |
-| `compressed` | `basalt.lua` | Smallest download with a short startup delay |
+| `compressed` | `basalt.lua` | Smallest [Shale](https://github.com/Pyroxenium/Shale)-powered build with a short startup delay |
 
 A custom destination can be passed after the variant:
 

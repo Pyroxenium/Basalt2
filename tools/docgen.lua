@@ -68,8 +68,6 @@ local function splitList(value)
     return result
 end
 
---- Splits a LuaLS type from the human description following it. Whitespace
---- inside table<...>, tuples and function parameters remains part of the type.
 local function splitTypeAndDescription(value)
     value = trim(value or "")
     local depth = 0
@@ -94,7 +92,6 @@ local function splitTypeAndDescription(value)
     return value, ""
 end
 
---- Turns a raw ---doc block into { desc, params, returns, usage }.
 local function parseDocBlock(blockLines)
     local doc = { desc = {}, params = {}, returns = {}, usage = {} }
     local target = doc.desc
@@ -137,7 +134,7 @@ local function parseDocBlock(blockLines)
             target = doc.usage
             if #usageRest > 0 then target[#target + 1] = usageRest end
         elseif line:match("^@") then
-            target = nil -- unknown tag: ignore it and its continuations
+            target = nil
         elseif target then
             target[#target + 1] = line
         end
@@ -145,7 +142,6 @@ local function parseDocBlock(blockLines)
     return doc
 end
 
---- Compacts a default-value expression for display.
 local function describeDefault(raw)
     raw = trim(raw or "")
     if raw:sub(1, 8) == "function" then return "*dynamic*" end
@@ -179,7 +175,7 @@ local function parseFile(path)
         aliasByName = {},
     }
 
-    local pending = {} -- current ---doc block
+    local pending = {}
     local currentType = nil
     local inHeader = true
     local lineNo = 0
@@ -188,7 +184,6 @@ local function parseFile(path)
         lineNo = lineNo + 1
         repeat
 
-        -- leading -- comment block = page overview
         if inHeader then
             local headerText = line:match("^%-%-%s?(.*)$")
             if headerText ~= nil and not line:match("^%-%-%-") then

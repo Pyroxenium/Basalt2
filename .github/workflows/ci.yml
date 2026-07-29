@@ -21,6 +21,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Checkout Shale
+        uses: actions/checkout@v6
+        with:
+          repository: Pyroxenium/Shale
+          path: .shale
+
       - name: Install build dependencies
         run: |
           sudo add-apt-repository --yes ppa:jackmacwindows/ppa
@@ -52,8 +58,8 @@ jobs:
             --no-minify "$RUNNER_TEMP/basalt-output/basalt.lua"
           lua5.4 tools/bundle-host.lua \
             "$RUNNER_TEMP/basalt-output/basalt.min.lua"
-          lua5.4 tools/bundle-host.lua \
-            --compress "$RUNNER_TEMP/basalt-output/basalt.compressed.lua"
+          lua5.4 .shale/tools/run-host.lua \
+            src "$RUNNER_TEMP/basalt-output/basalt.compressed.lua"
 
       - name: Smoke-test release bundles
         run: |
