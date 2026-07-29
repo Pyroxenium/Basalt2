@@ -6,13 +6,12 @@
 -- still show "basalt/core/render.lua:123" instead of bundle offsets.
 --
 -- CLI usage (from the repository root):
---   bundle                      -> writes bundle/basalt.min.lua, minified
+--   bundle                      -> writes bundle/basalt.lua, comments removed
 --   bundle myout.lua            -> custom output path
---   bundle --no-minify          -> writes bundle/basalt.lua, comments removed
 --
 -- Library usage (e.g. from the installer):
 --   local bundler = assert(loadfile("Basalt/tools/bundle.lua"))("--lib")
---   local stats = bundler.build({ output = "basalt.min.lua", minify = true })
+--   local stats = bundler.build({ output = "basalt.lua" })
 
 local args = { ... }
 
@@ -133,39 +132,21 @@ local function bracketFor(content)
 end
 
 --- Builds a single-file bundle.
---- options: root, output, minify (default true).
+--- options: root, output.
 --- Returns stats: { output, files, bytesIn, bytesOut, version }.
 local function build(options)
     options = options or {}
-    if options.compress == true then
+    if options.minify == true or options.compress == true then
         error(
-            "bundle: compression is provided by Shale; "
+            "bundle: optimization is provided by Shale; "
                 .. "build src/Shalefile.lua instead",
             0
         )
     end
     local root = options.root or defaultRoot()
     local srcDir = fs.combine(root, "src")
-    local minify = options.minify ~= false
-    local output = options.output or fs.combine(root,
-        minify and "bundle/basalt.min.lua" or "bundle/basalt.lua")
-    local minifySource
-    if minify then
-        local minifierPath = fs.combine(root, "tools/minify.lua")
-        -- The legacy minifier declares several helpers globally. Keep each
-        -- build isolated so consecutive bundle variants cannot affect one
-        -- another inside the same CraftOS process.
-        local minifierEnv = setmetatable({}, { __index = _ENV })
-        local loader, loadError = loadfile(minifierPath, nil, minifierEnv)
-        if not loader then
-            error("bundler: cannot load minifier: "
-                .. tostring(loadError), 0)
-        end
-        minifySource = loader()
-        if type(minifySource) ~= "function" then
-            error("bundler: invalid minifier API from " .. minifierPath, 0)
-        end
-    end
+    local output = options.output
+        or fs.combine(root, "bundle/basalt.lua")
 
     local names = collect(srcDir)
     local version = readSource(srcDir, "main")
@@ -176,16 +157,7 @@ local function build(options)
     for _, moduleName in ipairs(names) do
         local content = readSource(srcDir, moduleName)
         bytesIn = bytesIn + #content
-        if minify then
-            local ok, result = minifySource(content)
-            if not ok then
-                error("bundler: cannot minify " .. moduleName .. ": "
-                    .. tostring(result), 0)
-            end
-            content = result
-        else
-            content = stripComments(content)
-        end
+        content = stripComments(content)
         bytesOut = bytesOut + #content
         processed[#processed + 1] = {
             name = moduleName,
@@ -235,7 +207,6 @@ return loader("main")]]
         bytesOut = #generated,
         processedBytes = bytesOut,
         version = version,
-        minified = minify,
         commentsRemoved = true,
     }
 end
@@ -252,15 +223,14 @@ local api = {
 }
 
 local output = nil
-local minify = true
 for _, arg in ipairs(args) do
     if arg == "--lib" then
         return api -- library mode: hand the API to the caller (installer)
     elseif arg == "--no-minify" then
-        minify = false
+        -- Retained as a no-op for compatibility with older build commands.
     elseif arg == "--compress" then
         error(
-            "bundle: --compress was replaced by Shale "
+            "bundle: minification and compression were replaced by Shale "
                 .. "(see src/Shalefile.lua)",
             0
         )
@@ -271,11 +241,9 @@ end
 
 local stats = build({
     output = output,
-    minify = minify,
 })
 print(("Basalt %s bundled: %d files -> %s"):format(
     stats.version, stats.files, stats.output))
-print(("%d KB -> %d KB%s"):format(
+print(("%d KB -> %d KB (comments stripped)"):format(
     math.floor(stats.bytesIn / 1024 + 0.5),
-    math.floor(stats.bytesOut / 1024 + 0.5),
-    stats.minified and " (minified)" or " (comments stripped)"))
+    math.floor(stats.bytesOut / 1024 + 0.5)))

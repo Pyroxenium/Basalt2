@@ -1,2952 +1,461 @@
-local sources = {}
-sources["main"] = [=[
-local dc=...
-if type(dc)~="function"then local bba,cba=...
-local dba=fs.combine(fs.getDir(cba or"basalt/main.lua"),"init.lua")
-return assert(loadfile(dba,nil,_ENV))(bba,dba)end;local _d=dc("core/errors")local ad=dc("core/palette")
-local bd=dc("core/state")local cd=dc("core/layout")local dd=dc("core/container")
-local __a=dc("core/baseframe")dd.register("Label",dc("elements/Label"))
-dd.register("Canvas",dc("elements/Canvas"))dd.register("Button",dc("elements/Button"))
-dd.register("Frame",dc("elements/Frame"))dd.register("Input",dc("elements/Input"))
-dd.register("Checkbox",dc("elements/Checkbox"))dd.register("Switch",dc("elements/Switch"))
-dd.register("ProgressBar",dc("elements/ProgressBar"))dd.register("Slider",dc("elements/Slider"))
-dd.register("Collection",dc("elements/Collection"))dd.register("List",dc("elements/List"))
-dd.register("Dropdown",dc("elements/Dropdown"))dd.register("Flex",dc("elements/Flex"))
-dd.register("Row",dc("elements/Row"))dd.register("Column",dc("elements/Column"))
-dd.register("TextBox",dc("elements/TextBox"))dd.register("Menu",dc("elements/Menu"))
-dd.register("TabControl",dc("elements/TabControl"))dd.register("Tree",dc("elements/Tree"))
-dd.register("Table",dc("elements/Table"))
-dd.register("Program",dc("elements/Program"))
-dd.register("ComboBox",dc("elements/ComboBox"))
-dd.register("ContextMenu",dc("elements/ContextMenu"))dd.register("Dialog",dc("elements/Dialog"))
-dd.register("Toast",dc("elements/Toast"))local a_a={}a_a.VERSION="2.5.0-dev"a_a.traceback=true;a_a.errors=_d
-a_a.rgb=ad.rgb;a_a.state=bd.create;a_a.signal=bd.create;a_a.computed=bd.computed
-a_a.isState=bd.is;a_a.auto=cd.auto;a_a.fill=cd.fill;a_a.percent=cd.percent;function a_a.use(bba)return
-dc("modules/"..bba)end;local b_a={}local c_a=nil;local d_a=false;local _aa={}
-function a_a.createFrame(bba,cba)bba=
-bba or term.current()local dba=__a.new()
-dba:setTerm(bba)
-if cba==nil and bba.setTextScale and peripheral then
-local _ca,aca=pcall(peripheral.getName,bba)if _ca then cba=aca end end;rawset(dba,"monitor",cba)b_a[#b_a+1]=dba
-if not c_a then c_a=dba end;return dba end
-function a_a.getMainFrame()return c_a or a_a.createFrame()end
-function a_a.schedule(bba)local cba=coroutine.create(bba)
-local dba,_ca=coroutine.resume(cba)if not dba then
-error(_d.wrap(_ca,debug.traceback(cba)),0)end;_aa[#_aa+1]={co=cba,filter=_ca}
-return cba end
-local function aaa(bba,...)
-for i=#_aa,1,-1 do local cba=_aa[i]
-if
-coroutine.status(cba.co)=="suspended"and(
-cba.filter==nil or cba.filter==bba)then local dba,_ca=coroutine.resume(cba.co,bba,...)if not dba then
-error(_d.wrap(_ca,debug.traceback(cba.co)),0)end;cba.filter=_ca end;if coroutine.status(cba.co)=="dead"then
-table.remove(_aa,i)end end end
-local baa={mouse_click=true,mouse_up=true,mouse_drag=true,mouse_scroll=true,mouse_move=true}local caa={key=true,key_up=true,char=true,paste=true}
-local function daa(bba,cba,dba,_ca,...)
-if bba=="mouse_move"and
-type(cba)=="string"then
-for i=1,#b_a do local aca=b_a[i]if
-rawget(aca,"monitor")==cba then aca:handleEvent(bba,dba,_ca)end end elseif baa[bba]or caa[bba]then if c_a then
-c_a:handleEvent(bba,cba,dba,_ca,...)end elseif
-bba=="monitor_touch"or bba=="monitor_resize"then
-for i=1,#b_a do local aca=b_a[i]
-if rawget(aca,"monitor")==cba then if bba=="monitor_touch"then
-aca:handleEvent("mouse_click",1,dba,_ca)aca:handleEvent("mouse_up",1,dba,_ca)else
-aca:handleEvent("term_resize")end end end else
-for i=1,#b_a do b_a[i]:handleEvent(bba,cba,dba,_ca,...)end end;aaa(bba,cba,dba,_ca,...)end;local function _ba()for i=1,#b_a do b_a[i]:draw()end end;function a_a.update(bba,...)if
-bba then daa(bba,...)end;_ba()end;function a_a.stop()
-d_a=false end
-local function aba()for i=1,#b_a do b_a[i]:cleanup()end end
-function a_a.run()
-if d_a then error("Basalt is already running",2)end;d_a=true
-local bba,cba=xpcall(function()_ba()
-while d_a do
-local dba=table.pack(os.pullEventRaw())if dba[1]=="terminate"then d_a=false else
-daa(table.unpack(dba,1,dba.n))_ba()end end end,function(dba)
-if
-type(dba)=="table"and dba.__basaltError then return dba end;return _d.wrap(dba,debug.traceback(nil,2))end)d_a=false;aba()if not bba then
-_d.show(cba.err,cba.trace,a_a.traceback)end end;return a_a
-]=]
-sources["core/baseframe"] = [=[
-local ca=...local da=ca("core/class")local _b=ca("core/container")
-local ab=ca("core/render")local bb=ca("core/state")local cb=da.create("BaseFrame",_b)
-da.property(cb,"background",colors.black)
-function cb:setup()_b.setup(self)rawset(self,"_keysDown",{})end;function cb:isKeyDown(_c)
-return rawget(self,"_keysDown")[_c]==true end
-function cb:setTerm(_c)rawset(self,"term",_c)
-rawset(self,"_render",ab.new(_c))local ac,bc=_c.getSize()self._p.width,self._p.height=ac,bc
-self:markDirty()return self end
-function cb:draw()if not rawget(self,"_dirty")then return end
-self._render:setCursor(1,1,false)
-for _=1,2 do rawset(self,"_dirty",false)bb.clearWatcher(self)
-self:render(self._render)if not rawget(self,"_dirty")then break end end;self._render:flush()end
-function cb:setFocused(_c)local ac=rawget(self,"_focused")if ac==_c then return end
-rawset(self,"_focused",_c)local bc=rawget(self,"_render")
-if bc then bc:setCursor(1,1,false)end;if ac and ac~=self then ac:fire("blur")end;if _c and _c~=self then
-_c:fire("focus")end;self:markDirty()end
-function cb:setCursor(_c,ac,bc,cc)local dc=rawget(self,"_render")if dc then
-dc:setCursor(_c,ac,bc,cc)end;return self end;function cb:getFocused()return rawget(self,"_focused")end
-function cb:_updateHovered(_c,ac)
-local bc=self:findAt(_c,ac)if bc==self then bc=nil end;local cc=rawget(self,"_hovered")
-if cc==bc then return end;rawset(self,"_hovered",bc)if cc then
-cc:setState("hover",false)cc:fire("mouseLeave")end;if bc then
-bc:setState("hover",true)bc:fire("mouseEnter")end end;local function db(_c,ac)
-while _c do if _c==ac then return true end;_c=rawget(_c,"parent")end;return false end
-function cb:_releaseSubtree(_c,ac)
-local bc=rawget(self,"_focused")if bc and db(bc,_c)then self:setFocused(nil)end
-local cc=rawget(self,"_clicked")if cc and db(cc,_c)then cc:setState("pressed",false)
-rawset(self,"_clicked",false)end
-local dc=rawget(self,"_hovered")
-if not ac and dc and db(dc,_c)then dc:setState("hover",false)
-dc:fire("mouseLeave")rawset(self,"_hovered",nil)end end
-function cb:handleEvent(_c,ac,bc,cc)
-if _c=="key"then rawget(self,"_keysDown")[ac]=true elseif _c==
-"key_up"then rawget(self,"_keysDown")[ac]=nil end
-if _c=="mouse_click"then self:_updateHovered(bc,cc)
-rawset(self,"_clicked",self:handleMouse(_c,ac,bc,cc))elseif _c=="mouse_move"then local dc,_d=ac,bc;if cc~=nil then dc,_d=bc,cc end;if
-type(dc)=="number"and type(_d)=="number"then
-self:_updateHovered(dc,_d)end elseif
-_c=="mouse_up"or _c=="mouse_drag"then self:_updateHovered(bc,cc)
-local dc=rawget(self,"_clicked")
-if dc then local _d,ad=dc:getAbsolutePosition()
-if _c=="mouse_up"then
-dc:setState("pressed",false)dc:fire("clickUp",ac,bc-_d+1,cc-ad+1)
-rawset(self,"_clicked",false)else dc:fire("drag",ac,bc-_d+1,cc-ad+1)end end elseif _c=="mouse_scroll"then self:handleMouse(_c,ac,bc,cc)
-self:_updateHovered(bc,cc)elseif
-_c=="key"or _c=="key_up"or _c=="char"or _c=="paste"then local dc=rawget(self,"_focused")if dc and dc~=self then
-dc:handleKey(_c,ac,bc)end elseif _c=="term_resize"then
-local dc,_d=self.term.getSize()self._p.width,self._p.height=dc,_d
-self._render:resize(dc,_d)self:markDirty()end end
-function cb:cleanup()local _c=rawget(self,"_render")if _c then
-_c.mapper:restore()end;local ac=rawget(self,"term")
-if ac then
-ac.setBackgroundColor(colors.black)ac.setTextColor(colors.white)ac.clear()
-ac.setCursorPos(1,1)ac.setCursorBlink(false)end end;return cb
-]=]
-sources["core/class"] = [=[
-local _b=...local ab=_b("core/reactive")local bb=_b("core/state")
-local cb=_b("core/layout")local db={}local _c=table.unpack or unpack
-local function ac(dc,_d,ad)
-if _d.state and dc.setState then
-local bd=_d.stateWhen and
-_d.stateWhen(ad,dc)or not not ad;dc:setState(_d.state,bd)end end
-local function bc(dc,_d,ad)
-if bb.is(ad)then ad=bb.read(ad,dc)elseif
-type(ad)=="function"and not _d.rawFunction then ad=bb.withWatcher(dc,ad,dc)end;ac(dc,_d,ad)return ad end
-local function cc(dc)return dc:sub(1,1):upper()..dc:sub(2)end
-function db.create(dc,_d)local ad={}ad.__name=dc;ad.__parent=_d;ad.__props=setmetatable({},
-_d and{__index=_d.__props}or nil)
-ad.__defaults=setmetatable({},
-_d and{__index=_d.__defaults}or nil)ad.__stateStyles={}ad.__pmeta={__index=ad.__defaults}if _d then
-setmetatable(ad,{__index=_d})end
-ad.__getPropertySpec=function(bd,cd)local dd=ad.__props[cd]
-if not dd then return false end;local __a=ad.__stateResolver
-if dd.styleable and __a then local b_a,c_a=__a(bd,cd,ad)if b_a then return true,
-bc(bd,dd,c_a),dd end end;local a_a=rawget(bd,"_p")[cd]
-if a_a~=nil then return true,bc(bd,dd,a_a),dd end;return false end
-ad.__meta={__index=function(bd,cd)local dd=rawget(bd,"_layoutBox")if dd and dd[cd]~=nil then
-return dd[cd]end;local __a,a_a=ad.__getPropertySpec(bd,cd)
-if __a then if
-cb.is(a_a)then return cb.resolveToken(a_a,bd,cd)end;return a_a end;return ad[cd]end,__newindex=function(bd,cd,dd)
-local __a=ad.__props[cd]
-if __a then
-if
-type(dd)=="string"and not __a.rawString and
-dd:sub(1,1)=="{"and dd:sub(-1)=="}"then dd=ab.compile(dd,bd)end;local a_a=rawget(bd,"_p")local b_a=a_a[cd]
-if b_a~=dd then a_a[cd]=dd
-if
-(
-type(dd)=="function"and not __a.rawFunction)or bb.is(dd)then if __a.visual then
-if bd.invalidateLayout then bd:invalidateLayout(cd)end
-if bd.markRenderDirty then bd:markRenderDirty()else bd:markDirty()end end else if
-__a.onChange then __a.onChange(bd,dd,b_a)end;ac(bd,__a,dd)if
-__a.visual then if bd.invalidateLayout then bd:invalidateLayout(cd)end
-if
-bd.markRenderDirty then bd:markRenderDirty()else bd:markDirty()end end end end else rawset(bd,cd,dd)end end,__tostring=function(bd)return
-dc end}
-ad.new=function(bd)
-local cd=setmetatable({_p=setmetatable({},ad.__pmeta),_handlers={},_class=ad},ad.__meta)cd:setup()if bd then cd:apply(bd)end;return cd end;return ad end
-function db.property(dc,_d,ad,bd)bd=bd or{}
-dc.__props[_d]={visual=bd.visual~=false,onChange=bd.onChange,rawFunction=bd.rawFunction,rawString=bd.rawString,state=bd.state,stateWhen=bd.stateWhen,styleable=
-bd.styleable~=false}dc.__defaults[_d]=ad;local cd=cc(_d)
-dc["set"..cd]=function(dd,__a)dd[_d]=__a;return dd end;dc["get"..cd]=function(dd)return dd[_d]end end
-function db.combinedProperty(dc,_d,ad)if type(_d)~="string"or _d==""then
-error("Basalt class: combined property name must be a non-empty string",2)end;if type(ad)~="table"or#
-ad==0 then
-error("Basalt class: combined property list must not be empty",2)end;local bd={}
-for i=1,#ad do local a_a=ad[i]if
-type(a_a)~="string"or dc.__props[a_a]==nil then
-error(
-"Basalt class: unknown property '"..tostring(a_a).."' in combined property ".._d,2)end
-bd[i]=a_a end;local cd="set".._d;local dd="get".._d;local __a="getRaw".._d
-dc[cd]=function(a_a,...)
-local b_a=table.pack(...)if b_a.n~=#bd then
-error("Basalt: "..cd..
-" expects "..#bd.." values, got "..b_a.n,2)end
-for i=1,#bd do a_a[bd[i]]=b_a[i]end;return a_a end
-dc[dd]=function(a_a)local b_a={n=#bd}for i=1,#bd do b_a[i]=a_a[bd[i]]end;return
-_c(b_a,1,b_a.n)end
-dc[__a]=function(a_a)local b_a={n=#bd}for i=1,#bd do b_a[i]=a_a:raw(bd[i])end;return
-_c(b_a,1,b_a.n)end end;function db.event(dc,_d)
-dc["on"..cc(_d)]=function(ad,bd)return ad:on(_d,bd)end end;return db
-]=]
-sources["core/collection"] = [=[
-local db=...local _c=db("core/class")
-local ac=db("core/collectionentry")local bc={}local cc={methods=bc}
-local function dc(b_a,c_a)
-if type(c_a)=="number"then local d_a=math.floor(c_a)return
-b_a.items[d_a]and d_a or nil end
-for d_a,_aa in ipairs(b_a.items)do if _aa==c_a then return d_a end end end;local function _d(b_a)
-return
-b_a and b_a.selectable~=false and b_a.disabled~=true and b_a.separator~=true end
-local function ad(b_a)
-local c_a=b_a:getSelectedIndex()return c_a,c_a and b_a.items[c_a]or nil end
-local function bd(b_a)local c_a=b_a:getSelectedIndex()or false
-rawget(b_a,"_p").selected=c_a;b_a:setState("selected",c_a~=false)end
-local function cd(b_a,c_a,d_a)bd(b_a)local _aa,aaa=ad(b_a)
-local baa=rawget(b_a,"_collectionChangeEvent")if baa then
-b_a:fire(baa,_aa or false,aaa,c_a or false,d_a)end;b_a:markDirty()end
-local function dd(b_a,c_a)if ac.is(c_a)then if rawget(c_a,"_parent")==b_a then return c_a end
-c_a=c_a:getData()end;return ac.new(b_a,c_a)end
-local function __a(b_a,c_a,d_a)if type(c_a)~="table"then
-error("Basalt Collection: items must be a table",3)end;local _aa,aaa
-local baa=rawget(b_a,"_collectionSelection")if type(d_a)=="table"then
-for _ba,aba in ipairs(d_a)do if baa[aba]then _aa,aaa=_ba,aba;break end end end;if type(d_a)=="table"then
-for _ba,aba in
-ipairs(d_a)do if ac.is(aba)then rawset(aba,"_parent",nil)end end end;local caa={}local daa={}
-for _ba,aba in
-ipairs(c_a)do
-local bba=type(aba)=="table"and not ac.is(aba)and aba.selected==true;caa[_ba]=dd(b_a,aba)local cba=caa[_ba]:getData()
-cba.selected=nil;if bba and(b_a.multiSelection or next(daa)==nil)then
-daa[caa[_ba]]=true end end;rawget(b_a,"_p").items=caa
-rawset(b_a,"_collectionSelection",daa)
-if aaa or next(daa)then cd(b_a,_aa,aaa)else bd(b_a)b_a:markDirty()end;if b_a.setOffset and b_a.offset~=nil then
-b_a:setOffset(b_a.offset)end end;local function a_a(b_a,c_a,d_a,_aa)
-if b_a.__props[c_a]==nil then _c.property(b_a,c_a,d_a,_aa)end end
-function cc.install(b_a,c_a)c_a=c_a or{}
-a_a(b_a,"items",false,{onChange=function(_aa,aaa,baa)if
-rawget(_aa,"_collectionSelection")then __a(_aa,aaa,baa)end end})a_a(b_a,"selectable",true)
-a_a(b_a,"multiSelection",false,{onChange=function(_aa,aaa)
-if aaa or not
-rawget(_aa,"_collectionSelection")then return end;local baa=_aa:getSelectedItem()
-local caa=rawget(_aa,"_collectionSelection")for daa in pairs(caa)do caa[daa]=daa==baa or nil end
-bd(_aa)end})
-a_a(b_a,"selected",false,{styleable=false,onChange=function(_aa,aaa)
-if not rawget(_aa,"_collectionSelection")then return end;if aaa==false or aaa==nil then _aa:clearItemSelection()else
-_aa:selectItem(aaa)end end})a_a(b_a,"selectionBackground",colors.blue)
-a_a(b_a,"selectionForeground",colors.white)_c.event(b_a,"select")local d_a;if c_a.changeEvent~=false then
-d_a=c_a.changeEvent or"change"end;if d_a then _c.event(b_a,d_a)end
-b_a.setSelectedBackground=function(_aa,aaa)
-_aa.selectionBackground=aaa;return _aa end
-b_a.getSelectedBackground=function(_aa)return _aa.selectionBackground end
-b_a.setSelectedForeground=function(_aa,aaa)_aa.selectionForeground=aaa;return _aa end
-b_a.getSelectedForeground=function(_aa)return _aa.selectionForeground end
-b_a.setSelectionColor=function(_aa,aaa,baa)_aa.selectionForeground=aaa;_aa.selectionBackground=baa;return _aa end
-b_a.getSelectionColor=function(_aa)return _aa.selectionForeground,_aa.selectionBackground end;b_a._collectionChangeEventName=d_a
-for _aa,aaa in pairs(cc.methods)do b_a[_aa]=aaa end end
-function cc.setup(b_a)rawset(b_a,"_collectionSelection",{})
-rawset(b_a,"_collectionChangeEvent",b_a._class._collectionChangeEventName)local c_a=rawget(b_a,"_p").items;local d_a={}
-if type(c_a)=="table"then for _aa,aaa in
-ipairs(c_a)do d_a[_aa]=dd(b_a,aaa)end end;rawget(b_a,"_p").items=d_a;bd(b_a)end;function bc:indexOfItem(b_a)return dc(self,b_a)end;function bc:getItem(b_a)
-return self.items[b_a]end
-function bc:getItemCount()return#self.items end
-function bc:addItem(b_a)local c_a=type(b_a)=="table"and not ac.is(b_a)and
-b_a.selected==true
-local d_a=dd(self,b_a)d_a:getData().selected=nil
-self.items[#self.items+1]=d_a;if c_a then self:selectItem(d_a)end;self:markDirty()return
-d_a end
-function bc:insertItem(b_a,c_a)
-b_a=math.max(1,math.min(#self.items+1,math.floor(b_a)))local d_a=dd(self,c_a)
-local _aa=d_a:getData().selected==true;d_a:getData().selected=nil
-table.insert(self.items,b_a,d_a)if _aa then self:selectItem(d_a)end;bd(self)
-self:markDirty()return d_a end
-function bc:removeItem(b_a)local c_a=dc(self,b_a)if not c_a then return self end;local d_a,_aa=ad(self)
-local aaa=table.remove(self.items,c_a)local baa=rawget(self,"_collectionSelection")
-local caa=baa[aaa]==true;baa[aaa]=nil;rawset(aaa,"_parent",nil)if caa then cd(self,d_a,_aa)else
-bd(self)end;self:markDirty()return self end
-function bc:clear()local b_a,c_a=ad(self)for d_a,_aa in ipairs(self.items)do
-rawset(_aa,"_parent",nil)end;rawget(self,"_p").items={}
-rawset(self,"_collectionSelection",{})if c_a then cd(self,b_a,c_a)else bd(self)end
-self:markDirty()return self end;function bc:clearItems()return self:clear()end;function bc:isItemSelected(b_a)
-local c_a=dc(self,b_a)
-return c_a~=nil and
-rawget(self,"_collectionSelection")[self.items[c_a]]==true end;function bc:isSelected(b_a)return
-self:isItemSelected(b_a)end
-function bc:getSelectedItems()local b_a={}
-local c_a=rawget(self,"_collectionSelection")
-for d_a,_aa in ipairs(self.items)do if c_a[_aa]then b_a[#b_a+1]=_aa end end;return b_a end
-function bc:getSelectedItem()local b_a=rawget(self,"_collectionSelection")for c_a,d_a in
-ipairs(self.items)do if b_a[d_a]then return d_a end end end
-function bc:getSelectedIndex()local b_a=rawget(self,"_collectionSelection")for c_a,d_a in
-ipairs(self.items)do if b_a[d_a]then return c_a end end end
-function bc:getSelection()local b_a={}local c_a=rawget(self,"_collectionSelection")
-for d_a,_aa in
-ipairs(self.items)do if c_a[_aa]then b_a[#b_a+1]=d_a end end;return b_a end
-function bc:selectItem(b_a,c_a)if not self.selectable then return self end
-local d_a=dc(self,b_a)local _aa=d_a and self.items[d_a]
-if not _d(_aa)then return self end;local aaa=rawget(self,"_collectionSelection")local baa,caa=ad(self)local daa=not
-aaa[_aa]
-if not self.multiSelection then for _ba in pairs(aaa)do if _ba~=_aa then
-aaa[_ba],daa=nil,true end end end;aaa[_aa]=true;if daa then
-if c_a==false then bd(self)else cd(self,baa,caa)end end;return self end
-function bc:unselectItem(b_a,c_a)local d_a=dc(self,b_a)
-local _aa=d_a and self.items[d_a]local aaa=rawget(self,"_collectionSelection")if
-not _aa or not aaa[_aa]then return self end;local baa,caa=ad(self)aaa[_aa]=nil;if c_a==false then
-bd(self)else cd(self,baa,caa)end;return self end
-function bc:toggleItem(b_a,c_a)if self:isItemSelected(b_a)then
-return self:unselectItem(b_a,c_a)end;return self:selectItem(b_a,c_a)end
-function bc:clearItemSelection(b_a)local c_a,d_a=ad(self)if not d_a then return self end
-rawset(self,"_collectionSelection",{})if b_a==false then bd(self)else cd(self,c_a,d_a)end;return self end
-function bc:clearSelection(b_a)return self:clearItemSelection(b_a)end
-function bc:selectNext(b_a)local c_a=self:getSelectedIndex()or 0
-for index=c_a+1,#
-self.items do if _d(self.items[index])then
-return self:selectItem(index,b_a)end end;return self end
-function bc:selectPrevious(b_a)
-local c_a=self:getSelectedIndex()or(#self.items+1)
-for index=c_a-1,1,-1 do if _d(self.items[index])then
-return self:selectItem(index,b_a)end end;return self end
-function bc:scrollToTop()if self.setOffset then self:setOffset(0)end;return self end;function bc:scrollToBottom()
-if self.setOffset then self:setOffset(math.huge)end;return self end
-function bc:activateItem(b_a,c_a,d_a)
-local _aa=dc(self,b_a)local aaa=_aa and self.items[_aa]if not self.selectable or
-not _d(aaa)then return self end;if d_a then
-self:toggleItem(aaa)else self:selectItem(aaa)end
-_aa=dc(self,aaa)
-if c_a~=false then if type(aaa.callback)=="function"then
-aaa.callback(self,aaa)end;self:fire("select",_aa,aaa)end;return self end;function bc:select(b_a,c_a)
-return self:activateItem(b_a,c_a,self.multiSelection)end
-function bc:_moveCollectionEntry(b_a,c_a)
-local d_a=dc(self,b_a)
-if d_a then self:_moveCollectionEntryTo(b_a,d_a+c_a)end;return self end
-function bc:_moveCollectionEntryTo(b_a,c_a)local d_a=dc(self,b_a)if not d_a then return self end
-c_a=math.max(1,math.min(
-#self.items,math.floor(c_a)))
-if c_a~=d_a then table.remove(self.items,d_a)
-table.insert(self.items,c_a,b_a)bd(self)self:markDirty()end;return self end
-function bc:_swapCollectionEntries(b_a,c_a)local d_a,_aa=dc(self,b_a),dc(self,c_a)
-if
-d_a and _aa and d_a~=_aa then
-self.items[d_a],self.items[_aa]=self.items[_aa],self.items[d_a]bd(self)self:markDirty()end;return self end;return cc
-]=]
-sources["core/collectionentry"] = [=[
-local c={}local d={}
-d.__index=function(_a,aa)local ba=c[aa]if ba then return ba end;if aa=="selected"then
-local ab=rawget(_a,"_parent")
-return ab and ab:isItemSelected(_a)or false end
-local ca=rawget(_a,"_data")if ca and ca[aa]~=nil then return ca[aa]end
-local da=rawget(_a,"_parent")local _b=da and da[aa]if type(_b)=="function"then return
-function(ab,...)return _b(da,...)end end end
-d.__newindex=function(_a,aa,ba)if type(aa)=="string"and aa:sub(1,1)=="_"then
-rawset(_a,aa,ba)return end
-if aa=="selected"then
-local da=rawget(_a,"_parent")if da then
-if ba then da:selectItem(_a)else da:unselectItem(_a)end end;return end;local ca=rawget(_a,"_data")
-if ca[aa]~=ba then ca[aa]=ba
-local da=rawget(_a,"_parent")if da then da:markDirty()end end end
-d.__tostring=function(_a)local aa=rawget(_a,"_data")if aa.text~=nil then
-return tostring(aa.text)end
-if aa.label~=nil then return tostring(aa.label)end;if aa.value~=nil then return tostring(aa.value)end
-return"Entry"end
-function d.new(_a,aa)local ba
-if type(aa)=="table"then ba=aa else ba={text=tostring(aa),value=aa}end;if
-ba.text==nil and ba.label==nil and ba.value==nil then ba.text="Entry"end;return
-setmetatable({_parent=_a,_data=ba},d)end;function d.is(_a)return getmetatable(_a)==d end;function c:getData()return
-rawget(self,"_data")end;function c:getParent()
-return rawget(self,"_parent")end
-function c:setText(_a)self.text=_a;return self end;function c:getText()return self.text end
-function c:getIndex()
-local _a=rawget(self,"_parent")return _a and _a:indexOfItem(self)or nil end
-function c:moveUp(_a)local aa=rawget(self,"_parent")if aa then
-aa:_moveCollectionEntry(self,- (_a or 1))end;return self end
-function c:moveDown(_a)local aa=rawget(self,"_parent")if aa then
-aa:_moveCollectionEntry(self,_a or 1)end;return self end
-function c:moveToTop()local _a=rawget(self,"_parent")if _a then
-_a:_moveCollectionEntryTo(self,1)end;return self end
-function c:moveToBottom()local _a=rawget(self,"_parent")if _a then
-_a:_moveCollectionEntryTo(self,#_a.items)end;return self end
-function c:swapWith(_a)local aa=rawget(self,"_parent")
-if
-aa and rawget(_a,"_parent")==aa then aa:_swapCollectionEntries(self,_a)end;return self end;function c:remove()local _a=rawget(self,"_parent")if not _a then return false end
-_a:removeItem(self)return true end
-function c:select()
-local _a=rawget(self,"_parent")if _a then _a:selectItem(self)end;return self end;function c:unselect()local _a=rawget(self,"_parent")
-if _a then _a:unselectItem(self)end;return self end;function c:isSelected()
-local _a=rawget(self,"_parent")
-return _a and _a:isItemSelected(self)or false end;return d
-]=]
-sources["core/container"] = [=[
-local ab=...local bb=ab("core/class")local cb=ab("core/element")
-local db=ab("core/state")local _c=ab("core/layout")local ac=ab("core/scroll")
-local bc=bb.create("Container",cb)
-bb.property(bc,"scrollable",false,{onChange=function(ad,bd)if not bd then ac.disable(ad)end end})bb.property(bc,"scrollbar","auto")
-bb.property(bc,"scrollXEnabled",true)bb.property(bc,"scrollYEnabled",true)
-bb.property(bc,"scrollStep",3)bb.property(bc,"scrollbarColor",colors.gray)
-bb.property(bc,"scrollbarThumbColor",colors.lightGray)bb.event(bc,"scrollChange")
-function bc:setup()cb.setup(self)
-rawset(self,"_children",{})rawset(self,"_addIndex",0)
-rawset(self,"_sortDirty",false)rawset(self,"_layoutDirty",true)
-rawset(self,"_viewportDirty",true)rawset(self,"_visibleChildren",{})ac.setup(self)end
-function bc:getScroll()return rawget(self,"_scrollX")or 0,
-rawget(self,"_scrollY")or 0 end
-function bc:getContentSize()return rawget(self,"_contentWidth")or 0,
-rawget(self,"_contentHeight")or 0 end
-function bc:getScrollInfo()local ad=ac.geometry(self)ad.x,ad.y=self:getScroll()
-ad.contentWidth,ad.contentHeight=self:getContentSize()return ad end
-function bc:scrollTo(ad,bd)ac.set(self,ad or 0,bd or 0)return self end;function bc:scrollBy(ad,bd)local cd,dd=self:getScroll()
-ac.set(self,cd+ (ad or 0),dd+ (bd or 0))return self end
-local function cc(ad,bd)
-local cd,dd=bd.x,bd.y;local __a=rawget(bd,"parent")while __a and __a~=ad do cd=cd+__a.x-1 - (
-rawget(__a,"_scrollX")or 0)dd=dd+__a.y-1 - (
-rawget(__a,"_scrollY")or 0)
-__a=rawget(__a,"parent")end;if
-__a~=ad then
-error("Basalt scroll: element is not a descendant of this container",3)end;return cd,dd,bd.width,bd.height end
-function bc:scrollToElement(ad)local bd,cd=cc(self,ad)return self:scrollTo(bd-1,cd-1)end
-function bc:ensureVisible(ad)local bd,cd,dd,__a=cc(self,ad)local a_a,b_a=self:getScroll()if bd<a_a+1 then a_a=
-bd-1 end;if cd<b_a+1 then b_a=cd-1 end
-if bd+dd-1 >
-a_a+self.width then a_a=bd+dd-1 -self.width end;if cd+__a-1 >b_a+self.height then
-b_a=cd+__a-1 -self.height end;return self:scrollTo(a_a,b_a)end
-function bc:addChild(ad)local bd=rawget(ad,"parent")
-if bd then bd:removeChild(ad)end;rawset(ad,"parent",self)
-self._addIndex=self._addIndex+1;rawset(ad,"_order",self._addIndex)local cd=self._children;cd[#cd+
-1]=ad;self._sortDirty=true;self:markLayoutDirty()
-return ad end
-function bc:removeChild(ad)local bd=self._children
-for i=1,#bd do
-if bd[i]==ad then local cd=self:getRoot()if
-cd._releaseSubtree then cd:_releaseSubtree(ad)end
-table.remove(bd,i)rawset(ad,"parent",nil)self:markLayoutDirty()return true end end;return false end
-function bc:destroy()local ad=rawget(self,"_children")
-while ad and#ad>0 do local bd=ad[#ad]if
-bd.destroy then bd:destroy()end;if ad[#ad]==bd then
-self:removeChild(bd)end end;return cb.destroy(self)end;function bc:getChildren()return self._children end
-function bc:find(ad)
-local bd=self._children
-for i=1,#bd do if bd[i].name==ad then return bd[i]end end;for i=1,#bd do local cd=bd[i]
-if cd.find then local dd=cd:find(ad)if dd then return dd end end end;return nil end;local function dc(ad,bd)local cd,dd=ad.z,bd.z
-if cd==dd then return ad._order<bd._order end;return cd<dd end
-function bc:_sorted()if
-self._sortDirty then table.sort(self._children,dc)self._sortDirty=false
-self._viewportDirty=true end;return self._children end
-local function _d(ad,bd,cd,dd,__a)local a_a=rawget(ad,"_layoutBox")
-local b_a=a_a and a_a.x or ad.x;local c_a=a_a and a_a.y or ad.y
-local d_a=a_a and a_a.width or ad.width;local _aa=a_a and a_a.height or ad.height;if
-d_a<=0 or _aa<=0 then return false end;return
-b_a<=bd+dd and c_a<=cd+__a and
-b_a+d_a-1 >bd and c_a+_aa-1 >cd end
-function bc:_visibleSorted()local ad=rawget(self,"_visibleChildren")if not
-rawget(self,"_viewportDirty")and ad then return ad end
-ad={}local bd,cd=self:getScroll()local dd=self:_sorted()
-for i=1,#dd do local __a=dd[i]if
-__a.visible and _d(__a,bd,cd,self.width,self.height)then
-ad[#ad+1]=__a end end;rawset(self,"_visibleChildren",ad)
-rawset(self,"_viewportDirty",false)return ad end
-function bc:render(ad)cb.render(self,ad)local bd=self._children
-if
-rawget(self,"_layoutDirty")then for i=1,#bd do local a_a=bd[i]db.clearWatcher(a_a)local b_a=a_a:raw("z")
-if
-db.is(b_a)or type(b_a)=="function"then self._sortDirty=true end end
-self:fire("layout",self.width,self.height)if self.layoutChildren then self:layoutChildren()else
-_c.resolveFreeChildren(self)end;ac.update(self)
-rawset(self,"_layoutDirty",false)rawset(self,"_viewportDirty",true)end;local cd,dd=self:getScroll()local __a=self:_visibleSorted()for i=1,#__a do
-local a_a=__a[i]
-if a_a.visible then
-ad:push(a_a.x-cd,a_a.y-dd,a_a.width,a_a.height)a_a:render(ad)ad:pop()end end
-ac.draw(self,ad)end
-function bc:handleMouse(ad,bd,cd,dd)if ad=="mouse_click"and ac.pointerDown(self,cd,dd)then
-return self end;local __a,a_a=self:getScroll()
-local b_a,c_a=cd+__a,dd+a_a;local d_a=self:_visibleSorted()
-for i=#d_a,1,-1 do local _aa=d_a[i]
-if _aa.visible and
-_aa:contains(b_a,c_a)then
-local aaa=_aa:handleMouse(ad,bd,b_a-_aa.x+1,c_a-_aa.y+1)if aaa then return aaa end end end
-if ad=="mouse_scroll"and ac.wheel(self,bd)then return self end;return cb.handleMouse(self,ad,bd,cd,dd)end
-function bc:findAt(ad,bd)if ac.isBarPoint(self,ad,bd)then return self end
-local cd,dd=self:getScroll()local __a,a_a=ad+cd,bd+dd;local b_a=self:_visibleSorted()
-for i=#b_a,1,-1 do
-local c_a=b_a[i]
-if c_a.visible and c_a:contains(__a,a_a)then
-local d_a,_aa=__a-c_a.x+1,a_a-c_a.y+1
-if c_a.findAt then local aaa=c_a:findAt(d_a,_aa)if aaa then return aaa end end;return c_a end end;return self end;function bc.register(ad,bd)
-bc["add"..ad]=function(cd,dd)local __a=bd.new(dd)cd:addChild(__a)return __a end end;return bc
-]=]
-sources["core/element"] = [=[
-local _c=...local ac=_c("core/class")local bc=_c("core/state")
-local cc=_c("core/layout")local dc=ac.create("Element")ac.property(dc,"x",1)
-ac.property(dc,"y",1)
-ac.property(dc,"z",0,{onChange=function(d_a)local _aa=rawget(d_a,"parent")
-if _aa then _aa._sortDirty=true end end})ac.property(dc,"width",1)ac.property(dc,"height",1)
-ac.property(dc,"minWidth",false)ac.property(dc,"maxWidth",false)
-ac.property(dc,"minHeight",false)ac.property(dc,"maxHeight",false)
-ac.property(dc,"position","flow")ac.property(dc,"alignSelf",false)
-ac.property(dc,"shrink",false)
-ac.property(dc,"visible",true,{onChange=function(d_a,_aa)
-if not _aa then local aaa=d_a:getRoot()if aaa._releaseSubtree then
-aaa:_releaseSubtree(d_a)end end end})ac.property(dc,"background",false)
-ac.property(dc,"foreground",colors.white)ac.property(dc,"name","",{visual=false})
-ac.property(dc,"disabled",false,{state="disabled",styleable=false,onChange=function(d_a,_aa)
-if
-_aa then local aaa=d_a:getRoot()if aaa._releaseSubtree then
-aaa:_releaseSubtree(d_a,true)end end end})ac.combinedProperty(dc,"Position",{"x","y"})
-ac.combinedProperty(dc,"Size",{"width","height"})
-ac.combinedProperty(dc,"Bounds",{"x","y","width","height"})
-ac.combinedProperty(dc,"Colors",{"foreground","background"})
-ac.combinedProperty(dc,"MinSize",{"minWidth","minHeight"})
-ac.combinedProperty(dc,"MaxSize",{"maxWidth","maxHeight"})ac.event(dc,"click")ac.event(dc,"clickUp")
-ac.event(dc,"drag")ac.event(dc,"scroll")ac.event(dc,"focus")
-ac.event(dc,"blur")ac.event(dc,"key")ac.event(dc,"keyUp")
-ac.event(dc,"char")ac.event(dc,"paste")ac.event(dc,"stateChange")
-ac.event(dc,"mouseEnter")ac.event(dc,"mouseLeave")ac.event(dc,"layout")
-local _d={hover=10,focused=20,checked=30,selected=30,pressed=40,disabled=100}
-local ad={disabled=true,checked=true,selected=true,active=true,progress=true,value=true,offset=true,horizontalOffset=true,replaceChar=true,sortable=true,sortColumn=true,sortDirection=true}
-local function bd(d_a)if not d_a then return true end;if ad[d_a]then return false end
-local _aa=d_a:lower()
-if
-_aa:find("color",1,true)or _aa:find("background",1,true)or _aa:find("foreground",1,true)or
-_aa:find("symbol",1,true)then return false end;return true end;local function cd(d_a)if not d_a then return false end
-for _aa in pairs(d_a)do if bd(_aa)then return true end end;return false end
-local function dd(d_a,_aa)
-local aaa=rawget(d_a,"_stateStyles")[_aa]if cd(aaa)then return true end;local baa=rawget(d_a,"_class")while baa do
-local caa=rawget(baa,"__stateStyles")if caa and cd(caa[_aa])then return true end
-baa=rawget(baa,"__parent")end;return false end
-local function __a(d_a,_aa)local aaa=rawget(d_a,"_statePriorities")return
-(aaa and aaa[_aa])or _d[_aa]or 50 end
-local function a_a(d_a)local _aa=rawget(d_a,"_activeStates")if _aa then return _aa end
-local aaa,baa=rawget(d_a,"_states"),rawget(d_a,"_stateSequence")_aa={}
-for caa,daa in pairs(aaa)do if daa then _aa[#_aa+1]=caa end end
-table.sort(_aa,function(caa,daa)local _ba,aba=__a(d_a,caa),__a(d_a,daa)
-if _ba~=aba then return _ba>aba end;return(baa[caa]or 0)> (baa[daa]or 0)end)rawset(d_a,"_activeStates",_aa)return _aa end
-local function b_a(d_a,_aa,aaa)
-while d_a do local baa=rawget(d_a,"__stateStyles")local caa=baa and baa[_aa]if
-caa and caa[aaa]~=nil then return true,caa[aaa]end
-d_a=rawget(d_a,"__parent")end;return false end
-dc.__stateResolver=function(d_a,_aa,aaa)local baa=rawget(d_a,"_stateStyles")local caa=a_a(d_a)
-for i=1,#caa do
-local daa=caa[i]local _ba=baa[daa]
-if _ba and _ba[_aa]~=nil then return true,_ba[_aa]end;local aba,bba=b_a(aaa,daa,_aa)if aba then return true,bba end end;return false end
-function dc:setup()rawset(self,"_states",{})
-rawset(self,"_stateStyles",{})rawset(self,"_statePriorities",{})
-rawset(self,"_stateSequence",{})rawset(self,"_stateSequenceN",0)
-rawset(self,"_bindings",{})
-self:on("focus",function(d_a)d_a:setState("focused",true)end)
-self:on("blur",function(d_a)d_a:setState("focused",false)end)end
-function dc:setState(d_a,_aa)if type(d_a)~="string"or d_a==""then
-error("Basalt: state name must be a non-empty string",2)end
-_aa=_aa~=false and _aa~=nil;local aaa=rawget(self,"_states")
-if aaa[d_a]==_aa then return self end;aaa[d_a]=_aa;if _aa then
-local baa=rawget(self,"_stateSequenceN")+1;rawset(self,"_stateSequenceN",baa)
-rawget(self,"_stateSequence")[d_a]=baa end;rawset(self,"_activeStates",
-nil)if dd(self,d_a)then
-self:markLayoutDirty()else self:markRenderDirty()end
-self:fire("stateChange",d_a,_aa)return self end;function dc:hasState(d_a)
-return rawget(self,"_states")[d_a]==true end;function dc:toggleState(d_a)return
-self:setState(d_a,not self:hasState(d_a))end
-function dc:getStates()
-local d_a={}for _aa,aaa in pairs(rawget(self,"_states"))do
-if aaa then d_a[#d_a+1]=_aa end end;table.sort(d_a)return d_a end
-function dc:setStateStyle(d_a,_aa,aaa)if type(_aa)~="table"then
-error("Basalt: state style must be a table",2)end;local baa=rawget(self,"_class")
-local caa={}
-for daa,_ba in pairs(_aa)do local aba=baa.__props[daa]if not aba then
-error("Basalt: unknown state style property '"..
-tostring(daa).."'",2)end;if not aba.styleable then
-error("Basalt: property '"..daa..
-"' cannot be state-styled",2)end;caa[daa]=_ba end;rawget(self,"_stateStyles")[d_a]=caa;if aaa~=nil then
-self:setStatePriority(d_a,aaa)end
-if self:hasState(d_a)and cd(caa)then
-self:markLayoutDirty()else self:markRenderDirty()end;return self end
-function dc:setStatePriority(d_a,_aa)if type(_aa)~="number"then
-error("Basalt: state priority must be a number",2)end
-rawget(self,"_statePriorities")[d_a]=_aa;rawset(self,"_activeStates",nil)
-self:markLayoutDirty()return self end
-function dc:apply(d_a)
-for _aa,aaa in pairs(d_a)do if
-type(aaa)=="function"and _aa:find("^on%u")and self[_aa]then self[_aa](self,aaa)else
-self[_aa]=aaa end end;return self end;function dc:raw(d_a)return rawget(self,"_p")[d_a]end;function dc:on(d_a,_aa)
-local aaa=self._handlers[d_a]if not aaa then aaa={}self._handlers[d_a]=aaa end
-aaa[#aaa+1]=_aa;return self end
-function dc:off(d_a,_aa)
-local aaa=self._handlers[d_a]if not aaa then return self end;for i=#aaa,1,-1 do if aaa[i]==_aa then table.remove(aaa,i)
-break end end;return self end
-local c_a={text="change",checked="change",value="change",selected="select"}
-function dc:bind(d_a,_aa,aaa)local baa=rawget(self,"_class")if not baa.__props[d_a]then
-error(
-"Basalt: cannot bind unknown property '"..tostring(d_a).."'",2)end;if not bc.is(_aa)then
-error("Basalt: bind expects a state or computed value",2)end;if type(aaa)=="function"then
-aaa={fromState=aaa}else aaa=aaa or{}end;if type(aaa)~="table"then
-error("Basalt: bind options must be a function or table",2)end;self:unbind(d_a)
-local caa=_aa
-if aaa.fromState then local cba=aaa.fromState;if type(cba)~="function"then
-error("Basalt: fromState must be a function",2)end;local dba=self
-caa=bc.computed(function()return
-cba(_aa:get(),dba)end)end;local daa={source=_aa,value=caa}local _ba=aaa.event or c_a[d_a]
-local aba=
-aaa.twoWay~=false and bc.isWritable(_aa)and _ba~=nil
-if aba then local cba=aaa.toState;if cba~=nil and type(cba)~="function"then
-error("Basalt: toState must be a function",2)end;local dba=_aa;daa.event=_ba
-daa.handler=function(_ca,aca,...)if
-cba then aca=cba(aca,self,...)end;dba:set(aca)
-self[d_a]=caa end;self:on(_ba,daa.handler)end;rawget(self,"_bindings")[d_a]=daa;self[d_a]=caa
-local bba=self[d_a]return self end
-function dc:unbind(d_a,_aa)local aaa=rawget(self,"_bindings")local baa=aaa and aaa[d_a]if not
-baa then return self end;local caa=self[d_a]if baa.handler then
-self:off(baa.event,baa.handler)end;aaa[d_a]=nil
-if _aa==false then rawget(self,"_p")[d_a]=
-nil;self:markDirty()else self[d_a]=caa end;return self end
-function dc:fire(d_a,...)local _aa=self._handlers[d_a]if not _aa then return false end;for i=1,#_aa do
-_aa[i](self,...)end;return true end;function dc:markDirty()return self:markLayoutDirty()end
-function dc:markRenderDirty()
-local d_a=self;local _aa=rawget(d_a,"parent")
-while _aa do d_a=_aa;_aa=rawget(d_a,"parent")end;rawset(d_a,"_dirty",true)return self end
-function dc:invalidateLayout(d_a)if d_a and not bd(d_a)then return self end;local _aa=self;while _aa do if
-rawget(_aa,"_children")then rawset(_aa,"_layoutDirty",true)
-rawset(_aa,"_viewportDirty",true)end
-_aa=rawget(_aa,"parent")end
-return self end;function dc:markLayoutDirty()self:invalidateLayout()
-return self:markRenderDirty()end;function dc:contains(d_a,_aa)local aaa,baa=self.x,self.y
-return d_a>=
-aaa and _aa>=baa and d_a<aaa+self.width and _aa<baa+
-self.height end;function dc:getRoot()
-local d_a=self
-while rawget(d_a,"parent")do d_a=rawget(d_a,"parent")end;return d_a end
-function dc:getAbsolutePosition()
-local d_a,_aa=self.x,self.y;local aaa=rawget(self,"parent")while aaa do d_a=d_a+aaa.x-1 -
-(rawget(aaa,"_scrollX")or 0)_aa=_aa+aaa.y-1 - (
-rawget(aaa,"_scrollY")or 0)
-aaa=rawget(aaa,"parent")end
-return d_a,_aa end
-function dc:measure()
-local d_a,_aa=cc.spec(self,"width"),cc.spec(self,"height")return type(d_a)=="number"and d_a or 1,
-type(_aa)=="number"and _aa or 1 end
-function dc:focus()if self.disabled then return self end;local d_a=self:getRoot()if d_a.setFocused then
-d_a:setFocused(self)end;return self end
-function dc:setCursor(d_a,_aa,aaa,baa)local caa=self:getRoot()
-if
-caa~=self and caa.setCursor and caa.getFocused and caa:getFocused()==self then
-local daa,_ba=self:getAbsolutePosition()local aba,bba=daa+d_a-1,_ba+_aa-1
-local cba=
-d_a>=1 and _aa>=1 and d_a<=self.width and _aa<=self.height;local dba=rawget(self,"parent")
-while cba and dba do
-local _ca,aca=dba:getAbsolutePosition()
-if aba<_ca or bba<aca or aba>=_ca+dba.width or bba>=aca+
-dba.height then cba=false end;dba=rawget(dba,"parent")end;if cba then caa:setCursor(aba,bba,aaa,baa)else
-caa:setCursor(1,1,false,baa)end end;return self end;function dc:destroy()local d_a=rawget(self,"parent")
-if d_a then d_a:removeChild(self)end;return self end
-function dc:render(d_a)
-local _aa=self.background;if _aa then
-d_a:fill(1,1,self.width,self.height," ",self.foreground,_aa)end end
-function dc:handleMouse(d_a,_aa,aaa,baa)if self.disabled then return nil end
-if d_a=="mouse_click"then
-if self.background or
-self._handlers.click then self:setState("pressed",true)
-self:focus()self:fire("click",_aa,aaa,baa)return self end elseif d_a=="mouse_scroll"then if self._handlers.scroll then
-self:fire("scroll",_aa,aaa,baa)return self end end;return nil end
-function dc:handleKey(d_a,_aa,aaa)if self.disabled then return end
-if d_a=="key"then
-self:fire("key",_aa,aaa)elseif d_a=="key_up"then self:fire("keyUp",_aa)elseif d_a=="char"then
-self:fire("char",_aa)elseif d_a=="paste"then self:fire("paste",_aa)end end;return dc
-]=]
-sources["core/errors"] = [=[
-local ca,da=...local _b={}
-local function ab(_c)return _c:match("^%s*(.-)%s*$")end
-local function bb(_c)return
+-- Generated by Shale. Do not edit.
 
-_c=="[C]"or _c:sub(1,1)=="("or _c:find("^reactive{")or(da~=""and _c:find(da,1,true)==1)end
-function _b.parse(_c,ac)local bc=tostring(_c)
-local cc,dc,_d=bc:match("^(.-):(%d+): (.*)$")local ad={}
-if ac then
-for dd in ac:gmatch("[^\n]+")do dd=ab(dd)if
+local moduleSources = {
+[1]=[[local _=...local a=_("core/class")local b=_("core/container")local c=_("core/render")local d=_("core/state")local e=a.create("BaseFrame",b)a.property(e,"background",colors.black)function e:setup()b.setup(self)rawset(self,"_keysDown",{})end function e:isKeyDown(g)return rawget(self,"_keysDown")[g]==true end function e:setTerm(g)rawset(self,"term",g)rawset(self,"_render",c.new(g))local h,i=g.getSize()self._p.width,self._p.height=h,i self:markDirty()return self end function e:draw()if not rawget(self,"_dirty")then return end self._render:setCursor(1,1,false)for g=1,2 do rawset(self,"_dirty",false)d.clearWatcher(self)self:render(self._render)if not rawget(self,"_dirty")then break end end self._render:flush()end function e:setFocused(g)local h=rawget(self,"_focused")if h==g then return end rawset(self,"_focused",g)local i=rawget(self,"_render")if i then i:setCursor(1,1,false)end if h and h~=self then h:fire("blur")end if g and g~=self then g:fire("focus")end self:markDirty()end function e:setCursor(g,h,i,j)local k=rawget(self,"_render")if k then k:setCursor(g,h,i,j)end return self end function e:getFocused()return rawget(self,"_focused")end function e:_updateHovered(g,h)local i=self:findAt(g,h)if i==self then i=nil end local j=rawget(self,"_hovered")if j==i then return end rawset(self,"_hovered",i)if j then j:setState("hover",false)j:fire("mouseLeave")end if i then i:setState("hover",true)i:fire("mouseEnter")end end local function f(g,h)while g do if g==h then return true end g=rawget(g,"parent")end return false end function e:_releaseSubtree(g,h)local i=rawget(self,"_focused")if i and f(i,g)then self:setFocused(nil)end local j=rawget(self,"_clicked")if j and f(j,g)then j:setState("pressed",false)rawset(self,"_clicked",false)end local k=rawget(self,"_hovered")if not h and k and f(k,g)then k:setState("hover",false)k:fire("mouseLeave")rawset(self,"_hovered",nil)end end function e:handleEvent(g,h,i,j)if g=="key"then rawget(self,"_keysDown")[h]=true elseif g=="key_up"then rawget(self,"_keysDown")[h]=nil end if g=="mouse_click"then self:_updateHovered(i,j)rawset(self,"_clicked",self:handleMouse(g,h,i,j))elseif g=="mouse_move"then local k,l=h,i if j~=nil then k,l=i,j end if type(k)=="number"and type(l)=="number"then self:_updateHovered(k,l)end elseif g=="mouse_up"or g=="mouse_drag"then self:_updateHovered(i,j)local k=rawget(self,"_clicked")if k then local l,m=k:getAbsolutePosition()if g=="mouse_up"then k:setState("pressed",false)k:fire("clickUp",h,i-l+1,j-m+1)rawset(self,"_clicked",false)else k:fire("drag",h,i-l+1,j-m+1)end end elseif g=="mouse_scroll"then self:handleMouse(g,h,i,j)self:_updateHovered(i,j)elseif g=="key"or g=="key_up"or g=="char"or g=="paste"then local k=rawget(self,"_focused")if k and k~=self then k:handleKey(g,h,i)end elseif g=="term_resize"then local k,l=self.term.getSize()self._p.width,self._p.height=k,l self._render:resize(k,l)self:markDirty()end end function e:cleanup()local g=rawget(self,"_render")if g then g.mapper:restore()end local h=rawget(self,"term")if h then h.setBackgroundColor(colors.black)h.setTextColor(colors.white)h.clear()h.setCursorPos(1,1)h.setCursorBlink(false)end end return e]],
+[2]=[=[local _=...local a=_("core/reactive")local b=_("core/state")local c=_("core/layout")local d={}local e=table.unpack or unpack local function f(i,j,k)if j.state and i.setState then local l=j.stateWhen and j.stateWhen(k,i)or not not k i:setState(j.state,l)end end local function g(i,j,k)if b.is(k)then k=b.read(k,i)elseif type(k)=="function"and not j.rawFunction then k=b.withWatcher(i,k,i)end f(i,j,k)return k end local function h(i)return i:sub(1,1):upper()..i:sub(2)end function d.create(i,j)local k={}k.__name=i k.__parent=j k.__props=setmetatable({},j and{__index=j.__props}or nil)k.__defaults=setmetatable({},j and{__index=j.__defaults}or nil)k.__stateStyles={}k.__pmeta={__index=k.__defaults}if j then setmetatable(k,{__index=j})end k.__getPropertySpec=function(l,m)local n=k.__props[m]if not n then return false end local o=k.__stateResolver if n.styleable and o then local q,r=o(l,m,k)if q then return true,g(l,n,r),n end end local p=rawget(l,"_p")[m]if p~=nil then return true,g(l,n,p),n end return false end k.__meta={__index=function(l,m)local n=rawget(l,"_layoutBox")if n and n[m]~=nil then return n[m]end local o,p=k.__getPropertySpec(l,m)if o then if c.is(p)then return c.resolveToken(p,l,m)end return p end return k[m]end,__newindex=function(l,m,n)local o=k.__props[m]if o then if type(n)=="string"and not o.rawString and n:sub(1,1)=="{"and n:sub(-1)=="}"then n=a.compile(n,l)end local p=rawget(l,"_p")local q=p[m]if q~=n then p[m]=n if(type(n)=="function"and not o.rawFunction)or b.is(n)then if o.visual then if l.invalidateLayout then l:invalidateLayout(m)end if l.markRenderDirty then l:markRenderDirty()else l:markDirty()end end else if o.onChange then o.onChange(l,n,q)end f(l,o,n)if o.visual then if l.invalidateLayout then l:invalidateLayout(m)end if l.markRenderDirty then l:markRenderDirty()else l:markDirty()end end end end else rawset(l,m,n)end end,__tostring=function(l)return i end,}k.new=function(l)local m=setmetatable({_p=setmetatable({},k.__pmeta),_handlers={},_class=k,},k.__meta)m:setup()if l then m:apply(l)end return m end return k end function d.property(i,j,k,l)l=l or{}i.__props[j]={visual=l.visual~=false,onChange=l.onChange,rawFunction=l.rawFunction,rawString=l.rawString,state=l.state,stateWhen=l.stateWhen,styleable=l.styleable~=false,}i.__defaults[j]=k local m=h(j)i["set"..m]=function(n,o)n[j]=o return n end i["get"..m]=function(n)return n[j]end end function d.combinedProperty(i,j,k)if type(j)~="string"or j==""then error("Basalt class: combined property name must be a non-empty string",2)end if type(k)~="table"or#k==0 then error("Basalt class: combined property list must not be empty",2)end local l={}for p=1,#k do local q=k[p]if type(q)~="string"or i.__props[q]==nil then error("Basalt class: unknown property '"..tostring(q).."' in combined property "..j,2)end l[p]=q end local m="set"..j local n="get"..j local o="getRaw"..j i[m]=function(p,...)local q=table.pack(...)if q.n~=#l then error("Basalt: "..m.." expects "..#l.." values, got "..q.n,2)end for r=1,#l do p[l[r]]=q[r]end return p end i[n]=function(p)local q={n=#l}for r=1,#l do q[r]=p[l[r]]end return e(q,1,q.n)end i[o]=function(p)local q={n=#l}for r=1,#l do q[r]=p:raw(l[r])end return e(q,1,q.n)end end function d.event(i,j)i["on"..h(j)]=function(k,l)return k:on(j,l)end end return d]=],
+[3]=[=[local _=...local a=_("core/class")local b=_("core/collectionentry")local c={}local d={methods=c}local function e(m,n)if type(n)=="number"then local o=math.floor(n)return m.items[o]and o or nil end for o,p in ipairs(m.items)do if p==n then return o end end end local function f(m)return m and m.selectable~=false and m.disabled~=true and m.separator~=true end local function g(m)local n=m:getSelectedIndex()return n,n and m.items[n]or nil end local function h(m)local n=m:getSelectedIndex()or false rawget(m,"_p").selected=n m:setState("selected",n~=false)end local function i(m,n,o)h(m)local p,q=g(m)local r=rawget(m,"_collectionChangeEvent")if r then m:fire(r,p or false,q,n or false,o)end m:markDirty()end local function j(m,n)if b.is(n)then if rawget(n,"_parent")==m then return n end n=n:getData()end return b.new(m,n)end local function k(m,n,o)if type(n)~="table"then error("Basalt Collection: items must be a table",3)end local p,q local r=rawget(m,"_collectionSelection")if type(o)=="table"then for u,v in ipairs(o)do if r[v]then p,q=u,v break end end end if type(o)=="table"then for u,v in ipairs(o)do if b.is(v)then rawset(v,"_parent",nil)end end end local s={}local t={}for u,v in ipairs(n)do local w=type(v)=="table"and not b.is(v)and v.selected==true s[u]=j(m,v)local x=s[u]:getData()x.selected=nil if w and(m.multiSelection or next(t)==nil)then t[s[u]]=true end end rawget(m,"_p").items=s rawset(m,"_collectionSelection",t)if q or next(t)then i(m,p,q)else h(m)m:markDirty()end if m.setOffset and m.offset~=nil then m:setOffset(m.offset)end end local function l(m,n,o,p)if m.__props[n]==nil then a.property(m,n,o,p)end end function d.install(m,n)n=n or{}l(m,"items",false,{onChange=function(p,q,r)if rawget(p,"_collectionSelection")then k(p,q,r)end end,})l(m,"selectable",true)l(m,"multiSelection",false,{onChange=function(p,q)if q or not rawget(p,"_collectionSelection")then return end local r=p:getSelectedItem()local s=rawget(p,"_collectionSelection")for t in pairs(s)do s[t]=t==r or nil end h(p)end,})l(m,"selected",false,{styleable=false,onChange=function(p,q)if not rawget(p,"_collectionSelection")then return end if q==false or q==nil then p:clearItemSelection()else p:selectItem(q)end end,})l(m,"selectionBackground",colors.blue)l(m,"selectionForeground",colors.white)a.event(m,"select")local o if n.changeEvent~=false then o=n.changeEvent or"change"end if o then a.event(m,o)end m.setSelectedBackground=function(p,q)p.selectionBackground=q return p end m.getSelectedBackground=function(p)return p.selectionBackground end m.setSelectedForeground=function(p,q)p.selectionForeground=q return p end m.getSelectedForeground=function(p)return p.selectionForeground end m.setSelectionColor=function(p,q,r)p.selectionForeground=q p.selectionBackground=r return p end m.getSelectionColor=function(p)return p.selectionForeground,p.selectionBackground end m._collectionChangeEventName=o for p,q in pairs(d.methods)do m[p]=q end end function d.setup(m)rawset(m,"_collectionSelection",{})rawset(m,"_collectionChangeEvent",m._class._collectionChangeEventName)local n=rawget(m,"_p").items local o={}if type(n)=="table"then for p,q in ipairs(n)do o[p]=j(m,q)end end rawget(m,"_p").items=o h(m)end function c:indexOfItem(m)return e(self,m)end function c:getItem(m)return self.items[m]end function c:getItemCount()return#self.items end function c:addItem(m)local n=type(m)=="table"and not b.is(m)and m.selected==true local o=j(self,m)o:getData().selected=nil self.items[#self.items+1]=o if n then self:selectItem(o)end self:markDirty()return o end function c:insertItem(m,n)m=math.max(1,math.min(#self.items+1,math.floor(m)))local o=j(self,n)local p=o:getData().selected==true o:getData().selected=nil table.insert(self.items,m,o)if p then self:selectItem(o)end h(self)self:markDirty()return o end function c:removeItem(m)local n=e(self,m)if not n then return self end local o,p=g(self)local q=table.remove(self.items,n)local r=rawget(self,"_collectionSelection")local s=r[q]==true r[q]=nil rawset(q,"_parent",nil)if s then i(self,o,p)else h(self)end self:markDirty()return self end function c:clear()local m,n=g(self)for o,p in ipairs(self.items)do rawset(p,"_parent",nil)end rawget(self,"_p").items={}rawset(self,"_collectionSelection",{})if n then i(self,m,n)else h(self)end self:markDirty()return self end function c:clearItems()return self:clear()end function c:isItemSelected(m)local n=e(self,m)return n~=nil and rawget(self,"_collectionSelection")[self.items[n]]==true end function c:isSelected(m)return self:isItemSelected(m)end function c:getSelectedItems()local m={}local n=rawget(self,"_collectionSelection")for o,p in ipairs(self.items)do if n[p]then m[#m+1]=p end end return m end function c:getSelectedItem()local m=rawget(self,"_collectionSelection")for n,o in ipairs(self.items)do if m[o]then return o end end end function c:getSelectedIndex()local m=rawget(self,"_collectionSelection")for n,o in ipairs(self.items)do if m[o]then return n end end end function c:getSelection()local m={}local n=rawget(self,"_collectionSelection")for o,p in ipairs(self.items)do if n[p]then m[#m+1]=o end end return m end function c:selectItem(m,n)if not self.selectable then return self end local o=e(self,m)local p=o and self.items[o]if not f(p)then return self end local q=rawget(self,"_collectionSelection")local r,s=g(self)local t=not q[p]if not self.multiSelection then for u in pairs(q)do if u~=p then q[u],t=nil,true end end end q[p]=true if t then if n==false then h(self)else i(self,r,s)end end return self end function c:unselectItem(m,n)local o=e(self,m)local p=o and self.items[o]local q=rawget(self,"_collectionSelection")if not p or not q[p]then return self end local r,s=g(self)q[p]=nil if n==false then h(self)else i(self,r,s)end return self end function c:toggleItem(m,n)if self:isItemSelected(m)then return self:unselectItem(m,n)end return self:selectItem(m,n)end function c:clearItemSelection(m)local n,o=g(self)if not o then return self end rawset(self,"_collectionSelection",{})if m==false then h(self)else i(self,n,o)end return self end function c:clearSelection(m)return self:clearItemSelection(m)end function c:selectNext(m)local n=self:getSelectedIndex()or 0 for o=n+1,#self.items do if f(self.items[o])then return self:selectItem(o,m)end end return self end function c:selectPrevious(m)local n=self:getSelectedIndex()or(#self.items+1)for o=n-1,1,-1 do if f(self.items[o])then return self:selectItem(o,m)end end return self end function c:scrollToTop()if self.setOffset then self:setOffset(0)end return self end function c:scrollToBottom()if self.setOffset then self:setOffset(math.huge)end return self end function c:activateItem(m,n,o)local p=e(self,m)local q=p and self.items[p]if not self.selectable or not f(q)then return self end if o then self:toggleItem(q)else self:selectItem(q)end p=e(self,q)if n~=false then if type(q.callback)=="function"then q.callback(self,q)end self:fire("select",p,q)end return self end function c:select(m,n)return self:activateItem(m,n,self.multiSelection)end function c:_moveCollectionEntry(m,n)local o=e(self,m)if o then self:_moveCollectionEntryTo(m,o+n)end return self end function c:_moveCollectionEntryTo(m,n)local o=e(self,m)if not o then return self end n=math.max(1,math.min(#self.items,math.floor(n)))if n~=o then table.remove(self.items,o)table.insert(self.items,n,m)h(self)self:markDirty()end return self end function c:_swapCollectionEntries(m,n)local o,p=e(self,m),e(self,n)if o and p and o~=p then self.items[o],self.items[p]=self.items[p],self.items[o]h(self)self:markDirty()end return self end return d]=],
+[4]=[[local _={}local a={}a.__index=function(b,c)local d=_[c]if d then return d end if c=="selected"then local h=rawget(b,"_parent")return h and h:isItemSelected(b)or false end local e=rawget(b,"_data")if e and e[c]~=nil then return e[c]end local f=rawget(b,"_parent")local g=f and f[c]if type(g)=="function"then return function(h,...)return g(f,...)end end end a.__newindex=function(b,c,d)if type(c)=="string"and c:sub(1,1)=="_"then rawset(b,c,d)return end if c=="selected"then local f=rawget(b,"_parent")if f then if d then f:selectItem(b)else f:unselectItem(b)end end return end local e=rawget(b,"_data")if e[c]~=d then e[c]=d local f=rawget(b,"_parent")if f then f:markDirty()end end end a.__tostring=function(b)local c=rawget(b,"_data")if c.text~=nil then return tostring(c.text)end if c.label~=nil then return tostring(c.label)end if c.value~=nil then return tostring(c.value)end return"Entry"end function a.new(b,c)local d if type(c)=="table"then d=c else d={text=tostring(c),value=c}end if d.text==nil and d.label==nil and d.value==nil then d.text="Entry"end return setmetatable({_parent=b,_data=d},a)end function a.is(b)return getmetatable(b)==a end function _:getData()return rawget(self,"_data")end function _:getParent()return rawget(self,"_parent")end function _:setText(b)self.text=b return self end function _:getText()return self.text end function _:getIndex()local b=rawget(self,"_parent")return b and b:indexOfItem(self)or nil end function _:moveUp(b)local c=rawget(self,"_parent")if c then c:_moveCollectionEntry(self,-(b or 1))end return self end function _:moveDown(b)local c=rawget(self,"_parent")if c then c:_moveCollectionEntry(self,b or 1)end return self end function _:moveToTop()local b=rawget(self,"_parent")if b then b:_moveCollectionEntryTo(self,1)end return self end function _:moveToBottom()local b=rawget(self,"_parent")if b then b:_moveCollectionEntryTo(self,#b.items)end return self end function _:swapWith(b)local c=rawget(self,"_parent")if c and rawget(b,"_parent")==c then c:_swapCollectionEntries(self,b)end return self end function _:remove()local b=rawget(self,"_parent")if not b then return false end b:removeItem(self)return true end function _:select()local b=rawget(self,"_parent")if b then b:selectItem(self)end return self end function _:unselect()local b=rawget(self,"_parent")if b then b:unselectItem(self)end return self end function _:isSelected()local b=rawget(self,"_parent")return b and b:isItemSelected(self)or false end return a]],
+[5]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/state")local d=_("core/layout")local e=_("core/scroll")local f=a.create("Container",b)a.property(f,"scrollable",false,{onChange=function(j,k)if not k then e.disable(j)end end,})a.property(f,"scrollbar","auto")a.property(f,"scrollXEnabled",true)a.property(f,"scrollYEnabled",true)a.property(f,"scrollStep",3)a.property(f,"scrollbarColor",colors.gray)a.property(f,"scrollbarThumbColor",colors.lightGray)a.event(f,"scrollChange")function f:setup()b.setup(self)rawset(self,"_children",{})rawset(self,"_addIndex",0)rawset(self,"_sortDirty",false)rawset(self,"_layoutDirty",true)rawset(self,"_viewportDirty",true)rawset(self,"_visibleChildren",{})e.setup(self)end function f:getScroll()return rawget(self,"_scrollX")or 0,rawget(self,"_scrollY")or 0 end function f:getContentSize()return rawget(self,"_contentWidth")or 0,rawget(self,"_contentHeight")or 0 end function f:getScrollInfo()local j=e.geometry(self)j.x,j.y=self:getScroll()j.contentWidth,j.contentHeight=self:getContentSize()return j end function f:scrollTo(j,k)e.set(self,j or 0,k or 0)return self end function f:scrollBy(j,k)local l,m=self:getScroll()e.set(self,l+(j or 0),m+(k or 0))return self end local function g(j,k)local l,m=k.x,k.y local n=rawget(k,"parent")while n and n~=j do l=l+n.x-1-(rawget(n,"_scrollX")or 0)m=m+n.y-1-(rawget(n,"_scrollY")or 0)n=rawget(n,"parent")end if n~=j then error("Basalt scroll: element is not a descendant of this container",3)end return l,m,k.width,k.height end function f:scrollToElement(j)local k,l=g(self,j)return self:scrollTo(k-1,l-1)end function f:ensureVisible(j)local k,l,m,n=g(self,j)local o,p=self:getScroll()if k<o+1 then o=k-1 end if l<p+1 then p=l-1 end if k+m-1>o+self.width then o=k+m-1-self.width end if l+n-1>p+self.height then p=l+n-1-self.height end return self:scrollTo(o,p)end function f:addChild(j)local k=rawget(j,"parent")if k then k:removeChild(j)end rawset(j,"parent",self)self._addIndex=self._addIndex+1 rawset(j,"_order",self._addIndex)local l=self._children l[#l+1]=j self._sortDirty=true self:markLayoutDirty()return j end function f:removeChild(j)local k=self._children for l=1,#k do if k[l]==j then local m=self:getRoot()if m._releaseSubtree then m:_releaseSubtree(j)end table.remove(k,l)rawset(j,"parent",nil)self:markLayoutDirty()return true end end return false end function f:destroy()local j=rawget(self,"_children")while j and#j>0 do local k=j[#j]if k.destroy then k:destroy()end if j[#j]==k then self:removeChild(k)end end return b.destroy(self)end function f:getChildren()return self._children end function f:find(j)local k=self._children for l=1,#k do if k[l].name==j then return k[l]end end for l=1,#k do local m=k[l]if m.find then local n=m:find(j)if n then return n end end end return nil end local function h(j,k)local l,m=j.z,k.z if l==m then return j._order<k._order end return l<m end function f:_sorted()if self._sortDirty then table.sort(self._children,h)self._sortDirty=false self._viewportDirty=true end return self._children end local function i(j,k,l,m,n)local o=rawget(j,"_layoutBox")local p=o and o.x or j.x local q=o and o.y or j.y local r=o and o.width or j.width local s=o and o.height or j.height if r<=0 or s<=0 then return false end return p<=k+m and q<=l+n and p+r-1>k and q+s-1>l end function f:_visibleSorted()local j=rawget(self,"_visibleChildren")if not rawget(self,"_viewportDirty")and j then return j end j={}local k,l=self:getScroll()local m=self:_sorted()for n=1,#m do local o=m[n]if o.visible and i(o,k,l,self.width,self.height)then j[#j+1]=o end end rawset(self,"_visibleChildren",j)rawset(self,"_viewportDirty",false)return j end function f:render(j)b.render(self,j)local k=self._children if rawget(self,"_layoutDirty")then for o=1,#k do local p=k[o]c.clearWatcher(p)local q=p:raw("z")if c.is(q)or type(q)=="function"then self._sortDirty=true end end self:fire("layout",self.width,self.height)if self.layoutChildren then self:layoutChildren()else d.resolveFreeChildren(self)end e.update(self)rawset(self,"_layoutDirty",false)rawset(self,"_viewportDirty",true)end local l,m=self:getScroll()local n=self:_visibleSorted()for o=1,#n do local p=n[o]if p.visible then j:push(p.x-l,p.y-m,p.width,p.height)p:render(j)j:pop()end end e.draw(self,j)end function f:handleMouse(j,k,l,m)if j=="mouse_click"and e.pointerDown(self,l,m)then return self end local n,o=self:getScroll()local p,q=l+n,m+o local r=self:_visibleSorted()for s=#r,1,-1 do local t=r[s]if t.visible and t:contains(p,q)then local u=t:handleMouse(j,k,p-t.x+1,q-t.y+1)if u then return u end end end if j=="mouse_scroll"and e.wheel(self,k)then return self end return b.handleMouse(self,j,k,l,m)end function f:findAt(j,k)if e.isBarPoint(self,j,k)then return self end local l,m=self:getScroll()local n,o=j+l,k+m local p=self:_visibleSorted()for q=#p,1,-1 do local r=p[q]if r.visible and r:contains(n,o)then local s,t=n-r.x+1,o-r.y+1 if r.findAt then local u=r:findAt(s,t)if u then return u end end return r end end return self end function f.register(j,k)f["add"..j]=function(l,m)local n=k.new(m)l:addChild(n)return n end end return f]],
+[6]=[[local _=...local a=_("core/class")local b=_("core/state")local c=_("core/layout")local d=a.create("Element")a.property(d,"x",1)a.property(d,"y",1)a.property(d,"z",0,{onChange=function(n)local o=rawget(n,"parent")if o then o._sortDirty=true end end,})a.property(d,"width",1)a.property(d,"height",1)a.property(d,"minWidth",false)a.property(d,"maxWidth",false)a.property(d,"minHeight",false)a.property(d,"maxHeight",false)a.property(d,"position","flow")a.property(d,"alignSelf",false)a.property(d,"shrink",false)a.property(d,"visible",true,{onChange=function(n,o)if not o then local p=n:getRoot()if p._releaseSubtree then p:_releaseSubtree(n)end end end,})a.property(d,"background",false)a.property(d,"foreground",colors.white)a.property(d,"name","",{visual=false})a.property(d,"disabled",false,{state="disabled",styleable=false,onChange=function(n,o)if o then local p=n:getRoot()if p._releaseSubtree then p:_releaseSubtree(n,true)end end end,})a.combinedProperty(d,"Position",{"x","y"})a.combinedProperty(d,"Size",{"width","height"})a.combinedProperty(d,"Bounds",{"x","y","width","height"})a.combinedProperty(d,"Colors",{"foreground","background"})a.combinedProperty(d,"MinSize",{"minWidth","minHeight"})a.combinedProperty(d,"MaxSize",{"maxWidth","maxHeight"})a.event(d,"click")a.event(d,"clickUp")a.event(d,"drag")a.event(d,"scroll")a.event(d,"focus")a.event(d,"blur")a.event(d,"key")a.event(d,"keyUp")a.event(d,"char")a.event(d,"paste")a.event(d,"stateChange")a.event(d,"mouseEnter")a.event(d,"mouseLeave")a.event(d,"layout")local e={hover=10,focused=20,checked=30,selected=30,pressed=40,disabled=100,}local f={disabled=true,checked=true,selected=true,active=true,progress=true,value=true,offset=true,horizontalOffset=true,replaceChar=true,sortable=true,sortColumn=true,sortDirection=true,}local function g(n)if not n then return true end if f[n]then return false end local o=n:lower()if o:find("color",1,true)or o:find("background",1,true)or o:find("foreground",1,true)or o:find("symbol",1,true)then return false end return true end local function h(n)if not n then return false end for o in pairs(n)do if g(o)then return true end end return false end local function i(n,o)local p=rawget(n,"_stateStyles")[o]if h(p)then return true end local q=rawget(n,"_class")while q do local r=rawget(q,"__stateStyles")if r and h(r[o])then return true end q=rawget(q,"__parent")end return false end local function j(n,o)local p=rawget(n,"_statePriorities")return(p and p[o])or e[o]or 50 end local function k(n)local o=rawget(n,"_activeStates")if o then return o end local p,q=rawget(n,"_states"),rawget(n,"_stateSequence")o={}for r,s in pairs(p)do if s then o[#o+1]=r end end table.sort(o,function(r,s)local t,u=j(n,r),j(n,s)if t~=u then return t>u end return(q[r]or 0)>(q[s]or 0)end)rawset(n,"_activeStates",o)return o end local function l(n,o,p)while n do local q=rawget(n,"__stateStyles")local r=q and q[o]if r and r[p]~=nil then return true,r[p]end n=rawget(n,"__parent")end return false end d.__stateResolver=function(n,o,p)local q=rawget(n,"_stateStyles")local r=k(n)for s=1,#r do local t=r[s]local u=q[t]if u and u[o]~=nil then return true,u[o]end local v,w=l(p,t,o)if v then return true,w end end return false end function d:setup()rawset(self,"_states",{})rawset(self,"_stateStyles",{})rawset(self,"_statePriorities",{})rawset(self,"_stateSequence",{})rawset(self,"_stateSequenceN",0)rawset(self,"_bindings",{})self:on("focus",function(n)n:setState("focused",true)end)self:on("blur",function(n)n:setState("focused",false)end)end function d:setState(n,o)if type(n)~="string"or n==""then error("Basalt: state name must be a non-empty string",2)end o=o~=false and o~=nil local p=rawget(self,"_states")if p[n]==o then return self end p[n]=o if o then local q=rawget(self,"_stateSequenceN")+1 rawset(self,"_stateSequenceN",q)rawget(self,"_stateSequence")[n]=q end rawset(self,"_activeStates",nil)if i(self,n)then self:markLayoutDirty()else self:markRenderDirty()end self:fire("stateChange",n,o)return self end function d:hasState(n)return rawget(self,"_states")[n]==true end function d:toggleState(n)return self:setState(n,not self:hasState(n))end function d:getStates()local n={}for o,p in pairs(rawget(self,"_states"))do if p then n[#n+1]=o end end table.sort(n)return n end function d:setStateStyle(n,o,p)if type(o)~="table"then error("Basalt: state style must be a table",2)end local q=rawget(self,"_class")local r={}for s,t in pairs(o)do local u=q.__props[s]if not u then error("Basalt: unknown state style property '"..tostring(s).."'",2)end if not u.styleable then error("Basalt: property '"..s.."' cannot be state-styled",2)end r[s]=t end rawget(self,"_stateStyles")[n]=r if p~=nil then self:setStatePriority(n,p)end if self:hasState(n)and h(r)then self:markLayoutDirty()else self:markRenderDirty()end return self end function d:setStatePriority(n,o)if type(o)~="number"then error("Basalt: state priority must be a number",2)end rawget(self,"_statePriorities")[n]=o rawset(self,"_activeStates",nil)self:markLayoutDirty()return self end function d:apply(n)for o,p in pairs(n)do if type(p)=="function"and o:find("^on%u")and self[o]then self[o](self,p)else self[o]=p end end return self end function d:raw(n)return rawget(self,"_p")[n]end function d:on(n,o)local p=self._handlers[n]if not p then p={}self._handlers[n]=p end p[#p+1]=o return self end function d:off(n,o)local p=self._handlers[n]if not p then return self end for q=#p,1,-1 do if p[q]==o then table.remove(p,q)break end end return self end local m={text="change",checked="change",value="change",selected="select",}function d:bind(n,o,p)local q=rawget(self,"_class")if not q.__props[n]then error("Basalt: cannot bind unknown property '"..tostring(n).."'",2)end if not b.is(o)then error("Basalt: bind expects a state or computed value",2)end if type(p)=="function"then p={fromState=p}else p=p or{}end if type(p)~="table"then error("Basalt: bind options must be a function or table",2)end self:unbind(n)local r=o if p.fromState then local w=p.fromState if type(w)~="function"then error("Basalt: fromState must be a function",2)end local x=self r=b.computed(function()return w(o:get(),x)end)end local s={source=o,value=r}local t=p.event or m[n]local u=p.twoWay~=false and b.isWritable(o)and t~=nil if u then local w=p.toState if w~=nil and type(w)~="function"then error("Basalt: toState must be a function",2)end local x=o s.event=t s.handler=function(y,z,...)if w then z=w(z,self,...)end x:set(z)self[n]=r end self:on(t,s.handler)end rawget(self,"_bindings")[n]=s self[n]=r local v=self[n]return self end function d:unbind(n,o)local p=rawget(self,"_bindings")local q=p and p[n]if not q then return self end local r=self[n]if q.handler then self:off(q.event,q.handler)end p[n]=nil if o==false then rawget(self,"_p")[n]=nil self:markDirty()else self[n]=r end return self end function d:fire(n,...)local o=self._handlers[n]if not o then return false end for p=1,#o do o[p](self,...)end return true end function d:markDirty()return self:markLayoutDirty()end function d:markRenderDirty()local n=self local o=rawget(n,"parent")while o do n=o o=rawget(n,"parent")end rawset(n,"_dirty",true)return self end function d:invalidateLayout(n)if n and not g(n)then return self end local o=self while o do if rawget(o,"_children")then rawset(o,"_layoutDirty",true)rawset(o,"_viewportDirty",true)end o=rawget(o,"parent")end return self end function d:markLayoutDirty()self:invalidateLayout()return self:markRenderDirty()end function d:contains(n,o)local p,q=self.x,self.y return n>=p and o>=q and n<p+self.width and o<q+self.height end function d:getRoot()local n=self while rawget(n,"parent")do n=rawget(n,"parent")end return n end function d:getAbsolutePosition()local n,o=self.x,self.y local p=rawget(self,"parent")while p do n=n+p.x-1-(rawget(p,"_scrollX")or 0)o=o+p.y-1-(rawget(p,"_scrollY")or 0)p=rawget(p,"parent")end return n,o end function d:measure()local n,o=c.spec(self,"width"),c.spec(self,"height")return type(n)=="number"and n or 1,type(o)=="number"and o or 1 end function d:focus()if self.disabled then return self end local n=self:getRoot()if n.setFocused then n:setFocused(self)end return self end function d:setCursor(n,o,p,q)local r=self:getRoot()if r~=self and r.setCursor and r.getFocused and r:getFocused()==self then local s,t=self:getAbsolutePosition()local u,v=s+n-1,t+o-1 local w=n>=1 and o>=1 and n<=self.width and o<=self.height local x=rawget(self,"parent")while w and x do local y,z=x:getAbsolutePosition()if u<y or v<z or u>=y+x.width or v>=z+x.height then w=false end x=rawget(x,"parent")end if w then r:setCursor(u,v,p,q)else r:setCursor(1,1,false,q)end end return self end function d:destroy()local n=rawget(self,"parent")if n then n:removeChild(self)end return self end function d:render(n)local o=self.background if o then n:fill(1,1,self.width,self.height," ",self.foreground,o)end end function d:handleMouse(n,o,p,q)if self.disabled then return nil end if n=="mouse_click"then if self.background or self._handlers.click then self:setState("pressed",true)self:focus()self:fire("click",o,p,q)return self end elseif n=="mouse_scroll"then if self._handlers.scroll then self:fire("scroll",o,p,q)return self end end return nil end function d:handleKey(n,o,p)if self.disabled then return end if n=="key"then self:fire("key",o,p)elseif n=="key_up"then self:fire("keyUp",o)elseif n=="char"then self:fire("char",o)elseif n=="paste"then self:fire("paste",o)end end return d]],
+[7]=[[local _,a=...local b={}local function c(g)return g:match("^%s*(.-)%s*$")end local function d(g)return g=="[C]"or g:sub(1,1)=="("or g:find("^reactive{")or(a~=""and g:find(a,1,true)==1)end function b.parse(g,h)local i=tostring(g)local j,k,l=i:match("^(.-):(%d+): (.*)$")local m={}if h then for p in h:gmatch("[^\n]+")do p=c(p)if p~=""and p~="stack traceback:"and not p:find("in function 'xpcall'",1,true)then m[#m+1]=p end end end local n,o for p,q in ipairs(m)do local r,s=q:match("^(.-):(%d+):")if r and not d(r)then n,o=r,tonumber(s)break end end return{message=l or i,file=j,line=k and tonumber(k),userFile=n,userLine=o,trace=m,}end local function e(g,h)term.setTextColor(h)print(g)end local function f(g,h)if not fs.exists(g)or fs.isDir(g)then return nil end local i=fs.open(g,"r")if not i then return nil end local j,k=nil,0 repeat j=i.readLine()k=k+1 until k==h or j==nil i.close()return j end function b.show(g,h,i)local j=b.parse(g,h)term.setBackgroundColor(colors.black)term.clear()term.setCursorPos(1,1)e("Basalt Error",colors.red)print()e(j.message,colors.white)print()local k=j.userFile or j.file local l=j.userLine or j.line if k and l then local m=f(k,l)e("\26 "..k..":"..l,colors.cyan)if m then e("  "..c(m),colors.lightGray)end print()end if i~=false and#j.trace>0 then e("Traceback:",colors.gray)for m=1,math.min(#j.trace,6)do local n=j.trace[m]local o=n:match("^(.-):%d+:")e("  "..n,(o and not d(o))and colors.lightGray or colors.gray)end if#j.trace>6 then e("  ... ("..(#j.trace-6).." more)",colors.gray)end print()end e("Press any key to exit",colors.orange)while true do local m=os.pullEventRaw()if m=="key"or m=="mouse_click"or m=="monitor_touch"or m=="terminate"then break end end term.setBackgroundColor(colors.black)term.setTextColor(colors.white)term.clear()term.setCursorPos(1,1)end function b.wrap(g,h)return setmetatable({__basaltError=true,err=g,trace=h},{__tostring=function(i)return tostring(i.err)end,})end return b]],
+[8]=[[local _={}function _.maxOffset(a,b)return math.max(0,a-math.max(0,b))end function _.clampOffset(a,b,c)return math.max(0,math.min(math.floor(a or 0),_.maxOffset(b,c)))end function _.ensureVisible(a,b,c,d)a=_.clampOffset(a,c,d)if not b or b<1 then return a end if b<=a then a=b-1 end if b>a+d then a=b-d end return _.clampOffset(a,c,d)end function _.geometry(a,b,c,d)if d~="auto"and d~="always"and d~="hidden"then error("Basalt item scrollbar: expected 'auto', 'always' or 'hidden'",3)end b=math.max(0,math.floor(b or 0))local e=_.maxOffset(a,b)c=_.clampOffset(c,a,b)local f=d~="hidden"and b>0 and(d=="always"or e>0)local g=b local h=0 if f and b>0 then g=math.max(1,math.floor(b*b/math.max(a,b)))g=math.min(b,g)local i=b-g h=e>0 and math.floor(i*c/e+0.5)or 0 end return{show=f,rows=b,maximum=e,offset=c,thumbSize=g,thumbPos=h,}end function _.draw(a,b,c,d,e,f,g)if not d.show or d.rows<=0 then return end a:fill(b,c,1,d.rows," ",e,f)a:fill(b,c+d.thumbPos,1,d.thumbSize," ",e,g)end function _.pointerDown(a,b)if not b.show then return nil,nil end local c=b.thumbPos+1 if a>=c and a<c+b.thumbSize then return b.offset,a-c end local d=math.max(1,b.rows-b.thumbSize)local e=math.floor((a-1-b.thumbSize/2)/d*b.maximum+0.5)return _.clampOffset(e,b.maximum+b.rows,b.rows),nil end function _.drag(a,b,c)local d=math.max(1,c.rows-c.thumbSize)local e=math.max(0,math.min(d,a-1-b))local f=math.floor(e/d*c.maximum+0.5)return _.clampOffset(f,c.maximum+c.rows,c.rows)end return _]],
+[9]=[[local _=...local a=_("core/state")local b={}local c={}c.__index=c c.__basaltLayoutValue=true local function d(g,h)return setmetatable({kind=g,value=h},c)end function b.auto()return d("auto")end function b.fill(g)g=g or 1 if type(g)~="number"or g<=0 then error("Basalt layout: fill weight must be greater than zero",2)end return d("fill",g)end function b.percent(g)if type(g)~="number"or g<0 then error("Basalt layout: percent must be a non-negative number",2)end return d("percent",g)end function b.is(g)local h=type(g)=="table"and getmetatable(g)return h and h.__basaltLayoutValue==true or false end function b.spec(g,h)local i=rawget(g,"_class")if i and i.__getPropertySpec then local j,k=i.__getPropertySpec(g,h)if j then return k end end return g:raw(h)end local function e(g)return math.floor(g+0.5)end local function f(g,h,i)if h and g<h then g=h end if i and g>i then g=i end return math.max(0,e(g))end function b.constrain(g,h,i)local j=h=="width"and"minWidth"or"minHeight"local k=h=="width"and"maxWidth"or"maxHeight"local l,m=g[j],g[k]if l==false then l=nil end if m==false then m=nil end return f(i,l,m)end function b.measure(g,h,i)if g.measure then return g:measure(h,i)end return 1,1 end function b.resolveSize(g,h,i,j,k)local l=h=="width"and j or k local m,n local o if b.is(i)then if i.kind=="percent"then o=l*i.value elseif i.kind=="fill"then o=l else m,n=b.measure(g,j,k)o=h=="width"and m or n end else o=tonumber(i)or 1 end return b.constrain(g,h,o)end function b.resolveToken(g,h,i)local j=rawget(h,"parent")local k=j and j.width or 1 local l=j and j.height or 1 if g.kind=="fill"and j then if i=="width"then k=math.max(0,k-(tonumber(b.spec(h,"x"))or 1)+1)elseif i=="height"then l=math.max(0,l-(tonumber(b.spec(h,"y"))or 1)+1)end end return b.resolveSize(h,i,g,k,l)end function b.resolveFreeChild(g,h)local i,j=b.spec(h,"x"),b.spec(h,"y")local k,l=b.spec(h,"width"),b.spec(h,"height")local m=b.is(i)or b.is(j)or b.is(k)or b.is(l)if not m then local w=rawget(h,"_layoutBox")rawset(h,"_layoutBox",nil)if w and rawget(h,"_children")then rawset(h,"_layoutDirty",true)rawset(h,"_viewportDirty",true)end return end local n,o=g.width,g.height local p=tonumber(i)or 1 local q=tonumber(j)or 1 local r,s=math.max(0,n-p+1),math.max(0,o-q+1)local t=b.resolveSize(h,"width",k,r,s)local u=b.resolveSize(h,"height",l,r,s)local v=rawget(h,"_layoutBox")rawset(h,"_layoutBox",{x=e(p),y=e(q),width=t,height=u})if rawget(h,"_children")and(not v or v.width~=t or v.height~=u)then rawset(h,"_layoutDirty",true)rawset(h,"_viewportDirty",true)end end function b.resolveFreeChildren(g)local h=g:getChildren()for i=1,#h do b.resolveFreeChild(g,h[i])end end function b.setBox(g,h,i,j,k)local l={x=e(h),y=e(i),width=math.max(0,e(j)),height=math.max(0,e(k)),}local m=rawget(g,"_layoutBox")rawset(g,"_layoutBox",l)if rawget(g,"_children")and(not m or m.width~=l.width or m.height~=l.height)then rawset(g,"_layoutDirty",true)rawset(g,"_viewportDirty",true)end end return b]],
+[10]=[=[local _={}local a=math.floor local b=string.char local c={[0]=0xF0F0F0,0xF2B233,0xE57FD8,0x99B2F2,0xDEDE6C,0x7FCC19,0xF2B2CC,0x4C4C4C,0x999999,0x4C99B2,0xB266E5,0x3366CC,0x7F664C,0x57A64E,0xCC4C4C,0x111111,}local d={}local e=16 local f={}local g={}local function h(p)return a(p/65536)/255,a(p/256)%256/255,(p%256)/255 end for p=0,15 do d[p]={h(c[p])}f[2^p]=b(p)g[c[p]]=2^p end _.charOf=f function _.getRGB(p)local q if type(p)=="string"then q=p:byte()elseif f[p]then q=f[p]:byte()else q=p end local r=d[q]if not r then error("Basalt: unknown registry color "..tostring(p),2)end return r[1],r[2],r[3]end local function i(p)if p<0 then return 0 end if p>1 then return 1 end return p end local function j(p,q,r)if type(p)=="string"then local s=p:gsub("#","")if s:match("^%x%x%x$")then s=s:gsub("%x","%0%0")elseif s:match("^%x%x%x%x%x%x%x%x$")then s=s:sub(3)elseif not s:match("^%x%x%x%x%x%x$")then error("Basalt: invalid color string '"..p.."' (expected #RGB, #RRGGBB or #AARRGGBB)",3)end return h(tonumber(s,16))end if q==nil then if p<0 or p>0xFFFFFF or p%1~=0 then error("Basalt: invalid color number "..tostring(p).." (expected 0x000000-0xFFFFFF)",3)end return h(p)end if p>1 or q>1 or r>1 then p,q,r=p/255,q/255,r/255 end return i(p),i(q),i(r)end function _.rgb(p,q,r)local s,t,u=j(p,q,r)local v=a(s*255+0.5)*65536+a(t*255+0.5)*256+a(u*255+0.5)local w=g[v]if w then return w end if e>255 then local z,A=0,math.huge for C=0,255 do local D=d[C]local E=(s-D[1])^2+(t-D[2])^2+(u-D[3])^2 if E<A then z,A=C,E end end local B=z<16 and 2^z or 0x10000+z g[v]=B return B end local x=e e=e+1 d[x]={s,t,u}local y=0x10000+x f[y]=b(x)g[v]=y return y end function _.hasVirtual()return e>16 end local k={}for p=0,15 do k[p]=("%x"):format(p)end local l={}for p=0,15 do l[b(p)]=k[p]end _.identityMap=l local m={}for p=0,15 do m[k[p]]=b(p)m[k[p]:upper()]=b(p)end _.hexToByte=m function _.windowTranslation(p)local q=p.getPaletteColour or p.getPaletteColor if not q then return nil end local r for s=0,15 do local t,u,v,w=pcall(q,2^s)if t and type(u)=="number"and type(v)=="number"and type(w)=="number"then local x,y,z=_.getRGB(s)if math.abs(u-x)+math.abs(v-y)+math.abs(w-z)>0.004 then if not r then r={}for B,C in pairs(m)do r[B]=C end end local A=f[_.rgb(u,v,w)]r[k[s]]=A r[k[s]:upper()]=A end end end return r end local n={}n.__index=n function _.newMapper(p)return setmetatable({term=p,overridden={},prevSlot={},prevMap={},},n)end local function o(p,q)local r,s,t=p[1]-q[1],p[2]-q[2],p[3]-q[3]return r*r+s*s+t*t end function n:build(p)local q=self.term local r=q.setPaletteColour or q.setPaletteColor local s={}local t={}for x=0,15 do s[b(x)]=k[x]if p[x]then t[x]=x if r and self.overridden[x]then local y=d[x]r(2^x,y[1],y[2],y[3])self.overridden[x]=nil end end end local u={}for x in pairs(p)do if x>15 then u[#u+1]=x end end if#u>0 then table.sort(u)local x={}if r then local function y(B,C)t[C]=B self.prevSlot[B]=C if self.overridden[C]~=B then local D=d[B]r(2^C,D[1],D[2],D[3])self.overridden[C]=B end s[b(B)]=k[C]end local z={}for B,C in ipairs(u)do local D=self.prevSlot[C]if D and t[D]==nil then y(C,D)else z[#z+1]=C end end local A=0 for B,C in ipairs(z)do local D while A<=15 do if t[A]==nil then D=A break end A=A+1 end if D then y(C,D)else x[#x+1]=C end end else x=u end for y,z in ipairs(x)do local A=d[z]local B,C=15,math.huge for D=0,15 do local E=t[D]local F=E and d[E]or(not r and d[D]or nil)if F then local G=o(A,F)if G<C then B,C=D,G end end end s[b(z)]=k[B]end end local v=false local w=self.prevMap for x,y in pairs(s)do if w[x]~=nil and w[x]~=y then v=true break end end self.prevMap=s return s,v end function n:restore()local p=self.term local q=p.setPaletteColour or p.setPaletteColor if q then for r in pairs(self.overridden)do local s=d[r]q(2^r,s[1],s[2],s[3])end end self.overridden,self.prevSlot,self.prevMap={},{},{}end return _]=],
+[11]=[[local _=...local a=_("core/palette")local b={}local c={colors=colors,math=math,rgb=a.rgb,tostring=tostring,tonumber=tonumber,clamp=function(d,e,f)return math.min(math.max(d,e),f)end,round=function(d)return math.floor(d+0.5)end,floor=math.floor,ceil=math.ceil,abs=math.abs,min=math.min,max=math.max,}function b.compile(d,e)local f=d:sub(2,-2)local g=setmetatable({},{__index=function(j,k)if k=="self"then return e end if k=="parent"then return rawget(e,"parent")end local l=c[k]if l~=nil then return l end local m=e:getRoot()if m.find then return m:find(k)end return nil end,})local h,i=load("return "..f,"reactive"..d,"t",g)if not h then error("Basalt: invalid reactive expression "..d..": "..tostring(i),3)end return h end return b]],
+[12]=[[local _=...local a=_("core/palette")local b,c=string.rep,string.sub local d=math.floor local e=a.charOf local f={}local g={}for p=0,31 do f[p]=string.char(128+p)end local h={}h.__index=h function h.new(p)local q=setmetatable({},h)q.term=p q.mapper=a.newMapper(p)q:resize(p.getSize())return q end function h:resize(p,q)self.width,self.height=p,q self.text,self.fg,self.bg={},{},{}self.prevText,self.prevFg,self.prevBg={},{},{}local r=b(" ",p)local s=b("\0",p)local t=b(string.char(15),p)for u=1,q do self.text[u],self.fg[u],self.bg[u]=r,s,t end self.dirty=true self.ox,self.oy=0,0 self.cx1,self.cy1,self.cx2,self.cy2=1,1,p,q self.stack,self.stackN={},0 return self end function h:push(p,q,r,s)local t,u=self.stackN,self.stack u[t+1],u[t+2],u[t+3]=self.ox,self.oy,self.cx1 u[t+4],u[t+5],u[t+6]=self.cy1,self.cx2,self.cy2 self.stackN=t+6 local v,w=self.ox+p-1,self.oy+q-1 self.ox,self.oy=v,w if v+1>self.cx1 then self.cx1=v+1 end if w+1>self.cy1 then self.cy1=w+1 end if v+r<self.cx2 then self.cx2=v+r end if w+s<self.cy2 then self.cy2=w+s end return self end function h:pop()local p,q=self.stackN,self.stack self.ox,self.oy,self.cx1=q[p-5],q[p-4],q[p-3]self.cy1,self.cx2,self.cy2=q[p-2],q[p-1],q[p]self.stackN=p-6 return self end local function i(p,q,r)return c(p,1,q-1)..r..c(p,q+#r)end local function j(p,q,r)local s={}for t=1,#p do local u=r and r:byte(t)or p:byte(t)s[t]=u==0 and c(q,t,t)or c(p,t,t)end return table.concat(s)end local function k(p,q,r)local s,t,u=a.getRGB(p)local v,w,x=a.getRGB(q)local y,z,A=a.getRGB(r)local B=(s-v)^2+(t-w)^2+(u-x)^2 local C=(s-y)^2+(t-z)^2+(u-A)^2 return B<=C and 0 or 1 end local function l(p,q,r,s,t,u)local v=p..q..r..s..t..u local w=g[v]if w then return w[1],w[2],w[3]end local x,y,z={p,q,r,s,t,u},{},{}for H=1,6 do local I=x[H]if y[I]then y[I]=y[I]+1 else y[I],z[#z+1]=1,I end end local A,B for H,I in ipairs(z)do if not A or y[I]>y[A]then B,A=A,I elseif not B or y[I]>y[B]then B=I end end if not B then w={" ",A,A}g[v]=w return w[1],w[2],w[3]end local C={}for H=1,6 do C[H]=x[H]==A and 0 or(x[H]==B and 1 or k(x[H],A,B))end local D,E=C[6],0 if C[1]~=D then E=E+1 end if C[2]~=D then E=E+2 end if C[3]~=D then E=E+4 end if C[4]~=D then E=E+8 end if C[5]~=D then E=E+16 end local F,G if D==0 then F,G=B,A else F,G=A,B end w={f[E],F,G}g[v]=w return w[1],w[2],w[3]end function h:write(p,q,r,s,t)local u=q+self.oy if u<self.cy1 or u>self.cy2 then return self end local v=p+self.ox local w,x=v,v+#r-1 local y,z=self.cx1,self.cx2 if w<y then r=c(r,y-w+1)w=y end if x>z then r=c(r,1,z-w+1)x=z end if w>x then return self end self.text[u]=i(self.text[u],w,r)if s then self.fg[u]=i(self.fg[u],w,b(s,x-w+1))end if t then self.bg[u]=i(self.bg[u],w,b(t,x-w+1))end self.dirty=true return self end local function m(p)if not p then return nil end local q=e[p]if not q then error("Basalt: unknown color value "..tostring(p).." (use colors.* or basalt.rgb)",3)end return q end function h:blit(p,q,r,s,t)return self:write(p,q,r,m(s),m(t))end function h:colorBlit(p,q,r,s,t)local u,v={},{}for w=1,#r do u[w]=m(s[w])v[w]=m(t[w])end return self:rawBlit(p,q,r,table.concat(u),table.concat(v))end function h:drawText(p,q,r)return self:write(p,q,r)end function h:rawBlit(p,q,r,s,t)local u=q+self.oy if u<self.cy1 or u>self.cy2 then return self end local v=p+self.ox local w,x=v,v+#r-1 local y,z=self.cx1,self.cx2 local A=w<y and(y-w)or 0 local B=x>z and(x-z)or 0 if A>0 or B>0 then w=w+A x=x-B if w>x then return self end r=c(r,1+A,#r-B)if s then s=c(s,1+A,#s-B)end if t then t=c(t,1+A,#t-B)end end self.text[u]=i(self.text[u],w,r)if s then self.fg[u]=i(self.fg[u],w,s)end if t then self.bg[u]=i(self.bg[u],w,t)end self.dirty=true return self end function h:maskedBlit(p,q,r,s,t,u,v,w)local x,y=q+self.oy,p+self.ox if x<self.cy1 or x>self.cy2 then return self end local z,A=y,y+#r-1 local B=z<self.cx1 and self.cx1-z or 0 local C=A>self.cx2 and A-self.cx2 or 0 if B>0 or C>0 then z,A=z+B,A-C if z>A then return self end r=c(r,1+B,#r-C)s=s and c(s,1+B,#s-C)t=t and c(t,1+B,#t-C)u=u and c(u,1+B,#u-C)v=v and c(v,1+B,#v-C)w=w and c(w,1+B,#w-C)end local D=c(self.text[x],z,A)self.text[x]=i(self.text[x],z,j(r,D,u))if s then local E=c(self.fg[x],z,A)self.fg[x]=i(self.fg[x],z,j(s,E,v))end if t then local E=c(self.bg[x],z,A)self.bg[x]=i(self.bg[x],z,j(t,E,w))end self.dirty=true return self end function h:drawPixels(p,q,r,s,t,u)local v,w=math.ceil(r/2),math.ceil(s/3)for x=1,w do local y,z,A,B,C={},{},{},{},false for D=1,v do local E,F=p+D-1+self.ox,q+x-1+self.oy local G=E>=self.cx1 and E<=self.cx2 and F>=self.cy1 and F<=self.cy2 local H,I={},false if G then local J,K={},c(self.bg[F],E,E)local L=self.text[F]:byte(E)if L and L>=128 and L<=159 then local M,N=c(self.fg[F],E,E),L-128 local O={1,2,4,8,16}for P=1,5 do J[P]=d(N/O[P])%2==1 and M or K end J[6]=K else for M=1,6 do J[M]=K end end for M=1,3 do local N=(x-1)*3+M for O=1,2 do local P=(D-1)*2+O local Q=(M-1)*2+O local R=N<=s and P<=r and t[N]:byte(P)or 0 if R~=0 then H[Q],I=u[R],true if not H[Q]then error("Basalt: FLIMG palette index "..R.." is missing",2)end else H[Q]=J[Q]end end end end if I then y[D],z[D],A[D]=l(H[1],H[2],H[3],H[4],H[5],H[6])B[D],C="\1",true else y[D],z[D],A[D]="\0","\0","\0"B[D]="\0"end end if C then local D=table.concat(B)self:maskedBlit(p,q+x-1,table.concat(y),table.concat(z),table.concat(A),D,D,D)end end return self end local n={}for p=0,15 do n[("%x"):format(p)]=string.char(p)n[("%X"):format(p)]=string.char(p)end function h:drawBlit(p,q,r,s,t)return self:rawBlit(p,q,r,s and(s:gsub(".",n)),t and(t:gsub(".",n)))end function h:fill(p,q,r,s,t,u,v)local w=b(t,r)local x,y=m(u),m(v)for z=0,s-1 do self:write(p,q+z,w,x,y)end return self end function h:setCursor(p,q,r,s)self.cursorX,self.cursorY,self.cursorBlink=p,q,r self.cursorColor=s self.dirty=true return self end local function o(p,q)for r=1,#p do q[p:byte(r)]=true end end function h:flush()if not self.dirty then return self end local p=self.term local q,r if a.hasVirtual()then local v={}for w=1,self.height do o(self.fg[w],v)o(self.bg[w],v)end q,r=self.mapper:build(v)else q,r=a.identityMap,false end local s,t,u=self.prevText,self.prevFg,self.prevBg for v=1,self.height do local w,x,y=self.text[v],self.fg[v],self.bg[v]if r or w~=s[v]or x~=t[v]or y~=u[v]then p.setCursorPos(1,v)p.blit(w,(x:gsub(".",q)),(y:gsub(".",q)))s[v],t[v],u[v]=w,x,y end end if self.cursorBlink then local v=self.cursorColor and e[self.cursorColor]local w=v and q[v]if w then p.setTextColor(2^tonumber(w,16))end p.setCursorPos(self.cursorX,self.cursorY)p.setCursorBlink(true)else p.setCursorBlink(false)end self.dirty=false return self end return h]],
+[13]=[[local _={}local function a(f,g,h)if f<g then return g end if f>h then return h end return f end local function b(f)return rawget(f,"_scrollX")or 0,rawget(f,"_scrollY")or 0 end local function c(f)return math.max(0,(rawget(f,"_contentWidth")or 0)-f.width),math.max(0,(rawget(f,"_contentHeight")or 0)-f.height)end local function d(f)local g=f.scrollbar if g~="auto"and g~="always"and g~="hidden"then error("Basalt scroll: scrollbar must be 'auto', 'always' or 'hidden'",3)end return g end function _.disable(f)rawset(f,"_scrollX",0)rawset(f,"_scrollY",0)rawset(f,"_showScrollX",false)rawset(f,"_showScrollY",false)rawset(f,"_scrollDrag",nil)rawset(f,"_viewportDirty",true)end function _.setup(f)rawset(f,"_scrollX",0)rawset(f,"_scrollY",0)rawset(f,"_contentWidth",0)rawset(f,"_contentHeight",0)f:on("drag",function(g,h,i,j)_.drag(g,i,j)end)f:on("clickUp",function(g)rawset(g,"_scrollDrag",nil)end)end function _.update(f)local g=f:getChildren()local h,i=0,0 for q=1,#g do local r=g[q]if r.visible then h=math.max(h,r.x+r.width-1)i=math.max(i,r.y+r.height-1)end end rawset(f,"_contentWidth",h)rawset(f,"_contentHeight",i)if not f.scrollable then _.disable(f)return end local j=d(f)local k=f.scrollXEnabled and h>f.width local l=f.scrollYEnabled and i>f.height rawset(f,"_showScrollX",j~="hidden"and f.scrollXEnabled and(j=="always"or k))rawset(f,"_showScrollY",j~="hidden"and f.scrollYEnabled and(j=="always"or l))local m,n=c(f)local o,p=b(f)rawset(f,"_scrollX",f.scrollXEnabled and a(o,0,m)or 0)rawset(f,"_scrollY",f.scrollYEnabled and a(p,0,n)or 0)rawset(f,"_viewportDirty",true)end local function e(f,g,h,i,j)if f<=0 then return 1,0 end local k=math.max(1,math.floor(f*g/math.max(h,g)))k=math.min(f,k)local l=f-k local m=j>0 and math.floor(l*i/j+0.5)or 0 return k,m end function _.geometry(f)local g=rawget(f,"_showScrollX")==true local h=rawget(f,"_showScrollY")==true local i,j=b(f)local k,l=c(f)local m=math.max(0,f.width-(h and 1 or 0))local n=math.max(0,f.height-(g and 1 or 0))local o,p=e(m,f.width,rawget(f,"_contentWidth")or 0,i,k)local q,r=e(n,f.height,rawget(f,"_contentHeight")or 0,j,l)return{showX=g,showY=h,horizontalLength=m,verticalLength=n,horizontalThumbSize=o,horizontalThumbPos=p,verticalThumbSize=q,verticalThumbPos=r,maxX=k,maxY=l,}end function _.draw(f,g)if not f.scrollable then return end local h=_.geometry(f)local i,j=f.scrollbarColor,f.scrollbarThumbColor if h.showY and h.verticalLength>0 then g:fill(f.width,1,1,h.verticalLength," ",f.foreground,i)g:fill(f.width,h.verticalThumbPos+1,1,h.verticalThumbSize," ",f.foreground,j)end if h.showX and h.horizontalLength>0 then g:fill(1,f.height,h.horizontalLength,1," ",f.foreground,i)g:fill(h.horizontalThumbPos+1,f.height,h.horizontalThumbSize,1," ",f.foreground,j)end if h.showX and h.showY then g:fill(f.width,f.height,1,1," ",f.foreground,i)end end function _.set(f,g,h,i)if not f.scrollable then return false end local j,k=b(f)local l,m=c(f)g=f.scrollXEnabled and a(math.floor(g or j),0,l)or 0 h=f.scrollYEnabled and a(math.floor(h or k),0,m)or 0 if g==j and h==k then return false end rawset(f,"_scrollX",g)rawset(f,"_scrollY",h)rawset(f,"_viewportDirty",true)f:markRenderDirty()if i~=false then f:fire("scrollChange",g,h)end return true end function _.wheel(f,g)if not f.scrollable then return false end local h,i=b(f)local j=g*math.max(1,math.floor(f.scrollStep))if f.scrollYEnabled and(rawget(f,"_contentHeight")or 0)>f.height then return _.set(f,h,i+j)elseif f.scrollXEnabled then return _.set(f,h+j,i)end return false end function _.isBarPoint(f,g,h)if not f.scrollable then return false end local i=_.geometry(f)if i.showY and g==f.width and h<=i.verticalLength then return"y",i end if i.showX and h==f.height and g<=i.horizontalLength then return"x",i end if i.showX and i.showY and g==f.width and h==f.height then return"corner",i end return false,i end function _.pointerDown(f,g,h)local i,j=_.isBarPoint(f,g,h)if i=="corner"or not i then return i=="corner"end local k=i=="y"local l=k and h or g local m=k and j.verticalThumbPos or j.horizontalThumbPos local n=k and j.verticalThumbSize or j.horizontalThumbSize local o=k and j.verticalLength or j.horizontalLength local p=k and j.maxY or j.maxX local q=m+1 if l>=q and l<q+n then rawset(f,"_scrollDrag",{axis=i,grab=l-q,})else local r=math.max(1,o-n)local s=math.floor((l-1-n/2)/r*p+0.5)local t,u=b(f)_.set(f,k and t or s,k and s or u)end return true end function _.drag(f,g,h)local i=rawget(f,"_scrollDrag")if not i then return false end local j=_.geometry(f)local k=i.axis=="y"local l=k and h or g local m=k and j.verticalThumbSize or j.horizontalThumbSize local n=k and j.verticalLength or j.horizontalLength local o=k and j.maxY or j.maxX local p=math.max(1,n-m)local q=a(l-1-i.grab,0,p)local r=math.floor(q/p*o+0.5)local s,t=b(f)return _.set(f,k and s or r,k and r or t)end return _]],
+[14]=[[local _={}local a=table.unpack or unpack local b=nil local c={}c.__index=c c.__basaltStateValue=true local d={}d.__index=d d.__basaltStateValue=true local function e(f,g)g=g or b if g and g.markDirty then f._watchers[g]=true local h=rawget(g,"_stateDependencies")if not h then h=setmetatable({},{__mode="k"})rawset(g,"_stateDependencies",h)end h[f]=true end end function _.clearWatcher(f)local g=rawget(f,"_stateDependencies")if not g then return end for h in pairs(g)do h._watchers[f]=nil g[h]=nil end end function _.withWatcher(f,g,...)local h=b b=f or h local i=table.pack(pcall(g,...))b=h if not i[1]then error(i[2],0)end return a(i,2,i.n)end function _.is(f)local g=type(f)=="table"and getmetatable(f)return g and g.__basaltStateValue==true or false end function _.read(f,g)return f:get(g)end function _.isWritable(f)return getmetatable(f)==c end function c:get(f)e(self,f)return self._value end function c:set(f)local g=self._value if g==f then return self end self._value=f for h in pairs(self._watchers)do if h.markLayoutDirty then h:markLayoutDirty()else h:markDirty()end end for h in pairs(self._listeners)do h(f,g)end return self end function c:update(f)if type(f)~="function"then error("Basalt state: update expects a function",2)end return self:set(f(self._value))end function c:touch()for f in pairs(self._watchers)do if f.markLayoutDirty then f:markLayoutDirty()else f:markDirty()end end for f in pairs(self._listeners)do f(self._value,self._value)end return self end function c:subscribe(f,g)if type(f)~="function"then error("Basalt state: subscribe expects a function",2)end self._listeners[f]=true if g then f(self._value,nil)end local h=true return function()if h then self._listeners[f]=nil h=false end end end function c:map(f)if type(f)~="function"then error("Basalt state: map expects a function",2)end local g=self return _.computed(function()return f(g:get())end)end function c:__tostring()return tostring(self._value)end function d:get(f)return _.withWatcher(f,self._compute)end function d:map(f)if type(f)~="function"then error("Basalt state: map expects a function",2)end local g=self return _.computed(function()return f(g:get())end)end function d:__tostring()return tostring(self:get())end function _.create(f)return setmetatable({_value=f,_watchers=setmetatable({},{__mode="k"}),_listeners={},},c)end function _.computed(f)if type(f)~="function"then error("Basalt computed: expected a function",2)end return setmetatable({_compute=f},d)end return _]],
+[15]=[[local _={}function _.wrap(a,b)b=math.max(1,b)local c={}for d in(tostring(a).."\n"):gmatch("(.-)\n")do local e=""for f in d:gmatch("%S+")do if#e==0 then e=f elseif#e+1+#f<=b then e=e.." "..f else c[#c+1]=e e=f end while#e>b do c[#c+1]=e:sub(1,b)e=e:sub(b+1)end end c[#c+1]=e end if#c>1 and c[#c]==""then table.remove(c)end if#c==0 then c={""}end return c end return _]],
+[16]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Button",b)a.property(c,"text","Button")a.property(c,"width",10)a.property(c,"height",3)a.property(c,"background",colors.gray)function c:render(d)local e,f=self.foreground,self.background if self:hasState("pressed")and f then e,f=f,e end local g,h=self.width,self.height if f then d:fill(1,1,g,h," ",e,f)end local i=tostring(self.text)d:blit(math.floor((g-#i)/2)+1,math.floor((h-1)/2)+1,i,e,f or nil)end function c:measure()return math.max(3,#tostring(self.text)+2),3 end return c]],
+[17]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Canvas",b)a.property(c,"draw",false,{rawFunction=true})function c:render(d)b.render(self,d)local e=self.draw if e then e(self,d)end end return c]],
+[18]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Checkbox",b)a.property(c,"checked",false,{state="checked",styleable=false,})a.property(c,"text","")a.property(c,"checkedSymbol","x")a.property(c,"uncheckedSymbol"," ")a.property(c,"width",function(d)return#tostring(d.text)+4 end)a.event(c,"change")function c:setup()b.setup(self)self:on("click",function(d)d.checked=not d.checked d:fire("change",d.checked)end)end function c:render(d)b.render(self,d)local e=self.checked and self.checkedSymbol or self.uncheckedSymbol d:blit(1,1,"["..tostring(e):sub(1,1).."] "..tostring(self.text),self.foreground,nil)end return c]],
+[19]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/collection")local d=a.create("Collection",b)c.install(d)function d:setup()b.setup(self)c.setup(self)end return d]],
+[20]=[[local _=...local a=_("core/class")local b=_("core/layout")local c=_("elements/Flex")local d=a.create("Column",c)a.property(d,"direction","column")a.property(d,"width",b.fill())a.property(d,"height",b.auto())return d]],
+[21]=[[local _=...local a=_("core/class")local b=_("elements/Input")local c=_("core/itemview")local d=_("core/collection")local e=a.create("ComboBox",b)d.install(e,{changeEvent="selectionChange"})a.property(e,"dropHeight",6)a.property(e,"autoComplete",false)a.property(e,"offset",0)a.property(e,"dropBackground",colors.black)a.property(e,"dropForeground",colors.white)a.property(e,"scrollbar","auto")a.property(e,"scrollbarColor",colors.gray)a.property(e,"scrollbarThumbColor",colors.lightGray)a.property(e,"width",14)a.property(e,"height",function(h)if h.open then return 1+math.min(#h:getDisplayItems(),h.dropHeight)end return 1 end)a.property(e,"open",false,{onChange=function(h,i)if i then rawset(h,"_zBefore",h.z)h.z=999 rawset(h,"_highlighted",1)h.offset=0 else h.z=rawget(h,"_zBefore")or h.z end end,})function e:getDisplayItems()local h=self.items local i={}local j=self.autoComplete and self.text:lower()or""for k=1,#h do local l=tostring(h[k])if#j==0 or l:lower():sub(1,#j)==j then i[#i+1]={index=k,text=l,item=h[k]}end end return i end local function f(h,i)return math.min(#i,math.max(0,h.dropHeight))end local function g(h,i)return c.geometry(#i,f(h,i),h.offset,h.scrollbar)end function e:selectDisplayed(h)local i=self:getDisplayItems()local j=i[h]if not j then return self end rawset(self,"_selecting",true)self.text=j.text rawset(self,"_selecting",nil)self:_moveCursor(#j.text+1)self.open=false self:activateItem(j.index)return self end function e:clear()d.methods.clear(self)self.open=false self.offset=0 self:markDirty()return self end function e:setup()b.setup(self)d.setup(self)self:on("click",function(h,i,j,k)if k==1 then if j==h.width then h.open=not h.open end return end local l=h:getDisplayItems()local m=g(h,l)if m.show and j==h.width then local n,o=c.pointerDown(k-1,m)h.offset=n if o~=nil then rawset(h,"_itemScrollDrag",o)end return end h:selectDisplayed(h.offset+k-1)end)self:on("drag",function(h,i,j,k)local l=rawget(h,"_itemScrollDrag")if l~=nil then h.offset=c.drag(k-1,l,g(h,h:getDisplayItems()))end end)self:on("clickUp",function(h)rawset(h,"_itemScrollDrag",nil)end)self:on("change",function(h)if h.autoComplete and not rawget(h,"_selecting")then h.open=#h:getDisplayItems()>0 and#h.text>0 rawset(h,"_highlighted",1)h.offset=0 end end)self:on("blur",function(h)h.open=false end)end function e:handleMouse(h,i,j,k)if h=="mouse_scroll"and self.open then if self.disabled then return nil end local l=self:getDisplayItems()self.offset=c.clampOffset(self.offset+i,#l,f(self,l))return self end return b.handleMouse(self,h,i,j,k)end function e:handleKey(h,i,j)if h=="key"then if self.open then local k=self:getDisplayItems()local l=rawget(self,"_highlighted")or 1 if i==keys.escape then self.open=false return elseif i==keys.enter then self:selectDisplayed(l)return elseif i==keys.up or i==keys.down then local m=i==keys.down and 1 or-1 l=math.max(1,math.min(#k,l+m))rawset(self,"_highlighted",l)self.offset=c.ensureVisible(self.offset,l,#k,f(self,k))self:markDirty()return end elseif i==keys.down and#self:getDisplayItems()>0 then self.open=true return end end b.handleKey(self,h,i,j)end function e:render(h)b.render(self,h)local i=self.width h:blit(i,1,self.open and"\30"or"\31",self.foreground,self.background)if self.open then local j=self:getDisplayItems()local k=g(self,j)rawget(self,"_p").offset=k.offset local l=rawget(self,"_highlighted")local m=math.max(0,i-(k.show and 1 or 0))for n=1,self.height-1 do local o=j[k.offset+n]if not o then break end local p=(k.offset+n)==l local q=p and self.selectionForeground or self.dropForeground local r=p and self.selectionBackground or self.dropBackground h:fill(1,1+n,m,1," ",q,r)h:blit(1,1+n,o.text:sub(1,m),q,r)end c.draw(h,i,2,k,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end end return e]],
+[22]=[[local _=...local a=_("core/class")local b=_("elements/Collection")local c=a.create("ContextMenu",b)a.property(c,"background",colors.black)a.property(c,"separatorColor",colors.gray)a.property(c,"visible",false)a.property(c,"width",function(e)local f=4 for g,h in ipairs(e.items)do if not(type(h)=="table"and h.separator)then f=math.max(f,#tostring(h)+2)end end return f end)a.property(c,"height",function(e)return math.max(1,#e.items)end)local function d(e)return type(e)=="table"and e.separator==true end function c:setup()b.setup(self)self.z=1000 self:on("click",function(e,f,g,h)local i=e.items[h]if i~=nil and not d(i)and not i.disabled then e:activateItem(h)e:close()end end)self:on("blur",function(e)e:close()end)end function c:openAt(e,f)local g=rawget(self,"parent")if g then e=math.max(1,math.min(e,g.width-self.width+1))f=math.max(1,math.min(f,g.height-self.height+1))end self.x,self.y=e,f self.visible=true self:focus()return self end function c:close()self.visible=false return self end function c:handleKey(e,f,g)if e=="key"then if f==keys.escape then self:close()elseif f==keys.enter then local h=rawget(self,"_highlighted")local i=h and self.items[h]if i and not d(i)and not i.disabled then self:activateItem(h)self:close()end elseif f==keys.up or f==keys.down then local h=#self.items local i=rawget(self,"_highlighted")or 0 local j=f==keys.down and 1 or-1 for k=1,h do i=i+j if i<1 then i=h elseif i>h then i=1 end if not d(self.items[i])and not self.items[i].disabled then break end end rawset(self,"_highlighted",i)self:markDirty()end end b.handleKey(self,e,f,g)end function c:render(e)local f=self.width local g,h=self.foreground,self.background local i=rawget(self,"_highlighted")for j,k in ipairs(self.items)do if d(k)then e:fill(1,j,f,1,"\140",self.separatorColor,h)elseif j==i and not k.disabled then e:fill(1,j,f,1," ",self.selectionForeground,self.selectionBackground)e:blit(2,j,tostring(k):sub(1,f-2),self.selectionForeground,self.selectionBackground)else local l=k.fg or g e:fill(1,j,f,1," ",g,h)e:blit(2,j,tostring(k):sub(1,f-2),l,h)end end end return c]],
+[23]=[[local _=...local a=_("core/class")local b=_("core/container")local c=_("core/text")local d=a.create("Dialog",b)a.property(d,"title","")a.property(d,"titleBackground",colors.blue)a.property(d,"titleForeground",colors.white)a.property(d,"boxBackground",colors.lightGray)a.property(d,"boxForeground",colors.black)a.property(d,"boxWidth",26)a.property(d,"visible",false)a.property(d,"background",false)a.property(d,"width",function(h)local i=rawget(h,"parent")return i and i.width or 1 end)a.property(d,"height",function(h)local i=rawget(h,"parent")return i and i.height or 1 end)a.event(d,"close")function d:setup()b.setup(self)self.x,self.y=1,1 self.z=950 self:on("click",function()end)end local function e(h)local i=h:getChildren()for j=#i,1,-1 do h:removeChild(i[j])end end function d:close(h)e(self)self.visible=false self:fire("close",h)return self end local function f(h,i,j,k)e(h)h.title=tostring(i or"")h.visible=true local l=math.min(h.boxWidth,math.max(10,h.width-2))local m=c.wrap(j or"",l-2)local n=1+1+#m+(k or 0)+2 local o=h:addFrame({x=math.max(1,math.floor((h.width-l)/2)+1),y=math.max(1,math.floor((h.height-n)/2)+1),width=l,height=n,background=h.boxBackground,foreground=h.boxForeground,})o:addLabel({x=1,y=1,width=l,height=1,text=h.title,background=h.titleBackground,foreground=h.titleForeground,})for p,q in ipairs(m)do o:addLabel({x=2,y=2+p,text=q,foreground=h.boxForeground,})end return o,2+#m+1 end local function g(h,i,j,k)local l=0 for n,o in ipairs(j)do l=l+#o[1]+2+1 end local m=math.max(2,math.floor((i.width-l+1)/2)+1)for n,o in ipairs(j)do local p,q=o[1],o[2]i:addButton({x=m,y=k+1,width=#p+2,height=1,text=p,}):onClick(function()q()end)m=m+#p+3 end end function d:alert(h,i,j)local k,l=f(self,h,i,0)g(self,k,{{"OK",function()self:close(true)if j then j()end end},},l)return self end function d:confirm(h,i,j)local k,l=f(self,h,i,0)g(self,k,{{"Yes",function()self:close(true)if j then j(true)end end},{"No",function()self:close(false)if j then j(false)end end},},l)return self end function d:prompt(h,i,j,k)local l,m=f(self,h,i,2)local n=l:addInput({x=2,y=m+1,width=l.width-2,text=tostring(j or""),})local function o()local p=n.text self:close(p)if k then k(p)end end n:onEnter(o)g(self,l,{{"OK",o},{"Cancel",function()self:close(nil)if k then k(nil)end end},},m+2)n:focus()return self end return d]],
+[24]=[[local _=...local a=_("core/class")local b=_("elements/Collection")local c=_("core/itemview")local d=a.create("Dropdown",b)a.property(d,"text","Select...")a.property(d,"dropHeight",6)a.property(d,"offset",0)a.property(d,"background",colors.gray)a.property(d,"dropBackground",colors.black)a.property(d,"width",14)a.property(d,"scrollbar","auto")a.property(d,"scrollbarColor",colors.gray)a.property(d,"scrollbarThumbColor",colors.lightGray)a.property(d,"height",function(f)if f.open then return 1+math.min(#f.items,f.dropHeight)end return 1 end)a.property(d,"open",false,{onChange=function(f,g)if g then rawset(f,"_zBefore",f.z)f.z=999 local h=f.selected or(#f.items>0 and 1 or false)rawset(f,"_highlighted",h)f.offset=c.ensureVisible(f.offset,h,#f.items,math.min(#f.items,f.dropHeight))else f.z=rawget(f,"_zBefore")or f.z rawset(f,"_itemScrollDrag",nil)end end,})local function e(f)return math.min(#f.items,math.max(0,f.dropHeight))end function d:getScrollInfo()return c.geometry(#self.items,e(self),self.offset,self.scrollbar)end function d:setOffset(f)self.offset=c.clampOffset(f,#self.items,e(self))return self end function d:scrollToItem(f)self.offset=c.ensureVisible(self.offset,f,#self.items,e(self))return self end function d:select(f,g)if not f or self.items[f]==nil then return self end b.select(self,f,g)rawset(self,"_highlighted",f)self:scrollToItem(f)self.open=false return self end function d:setup()b.setup(self)self:on("click",function(f,g,h,i)if i==1 then f.open=not f.open else local j=f:getScrollInfo()if j.show and h==f.width then local l,m=c.pointerDown(i-1,j)f:setOffset(l)if m~=nil then rawset(f,"_itemScrollDrag",m)end return end local k=f.offset+i-1 if f.items[k]~=nil then f:select(k)end end end)self:on("drag",function(f,g,h,i)local j=rawget(f,"_itemScrollDrag")if j~=nil then f:setOffset(c.drag(i-1,j,f:getScrollInfo()))end end)self:on("clickUp",function(f)rawset(f,"_itemScrollDrag",nil)end)self:on("blur",function(f)f.open=false end)end function d:clear()b.clear(self)self.open=false self.offset=0 rawset(self,"_highlighted",nil)self:markDirty()return self end function d:removeItem(f)b.removeItem(self,f)self:setOffset(self.offset)self:markDirty()return self end function d:handleMouse(f,g,h,i)if f=="mouse_scroll"and not self.open then return nil end if f=="mouse_scroll"then if self.disabled then return nil end local j=self.offset self:setOffset(j+g)local k=self:fire("scroll",g,h,i)if self.offset~=j or k then return self end return nil end return b.handleMouse(self,f,g,h,i)end function d:handleKey(f,g,h)if f=="key"then if not self.open then if g==keys.enter or g==keys.space or g==keys.down or g==keys.up then self.open=true end else local i=#self.items local j=rawget(self,"_highlighted")or 0 if g==keys.escape then self.open=false elseif g==keys.enter or g==keys.space then if j>0 then self:select(j)end elseif i>0 then if g==keys.up then j=math.max(1,j>0 and j-1 or 1)elseif g==keys.down then j=math.min(i,j>0 and j+1 or 1)elseif g==keys.home then j=1 elseif g==keys["end"]then j=i elseif g==keys.pageUp then j=math.max(1,j-e(self))elseif g==keys.pageDown then j=math.min(i,j+e(self))end rawset(self,"_highlighted",j)self:scrollToItem(j)self:markDirty()end end end b.handleKey(self,f,g,h)end function d:render(f)local g=self.width local h,i=self.foreground,self.background local j,k=self.items,self.selected local l=c.clampOffset(self.offset,#j,e(self))rawget(self,"_p").offset=l f:fill(1,1,g,1," ",h,i)local m=(k and j[k]~=nil)and tostring(j[k])or tostring(self.text)f:blit(1,1,m:sub(1,g-2),h,i)f:blit(g,1,self.open and"\30"or"\31",h,i)if self.open then local n=self:getScrollInfo()local o=rawget(self,"_highlighted")local p=math.max(0,g-(n.show and 1 or 0))for q=1,self.height-1 do local r=l+q local s=j[r]local t=o==r or(not o and k==r)local u=t and(s and s.selectedFg or self.selectionForeground)or(s and s.fg or h)local v=t and(s and s.selectedBg or self.selectionBackground)or(s and s.bg or self.dropBackground)f:fill(1,1+q,p,1," ",u,v)f:blit(1,1+q,tostring(s or""):sub(1,p),u,v)end c.draw(f,g,2,n,h,self.scrollbarColor,self.scrollbarThumbColor)end end return d]],
+[25]=[[local _=...local a=_("core/class")local b=_("core/layout")local c=_("core/container")local d=a.create("Flex",c)a.property(d,"direction","row")a.property(d,"gap",0)a.property(d,"padding",0)a.property(d,"align","start")a.property(d,"justify","start")a.property(d,"overflow","clip")a.property(d,"background",false)local function e(g)local h=math.max(0,math.floor(tonumber(g.padding)or 0))return h,math.max(0,g.width-h*2),math.max(0,g.height-h*2)end local function f(g,h,i,j,k)if b.is(i)and(i.kind=="auto"or i.kind=="fill")then local l,m=b.measure(g,j,k)return b.constrain(g,h,h=="width"and l or m)end return b.resolveSize(g,h,i,j,k)end function d:measure(g,h)g=g or 1 h=h or 1 local i=self.direction local j=i=="row"if not j and i~="column"then error("Basalt layout: direction must be 'row' or 'column'",2)end local k=math.max(0,math.floor(tonumber(self.padding)or 0))local l=math.max(0,math.floor(tonumber(self.gap)or 0))local m,n,o=0,0,0 local p=self:getChildren()for q=1,#p do local r=p[q]if r.visible and r.position~="absolute"then local s=b.spec(r,"width")local t=b.spec(r,"height")local u=f(r,"width",s,g,h)local v=f(r,"height",t,g,h)m=m+(j and u or v)n=math.max(n,j and v or u)o=o+1 end end if o>1 then m=m+l*(o-1)end m,n=m+k*2,n+k*2 return j and m or n,j and n or m end function d:layoutChildren()local g=self.direction local h=g=="row"if not h and g~="column"then error("Basalt layout: direction must be 'row' or 'column'",2)end local i,j,k=e(self)local l=h and j or k local m=h and k or j local n=math.max(0,math.floor(tonumber(self.gap)or 0))local o={}local p,q,r=0,0,nil local s=self:getChildren()for D=1,#s do local E=s[D]if E.position=="absolute"then b.resolveFreeChild(self,E)elseif E.visible then local F=h and"width"or"height"local G=h and"height"or"width"local H=b.spec(E,F)local I=b.spec(E,G)local J={child=E,mainSpec=H,crossSpec=I,fill=b.is(H)and H.kind=="fill",weight=b.is(H)and H.kind=="fill"and H.value or 0,}local K=E.shrink if K==false then J.shrink=b.is(H)and 1 or 0 else J.shrink=math.max(0,tonumber(K)or 0)end if J.fill then p=p+J.weight r=#o+1 else J.main=f(E,F,H,j,k)q=q+J.main end J.cross=b.resolveSize(E,G,I,j,k)o[#o+1]=J else rawset(E,"_layoutBox",nil)end end local t=n*math.max(0,#o-1)local u=math.max(0,l-q-t)local v=0 for D=1,#o do local E=o[D]if E.fill then local F if D==r then F=u-v else F=math.floor(u*E.weight/p)v=v+F end local G=h and"width"or"height"E.main=b.constrain(E.child,G,F)end end local w=t for D=1,#o do w=w+o[D].main end local x=math.max(0,w-l)while x>0 do local D=0 for F=1,#o do local G=o[F]local H=h and"minWidth"or"minHeight"local I=G.child[H]if I==false then I=0 end G.minimum=math.max(0,tonumber(I)or 0)if G.shrink>0 and G.main>G.minimum then D=D+G.shrink end end if D==0 then break end local E=0 for F=1,#o do local G=o[F]if G.shrink>0 and G.main>G.minimum then local H=math.max(1,math.floor(x*G.shrink/D))local I=math.min(H,G.main-G.minimum,x-E)G.main=G.main-I E=E+I if E>=x then break end end end if E==0 then break end x=x-E end w=t for D=1,#o do w=w+o[D].main end local y=math.max(0,l-w)local z,A,B=self.justify,0,n if self.overflow~="clip"then error("Basalt layout: only overflow='clip' is currently supported",2)end if z=="center"then A=math.floor(y/2)elseif z=="end"then A=y elseif z=="spaceBetween"and#o>1 then B=n+math.floor(y/(#o-1))elseif z~="start"then error("Basalt layout: invalid justify '"..tostring(z).."'",2)end local C=i+A+1 for D=1,#o do local E,F=o[D],o[D].child local G=F.alignSelf~=false and F.alignSelf or self.align local H=E.cross if G=="stretch"and b.is(E.crossSpec)and E.crossSpec.kind=="auto"then H=m end local I=0 if G=="center"then I=math.floor((m-H)/2)elseif G=="end"then I=m-H elseif G~="start"and G~="stretch"then error("Basalt layout: invalid align '"..tostring(G).."'",2)end I=math.max(0,I)if h then b.setBox(F,C,i+I+1,E.main,H)else b.setBox(F,i+I+1,C,H,E.main)end C=C+E.main+B end end return d]],
+[26]=[[local _=...local a=_("core/class")local b=_("core/container")local c=a.create("Frame",b)a.property(c,"background",colors.gray)a.property(c,"width",20)a.property(c,"height",8)a.property(c,"draggable",false)a.property(c,"draggingMap",false,{visual=false})local function d(e,f,g)local h=e.draggingMap if not h then h={{x=1,y=1,width="full",height=1}}end for i=1,#h do local j=h[i]local k=j.width=="full"and e.width or(j.width or 1)local l=j.height=="full"and e.height or(j.height or 1)if f>=j.x and f<j.x+k and g>=j.y and g<j.y+l then return true end end return false end function c:setup()b.setup(self)self:on("click",function(e,f,g,h)if e.draggable and d(e,g,h)then rawset(e,"_dragFrom",{x=g,y=h})end end)self:on("drag",function(e,f,g,h)local i=rawget(e,"_dragFrom")if i then e.x=e.x+g-i.x e.y=e.y+h-i.y end end)self:on("clickUp",function(e)rawset(e,"_dragFrom",nil)end)end function c:toFront()local e=rawget(self,"parent")if not e then return self end local f=self.z for g,h in ipairs(e:getChildren())do if h.z>f then f=h.z end end if f>=self.z then self.z=f+1 end return self end return c]],
+[27]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Input",b)a.property(c,"text","",{rawString=true,onChange=function(d,e)local f=rawget(d,"_cursor")if f and f>#e+1 then rawset(d,"_cursor",#e+1)rawset(d,"_scroll",math.max(0,#e+1-d.width))end end,})a.property(c,"placeholder","")a.property(c,"placeholderColor",colors.gray)a.property(c,"maxLength",false)a.property(c,"replaceChar",false)a.property(c,"pattern",false)a.property(c,"width",12)a.property(c,"height",1)a.property(c,"background",colors.lightGray)a.property(c,"foreground",colors.black)a.event(c,"change")a.event(c,"enter")function c:setup()b.setup(self)rawset(self,"_cursor",1)rawset(self,"_scroll",0)self:on("click",function(d,e,f,g)if g~=1 then return end d:_moveCursor(d._scroll+f)end)self:on("focus",function(d)d:markDirty()end)self:on("blur",function(d)d:markDirty()end)end function c:_moveCursor(d)local e=#self.text if d<1 then d=1 end if d>e+1 then d=e+1 end rawset(self,"_cursor",d)local f,g=self.width,self._scroll if d-g>f then g=d-f end if d-g<1 then g=d-1 end rawset(self,"_scroll",g)self:markDirty()end function c:_insert(d)local e=self.pattern if e then d=d:gsub(".",function(i)return i:match(e)and i or""end)if#d==0 then return end end local f=self.text local g=self.maxLength if g and#f+#d>g then return end local h=self._cursor self.text=f:sub(1,h-1)..d..f:sub(h)self:_moveCursor(h+#d)self:fire("change",self.text)end function c:handleKey(d,e,f)if d=="char"or d=="paste"then self:_insert(e)elseif d=="key"then local g=self._cursor local h=self.text if e==keys.backspace then if g>1 then self.text=h:sub(1,g-2)..h:sub(g)self:_moveCursor(g-1)self:fire("change",self.text)end elseif e==keys.delete then if g<=#h then self.text=h:sub(1,g-1)..h:sub(g+1)self:fire("change",self.text)end elseif e==keys.left then self:_moveCursor(g-1)elseif e==keys.right then self:_moveCursor(g+1)elseif e==keys.home then self:_moveCursor(1)elseif e==keys["end"]then self:_moveCursor(#h+1)elseif e==keys.enter then self:fire("enter",h)end end b.handleKey(self,d,e,f)end function c:render(d)b.render(self,d)local e=self:getRoot()local f=e.getFocused and e:getFocused()==self local g=self.text local h=self.width if#g==0 and not f then d:blit(1,1,self.placeholder:sub(1,h),self.placeholderColor,nil)else local i=g:sub(self._scroll+1,self._scroll+h)local j=self.replaceChar if j then i=tostring(j):sub(1,1):rep(#i)end d:blit(1,1,i,self.foreground,nil)end if f then self:setCursor(self._cursor-self._scroll,1,true,self.foreground)end end function c:measure()return math.max(1,#tostring(self.text),#tostring(self.placeholder)),1 end return c]],
+[28]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/text")local d=a.create("Label",b)local function e(f)local g=rawget(f,"_p")if rawget(f,"_autoSize")then if type(g.width)~="function"then g.width=math.max(#tostring(f.text),1)end return end if rawget(f,"_autoHeight")and type(g.height)~="function"and type(g.width)~="function"then g.height=#c.wrap(f.text,f.width)end end a.property(d,"text","",{onChange=function(f)e(f)end,})a.property(d,"width",1,{onChange=function(f)rawset(f,"_autoSize",false)e(f)end,})a.property(d,"height",1,{onChange=function(f)rawset(f,"_autoHeight",false)end,})function d:setup()b.setup(self)rawset(self,"_autoSize",true)rawset(self,"_autoHeight",true)end function d:render(f)b.render(self,f)local g=tostring(self.text)if rawget(self,"_autoSize")or self.height==1 then f:blit(1,1,g,self.foreground,nil)else local h=c.wrap(g,self.width)for i=1,math.min(#h,self.height)do f:blit(1,i,h[i],self.foreground,nil)end end end function d:measure()return math.max(1,#tostring(self.text)),1 end return d]],
+[29]=[[local _=...local a=_("core/class")local b=_("elements/Collection")local c=_("core/itemview")local d=a.create("List",b)a.property(d,"offset",0)a.property(d,"emptyText","")a.property(d,"emptyTextColor",colors.gray)a.property(d,"background",colors.black)a.property(d,"width",16)a.property(d,"height",8)a.property(d,"scrollbar","auto")a.property(d,"scrollbarColor",colors.gray)a.property(d,"scrollbarThumbColor",colors.lightGray)local function e(f)return c.maxOffset(#f.items,f.height)end function d:getScrollInfo()return c.geometry(#self.items,self.height,self.offset,self.scrollbar)end function d:setOffset(f)self.offset=c.clampOffset(f,#self.items,self.height)return self end function d:scrollToItem(f)self.offset=c.ensureVisible(self.offset,f,#self.items,self.height)return self end function d:selectItem(f,g)b.selectItem(self,f,g)local h=self:indexOfItem(f)or self:getSelectedIndex()if h then self:scrollToItem(h)end return self end function d:setup()b.setup(self)self:on("click",function(f,g,h,i)local j=f:getScrollInfo()if j.show and h==f.width then local l,m=c.pointerDown(i,j)f:setOffset(l)if m~=nil then rawset(f,"_itemScrollDrag",m)end return end local k=f.offset+i if f.items[k]~=nil then f:select(k)end end)self:on("drag",function(f,g,h,i)local j=rawget(f,"_itemScrollDrag")if j~=nil then f:setOffset(c.drag(i,j,f:getScrollInfo()))end end)self:on("clickUp",function(f)rawset(f,"_itemScrollDrag",nil)end)end function d:handleMouse(f,g,h,i)if f=="mouse_scroll"then if self.disabled then return nil end local j=self.offset self:setOffset(j+g)local k=self:fire("scroll",g,h,i)if self.offset~=j or k then return self end return nil end return b.handleMouse(self,f,g,h,i)end function d:removeItem(f)b.removeItem(self,f)if self.offset>e(self)then self.offset=e(self)end self:markDirty()return self end function d:handleKey(f,g,h)if f=="key"and#self.items>0 then local i=self.selected or 0 if g==keys.up then self:selectItem(i>1 and i-1 or 1)elseif g==keys.down then self:selectItem(i>0 and math.min(#self.items,i+1)or 1)elseif g==keys.home then self:selectItem(1)elseif g==keys["end"]then self:selectItem(#self.items)elseif g==keys.pageUp then self:selectItem(math.max(1,(i>0 and i or 1)-self.height))elseif g==keys.pageDown then self:selectItem(math.min(#self.items,(i>0 and i or 1)+self.height))elseif g==keys.enter and i>0 then self:activateItem(i)end end b.handleKey(self,f,g,h)end function d:clear()b.clear(self)self.offset=0 return self end function d:render(f)b.render(self,f)local g=self.items local h,i=self.width,self.height if#g==0 and#tostring(self.emptyText)>0 then local n=tostring(self.emptyText):sub(1,h)f:blit(math.floor((h-#n)/2)+1,math.floor((i-1)/2)+1,n,self.emptyTextColor,nil)return end local j=c.clampOffset(self.offset,#g,i)rawget(self,"_p").offset=j local k=self:getScrollInfo()local l=math.max(0,h-(k.show and 1 or 0))local function m(n,o,p,q)local r=n.iconChar if type(r)=="number"then r=string.char(r)end if type(r)~="string"or#r==0 then return end local s=math.floor(tonumber(n.iconX)or 1)if s<1 or s>l then return end local t=p and n.selectedIconForeground or n.iconForeground or q local u=p and n.selectedIconBackground or n.iconBackground f:blit(s,o,r:sub(1,1),t,u)end for n=1,i do local o=j+n local p=g[o]if p==nil then break end local q=tostring(p)if p.separator then local r=q~=""and q:sub(1,1)or"-"f:blit(1,n,r:rep(l),p.fg or self.foreground,p.bg)elseif self:isSelected(o)then local r=p.selectedFg or self.selectionForeground local s=p.selectedBg or self.selectionBackground f:fill(1,n,l,1," ",r,s)f:blit(1,n,q:sub(1,l),r,s)m(p,n,true,s)else local r=p.fg or self.foreground local s=p.bg if s then f:fill(1,n,l,1," ",r,s)end f:blit(1,n,q:sub(1,l),r,s)m(p,n,false,s or self.background)end end c.draw(f,h,1,k,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end return d]],
+[30]=[[local _=...local a=_("core/class")local b=_("elements/Collection")local c=a.create("Menu",b)local function d(k)if type(k)=="table"then if k.separator then return"\149"end return tostring(k.text)end return tostring(k)end local function e(k)return type(k)=="table"and k.separator==true end local function f(k)return type(k)=="table"and(k.items or k.dropdown)or nil end local function g(k)local l={}local m=1 for n,o in ipairs(k.items)do local p=e(o)and d(o)or(" "..d(o).." ")l[n]={m,m+#p-1,p}m=m+#p+k.spacing end return l,math.max(1,m-k.spacing-1)end local function h(k)local l=rawget(k,"_openIndex")if not l then return nil end local m=k.items[l]local n=f(m)if not n then return nil end local o=g(k)local p=1 for r,s in ipairs(n)do p=math.max(p,#tostring(s)+2)end local q=math.min(o[l][1],math.max(1,k.width-p+1))return{x=q,width=p,items=n,parent=l}end a.property(c,"spacing",1)a.property(c,"background",colors.gray)a.property(c,"separatorColor",colors.lightGray)a.property(c,"dropBackground",colors.black)a.property(c,"width",function(k)local l,m=g(k)return m end)a.property(c,"height",function(k)local l=h(k)return l and(1+#l.items)or 1 end)local function i(k)if rawget(k,"_openIndex")then rawset(k,"_openIndex",nil)k.z=rawget(k,"_zBefore")or k.z k:markDirty()end end local function j(k,l)rawset(k,"_zBefore",k.z)rawset(k,"_openIndex",l)k.z=999 k:markDirty()end function c:select(k,l)local m=self.items[k]if m==nil or e(m)then return self end if f(m)then if rawget(self,"_openIndex")==k then i(self)else j(self,k)end return self end i(self)b.select(self,k,l)return self end function c:setup()b.setup(self)self:on("click",function(k,l,m,n)if n==1 then for o,p in ipairs(g(k))do if m>=p[1]and m<=p[2]then k:select(o)return end end i(k)else local o=h(k)if o and m>=o.x and m<o.x+o.width and o.items[n-1]~=nil then local p=n-1 local q=o.items[p]i(k)if type(q)=="table"and type(q.callback)=="function"then q.callback(k,q)end k:fire("select",p,tostring(q),o.parent)else i(k)end end end)self:on("blur",function(k)i(k)end)end function c:handleKey(k,l,m)if k=="key"and#self.items>0 then local n=self.selected or 0 if l==keys.left then self:select(math.max(1,n>0 and n-1 or 1),false)elseif l==keys.right then self:select(n>0 and math.min(#self.items,n+1)or 1,false)elseif l==keys.escape then i(self)elseif l==keys.enter and n>0 then self:select(n)end end b.handleKey(self,k,l,m)end function c:clear()b.clear(self)i(self)self:markDirty()return self end function c:measure()local k,l=g(self)return l,1 end function c:render(k)local l,m=self.foreground,self.background k:fill(1,1,self.width,1," ",l,m)local n=self.selected local o=rawget(self,"_openIndex")for q,r in ipairs(g(self))do local s=self.items[q]if e(s)then k:blit(r[1],1,r[3],self.separatorColor,m)elseif q==n or q==o then k:blit(r[1],1,r[3],self.selectionForeground,self.selectionBackground)else k:blit(r[1],1,r[3],l,m)end end local p=h(self)if p then for q,r in ipairs(p.items)do k:fill(p.x,1+q,p.width,1," ",l,self.dropBackground)k:blit(p.x+1,1+q,tostring(r):sub(1,p.width-2),l,self.dropBackground)end end end return c]],
+[31]=[=[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/errors")local d=_("core/palette")local e=a.create("Program",b)local f={mouse_click=true,mouse_up=true,mouse_drag=true,mouse_scroll=true,mouse_move=true,key=true,key_up=true,char=true,paste=true,}local g local function h(n,o,p)if not o or not o.window then return false end local q=math.max(1,math.floor(tonumber(n.width)or 1))local r=math.max(1,math.floor(tonumber(n.height)or 1))local s,t=o.window.getSize()if s==q and t==r then return false end o.window.reposition(1,1,q,r)if p and g then g(n,o,"term_resize")end return true end local function i(n)local o=rawget(n,"_proc")if o then h(n,o,true)end end a.property(e,"path","",{visual=false})a.property(e,"running",false,{visual=false,styleable=false})a.property(e,"env",false,{visual=false})a.property(e,"background",colors.black)a.property(e,"width",30,{onChange=i})a.property(e,"height",12,{onChange=i})a.event(e,"done")a.event(e,"error")local function j(n,o,p,q)if rawget(n,"_proc")==o then rawset(n,"_proc",nil)end n.running=false n:fire("done",p,q)end local function k(n)local o=tostring(n or"")return o=="Terminated"or o:match(": Terminated$")~=nil end local function l(n,o,p,q,r)if not p then if r and k(q)then j(n,o,true,nil)return end local s=debug.traceback(o.co)or""j(n,o,false,q)if n._handlers.error then n:fire("error",q,s)else error(c.wrap(q,s),0)end return end o.filter=q if coroutine.status(o.co)=="dead"then j(n,o,true,q)end n:markDirty()end g=function(n,o,p,...)local q=o.co if not q or coroutine.status(q)=="dead"then return end if p~="term_resize"then h(n,o,true)if rawget(n,"_proc")~=o or coroutine.status(q)=="dead"then return end end if o.filter~=nil and p~=o.filter and p~="terminate"then return end o.filter=nil local r=term.redirect(o.term)local s,t=coroutine.resume(q,p,...)o.term=term.current()term.redirect(r)l(n,o,s,t,p=="terminate")end local function m(n,o,p)p.native=function()return p end p.current=term.current p.redirect=term.redirect local q=setmetatable({},{__index=_ENV})q.term=p if shell then q.shell,q.multishell=shell,multishell end if fs.exists("rom/modules/main/cc/require.lua")then local s=dofile("rom/modules/main/cc/require.lua").make q.require,q.package=s(q,fs.getDir(o))end local r=n.env if type(r)=="table"then for s,t in pairs(r)do q[s]=t end end return q end function e:execute(n,...)self:stop()local o if fs.exists(n)and not fs.isDir(n)then o=n elseif shell then o=shell.resolveProgram(n)end if not o then error("Basalt Program: program not found: "..tostring(n),2)end local p=self:getRoot()local q=rawget(p,"term")if not q then error("Basalt Program: element must be inside a frame before execute()",2)end local r=fs.open(o,"r")local s=r.readAll()r.close()local t=window.create(q,1,1,self.width,self.height,false)local u,v=load(s,"@/"..o,nil,m(self,o,t))if not u then error("Basalt Program: failed to load "..o..": "..tostring(v),2)end local w={window=t,term=t,args=table.pack(...),filter=nil,}w.co=coroutine.create(u)rawset(self,"_proc",w)self.path=o self.running=true local x=term.redirect(t)local y,z=coroutine.resume(w.co,table.unpack(w.args,1,w.args.n))w.term=term.current()term.redirect(x)l(self,w,y,z)if rawget(self,"_proc")==w then local A=_("main")A.schedule(function()while rawget(self,"_proc")==w and coroutine.status(w.co)~="dead"do local B=table.pack(os.pullEventRaw())if not f[B[1]]then g(self,w,table.unpack(B,1,B.n))end end end)end return self end function e:stop()local n=rawget(self,"_proc")if not n then return self end rawset(self,"_proc",nil)if n.co and coroutine.close and coroutine.status(n.co)~="dead"then coroutine.close(n.co)end self.running=false return self end function e:terminate()local n=rawget(self,"_proc")if not n then return self end g(self,n,"terminate")if rawget(self,"_proc")==n then self:stop()end return self end function e:sendEvent(n,...)local o=rawget(self,"_proc")if o then g(self,o,n,...)end return self end function e:setup()b.setup(self)self:on("click",function(n,o,p,q)local r=rawget(n,"_proc")if r then g(n,r,"mouse_click",o,p,q)end end)self:on("clickUp",function(n,o,p,q)local r=rawget(n,"_proc")if r then g(n,r,"mouse_up",o,p,q)end end)self:on("drag",function(n,o,p,q)local r=rawget(n,"_proc")if r then g(n,r,"mouse_drag",o,p,q)end end)self:on("scroll",function(n,o,p,q)local r=rawget(n,"_proc")if r then g(n,r,"mouse_scroll",o,p,q)end end)end function e:handleKey(n,o,p)local q=rawget(self,"_proc")if q then g(self,q,n,o,p)end b.handleKey(self,n,o,p)end function e:destroy()self:terminate()return b.destroy(self)end function e:render(n)b.render(self,n)local o=rawget(self,"_proc")if not o then return end h(self,o,true)if rawget(self,"_proc")~=o then return end local p=o.window local q,r=p.getSize()local s=d.windowTranslation(p)for u=1,r do local v,w,x=p.getLine(u)if v then if s then n:rawBlit(1,u,v,(w:gsub(".",s)),(x:gsub(".",s)))else n:drawBlit(1,u,v,w,x)end end end local t=self:getRoot()if t.getFocused and t:getFocused()==self then local u,v=p.getCursorPos()self:setCursor(u,v,p.getCursorBlink(),p.getTextColor())end end return e]=],
+[32]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("ProgressBar",b)a.property(c,"progress",0,{onChange=function(d,e)local f=rawget(d,"_p")if e<0 then f.progress=0 elseif e>100 then f.progress=100 end end,})a.property(c,"barColor",colors.lime)a.property(c,"background",colors.gray)a.property(c,"width",16)a.property(c,"direction","right")a.property(c,"showPercentage",false)function c:render(d)b.render(self,d)local e,f=self.width,self.height local g=math.min(100,math.max(0,self.progress))local h=self.direction if h=="up"or h=="down"then local i=math.floor(f*g/100+0.5)if i>0 then d:fill(1,h=="up"and(f-i+1)or 1,e,i," ",self.foreground,self.barColor)end else local i=math.floor(e*g/100+0.5)if i>0 then d:fill(h=="left"and(e-i+1)or 1,1,i,f," ",self.foreground,self.barColor)end end if self.showPercentage then local i=math.floor(g+0.5).."%"d:drawText(math.floor((e-#i)/2)+1,math.floor((f-1)/2)+1,i)end end return c]],
+[33]=[[local _=...local a=_("core/class")local b=_("core/layout")local c=_("elements/Flex")local d=a.create("Row",c)a.property(d,"direction","row")a.property(d,"width",b.fill())a.property(d,"height",b.auto())return d]],
+[34]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Slider",b)a.property(c,"min",0)a.property(c,"max",100)a.property(c,"step",1)a.property(c,"value",0)a.property(c,"horizontal",true)a.property(c,"barColor",colors.gray)a.property(c,"knobColor",colors.blue)a.property(c,"width",10)a.event(c,"change")local function d(f)return f.horizontal and f.width or f.height end local function e(f,g,h)local i=d(f)local j=f.horizontal and g or h local k,l,m=f.min,f.max,f.step if l<=k or i<2 then return end local n=(j-1)/(i-1)if n<0 then n=0 elseif n>1 then n=1 end local o=k+n*(l-k)o=k+math.floor((o-k)/m+0.5)*m if o<k then o=k elseif o>l then o=l end if o~=f.value then f.value=o f:fire("change",o)end end function c:setup()b.setup(self)self:on("click",function(f,g,h,i)e(f,h,i)end)self:on("drag",function(f,g,h,i)e(f,h,i)end)end function c:handleMouse(f,g,h,i)if f=="mouse_scroll"then if self.disabled then return nil end local j=self.value+g*self.step if j<self.min then j=self.min elseif j>self.max then j=self.max end if j~=self.value then self.value=j self:fire("change",j)end return self end return b.handleMouse(self,f,g,h,i)end function c:render(f)b.render(self,f)local g=d(self)local h,i=self.min,self.max local j=1 if i>h then j=1+math.floor((self.value-h)/(i-h)*(g-1)+0.5)end if self.horizontal then f:blit(1,1,string.rep("\140",g),self.barColor,nil)f:fill(j,1,1,1," ",self.foreground,self.knobColor)else for k=1,g do f:blit(1,k,"\149",self.barColor,nil)end f:fill(1,j,1,1," ",self.foreground,self.knobColor)end end return c]],
+[35]=[[local _=...local a=_("core/class")local b=_("core/element")local c=a.create("Switch",b)a.property(c,"checked",false,{state="checked",styleable=false,})a.property(c,"onColor",colors.green)a.property(c,"offColor",colors.gray)a.property(c,"knobColor",colors.white)a.property(c,"width",4)a.event(c,"change")function c:setup()b.setup(self)self:on("click",function(d)d.checked=not d.checked d:fire("change",d.checked)end)end function c:render(d)local e,f=self.width,self.height local g=self.checked d:fill(1,1,e,f," ",self.foreground,g and self.onColor or self.offColor)local h=math.max(1,math.floor(e/2))d:fill(g and(e-h+1)or 1,1,h,f," ",self.foreground,self.knobColor)end return c]],
+[36]=[[local _=...local a=_("core/class")local b=_("core/container")local c=_("elements/Frame")local d=a.create("TabControl",b)a.property(d,"active",0,{onChange=function(f)local g=rawget(f,"_tabs")if not g then return end local h=f.active for i=1,#g do g[i].frame.visible=(i==h)end end,})a.property(d,"headerBackground",colors.gray)a.property(d,"activeBackground",colors.blue)a.property(d,"activeForeground",colors.white)a.property(d,"background",colors.black)a.property(d,"width",24)a.property(d,"height",10)a.event(d,"change")local function e(f)local g={}local h=1 for i,j in ipairs(rawget(f,"_tabs"))do local k=" "..j.title.." "g[i]={h,h+#k-1,k}h=h+#k end return g end function d:setup()b.setup(self)rawset(self,"_tabs",{})self:on("click",function(f,g,h,i)if i~=1 then return end for j,k in ipairs(e(f))do if h>=k[1]and h<=k[2]then f:setActiveTab(j)return end end end)end function d:addTab(f)local g=c.new({x=1,y=2,width=function(i)local j=rawget(i,"parent")return j and j.width or 1 end,height=function(i)local j=rawget(i,"parent")return j and math.max(1,j.height-1)or 1 end,background=false,visible=false,})self:addChild(g)local h=rawget(self,"_tabs")h[#h+1]={title=tostring(f),frame=g}if self.active==0 then self.active=#h end self:markDirty()return g end function d:setActiveTab(f,g)local h=rawget(self,"_tabs")if not h[f]or self.active==f then return self end self.active=f if g~=false then self:fire("change",f,h[f].title)end return self end function d:getTab(f)local g=rawget(self,"_tabs")[f]return g and g.frame or nil end function d:getTabCount()return#rawget(self,"_tabs")end function d:handleKey(f,g,h)if f=="key"then local i=#rawget(self,"_tabs")if i>0 then if g==keys.left then self:setActiveTab(math.max(1,self.active-1))elseif g==keys.right then self:setActiveTab(math.min(i,self.active+1))end end end b.handleKey(self,f,g,h)end function d:render(f)b.render(self,f)f:fill(1,1,self.width,1," ",self.foreground,self.headerBackground)local g=self.active for h,i in ipairs(e(self))do if h==g then f:blit(i[1],1,i[3],self.activeForeground,self.activeBackground)else f:blit(i[1],1,i[3],self.foreground,self.headerBackground)end end end return d]],
+[37]=[=[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/itemview")local d=a.create("Table",b)local function e(k)rawset(k,"_viewOrder",nil)end local function f(k)if type(k)~="table"then error("Basalt Table: columns must be a table",3)end local l={}for m,n in ipairs(k)do if type(n)=="string"then l[m]={title=n,name=n,width=#n+1}elseif type(n)=="table"then local o=n.title or n.name or""l[m]={title=o,name=n.name or o,width=n.width,minWidth=n.minWidth or 1,maxWidth=n.maxWidth,}else error("Basalt Table: column "..m.." must be a string or table",3)end end return l end a.property(d,"columns",false,{onChange=function(k,l)rawget(k,"_p").columns=f(l)e(k)end,})a.property(d,"data",false,{onChange=e})a.property(d,"selected",false,{state="selected",stateWhen=function(k)return k~=false and k~=nil end,styleable=false,})a.property(d,"offset",0)a.property(d,"sortable",true)a.property(d,"sortColumn",false,{styleable=false})a.property(d,"sortDirection","asc",{styleable=false})a.property(d,"background",colors.black)a.property(d,"headerBackground",colors.gray)a.property(d,"gridColor",colors.gray)a.property(d,"selectionBackground",colors.blue)a.property(d,"selectionForeground",colors.white)a.property(d,"width",26)a.property(d,"height",8)a.property(d,"scrollbar","auto")a.property(d,"scrollbarColor",colors.gray)a.property(d,"scrollbarThumbColor",colors.lightGray)a.property(d,"scrollBarSymbol"," ")a.property(d,"scrollBarBackground","\127")a.event(d,"select")a.event(d,"rowSelect")a.event(d,"change")a.event(d,"sort")local function g(k)return math.max(0,k.height-1)end local function h(k)return c.geometry(#k.data,g(k),k.offset,k.scrollbar)end local function i(k)local l=k.data local m=rawget(k,"_viewOrder")if m and#m==#l then return m end m={}for o=1,#l do m[o]=o end local n=rawget(k,"_sortCol")if n then local o=rawget(k,"_sortAsc")local p=rawget(k,"_columnSorters")[n]table.sort(m,function(q,r)local s=rawget(k,"_sortValues")local t=s[l[q]]and s[l[q]][n]or l[q][n]local u=s[l[r]]and s[l[r]][n]or l[r][n]if p then return p(t,u,o,l[q],l[r])end if type(t)=="number"and type(u)=="number"then if o then return t<u end return t>u end t,u=tostring(t),tostring(u)if o then return t<u end return t>u end)end rawset(k,"_viewOrder",m)return m end local function j(k,l)local m=k.columns local n=math.max(0,#m-1)local o=math.max(0,l-n)local p,q=0,{}local r={}for v=1,#m do local w=m[v].width local x if type(w)=="number"then x=w elseif type(w)=="string"then local y=tonumber(w:match("^(%-?[%d%.]+)%%$"))if y then x=math.floor(o*y/100)end end if x then x=math.max(m[v].minWidth or 1,math.floor(x))if m[v].maxWidth then x=math.min(x,m[v].maxWidth)end r[v],p=x,p+x else q[#q+1]=v end end local s=math.max(0,o-p)for v,w in ipairs(q)do local x=math.floor(s/math.max(1,#q-v+1))x=math.max(m[w].minWidth or 1,x)if m[w].maxWidth then x=math.min(x,m[w].maxWidth)end r[w],s=x,math.max(0,s-x)end local t={}local u=1 for v=1,#m do local w=math.max(0,math.min(r[v]or 0,l-u+1))t[v]={x=u,width=w}u=u+w+1 end return t end function d:sortBy(k,l)if self.columns[k]==nil then return self end if l==nil then l=rawget(self,"_sortCol")~=k or not rawget(self,"_sortAsc")end rawset(self,"_sortCol",k)rawset(self,"_sortAsc",l and true or false)rawget(self,"_p").sortColumn=k rawget(self,"_p").sortDirection=l and"asc"or"desc"e(self)self:fire("sort",k,l)self:markDirty()return self end function d:select(k,l)local m=self.selected local n=m and self.data[m]or nil if k==false or k==nil then self.selected=false if m then self:fire("change",false,nil,m,n)end return self end if self.data[k]==nil then return self end self.selected=k local o=i(self)for p=1,#o do if o[p]==k then self.offset=c.ensureVisible(self.offset,p,#o,g(self))break end end if m~=k then self:fire("change",k,self.data[k],m or false,n)end if l~=false then self:fire("select",k,self.data[k])self:fire("rowSelect",k,self.data[k])end return self end function d:addRow(...)local k=select("#",...)local l=k==1 and type((...))=="table"and(...)or{...}local m=self.data m[#m+1]=l rawget(self,"_sortValues")[l]=l e(self)self:markDirty()return self end function d:removeRow(k)local l=self.data if l[k]==nil then return self end local m=self.selected local n=m and l[m]or nil local o=table.remove(l,k)rawget(self,"_sortValues")[o]=nil if self.selected==k then self.selected=false self:fire("change",false,nil,m,n)elseif self.selected and self.selected>k then self.selected=self.selected-1 self:fire("change",self.selected,self.data[self.selected],m,n)end e(self)self:markDirty()return self end function d:getRow(k)return self.data[k]end function d:updateCell(k,l,m)local n=self.data[k]if n==nil then return self end n[l]=m local o=rawget(self,"_sortValues")if o[n]then o[n][l]=m end e(self)self:markDirty()return self end function d:setColumnSort(k,l)local m=rawget(self,"_columnSorters")m[k]=l e(self)self:markDirty()return self end function d:setColumnSortFunction(k,l)if l==nil then return self:setColumnSort(k,nil)end return self:setColumnSort(k,function(m,n,o,p,q)return l(p,q,o and"asc"or"desc")end)end function d:sortByColumn(k,l)if l then self:setColumnSortFunction(k,l)end return self:sortBy(k,self.sortDirection~="desc")end function d:setSortColumn(k)if k==false or k==nil then rawset(self,"_sortCol",nil)rawget(self,"_p").sortColumn=false e(self)self:markDirty()return self end return self:sortBy(k,self.sortDirection~="desc")end function d:setSortDirection(k)if k~="asc"and k~="desc"then error("Basalt Table: sortDirection must be 'asc' or 'desc'",2)end rawget(self,"_p").sortDirection=k if self.sortColumn then self:sortBy(self.sortColumn,k=="asc")end return self end function d:getSelectedRow()return self.selected and self.data[self.selected]or nil end function d:clearData()return self:clear()end function d:addColumn(k,l)local m={}for n,o in ipairs(self.columns)do m[n]=o end m[#m+1]={name=k,title=k,width=l}self.columns=m return self end function d:setData(k,l)if type(k)~="table"then error("Basalt Table: data must be a table",2)end self:clear()local m,n={},rawget(self,"_sortValues")for o,p in ipairs(k)do local q,r={},{}for s,t in ipairs(p)do r[s]=t q[s]=l and l[s]and l[s](t)or t end m[o],n[q]=q,r end rawget(self,"_p").data=m e(self)self:markDirty()return self end function d:calculateColumnWidths(k,l)local m=self.columns rawget(self,"_p").columns=f(k)local n=j(self,l)rawget(self,"_p").columns=m local o={}for p,q in ipairs(k)do o[p]={name=type(q)=="table"and(q.name or q.title)or q,width=type(q)=="table"and q.width or nil,visibleWidth=n[p].width,}end return o end function d:setHeaderColor(k)self.headerBackground=k return self end function d:getHeaderColor()return self.headerBackground end function d:setSelectedForeground(k)self.selectionForeground=k return self end function d:getSelectedForeground()return self.selectionForeground end function d:setSelectedBackground(k)self.selectionBackground=k return self end function d:getSelectedBackground()return self.selectionBackground end function d:setSelectionColor(k,l)self.selectionForeground,self.selectionBackground=k,l return self end function d:getSelectionColor()return self.selectionForeground,self.selectionBackground end function d:setShowScrollBar(k)self.scrollbar=k and"auto"or"hidden"return self end function d:getShowScrollBar()return self.scrollbar~="hidden"end function d:setScrollBarColor(k)self.scrollbarThumbColor=k return self end function d:getScrollBarColor()return self.scrollbarThumbColor end function d:setScrollBarBackgroundColor(k)self.scrollbarColor=k return self end function d:getScrollBarBackgroundColor()return self.scrollbarColor end function d:clear()local k=self.selected local l=k and self.data[k]or nil rawget(self,"_p").data={}rawset(self,"_sortValues",setmetatable({},{__mode="k"}))self.selected=false self.offset=0 e(self)self:markDirty()if k then self:fire("change",false,nil,k,l)end return self end function d:setup()b.setup(self)local k=rawget(self,"_p")k.columns={}k.data={}rawset(self,"_columnSorters",{})rawset(self,"_sortValues",setmetatable({},{__mode="k"}))self:on("click",function(l,m,n,o)local p=h(l)if o==1 then if not l.sortable then return end local r=l.width-(p.show and 1 or 0)for s,t in ipairs(j(l,r))do if n>=t.x and n<t.x+t.width then l:sortBy(s)return end end return end if p.show and n==l.width then local r,s=c.pointerDown(o-1,p)l.offset=r if s~=nil then rawset(l,"_itemScrollDrag",s)end return end local q=i(l)[p.offset+o-1]if q then l:select(q)end end)self:on("drag",function(l,m,n,o)local p=rawget(l,"_itemScrollDrag")if p~=nil then l.offset=c.drag(o-1,p,h(l))end end)self:on("clickUp",function(l)rawset(l,"_itemScrollDrag",nil)end)end function d:handleMouse(k,l,m,n)if k=="mouse_scroll"then if self.disabled then return nil end local o=self.offset self.offset=c.clampOffset(o+l,#self.data,g(self))local p=self:fire("scroll",l,m,n)if self.offset~=o or p then return self end return nil end return b.handleMouse(self,k,l,m,n)end function d:handleKey(k,l,m)if k=="key"and#self.data>0 then local n=i(self)local o=0 for p=1,#n do if n[p]==self.selected then o=p break end end if l==keys.up then self:select(n[math.max(1,o>0 and o-1 or 1)],false)elseif l==keys.down then self:select(n[o>0 and math.min(#n,o+1)or 1],false)elseif l==keys.home then self:select(n[1],false)elseif l==keys["end"]then self:select(n[#n],false)elseif l==keys.enter and o>0 then self:fire("select",self.selected,self.data[self.selected])self:fire("rowSelect",self.selected,self.data[self.selected])end end b.handleKey(self,k,l,m)end function d:measure()local k=0 for l=1,#self.columns do k=k+(self.columns[l].width or 8)+1 end return math.max(1,k-1),math.max(2,#self.data+1)end function d:render(k)b.render(self,k)local l=self.width local m=h(self)rawget(self,"_p").offset=m.offset local n=l-(m.show and 1 or 0)local o=j(self,n)local p,q=rawget(self,"_sortCol"),rawget(self,"_sortAsc")k:fill(1,1,l,1," ",self.foreground,self.headerBackground)for u,v in ipairs(o)do local w=tostring(self.columns[u].title or self.columns[u].name or"")if u==p then w=w:sub(1,math.max(0,v.width-1))..(q and"\30"or"\31")end k:blit(v.x,1,w:sub(1,v.width),self.foreground,self.headerBackground)end local r,s,t=self.data,i(self),self.selected for u=1,g(self)do local v=s[m.offset+u]if not v then break end local w=r[v]local x=v==t local y=x and self.selectionForeground or self.foreground local z=x and self.selectionBackground or nil if x then k:fill(1,u+1,n,1," ",y,z)end for A,B in ipairs(o)do local C=w[A]if C~=nil then k:blit(B.x,u+1,tostring(C):sub(1,B.width),y,z)end end end c.draw(k,l,2,m,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end return d]=],
+[38]=[=[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/itemview")local d=a.create("TextBox",b)local e=""a.property(d,"text","",{rawString=true,onChange=function(r,s)if rawget(r,"_syncing")then return end local t={}for v in(s.."\n"):gmatch("(.-)\n")do t[#t+1]=v end if#t==0 then t={""}end rawset(r,"_lines",t)local u=math.min(rawget(r,"_curLine")or 1,#t)rawset(r,"_curLine",u)rawset(r,"_curCol",math.min(rawget(r,"_curCol")or 1,#t[u]+1))rawset(r,"_selLine",nil)rawset(r,"_selCol",nil)end,})a.property(d,"background",colors.black)a.property(d,"width",20)a.property(d,"height",8)a.property(d,"scrollbar","auto")a.property(d,"scrollbarColor",colors.gray)a.property(d,"scrollbarThumbColor",colors.lightGray)a.property(d,"selectionBackground",colors.blue)a.property(d,"selectionForeground",colors.white)a.event(d,"change")local function f(r)return c.geometry(#r._lines,r.height,r._viewY,r.scrollbar)end local function g(r)return math.max(1,r.width-(f(r).show and 1 or 0))end local function h(r)rawset(r,"_viewY",c.ensureVisible(r._viewY,r._curLine,#r._lines,r.height))local s=g(r)local t,u=r._viewX,r._curCol if u-t>s then t=u-s end if u-t<1 then t=u-1 end rawset(r,"_viewX",t)end local function i(r)rawset(r,"_syncing",true)r.text=table.concat(r._lines,"\n")rawset(r,"_syncing",false)h(r)r:fire("change",r.text)end local function j(r)local s,t=rawget(r,"_selLine"),rawget(r,"_selCol")if not s then return nil end local u,v=r._curLine,r._curCol if s==u and t==v then return nil end if u<s or(u==s and v<t)then return u,v,s,t end return s,t,u,v end local function k(r)if rawget(r,"_selLine")then rawset(r,"_selLine",nil)rawset(r,"_selCol",nil)r:markDirty()end end local function l(r)if not rawget(r,"_selLine")then rawset(r,"_selLine",r._curLine)rawset(r,"_selCol",r._curCol)end end local function m(r,s,t)local u=r._lines s=math.max(1,math.min(#u,s))t=math.max(1,math.min(#u[s]+1,t))rawset(r,"_curLine",s)rawset(r,"_curCol",t)h(r)r:markDirty()end function d:getSelection()local r,s,t,u=j(self)if not r then return nil end local v=self._lines if r==t then return v[r]:sub(s,u-1)end local w={v[r]:sub(s)}for x=r+1,t-1 do w[#w+1]=v[x]end w[#w+1]=v[t]:sub(1,u-1)return table.concat(w,"\n")end function d:deleteSelection()local r,s,t,u=j(self)if not r then return false end local v=self._lines v[r]=v[r]:sub(1,s-1)..v[t]:sub(u)for w=t,r+1,-1 do table.remove(v,w)end rawset(self,"_curLine",r)rawset(self,"_curCol",s)k(self)i(self)return true end function d:selectAll()rawset(self,"_selLine",1)rawset(self,"_selCol",1)local r=self._lines m(self,#r,#r[#r]+1)return self end function d:copy()local r=self:getSelection()if r then e=r end return r end function d:cut()local r=self:copy()if r then self:deleteSelection()end return r end function d:getClipboard()return e end local function n(r,s)r:deleteSelection()local t=r._lines local u,v=r._curLine,r._curCol local w=t[u]t[u]=w:sub(1,v-1)..s..w:sub(v)rawset(r,"_curCol",v+#s)i(r)end local function o(r,s,t)local u=f(r)local v=math.max(1,math.min(#r._lines,u.offset+t))local w=math.max(1,math.min(#r._lines[v]+1,r._viewX+s))return v,w end function d:setup()b.setup(self)rawset(self,"_lines",{""})rawset(self,"_curLine",1)rawset(self,"_curCol",1)rawset(self,"_viewX",0)rawset(self,"_viewY",0)self:on("click",function(r,s,t,u)local v=f(r)if v.show and t==r.width then local y,z=c.pointerDown(u,v)rawset(r,"_viewY",y)if z~=nil then rawset(r,"_itemScrollDrag",z)end r:markDirty()return end k(r)local w,x=o(r,t,u)rawset(r,"_mouseAnchor",{line=w,col=x})m(r,w,x)end)self:on("drag",function(r,s,t,u)local v=rawget(r,"_itemScrollDrag")if v~=nil then rawset(r,"_viewY",c.drag(u,v,f(r)))r:markDirty()return end local w=rawget(r,"_mouseAnchor")if w then rawset(r,"_selLine",w.line)rawset(r,"_selCol",w.col)m(r,o(r,t,u))end end)self:on("clickUp",function(r)rawset(r,"_itemScrollDrag",nil)rawset(r,"_mouseAnchor",nil)end)self:on("blur",function(r)rawset(r,"_shift",false)rawset(r,"_ctrl",false)end)end function d:handleMouse(r,s,t,u)if r=="mouse_scroll"then if self.disabled then return nil end local v=self._viewY rawset(self,"_viewY",c.clampOffset(v+s,#self._lines,self.height))local w=self:fire("scroll",s,t,u)if self._viewY~=v or w then self:markDirty()return self end return nil end return b.handleMouse(self,r,s,t,u)end local p local function q()p={[keys.left]=function(r,s,t)if t>1 then return s,t-1 end if s>1 then return s-1,#r._lines[s-1]+1 end return s,t end,[keys.right]=function(r,s,t,u)if t<=#u then return s,t+1 end if s<#r._lines then return s+1,1 end return s,t end,[keys.up]=function(r,s,t)return s-1,t end,[keys.down]=function(r,s,t)return s+1,t end,[keys.home]=function(r,s)return s,1 end,[keys["end"]]=function(r,s,t,u)return s,#u+1 end,[keys.pageUp]=function(r,s,t)return s-r.height,t end,[keys.pageDown]=function(r,s,t)return s+r.height,t end,}end function d:handleKey(r,s,t)if r=="char"or r=="paste"then n(self,s)elseif r=="key_up"then if s==keys.leftShift or s==keys.rightShift then rawset(self,"_shift",false)elseif s==keys.leftCtrl or s==keys.rightCtrl then rawset(self,"_ctrl",false)end elseif r=="key"then if not p then q()end local u=self._lines local v,w=self._curLine,self._curCol local x=u[v]if s==keys.leftShift or s==keys.rightShift then rawset(self,"_shift",true)elseif s==keys.leftCtrl or s==keys.rightCtrl then rawset(self,"_ctrl",true)elseif rawget(self,"_ctrl")and s==keys.a then self:selectAll()elseif rawget(self,"_ctrl")and s==keys.c then self:copy()elseif rawget(self,"_ctrl")and s==keys.x then self:cut()elseif p[s]then if rawget(self,"_shift")then l(self)else k(self)end m(self,p[s](self,v,w,x))elseif s==keys.escape then k(self)elseif s==keys.enter then if self:deleteSelection()then u=self._lines v,w=self._curLine,self._curCol x=u[v]end u[v]=x:sub(1,w-1)table.insert(u,v+1,x:sub(w))rawset(self,"_curLine",v+1)rawset(self,"_curCol",1)i(self)elseif s==keys.backspace then if self:deleteSelection()then elseif w>1 then u[v]=x:sub(1,w-2)..x:sub(w)rawset(self,"_curCol",w-1)i(self)elseif v>1 then local y=u[v-1]rawset(self,"_curLine",v-1)rawset(self,"_curCol",#y+1)u[v-1]=y..x table.remove(u,v)i(self)end elseif s==keys.delete then if self:deleteSelection()then elseif w<=#x then u[v]=x:sub(1,w-1)..x:sub(w+1)i(self)elseif v<#u then u[v]=x..u[v+1]table.remove(u,v+1)i(self)end end end b.handleKey(self,r,s,t)end function d:measure()local r=1 for s,t in ipairs(self._lines)do r=math.max(r,#t)end return r+1,math.max(1,#self._lines)end function d:render(r)b.render(self,r)local s=self._lines local t=f(self)rawset(self,"_viewY",t.offset)local u=math.max(0,self.width-(t.show and 1 or 0))local v=self._viewX for B=1,self.height do local C=s[t.offset+B]if not C then break end r:blit(1,B,C:sub(v+1,v+u),self.foreground,nil)end local w,x,y,z=j(self)if w then for B=1,self.height do local C=t.offset+B local D=s[C]if D and C>=w and C<=y then local E=(C==w)and x or 1 local F=(C==y)and(z-1)or(#D+1)local G=math.max(E,v+1)local H=math.min(F,v+u)if H>=G then local I=D:sub(G,H)I=I..string.rep(" ",(H-G+1)-#I)r:blit(G-v,B,I,self.selectionForeground,self.selectionBackground)end end end end c.draw(r,self.width,1,t,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)local A=self:getRoot()if A.getFocused and A:getFocused()==self then self:setCursor(self._curCol-v,self._curLine-t.offset,true,self.foreground)end end return d]=],
+[39]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/text")local d=a.create("Toast",b)a.property(d,"message","")a.property(d,"duration",3)a.property(d,"maxWidth",24)a.property(d,"visible",false)a.property(d,"toastColors",false)a.property(d,"width",function(e)local f=1 for g,h in ipairs(rawget(e,"_lines")or{""})do f=math.max(f,#h)end return f+2 end)a.property(d,"height",function(e)return math.max(1,#(rawget(e,"_lines")or{""}))end)a.property(d,"x",function(e)local f=rawget(e,"parent")return f and math.max(1,f.width-e.width)or 1 end)a.property(d,"y",2)a.event(d,"hide")function d:setup()b.setup(self)self.z=900 rawget(self,"_p").toastColors={default={bg=colors.gray,fg=colors.white},success={bg=colors.green,fg=colors.white},error={bg=colors.red,fg=colors.white},warning={bg=colors.orange,fg=colors.black},info={bg=colors.blue,fg=colors.white},}self:on("click",function(e)e:hide()end)end function d:show(e,f,g)self.message=tostring(e)rawset(self,"_lines",c.wrap(self.message,self.maxWidth-2))local h=self.toastColors[f or"default"]or self.toastColors.default self.background=h.bg self.foreground=h.fg self.visible=true self:markDirty()g=g or self.duration local i=(rawget(self,"_showToken")or 0)+1 rawset(self,"_showToken",i)if g and g>0 then local j=_("main")j.schedule(function()sleep(g)if rawget(self,"_showToken")==i then self:hide()end end)end return self end function d:hide()if not self.visible then return self end self.visible=false self:fire("hide")return self end function d:success(e,f)return self:show(e,"success",f)end function d:error(e,f)return self:show(e,"error",f)end function d:warning(e,f)return self:show(e,"warning",f)end function d:info(e,f)return self:show(e,"info",f)end function d:render(e)b.render(self,e)local f=rawget(self,"_lines")or{""}for g=1,#f do e:blit(2,g,f[g],self.foreground,self.background)end end return d]],
+[40]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/itemview")local d=a.create("Tree",b)a.property(d,"nodes",false,{onChange=function(h,i)if type(i)~="table"then error("Basalt Tree: nodes must be a table",3)end local j=h.selected h.offset=0 h.horizontalOffset=0 h.selected=false if j then h:fire("change",false,j)end if i[1]and i[1].children and i[1].expanded==nil then i[1].expanded=true end end,})a.property(d,"selected",false,{state="selected",stateWhen=function(h)return h~=false and h~=nil end,styleable=false,})a.property(d,"offset",0)a.property(d,"horizontalOffset",0)a.property(d,"background",colors.black)a.property(d,"selectionBackground",colors.blue)a.property(d,"selectionForeground",colors.white)a.property(d,"width",16)a.property(d,"height",8)a.property(d,"scrollbar","auto")a.property(d,"scrollbarColor",colors.gray)a.property(d,"scrollbarThumbColor",colors.lightGray)a.property(d,"scrollBarSymbol"," ")a.property(d,"scrollBarBackground","\127")a.event(d,"select")a.event(d,"change")a.event(d,"toggle")local function e(h)local i={}local function j(k,l,m)for n=1,#k do local o=k[n]i[#i+1]={node=o,depth=l,parent=m}if o.children and o.expanded then j(o.children,l+1,o)end end end j(h.nodes,0,nil)return i end local function f(h,i)for j=1,#h do if h[j].node==i then return j end end return nil end local function g(h,i)return c.geometry(#i,h.height,h.offset,h.scrollbar)end function d:toggle(h,i)if not h or not h.children then return self end if i==nil then i=not h.expanded end h.expanded=i and true or false local j=e(self)self.offset=c.clampOffset(self.offset,#j,self.height)self:fire("toggle",h,h.expanded)self:markDirty()return self end function d:select(h,i)local j=self.selected if h==false or h==nil then self.selected=false if j then self:fire("change",false,j)end return self end self.selected=h local k=e(self)local l=f(k,h)if l then self.offset=c.ensureVisible(self.offset,l,#k,self.height)end if j~=h then self:fire("change",h,j or false)end if i~=false then self:fire("select",h)end return self end function d:expandNode(h)return self:toggle(h,true)end function d:collapseNode(h)return self:toggle(h,false)end function d:toggleNode(h)return self:toggle(h)end function d:setSelectedNode(h)return self:select(h,false)end function d:getSelectedNode()return self.selected or nil end function d:getExpandedNodes()local h={}local function i(j)for k,l in ipairs(j)do if l.expanded then h[l]=true end if l.children then i(l.children)end end end i(self.nodes)return h end function d:setExpandedNodes(h)if type(h)~="table"then error("Basalt Tree: expandedNodes must be a table",2)end local function i(j)for k,l in ipairs(j)do if l.children then l.expanded=h[l]==true i(l.children)end end end i(self.nodes)self.offset=c.clampOffset(self.offset,#e(self),self.height)self:markDirty()return self end function d:getNodeSize()local h=e(self)local i=1 for j,k in ipairs(h)do i=math.max(i,k.depth+2+#tostring(k.node.text or"Node"))end return i,#h end function d:setHorizontalOffset(h)local i=self:getNodeSize()rawget(self,"_p").horizontalOffset=math.max(0,math.min(math.floor(h or 0),math.max(0,i-self.width)))self:markDirty()return self end function d:setSelectedForegroundColor(h)self.selectionForeground=h return self end function d:getSelectedForegroundColor()return self.selectionForeground end function d:setSelectedBackgroundColor(h)self.selectionBackground=h return self end function d:getSelectedBackgroundColor()return self.selectionBackground end function d:setSelectionColor(h,i)self.selectionForeground,self.selectionBackground=h,i return self end function d:getSelectionColor()return self.selectionForeground,self.selectionBackground end function d:setShowScrollBar(h)self.scrollbar=h and"auto"or"hidden"return self end function d:getShowScrollBar()return self.scrollbar~="hidden"end function d:setScrollBarColor(h)self.scrollbarThumbColor=h return self end function d:getScrollBarColor()return self.scrollbarThumbColor end function d:setScrollBarBackgroundColor(h)self.scrollbarColor=h return self end function d:getScrollBarBackgroundColor()return self.scrollbarColor end function d:expandAll()local function h(i)for j=1,#i do if i[j].children then i[j].expanded=true h(i[j].children)end end end h(self.nodes)self:markDirty()return self end function d:collapseAll()local function h(i)for j=1,#i do if i[j].children then i[j].expanded=false h(i[j].children)end end end h(self.nodes)self:markDirty()return self end function d:setup()b.setup(self)rawget(self,"_p").nodes={}self:on("click",function(h,i,j,k)local l=e(h)local m=g(h,l)if m.show and j==h.width then local o,p=c.pointerDown(k,m)h.offset=o if p~=nil then rawset(h,"_itemScrollDrag",p)end return end local n=l[m.offset+k]if not n then return end if n.node.children and j>=n.depth+1 and j<=n.depth+2 then h:toggle(n.node)else h:select(n.node)end end)self:on("drag",function(h,i,j,k)local l=rawget(h,"_itemScrollDrag")if l~=nil then h.offset=c.drag(k,l,g(h,e(h)))end end)self:on("clickUp",function(h)rawset(h,"_itemScrollDrag",nil)end)end function d:handleMouse(h,i,j,k)if h=="mouse_scroll"then if self.disabled then return nil end local l=e(self)local m=self.offset self.offset=c.clampOffset(m+i,#l,self.height)local n=self:fire("scroll",i,j,k)if self.offset~=m or n then return self end return nil end return b.handleMouse(self,h,i,j,k)end function d:handleKey(h,i,j)if h=="key"then local k=e(self)if#k>0 then local l=f(k,self.selected)or 0 if i==keys.up then self:select(k[math.max(1,l>0 and l-1 or 1)].node,false)elseif i==keys.down then self:select(k[l>0 and math.min(#k,l+1)or 1].node,false)elseif i==keys.right and l>0 then local m=k[l].node if m.children and not m.expanded then self:toggle(m,true)elseif m.children and m.expanded and m.children[1]then self:select(m.children[1],false)end elseif i==keys.left and l>0 then local m=k[l]if m.node.children and m.node.expanded then self:toggle(m.node,false)elseif m.parent then self:select(m.parent,false)end elseif i==keys.enter and l>0 then self:fire("select",k[l].node)end end end b.handleKey(self,h,i,j)end function d:measure()local h=e(self)local i=1 for j=1,#h do i=math.max(i,h[j].depth+3+#tostring(h[j].node.text))end return i,math.max(1,#h)end function d:render(h)b.render(self,h)local i=e(self)local j=g(self,i)rawget(self,"_p").offset=j.offset local k=math.max(0,self.width-(j.show and 1 or 0))local l=self.selected for m=1,self.height do local n=i[j.offset+m]if not n then break end local o=n.node local p=o.children and(o.expanded and"- "or"+ ")or"  "local q=string.rep(" ",n.depth)..p..tostring(o.text)q=q:sub(self.horizontalOffset+1,self.horizontalOffset+k)if o==l then h:fill(1,m,k,1," ",self.selectionForeground,self.selectionBackground)h:blit(1,m,q:sub(1,k),self.selectionForeground,self.selectionBackground)else h:blit(1,m,q:sub(1,k),self.foreground,nil)end end c.draw(h,self.width,1,j,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end return d]],
+[41]=[[local _=...if type(_)~="function"then local r,s=...local t=fs.combine(fs.getDir(s or"basalt/main.lua"),"init.lua")return assert(loadfile(t,nil,_ENV))(r,t)end local a=_("core/errors")local b=_("core/palette")local c=_("core/state")local d=_("core/layout")local e=_("core/container")local f=_("core/baseframe")e.register("Label",_("elements/Label"))e.register("Canvas",_("elements/Canvas"))e.register("Button",_("elements/Button"))e.register("Frame",_("elements/Frame"))e.register("Input",_("elements/Input"))e.register("Checkbox",_("elements/Checkbox"))e.register("Switch",_("elements/Switch"))e.register("ProgressBar",_("elements/ProgressBar"))e.register("Slider",_("elements/Slider"))e.register("Collection",_("elements/Collection"))e.register("List",_("elements/List"))e.register("Dropdown",_("elements/Dropdown"))e.register("Flex",_("elements/Flex"))e.register("Row",_("elements/Row"))e.register("Column",_("elements/Column"))e.register("TextBox",_("elements/TextBox"))e.register("Menu",_("elements/Menu"))e.register("TabControl",_("elements/TabControl"))e.register("Tree",_("elements/Tree"))e.register("Table",_("elements/Table"))e.register("Program",_("elements/Program"))e.register("ComboBox",_("elements/ComboBox"))e.register("ContextMenu",_("elements/ContextMenu"))e.register("Dialog",_("elements/Dialog"))e.register("Toast",_("elements/Toast"))local g={}g.VERSION="2.5.0-dev"g.traceback=true g.errors=a g.rgb=b.rgb g.state=c.create g.signal=c.create g.computed=c.computed g.isState=c.is g.auto=d.auto g.fill=d.fill g.percent=d.percent function g.use(r)return _("modules/"..r)end local h={}local i=nil local j=false local k={}function g.createFrame(r,s)r=r or term.current()local t=f.new()t:setTerm(r)if s==nil and r.setTextScale and peripheral then local u,v=pcall(peripheral.getName,r)if u then s=v end end rawset(t,"monitor",s)h[#h+1]=t if not i then i=t end return t end function g.getMainFrame()return i or g.createFrame()end function g.schedule(r)local s=coroutine.create(r)local t,u=coroutine.resume(s)if not t then error(a.wrap(u,debug.traceback(s)),0)end k[#k+1]={co=s,filter=u}return s end local function l(r,...)for s=#k,1,-1 do local t=k[s]if coroutine.status(t.co)=="suspended"and(t.filter==nil or t.filter==r)then local u,v=coroutine.resume(t.co,r,...)if not u then error(a.wrap(v,debug.traceback(t.co)),0)end t.filter=v end if coroutine.status(t.co)=="dead"then table.remove(k,s)end end end local m={mouse_click=true,mouse_up=true,mouse_drag=true,mouse_scroll=true,mouse_move=true,}local n={key=true,key_up=true,char=true,paste=true}local function o(r,s,t,u,...)if r=="mouse_move"and type(s)=="string"then for v=1,#h do local w=h[v]if rawget(w,"monitor")==s then w:handleEvent(r,t,u)end end elseif m[r]or n[r]then if i then i:handleEvent(r,s,t,u,...)end elseif r=="monitor_touch"or r=="monitor_resize"then for v=1,#h do local w=h[v]if rawget(w,"monitor")==s then if r=="monitor_touch"then w:handleEvent("mouse_click",1,t,u)w:handleEvent("mouse_up",1,t,u)else w:handleEvent("term_resize")end end end else for v=1,#h do h[v]:handleEvent(r,s,t,u,...)end end l(r,s,t,u,...)end local function p()for r=1,#h do h[r]:draw()end end function g.update(r,...)if r then o(r,...)end p()end function g.stop()j=false end local function q()for r=1,#h do h[r]:cleanup()end end function g.run()if j then error("Basalt is already running",2)end j=true local r,s=xpcall(function()p()while j do local t=table.pack(os.pullEventRaw())if t[1]=="terminate"then j=false else o(table.unpack(t,1,t.n))p()end end end,function(t)if type(t)=="table"and t.__basaltError then return t end return a.wrap(t,debug.traceback(nil,2))end)j=false q()if not r then a.show(s.err,s.trace,g.traceback)end end return g]],
+[42]=[[local _=...local a=_("main")local b=_("core/element")local c={}local d={linear=function(h)return h end,easeIn=function(h)return h*h end,easeOut=function(h)return h*(2-h)end,easeInOut=function(h)if h<0.5 then return 2*h*h end return-1+(4-2*h)*h end,}c.easings=d local e={}local f=false local function g()if f then return end f=true a.schedule(function()while#e>0 do sleep(0.05)local h=os.clock()for i=#e,1,-1 do local j=e[i]local k=(h-j.start)/j.duration if k>=1 then for l,m in pairs(j.to)do j.el[l]=m end table.remove(e,i)if j.onDone then j.onDone(j.el)end else local l=j.easing(k)for m,n in pairs(j.to)do local o=j.from[m]j.el[m]=math.floor(o+(n-o)*l+0.5)end end end end f=false end)end function c.to(h,i,j,k,l)local m={el=h,to=i,from={},start=os.clock(),duration=j or 0.3,easing=d[k or"easeInOut"]or error("Basalt animation: unknown easing '"..tostring(k).."'",2),onDone=l,}for n in pairs(i)do local o=h[n]if type(o)~="number"then error("Basalt animation: property '"..n.."' is not a number",2)end m.from[n]=o end e[#e+1]=m g()return{cancel=function()for n=1,#e do if e[n]==m then table.remove(e,n)break end end end,}end function b:animate(h,i,j,k)return c.to(self,h,i,j,k)end return c]],
+[43]=[=[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/container")local d=_("core/palette")local e=d.charOf local f={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local g={}local h={}do local l=0 local m=#f[1]local n=#f[1][1]for o=1,m,3 do for p=1,n,3 do local q=string.char(l)local r={}r[1]=f[1][o]:sub(p,p+2)r[2]=f[1][o+1]:sub(p,p+2)r[3]=f[1][o+2]:sub(p,p+2)local s={}s[1]=f[2][o]:sub(p,p+2)s[2]=f[2][o+1]:sub(p,p+2)s[3]=f[2][o+2]:sub(p,p+2)h[q]={r,s}l=l+1 end end g[1]=h end local function i(l,m)local n={["0"]="1",["1"]="0"}if l<=#g then return true end for o=#g+1,l do local p={}local q=g[o-1]for r=0,255 do local s=string.char(r)local t={}local u={}local v=q[s][1]local w=q[s][2]for x=1,#v do local y,z,A,B,C,D={},{},{},{},{},{}for E=1,#v[1]do local F=h[v[x]:sub(E,E)][1]table.insert(y,F[1])table.insert(z,F[2])table.insert(A,F[3])local G=h[v[x]:sub(E,E)][2]if w[x]:sub(E,E)=="1"then table.insert(B,(G[1]:gsub("[01]",n)))table.insert(C,(G[2]:gsub("[01]",n)))table.insert(D,(G[3]:gsub("[01]",n)))else table.insert(B,G[1])table.insert(C,G[2])table.insert(D,G[3])end end table.insert(t,table.concat(y))table.insert(t,table.concat(z))table.insert(t,table.concat(A))table.insert(u,table.concat(B))table.insert(u,table.concat(C))table.insert(u,table.concat(D))end p[s]={t,u}if m then m="Font"..o.."Yeld"..r os.queueEvent(m)os.pullEvent(m)end end g[o]=p end return true end local function j(l,m,n,o,p)if not type(m)=="string"then error("Not a String",3)end local q=type(n)=="string"and n:sub(1,1)or e[n]or error("Wrong Front Color",3)local r=type(o)=="string"and o:sub(1,1)or e[o]or error("Wrong Back Color",3)if(g[l]==nil)then i(3,false)end local s=g[l]or error("Wrong font size selected",3)if m==""then return{{""},{""},{""}}end local t={}for A in m:gmatch('.')do table.insert(t,A)end local u={}local v=#s[t[1]][1]for A=1,v do local B={}for C=1,#t do B[C]=s[t[C]]and s[t[C]][1][A]or""end u[A]=table.concat(B)end local w={}local x={}local y={["0"]=q,["1"]=r}local z={["0"]=r,["1"]=q}for A=1,v do local B={}local C={}for D=1,#t do local E=s[t[D]]and s[t[D]][2][A]or""B[D]=E:gsub("[01]",p and{["0"]=n:sub(D,D),["1"]=o:sub(D,D)}or y)C[D]=E:gsub("[01]",p and{["0"]=o:sub(D,D),["1"]=n:sub(D,D)}or z)end w[A]=table.concat(B)x[A]=table.concat(C)end return{u,w,x}end local k=a.create("BigFont",b)a.property(k,"text","BigFont")a.property(k,"fontSize",1,{onChange=function(l,m)if m<1 or m>3 or m%1~=0 then error("Basalt bigfont: fontSize must be 1, 2 or 3",3)end end,})a.property(k,"width",function(l)local m=l:getBigText()[1]return math.max(1,#(m[1]or""))end)a.property(k,"height",function(l)return math.max(1,#l:getBigText()[1])end)function k:getBigText()local l=self.foreground local m=self.background or colors.black local n=self.fontSize.."\0"..tostring(self.text).."\0"..tostring(l).."\0"..tostring(m)local o=rawget(self,"_big")if o and o.key==n then return o.data end i(math.min(3,math.max(1,self.fontSize)),false)local p=j(self.fontSize,tostring(self.text),l,m)rawset(self,"_big",{key=n,data=p})return p end function k:measure()local l=self:getBigText()return math.max(1,#(l[1][1]or"")),math.max(1,#l[1])end function k:render(l)local m=self:getBigText()for n=1,#m[1]do l:rawBlit(1,n,m[1][n],m[2][n],m[3][n])end end c.register("BigFont",k)return{BigFont=k}]=],
+[44]=[[local _=...local a=_("core/class")local b=_("core/element")local c=_("core/container")local d=_("core/palette")local e={}local function f(n)if n<0 then return 0 end if n>1 then return 1 end return n end local function g(n,o,p,q)local r=p>o and f((n-o)/(p-o))or 0 return q-math.floor(r*(q-1)+0.5)end local h=a.create("Graph",b)a.property(h,"minValue",0)a.property(h,"maxValue",100)a.property(h,"background",colors.black)a.property(h,"width",20)a.property(h,"height",8)function h:setup()b.setup(self)rawset(self,"_series",{})end function h:addSeries(n,o)o=o or{}local p=rawget(self,"_series")p[#p+1]={name=n,symbol=(o.symbol or" "):sub(1,1),fg=o.fg or colors.white,bg=o.bg or colors.white,pointCount=o.pointCount or self.width,visible=o.visible~=false,points={},}self:markDirty()return self end function h:getSeries(n)for o,p in ipairs(rawget(self,"_series"))do if p.name==n then return p end end return nil end function h:removeSeries(n)local o=rawget(self,"_series")for p=1,#o do if o[p].name==n then table.remove(o,p)break end end self:markDirty()return self end function h:setSeriesVisible(n,o)local p=self:getSeries(n)if p then p.visible=o~=false self:markDirty()end return self end function h:addPoint(n,o)local p=self:getSeries(n)if not p then error("Basalt charts: unknown series '"..tostring(n).."'",2)end local q=p.points q[#q+1]=o while#q>p.pointCount do table.remove(q,1)end self:markDirty()return self end function h:clear(n)if n then local o=self:getSeries(n)if o then o.points={}end else for o,p in ipairs(rawget(self,"_series"))do p.points={}end end self:markDirty()return self end function h:render(n)b.render(self,n)local o,p=self.width,self.height local q,r=self.minValue,self.maxValue for s,t in ipairs(rawget(self,"_series"))do if t.visible then local u=t.points local v=math.max(t.pointCount,2)for w=1,#u do local x=1+math.floor((w-1)/(v-1)*(o-1)+0.5)local y=g(u[w],q,r,p)n:blit(x,y,t.symbol,t.fg,t.bg)end end end end local i=a.create("BarChart",b)a.property(i,"data",false)a.property(i,"barColor",colors.lime)a.property(i,"minValue",0)a.property(i,"maxValue",false)a.property(i,"background",colors.black)a.property(i,"width",20)a.property(i,"height",8)function i:setup()b.setup(self)rawget(self,"_p").data={}end function i:render(n)b.render(self,n)local o=self.data local p=#o if p==0 then return end local q,r=self.width,self.height local s=self.maxValue if not s then s=-math.huge for w=1,p do s=math.max(s,o[w])end end local t=self.minValue local u=math.max(1,math.floor((q-(p-1))/p))local v=1 for w=1,p do if v>q then break end local x=g(o[w],t,s,r)n:fill(v,x,math.min(u,q-v+1),r-x+1," ",self.foreground,self.barColor)v=v+u+1 end end local j=a.create("LineChart",b)a.property(j,"data",false)a.property(j,"lineColor",colors.lime)a.property(j,"minValue",0)a.property(j,"maxValue",100)a.property(j,"background",colors.black)a.property(j,"width",20)a.property(j,"height",8)function j:setup()b.setup(self)rawget(self,"_p").data={}end function j:render(n)b.render(self,n)local o=self.data local p=#o if p==0 then return end local q,r=self.width,self.height local s,t=self.minValue,self.maxValue for u=1,q do local v=p>1 and((u-1)/(q-1)*(p-1)+1)or 1 local w=math.floor(v)local x=math.min(p,w+1)local y=o[w]+(o[x]-o[w])*(v-w)local z=g(y,s,t,r)n:fill(u,z,1,1," ",self.foreground,self.lineColor)end end local function k(n,o,p,q,r,s)if q<1 or q>o or r<1 or r>p then return end n[r][q]=s end local function l(n,o,p,q,r,s,t,u)local v,w=math.abs(s-q),-math.abs(t-r)local x=q<s and 1 or-1 local y=r<t and 1 or-1 local z=v+w local A,B=q,r while true do k(n,o,p,A,B,u)if A==s and B==t then break end local C=2*z if C>=w then z,A=z+w,A+x end if C<=v then z,B=z+v,B+y end end end local m=a.create("PixelGraph",b)a.property(m,"minValue",0)a.property(m,"maxValue",100)a.property(m,"background",colors.black)a.property(m,"width",20)a.property(m,"height",8)function m:setup()b.setup(self)rawset(self,"_series",{})end function m:addSeries(n,o)o=o or{}local p=rawget(self,"_series")p[#p+1]={name=n,color=o.color or colors.white,pointCount=o.pointCount or self.width*2,visible=o.visible~=false,points={},}self:markDirty()return self end function m:getSeries(n)for o,p in ipairs(rawget(self,"_series"))do if p.name==n then return p end end return nil end function m:removeSeries(n)local o=rawget(self,"_series")for p=1,#o do if o[p].name==n then table.remove(o,p)break end end self:markDirty()return self end function m:setSeriesVisible(n,o)local p=self:getSeries(n)if p then p.visible=o~=false self:markDirty()end return self end function m:addPoint(n,o)local p=self:getSeries(n)if not p then error("Basalt charts: unknown series '"..tostring(n).."'",2)end local q=p.points q[#q+1]=o while#q>p.pointCount do table.remove(q,1)end self:markDirty()return self end function m:clear(n)if n then local o=self:getSeries(n)if o then o.points={}end else for o,p in ipairs(rawget(self,"_series"))do p.points={}end end self:markDirty()return self end function m:render(n)b.render(self,n)local o,p=self.width*2,self.height*3 local q,r=self.minValue,self.maxValue local s={}for y=1,p do s[y]={}end local t,u,v,w={},{},1,false for y,z in ipairs(rawget(self,"_series"))do if z.visible and#z.points>0 then local A=u[z.color]if not A then A=v v=v+1 u[z.color]=A t[A]=d.charOf[z.color]end local B=z.points local C=math.max(z.pointCount,2)local D,E for F=1,#B do local G=1+math.floor((F-1)/(C-1)*(o-1)+0.5)local H=g(B[F],q,r,p)if D then l(s,o,p,D,E,G,H,A)else k(s,o,p,G,H,A)end D,E=G,H end w=true end end if not w then return end local x={}for y=1,p do local z,A={},s[y]for B=1,o do z[B]=string.char(A[B]or 0)end x[y]=table.concat(z)end n:drawPixels(1,1,o,p,x,t)end c.register("Graph",h)c.register("BarChart",i)c.register("LineChart",j)c.register("PixelGraph",m)e.Graph=h e.BarChart=i e.LineChart=j e.PixelGraph=m return e]],
+[45]=[[local _=...local a=_("main")local b={}local c=8 local d={}local e=40 local f,g,h local i=keys.f12 local function j()if not f or not f.visible then return end local l=c-1 local m=math.max(0,#d-l)for n=1,l do h[n].text=d[m+n]or""end end local function k()if f then return end local l=a.getMainFrame()f=l:addFrame({x=1,y="{parent.height - "..(c-1).."}",width="{parent.width}",height=c,z=1000,visible=false,background=colors.black,name="basalt_debug_overlay",})g=f:addLabel({x=2,y=1,text="Basalt Debug",foreground=colors.orange,})h={}for m=1,c-1 do h[m]=f:addLabel({x=2,y=m+1,text="",foreground=colors.lime,})end end function b.log(...)local l={}for m=1,select("#",...)do l[m]=tostring((select(m,...)))end d[#d+1]=table.concat(l," ")if#d>e then table.remove(d,1)end j()end function b.show(l)k()if l==nil then l=not f.visible end f.visible=l j()end function b.setToggleKey(l)i=l end function b.getOverlay()k()return f end function b.clear()d={}j()end k()a.schedule(function()while true do local l,m=os.pullEvent("key")if m==i then b.show()end end end)a.debug=b.log return b]],
+[46]=[[local _,a=...local b=_("core/class")local c=_("core/element")local d=_("core/container")local e=_("core/palette")local f=fs.combine(fs.getDir(a),"flimg.lua")local g,h=loadfile(f)if not g then error("Basalt image: cannot load FLIMG codec: "..tostring(h),0)end local i=g()local j={}local function k(p)if p and p.format=="FLIMG"then if p.mode=="pixel"then return math.ceil(p.width/2),math.ceil(p.height/3)end return p.width,p.height end if not p or not p[1]then return 0,0 end return#p[1][1],#p end local function l(p)return p and p.format=="FLIMG"and#p.frames or(p and#p or 0)end local function m(p)if p._basaltPalette then return p end local q={}for r=1,#p.palette do local s=e.rgb(p.palette[r])q[r]=e.charOf[s]end p._basaltPalette=q p._composedFrames=p._composedFrames or{}return p end local n=b.create("Image",c)b.property(n,"bimg",false,{onChange=function(p,q)rawget(p,"_p").currentFrame=1 rawset(p,"_frameDirection",1)if p.autoSize and q and(q[1]or q.format=="FLIMG")then local r,s=k(q.format=="FLIMG"and q or q[1])local t=rawget(p,"_p")t.width,t.height=math.max(1,r),math.max(1,s)end end,})b.property(n,"currentFrame",1)b.property(n,"autoSize",true)b.property(n,"width",8)b.property(n,"height",4)function n:getFrameCount()return l(self.bimg)end local function o(p)local q=p:getFrameCount()if q<=0 then return false end local r,s=p.bimg,p.currentFrame if r.format=="FLIMG"and r.pingPong and q>1 then local t=rawget(p,"_frameDirection")or 1 if t>0 and s>=q then t=-1 elseif t<0 and s<=1 then if r.loop==false then return false end t=1 end rawset(p,"_frameDirection",t)p.currentFrame=s+t return true end if s<q then p.currentFrame=s+1 elseif r.format=="FLIMG"and r.loop==false then return false else p.currentFrame=1 end return true end function n:nextFrame()o(self)return self end function n:play(p)local q=self.bimg if not q or l(q)<2 then return self end local r=(rawget(self,"_playToken")or 0)+1 rawset(self,"_playToken",r)local s=_("main")s.schedule(function()while rawget(self,"_playToken")==r do local t if p then t=1/p elseif q.format=="FLIMG"then local u=q.frames[self.currentFrame]t=(u and u.duration or 200)/1000 else t=q.secondsPerFrame or 0.2 end sleep(t)if rawget(self,"_playToken")==r then if not o(self)then rawset(self,"_playToken",r+1)break end end end end)return self end function n:stop()rawset(self,"_playToken",(rawget(self,"_playToken")or 0)+1)return self end function n:measure()local p=self.bimg local q,r=k(p and p.format=="FLIMG"and p or p and p[1])return math.max(1,q),math.max(1,r)end function n:render(p)c.render(self,p)local q=self.bimg if not q then return end if q.format=="FLIMG"then m(q)local s=math.max(1,math.min(#q.frames,self.currentFrame))local t=q._composedFrames[s]if not t then t=i.compose(q,s)q._composedFrames[s]=t end if q.mode=="pixel"then p:drawPixels(1,1,q.width,q.height,t,q._basaltPalette)else for u=1,math.min(#t,self.height)do local v=t[u]local w,x={},{}for y=1,#v[1]do local z,A=v[2]:byte(y),v[3]:byte(y)w[y]=z==0 and"\0"or q._basaltPalette[z]x[y]=A==0 and"\0"or q._basaltPalette[A]end p:maskedBlit(1,u,v[1],table.concat(w),table.concat(x),v[1],v[2],v[3])end end return end local r=q[math.max(1,math.min(#q,self.currentFrame))]if not r then return end for s=1,math.min(#r,self.height)do local t=r[s]p:drawBlit(1,s,t[1],t[2],t[3])end end function j.load(p)local q=fs.open(p,"rb")or fs.open(p,"r")if not q then error("Basalt image: cannot open "..tostring(p),2)end local r=q.readAll()q.close()if r:sub(1,4)==i.MAGIC then return m(i.decode(r))end local s=textutils.unserialize(r)if type(s)~="table"then error("Basalt image: "..p.." is not a valid bimg file",2)end return s end function j.saveFlimg(p,q,r)return i.save(p,q,r)end d.register("Image",n)j.Image=n j.flimg=i return j]],
+[47]=[[local _=...local a=_("core/element")local b={}local c={}c.__index=c local d={"<=",">=","==","~=","<",">"}local function e(j)return j:match("^%s*(.-)%s*$")end local function f(j,k)local l=tonumber(j)if l~=nil then return l end local m,n=j:match("^([%a_][%w_]*)%.([%a_][%w_]*)$")if m~="self"and m~="parent"then error("Basalt responsive: unsupported operand '"..j.."'",3)end if n~="width"and n~="height"then error("Basalt responsive: only width and height can be read",3)end local o=m=="self"and k or rawget(k,"parent")return o and o[n]or nil end local function g(j,k,l)if j==nil or l==nil then return false end if k=="<"then return j<l end if k==">"then return j>l end if k=="<="then return j<=l end if k==">="then return j>=l end if k=="=="then return j==l end return j~=l end local function h(j)if type(j)=="function"then return j end if type(j)~="string"or e(j)==""then error("Basalt responsive: condition must be a non-empty string or function",3)end j=e(j)local k,l,m for o=1,#d do local p=d[o]local q=j:find(p,1,true)if q then k=e(j:sub(1,q-1))l=p m=e(j:sub(q+#p))break end end if not l or k==""or m==""then error("Basalt responsive: expected '<operand> <operator> <operand>'",3)end local function n(o)if tonumber(o)~=nil then return end local p,q=o:match("^([%a_][%w_]*)%.([%a_][%w_]*)$")if(p~="self"and p~="parent")or(q~="width"and q~="height")then error("Basalt responsive: unsupported operand '"..o.."'",4)end end n(k)n(m)return function(o)return g(f(k,o),l,f(m,o))end end local function i(j,k,l,m)if j.minWidth and l<j.minWidth then return false end if j.maxWidth and l>j.maxWidth then return false end if j.minHeight and m<j.minHeight then return false end if j.maxHeight and m>j.maxHeight then return false end if j.when and not j.when(k,l,m)then return false end return true end function b.apply(j,k,l)if type(k)~="table"then error("Basalt responsive: rules must be a table",2)end if not j.getChildren then error("Basalt responsive: target must be a container",2)end local m=rawget(j,"_responsiveController")if m then m:destroy()end local n,o={},{}for q=1,#k do local r=k[q]if type(r)~="table"then error("Basalt responsive: rule "..q.." must be a table",2)end if r.when~=nil and type(r.when)~="function"then error("Basalt responsive: rule.when must be a function",2)end if r.props~=nil and type(r.props)~="table"then error("Basalt responsive: rule.props must be a table",2)end if r.name then if type(r.name)~="string"or r.name==""then error("Basalt responsive: rule.name must be a non-empty string",2)end if o[r.name]then error("Basalt responsive: duplicate state name '"..r.name.."'",2)end o[r.name]=true end local s="__responsive_"..q j:setStateStyle(s,r.props or{},-1000+q)n[q]={rule=r,internalState=s,active=false,}end local p={element=j,rules=n,exclusive=l and l.exclusive==true,}function p:refresh()local q=self.element local r,s=q.width,q.height local t=false for u=1,#self.rules do local v=self.rules[u]local w=(not self.exclusive or not t)and i(v.rule,q,r,s)if w then t=true end v.active=w q:setState(v.internalState,w)if v.rule.name then q:setState(v.rule.name,w)end end return self end function p:destroy()local q=self.element if not q then return end if self.handler then q:off("layout",self.handler)end for r=1,#self.rules do local s=self.rules[r]q:setState(s.internalState,false)if s.rule.name then q:setState(s.rule.name,false)end end if rawget(q,"_responsiveController")==self then rawset(q,"_responsiveController",nil)end self.element=nil end p.handler=function()p:refresh()end j:on("layout",p.handler)rawset(j,"_responsiveController",p)p:refresh()return p end function c:_sync()b.apply(self.element,self.rules,{exclusive=true})return self end function c:when(j)if self.finished then error("Basalt responsive: otherwise() must be the final rule",2)end if self.pending then error("Basalt responsive: call apply() before the next when()",2)end self.pending={when=h(j)}return self end function c:apply(j)if not self.pending then error("Basalt responsive: apply() requires a preceding when()",2)end if type(j)~="table"then error("Basalt responsive: apply() expects a property table",2)end self.pending.props=j self.rules[#self.rules+1]=self.pending self.pending=nil return self:_sync()end function c:otherwise(j)if self.pending then error("Basalt responsive: call apply() before otherwise()",2)end if self.finished then error("Basalt responsive: otherwise() can only be used once",2)end if type(j)~="table"then error("Basalt responsive: otherwise() expects a property table",2)end self.rules[#self.rules+1]={props=j}self.finished=true self:_sync()return self.element end function c:done()if self.pending then error("Basalt responsive: call apply() before done()",2)end self:_sync()return self.element end function b.builder(j)if not j.getChildren then error("Basalt responsive: target must be a container",2)end return setmetatable({element=j,rules={}},c)end function b.get(j)return rawget(j,"_responsiveController")end function a:setResponsive(j)b.apply(self,j)return self end function a:responsive()return b.builder(self)end function a:clearResponsive()local j=rawget(self,"_responsiveController")if j then j:destroy()end return self end return b]],
+[48]=[[local _=...local a=_("core/palette")local b={}local function c(f,g,h,i)if type(i)~="table"then error("Basalt theme: state '"..h.."' for "..g.." must be a table",3)end for j,k in pairs(i)do local l=f.__props[j]if not l then error("Basalt theme: unknown property '"..j.."' for "..g.." state "..h,3)end if not l.styleable then error("Basalt theme: property '"..j.."' cannot be state-styled",3)end if type(k)=="string"and k:sub(1,1)=="{"then error("Basalt theme: reactive strings are not allowed in set() ".."state styles; use a function instead",3)end end end b.classes={Element=_("core/element"),Container=_("core/container"),BaseFrame=_("core/baseframe"),Label=_("elements/Label"),Button=_("elements/Button"),Frame=_("elements/Frame"),Input=_("elements/Input"),Checkbox=_("elements/Checkbox"),Switch=_("elements/Switch"),ProgressBar=_("elements/ProgressBar"),Slider=_("elements/Slider"),Collection=_("elements/Collection"),List=_("elements/List"),Dropdown=_("elements/Dropdown"),Flex=_("elements/Flex"),Row=_("elements/Row"),Column=_("elements/Column"),TextBox=_("elements/TextBox"),Menu=_("elements/Menu"),TabControl=_("elements/TabControl"),Tree=_("elements/Tree"),Table=_("elements/Table"),Program=_("elements/Program"),ComboBox=_("elements/ComboBox"),ContextMenu=_("elements/ContextMenu"),Dialog=_("elements/Dialog"),Toast=_("elements/Toast"),}function b.set(f)for g,h in pairs(f)do local i=b.classes[g]if not i then error("Basalt theme: unknown element type '"..g.."'",2)end for j,k in pairs(h)do if j=="states"then if type(k)~="table"then error("Basalt theme: states for "..g.." must be a table",2)end for l,m in pairs(k)do c(i,g,l,m)i.__stateStyles[l]=m end elseif i.__props[j]==nil then error("Basalt theme: unknown property '"..j.."' for "..g,2)elseif type(k)=="string"and k:sub(1,1)=="{"then error("Basalt theme: reactive strings are not allowed in ".."set() (defaults are shared); use a function instead",2)else i.__defaults[j]=k end end end end local d={bg=a.rgb("#14161B"),surface=a.rgb("#22262E"),raised=a.rgb("#2E333D"),border=a.rgb("#3D434F"),text=a.rgb("#E8E6E1"),muted=a.rgb("#9AA0AB"),lava=a.rgb("#E8703A"),ember=a.rgb("#F49058"),selection=a.rgb("#3E5F82"),success=a.rgb("#8FBB56"),warning=a.rgb("#E5B95C"),danger=a.rgb("#D9534F"),info=a.rgb("#5E9BD6"),}b.presets={basalt={colors=d,styles={Element={foreground=d.text},BaseFrame={background=d.bg},Frame={background=d.surface},Button={background=d.raised,states={hover={background=d.border}},},Input={background=d.raised,foreground=d.text,placeholderColor=d.muted,},Switch={onColor=d.success,offColor=d.border,knobColor=d.text,},ProgressBar={background=d.border,barColor=d.lava},Slider={barColor=d.border,knobColor=d.lava},List={background=d.surface,selectionBackground=d.lava,selectionForeground=d.bg,emptyTextColor=d.muted,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},Dropdown={background=d.raised,dropBackground=d.surface,selectionBackground=d.lava,selectionForeground=d.bg,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},ComboBox={background=d.raised,foreground=d.text,placeholderColor=d.muted,dropBackground=d.surface,dropForeground=d.text,selectionBackground=d.lava,selectionForeground=d.bg,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},Menu={background=d.surface,selectionBackground=d.lava,selectionForeground=d.bg,separatorColor=d.muted,dropBackground=d.raised,},TabControl={background=d.bg,headerBackground=d.surface,activeBackground=d.lava,activeForeground=d.bg,},Tree={background=d.surface,selectionBackground=d.lava,selectionForeground=d.bg,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},Table={background=d.surface,headerBackground=d.raised,selectionBackground=d.lava,selectionForeground=d.bg,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},TextBox={background=d.surface,selectionBackground=d.selection,selectionForeground=d.text,scrollbarColor=d.raised,scrollbarThumbColor=d.border,},ContextMenu={background=d.raised,selectionBackground=d.lava,selectionForeground=d.bg,separatorColor=d.muted,},Dialog={boxBackground=d.surface,boxForeground=d.text,titleBackground=d.lava,titleForeground=d.bg,},Program={background=d.bg},},},}function b.applyPreset(f)local g=type(f)=="table"and f or b.presets[f]if not g then error("Basalt theme: unknown preset '"..tostring(f).."'",2)end b.set(g.styles)return g.colors end local function e(f,g)if type(f)~="string"then return f end if f:sub(1,1)=="$"then local h=g[f:sub(2)]if h==nil then error("Basalt theme: unknown color token '"..f.."'",0)end return h end if f:sub(1,1)=="#"then return a.rgb(f)end if type(colors[f])=="number"then return colors[f]end return f end function b.load(f)local g=fs.open(f,"r")if not g then error("Basalt theme: cannot open "..tostring(f),2)end local h=g.readAll()g.close()local i if f:match("%.json$")then local o=textutils.unserialiseJSON or textutils.unserializeJSON i=o(h)else i=textutils.unserialize(h)end if type(i)~="table"then error("Basalt theme: "..f.." is not a valid theme file",2)end local j={}local k=i.colors or{}for o,p in pairs(k)do if not(type(p)=="string"and p:sub(1,1)=="$")then j[o]=e(p,j)end end for o,p in pairs(k)do if type(p)=="string"and p:sub(1,1)=="$"then j[o]=e(p,j)end end local l={}for o,p in pairs(i.styles or{})do local q={}for r,s in pairs(p)do if r=="states"then local t={}for u,v in pairs(s)do local w={}for x,y in pairs(v)do w[x]=e(y,j)end t[u]=w end q.states=t else q[r]=e(s,j)end end l[o]=q end local m=i.name or fs.getName(f):gsub("%.%w+$","")local n={colors=j,styles=l}b.presets[m]=n return m,n end function b.apply(f,g)local h=g[f.__name]if h then for i,j in pairs(h)do if i=="states"then for k,l in pairs(j)do f:setStateStyle(k,l)end else f[i]=j end end end if f.getChildren then local i=f:getChildren()for j=1,#i do b.apply(i[j],g)end end end return b]],
+[49]=[[local _=...local a=_("core/palette")local b={}local function c(f)return f:match("^%s*(.-)%s*$")end function b.parse(f)local g={tag=nil,children={}}local h={g}local i=1 while true do local j=f:find("<",i,true)if not j then break end local k=c(f:sub(i,j-1))if#k>0 then local l=h[#h]l.text=l.text and(l.text.." "..k)or k end if f:sub(j+1,j+3)=="!--"then local l=f:find("-->",j+4,true)if not l then error("Basalt XML: unclosed comment",2)end i=l+3 elseif f:sub(j+1,j+1)=="/"then local l=f:find(">",j,true)if not l then error("Basalt XML: malformed closing tag",2)end local m=c(f:sub(j+2,l-1))local n=h[#h]if n.tag~=m then error("Basalt XML: unexpected </"..m..">"..(n.tag and(", open tag is <"..n.tag..">")or""),2)end h[#h]=nil i=l+1 else local l=f:find(">",j,true)if not l then error("Basalt XML: unclosed tag",2)end local m=f:sub(j+1,l-1)local n=m:sub(-1)=="/"if n then m=m:sub(1,-2)end local o=m:match("^([%w_]+)")if not o then error("Basalt XML: malformed tag near pos "..j,2)end local p={tag=o,attrs={},children={}}for r,s,t in m:gmatch([=[([%w_]+)%s*=%s*(["'])(.-)%2]=])do p.attrs[r]=t end local q=h[#h]q.children[#q.children+1]=p if not n then h[#h+1]=p end i=l+1 end end if#h~=1 then error("Basalt XML: unclosed <"..h[#h].tag..">",2)end return g.children end local function d(f)local g=tonumber(f)if g then return g end if f=="true"then return true end if f=="false"then return false end if f:sub(1,1)=="#"then return a.rgb(f)end return f end local function e(f,g,h)local i={}for j,k in ipairs(g)do local l="add"..k.tag:sub(1,1):upper()..k.tag:sub(2)local m=f[l]if not m then error("Basalt XML: unknown element <"..k.tag..">",2)end local n=m(f)for o,p in pairs(k.attrs)do if o:find("^on%u")then local q=h and h[p]if type(q)~="function"then error("Basalt XML: scope has no handler '"..p.."' for "..o.." on <"..k.tag..">",2)end n[o](n,q)else n[o]=d(p)end end if k.text and n.text~=nil and k.attrs.text==nil then n.text=k.text end if#k.children>0 then e(n,k.children,h)end i[#i+1]=n end return i end function b.load(f,g,h)return e(f,b.parse(g),h)end function b.loadFile(f,g,h)local i=fs.open(g,"r")if not i then error("Basalt XML: cannot open "..g,2)end local j=i.readAll()i.close()return b.load(f,j,h)end return b]],
+}
+local modulePaths = {
+[1]=[[core/baseframe.lua]],
+[2]=[[core/class.lua]],
+[3]=[[core/collection.lua]],
+[4]=[[core/collectionentry.lua]],
+[5]=[[core/container.lua]],
+[6]=[[core/element.lua]],
+[7]=[[core/errors.lua]],
+[8]=[[core/itemview.lua]],
+[9]=[[core/layout.lua]],
+[10]=[[core/palette.lua]],
+[11]=[[core/reactive.lua]],
+[12]=[[core/render.lua]],
+[13]=[[core/scroll.lua]],
+[14]=[[core/state.lua]],
+[15]=[[core/text.lua]],
+[16]=[[elements/Button.lua]],
+[17]=[[elements/Canvas.lua]],
+[18]=[[elements/Checkbox.lua]],
+[19]=[[elements/Collection.lua]],
+[20]=[[elements/Column.lua]],
+[21]=[[elements/ComboBox.lua]],
+[22]=[[elements/ContextMenu.lua]],
+[23]=[[elements/Dialog.lua]],
+[24]=[[elements/Dropdown.lua]],
+[25]=[[elements/Flex.lua]],
+[26]=[[elements/Frame.lua]],
+[27]=[[elements/Input.lua]],
+[28]=[[elements/Label.lua]],
+[29]=[[elements/List.lua]],
+[30]=[[elements/Menu.lua]],
+[31]=[[elements/Program.lua]],
+[32]=[[elements/ProgressBar.lua]],
+[33]=[[elements/Row.lua]],
+[34]=[[elements/Slider.lua]],
+[35]=[[elements/Switch.lua]],
+[36]=[[elements/TabControl.lua]],
+[37]=[[elements/Table.lua]],
+[38]=[[elements/TextBox.lua]],
+[39]=[[elements/Toast.lua]],
+[40]=[[elements/Tree.lua]],
+[41]=[[main.lua]],
+[42]=[[modules/animation.lua]],
+[43]=[[modules/bigfont.lua]],
+[44]=[[modules/charts.lua]],
+[45]=[[modules/debug.lua]],
+[46]=[[modules/image.lua]],
+[47]=[[modules/responsive.lua]],
+[48]=[[modules/theme.lua]],
+[49]=[[modules/xml.lua]],
+}
+local requireAsArgument = {
+[1]=true,
+[2]=true,
+[3]=true,
+[5]=true,
+[6]=true,
+[7]=true,
+[9]=true,
+[11]=true,
+[12]=true,
+[16]=true,
+[17]=true,
+[18]=true,
+[19]=true,
+[20]=true,
+[21]=true,
+[22]=true,
+[23]=true,
+[24]=true,
+[25]=true,
+[26]=true,
+[27]=true,
+[28]=true,
+[29]=true,
+[30]=true,
+[31]=true,
+[32]=true,
+[33]=true,
+[34]=true,
+[35]=true,
+[36]=true,
+[37]=true,
+[38]=true,
+[39]=true,
+[40]=true,
+[41]=true,
+[42]=true,
+[43]=true,
+[44]=true,
+[45]=true,
+[46]=true,
+[47]=true,
+[48]=true,
+[49]=true,
+}
+local assetSources = {
+}
+local moduleNames = {
+[ [[core.baseframe]] ]=1,
+[ [[core.class]] ]=2,
+[ [[core.collection]] ]=3,
+[ [[core.collectionentry]] ]=4,
+[ [[core.container]] ]=5,
+[ [[core.element]] ]=6,
+[ [[core.errors]] ]=7,
+[ [[core.itemview]] ]=8,
+[ [[core.layout]] ]=9,
+[ [[core.palette]] ]=10,
+[ [[core.reactive]] ]=11,
+[ [[core.render]] ]=12,
+[ [[core.scroll]] ]=13,
+[ [[core.state]] ]=14,
+[ [[core.text]] ]=15,
+[ [[core/baseframe]] ]=1,
+[ [[core/baseframe.lua]] ]=1,
+[ [[core/class]] ]=2,
+[ [[core/class.lua]] ]=2,
+[ [[core/collection]] ]=3,
+[ [[core/collection.lua]] ]=3,
+[ [[core/collectionentry]] ]=4,
+[ [[core/collectionentry.lua]] ]=4,
+[ [[core/container]] ]=5,
+[ [[core/container.lua]] ]=5,
+[ [[core/element]] ]=6,
+[ [[core/element.lua]] ]=6,
+[ [[core/errors]] ]=7,
+[ [[core/errors.lua]] ]=7,
+[ [[core/itemview]] ]=8,
+[ [[core/itemview.lua]] ]=8,
+[ [[core/layout]] ]=9,
+[ [[core/layout.lua]] ]=9,
+[ [[core/palette]] ]=10,
+[ [[core/palette.lua]] ]=10,
+[ [[core/reactive]] ]=11,
+[ [[core/reactive.lua]] ]=11,
+[ [[core/render]] ]=12,
+[ [[core/render.lua]] ]=12,
+[ [[core/scroll]] ]=13,
+[ [[core/scroll.lua]] ]=13,
+[ [[core/state]] ]=14,
+[ [[core/state.lua]] ]=14,
+[ [[core/text]] ]=15,
+[ [[core/text.lua]] ]=15,
+[ [[elements.Button]] ]=16,
+[ [[elements.Canvas]] ]=17,
+[ [[elements.Checkbox]] ]=18,
+[ [[elements.Collection]] ]=19,
+[ [[elements.Column]] ]=20,
+[ [[elements.ComboBox]] ]=21,
+[ [[elements.ContextMenu]] ]=22,
+[ [[elements.Dialog]] ]=23,
+[ [[elements.Dropdown]] ]=24,
+[ [[elements.Flex]] ]=25,
+[ [[elements.Frame]] ]=26,
+[ [[elements.Input]] ]=27,
+[ [[elements.Label]] ]=28,
+[ [[elements.List]] ]=29,
+[ [[elements.Menu]] ]=30,
+[ [[elements.Program]] ]=31,
+[ [[elements.ProgressBar]] ]=32,
+[ [[elements.Row]] ]=33,
+[ [[elements.Slider]] ]=34,
+[ [[elements.Switch]] ]=35,
+[ [[elements.TabControl]] ]=36,
+[ [[elements.Table]] ]=37,
+[ [[elements.TextBox]] ]=38,
+[ [[elements.Toast]] ]=39,
+[ [[elements.Tree]] ]=40,
+[ [[elements/Button]] ]=16,
+[ [[elements/Button.lua]] ]=16,
+[ [[elements/Canvas]] ]=17,
+[ [[elements/Canvas.lua]] ]=17,
+[ [[elements/Checkbox]] ]=18,
+[ [[elements/Checkbox.lua]] ]=18,
+[ [[elements/Collection]] ]=19,
+[ [[elements/Collection.lua]] ]=19,
+[ [[elements/Column]] ]=20,
+[ [[elements/Column.lua]] ]=20,
+[ [[elements/ComboBox]] ]=21,
+[ [[elements/ComboBox.lua]] ]=21,
+[ [[elements/ContextMenu]] ]=22,
+[ [[elements/ContextMenu.lua]] ]=22,
+[ [[elements/Dialog]] ]=23,
+[ [[elements/Dialog.lua]] ]=23,
+[ [[elements/Dropdown]] ]=24,
+[ [[elements/Dropdown.lua]] ]=24,
+[ [[elements/Flex]] ]=25,
+[ [[elements/Flex.lua]] ]=25,
+[ [[elements/Frame]] ]=26,
+[ [[elements/Frame.lua]] ]=26,
+[ [[elements/Input]] ]=27,
+[ [[elements/Input.lua]] ]=27,
+[ [[elements/Label]] ]=28,
+[ [[elements/Label.lua]] ]=28,
+[ [[elements/List]] ]=29,
+[ [[elements/List.lua]] ]=29,
+[ [[elements/Menu]] ]=30,
+[ [[elements/Menu.lua]] ]=30,
+[ [[elements/Program]] ]=31,
+[ [[elements/Program.lua]] ]=31,
+[ [[elements/ProgressBar]] ]=32,
+[ [[elements/ProgressBar.lua]] ]=32,
+[ [[elements/Row]] ]=33,
+[ [[elements/Row.lua]] ]=33,
+[ [[elements/Slider]] ]=34,
+[ [[elements/Slider.lua]] ]=34,
+[ [[elements/Switch]] ]=35,
+[ [[elements/Switch.lua]] ]=35,
+[ [[elements/TabControl]] ]=36,
+[ [[elements/TabControl.lua]] ]=36,
+[ [[elements/Table]] ]=37,
+[ [[elements/Table.lua]] ]=37,
+[ [[elements/TextBox]] ]=38,
+[ [[elements/TextBox.lua]] ]=38,
+[ [[elements/Toast]] ]=39,
+[ [[elements/Toast.lua]] ]=39,
+[ [[elements/Tree]] ]=40,
+[ [[elements/Tree.lua]] ]=40,
+[ [[main]] ]=41,
+[ [[main.lua]] ]=41,
+[ [[modules.animation]] ]=42,
+[ [[modules.bigfont]] ]=43,
+[ [[modules.charts]] ]=44,
+[ [[modules.debug]] ]=45,
+[ [[modules.image]] ]=46,
+[ [[modules.responsive]] ]=47,
+[ [[modules.theme]] ]=48,
+[ [[modules.xml]] ]=49,
+[ [[modules/animation]] ]=42,
+[ [[modules/animation.lua]] ]=42,
+[ [[modules/bigfont]] ]=43,
+[ [[modules/bigfont.lua]] ]=43,
+[ [[modules/charts]] ]=44,
+[ [[modules/charts.lua]] ]=44,
+[ [[modules/debug]] ]=45,
+[ [[modules/debug.lua]] ]=45,
+[ [[modules/image]] ]=46,
+[ [[modules/image.lua]] ]=46,
+[ [[modules/responsive]] ]=47,
+[ [[modules/responsive.lua]] ]=47,
+[ [[modules/theme]] ]=48,
+[ [[modules/theme.lua]] ]=48,
+[ [[modules/xml]] ]=49,
+[ [[modules/xml.lua]] ]=49,
+}
+local assetPaths = {
+}
+local entryId = 41
 
-dd~=""and dd~="stack traceback:"and not dd:find("in function 'xpcall'",1,true)then ad[#ad+1]=dd end end end;local bd,cd
-for dd,__a in ipairs(ad)do local a_a,b_a=__a:match("^(.-):(%d+):")if
-a_a and not bb(a_a)then bd,cd=a_a,tonumber(b_a)break end end
-return{message=_d or bc,file=cc,line=dc and tonumber(dc),userFile=bd,userLine=cd,trace=ad}end;local function cb(_c,ac)term.setTextColor(ac)print(_c)end
-local function db(_c,ac)if not
-fs.exists(_c)or fs.isDir(_c)then return nil end
-local bc=fs.open(_c,"r")if not bc then return nil end;local cc,dc=nil,0;repeat cc=bc.readLine()dc=dc+1 until dc==ac or
-cc==nil;bc.close()return cc end
-function _b.show(_c,ac,bc)local cc=_b.parse(_c,ac)
-term.setBackgroundColor(colors.black)term.clear()term.setCursorPos(1,1)
-cb("Basalt Error",colors.red)print()cb(cc.message,colors.white)print()
-local dc=cc.userFile or cc.file;local _d=cc.userLine or cc.line
-if dc and _d then local ad=db(dc,_d)cb("\26 "..
-dc..":".._d,colors.cyan)if ad then
-cb("  "..ab(ad),colors.lightGray)end;print()end
-if bc~=false and#cc.trace>0 then
-cb("Traceback:",colors.gray)
-for i=1,math.min(#cc.trace,6)do local ad=cc.trace[i]
-local bd=ad:match("^(.-):%d+:")
-cb("  "..ad,(bd and not bb(bd))and colors.lightGray or colors.gray)end;if#cc.trace>6 then
-cb("  ... (".. (#cc.trace-6).." more)",colors.gray)end;print()end;cb("Press any key to exit",colors.orange)while true do
-local ad=os.pullEventRaw()
-if
-ad=="key"or ad=="mouse_click"or ad=="monitor_touch"or ad=="terminate"then break end end
-term.setBackgroundColor(colors.black)term.setTextColor(colors.white)term.clear()
-term.setCursorPos(1,1)end
-function _b.wrap(_c,ac)return
-setmetatable({__basaltError=true,err=_c,trace=ac},{__tostring=function(bc)return tostring(bc.err)end})end;return _b
-]=]
-sources["core/itemview"] = [=[
-local b={}
-function b.maxOffset(c,d)return math.max(0,c-math.max(0,d))end
-function b.clampOffset(c,d,_a)return
-math.max(0,math.min(math.floor(c or 0),b.maxOffset(d,_a)))end
-function b.ensureVisible(c,d,_a,aa)c=b.clampOffset(c,_a,aa)if not d or d<1 then return c end;if
-d<=c then c=d-1 end;if d>c+aa then c=d-aa end
-return b.clampOffset(c,_a,aa)end
-function b.geometry(c,d,_a,aa)if aa~="auto"and aa~="always"and aa~="hidden"then
-error("Basalt item scrollbar: expected 'auto', 'always' or 'hidden'",3)end;d=math.max(0,math.floor(
-d or 0))local ba=b.maxOffset(c,d)
-_a=b.clampOffset(_a,c,d)
-local ca=aa~="hidden"and d>0 and(aa=="always"or ba>0)local da=d;local _b=0
-if ca and d>0 then
-da=math.max(1,math.floor(d*d/math.max(c,d)))da=math.min(d,da)local ab=d-da;_b=
-ba>0 and math.floor(ab*_a/ba+0.5)or 0 end;return{show=ca,rows=d,maximum=ba,offset=_a,thumbSize=da,thumbPos=_b}end
-function b.draw(c,d,_a,aa,ba,ca,da)if not aa.show or aa.rows<=0 then return end
-c:fill(d,_a,1,aa.rows," ",ba,ca)
-c:fill(d,_a+aa.thumbPos,1,aa.thumbSize," ",ba,da)end
-function b.pointerDown(c,d)if not d.show then return nil,nil end;local _a=d.thumbPos+1
-if c>=_a and c<_a+
-d.thumbSize then return d.offset,c-_a end;local aa=math.max(1,d.rows-d.thumbSize)
-local ba=math.floor((c-1 -d.thumbSize/
-2)/aa*d.maximum+0.5)
-return b.clampOffset(ba,d.maximum+d.rows,d.rows),nil end
-function b.drag(c,d,_a)local aa=math.max(1,_a.rows-_a.thumbSize)local ba=math.max(0,math.min(aa,
-c-1 -d))local ca=math.floor(
-ba/aa*_a.maximum+0.5)return
-b.clampOffset(ca,_a.maximum+_a.rows,_a.rows)end;return b
-]=]
-sources["core/layout"] = [=[
-local ca=...local da=ca("core/state")local _b={}local ab={}ab.__index=ab
-ab.__basaltLayoutValue=true
-local function bb(_c,ac)return setmetatable({kind=_c,value=ac},ab)end;function _b.auto()return bb("auto")end
-function _b.fill(_c)_c=_c or 1;if
-type(_c)~="number"or _c<=0 then
-error("Basalt layout: fill weight must be greater than zero",2)end;return bb("fill",_c)end;function _b.percent(_c)if type(_c)~="number"or _c<0 then
-error("Basalt layout: percent must be a non-negative number",2)end
-return bb("percent",_c)end;function _b.is(_c)local ac=
-type(_c)=="table"and getmetatable(_c)
-return ac and
-ac.__basaltLayoutValue==true or false end
-function _b.spec(_c,ac)
-local bc=rawget(_c,"_class")if bc and bc.__getPropertySpec then local cc,dc=bc.__getPropertySpec(_c,ac)if cc then
-return dc end end
-return _c:raw(ac)end;local function cb(_c)return math.floor(_c+0.5)end
-local function db(_c,ac,bc)
-if ac and _c<ac then _c=ac end;if bc and _c>bc then _c=bc end;return math.max(0,cb(_c))end
-function _b.constrain(_c,ac,bc)
-local cc=ac=="width"and"minWidth"or"minHeight"local dc=ac=="width"and"maxWidth"or"maxHeight"
-local _d,ad=_c[cc],_c[dc]if _d==false then _d=nil end;if ad==false then ad=nil end;return db(bc,_d,ad)end
-function _b.measure(_c,ac,bc)if _c.measure then return _c:measure(ac,bc)end;return 1,1 end
-function _b.resolveSize(_c,ac,bc,cc,dc)local _d=ac=="width"and cc or dc;local ad,bd;local cd
-if _b.is(bc)then
-if
-bc.kind=="percent"then cd=_d*bc.value elseif bc.kind=="fill"then cd=_d else
-ad,bd=_b.measure(_c,cc,dc)cd=ac=="width"and ad or bd end else cd=tonumber(bc)or 1 end;return _b.constrain(_c,ac,cd)end
-function _b.resolveToken(_c,ac,bc)local cc=rawget(ac,"parent")
-local dc=cc and cc.width or 1;local _d=cc and cc.height or 1
-if _c.kind=="fill"and cc then
-if
-bc=="width"then
-dc=math.max(0,dc- (tonumber(_b.spec(ac,"x"))or 1)+1)elseif bc=="height"then _d=math.max(0,
-_d- (tonumber(_b.spec(ac,"y"))or 1)+1)end end;return _b.resolveSize(ac,bc,_c,dc,_d)end
-function _b.resolveFreeChild(_c,ac)local bc,cc=_b.spec(ac,"x"),_b.spec(ac,"y")
-local dc,_d=_b.spec(ac,"width"),_b.spec(ac,"height")
-local ad=_b.is(bc)or _b.is(cc)or _b.is(dc)or _b.is(_d)
-if not ad then local aaa=rawget(ac,"_layoutBox")
-rawset(ac,"_layoutBox",nil)
-if aaa and rawget(ac,"_children")then
-rawset(ac,"_layoutDirty",true)rawset(ac,"_viewportDirty",true)end;return end;local bd,cd=_c.width,_c.height;local dd=tonumber(bc)or 1
-local __a=tonumber(cc)or 1
-local a_a,b_a=math.max(0,bd-dd+1),math.max(0,cd-__a+1)local c_a=_b.resolveSize(ac,"width",dc,a_a,b_a)
-local d_a=_b.resolveSize(ac,"height",_d,a_a,b_a)local _aa=rawget(ac,"_layoutBox")
-rawset(ac,"_layoutBox",{x=cb(dd),y=cb(__a),width=c_a,height=d_a})
-if rawget(ac,"_children")and
-(not _aa or _aa.width~=c_a or _aa.height~=d_a)then
-rawset(ac,"_layoutDirty",true)rawset(ac,"_viewportDirty",true)end end
-function _b.resolveFreeChildren(_c)local ac=_c:getChildren()for i=1,#ac do
-_b.resolveFreeChild(_c,ac[i])end end
-function _b.setBox(_c,ac,bc,cc,dc)
-local _d={x=cb(ac),y=cb(bc),width=math.max(0,cb(cc)),height=math.max(0,cb(dc))}local ad=rawget(_c,"_layoutBox")rawset(_c,"_layoutBox",_d)
-if
-rawget(_c,"_children")and
-(not ad or ad.width~=_d.width or ad.height~=_d.height)then
-rawset(_c,"_layoutDirty",true)rawset(_c,"_viewportDirty",true)end end;return _b
-]=]
-sources["core/palette"] = [=[
-local bc={}local cc=math.floor;local dc=string.char
-local _d={[0]=0xF0F0F0,0xF2B233,0xE57FD8,0x99B2F2,0xDEDE6C,0x7FCC19,0xF2B2CC,0x4C4C4C,0x999999,0x4C99B2,0xB266E5,0x3366CC,0x7F664C,0x57A64E,0xCC4C4C,0x111111}local ad={}local bd=16;local cd={}local dd={}
-local function __a(caa)return cc(caa/65536)/255,cc(caa/256)%256 /
-255, (caa%256)/255 end
-for i=0,15 do ad[i]={__a(_d[i])}cd[2 ^i]=dc(i)dd[_d[i]]=2 ^i end;bc.charOf=cd
-function bc.getRGB(caa)local daa;if type(caa)=="string"then daa=caa:byte()elseif cd[caa]then
-daa=cd[caa]:byte()else daa=caa end;local _ba=ad[daa]if not _ba then
-error(
-"Basalt: unknown registry color "..tostring(caa),2)end;return _ba[1],_ba[2],_ba[3]end
-local function a_a(caa)if caa<0 then return 0 end;if caa>1 then return 1 end;return caa end
-local function b_a(caa,daa,_ba)
-if type(caa)=="string"then local aba=caa:gsub("#","")
-if aba:match("^%x%x%x$")then
-aba=aba:gsub("%x","%0%0")elseif aba:match("^%x%x%x%x%x%x%x%x$")then aba=aba:sub(3)elseif not
-aba:match("^%x%x%x%x%x%x$")then
-error("Basalt: invalid color string '"..
-caa.."' (expected #RGB, #RRGGBB or #AARRGGBB)",3)end;return __a(tonumber(aba,16))end
-if daa==nil then if caa<0 or caa>0xFFFFFF or caa%1 ~=0 then
-error(
-"Basalt: invalid color number "..tostring(caa).." (expected 0x000000-0xFFFFFF)",3)end
-return __a(caa)end
-if caa>1 or daa>1 or _ba>1 then caa,daa,_ba=caa/255,daa/255,_ba/255 end;return a_a(caa),a_a(daa),a_a(_ba)end
-function bc.rgb(caa,daa,_ba)local aba,bba,cba=b_a(caa,daa,_ba)local dba=cc(aba*255 +0.5)*65536 +cc(bba*
-255 +0.5)*256 +
-cc(cba*255 +0.5)
-local _ca=dd[dba]if _ca then return _ca end
-if bd>255 then local cca,dca=0,math.huge
-for index=0,255 do local ada=ad[index]
-local bda=
-(aba-ada[1])^2 + (bba-ada[2])^2 + (cba-ada[3])^2;if bda<dca then cca,dca=index,bda end end;local _da=cca<16 and 2 ^cca or 0x10000 +cca
-dd[dba]=_da;return _da end;local aca=bd;bd=bd+1;ad[aca]={aba,bba,cba}local bca=0x10000 +aca
-cd[bca]=dc(aca)dd[dba]=bca;return bca end;function bc.hasVirtual()return bd>16 end;local c_a={}for i=0,15 do
-c_a[i]=("%x"):format(i)end;local d_a={}for i=0,15 do d_a[dc(i)]=c_a[i]end
-bc.identityMap=d_a;local _aa={}for i=0,15 do _aa[c_a[i]]=dc(i)
-_aa[c_a[i]:upper()]=dc(i)end;bc.hexToByte=_aa
-function bc.windowTranslation(caa)local daa=caa.getPaletteColour or
-caa.getPaletteColor;if not daa then return nil end
-local _ba
-for i=0,15 do local aba,bba,cba,dba=pcall(daa,2 ^i)
-if
-aba and type(bba)=="number"and
-type(cba)=="number"and type(dba)=="number"then local _ca,aca,bca=bc.getRGB(i)
-if
+local nativeRequire = require
+local nativePackage = package
+local hostEnvironment = _ENV or _G
+local unpackValues = table.unpack or unpack
 
-math.abs(bba-_ca)+math.abs(cba-aca)+math.abs(dba-bca)>0.004 then
-if not _ba then _ba={}for dca,_da in pairs(_aa)do _ba[dca]=_da end end;local cca=cd[bc.rgb(bba,cba,dba)]_ba[c_a[i]]=cca
-_ba[c_a[i]:upper()]=cca end end end;return _ba end;local aaa={}aaa.__index=aaa
-function bc.newMapper(caa)return
-setmetatable({term=caa,overridden={},prevSlot={},prevMap={}},aaa)end
-local function baa(caa,daa)
-local _ba,aba,bba=caa[1]-daa[1],caa[2]-daa[2],caa[3]-daa[3]return _ba*_ba+aba*aba+bba*bba end
-function aaa:build(caa)local daa=self.term
-local _ba=daa.setPaletteColour or daa.setPaletteColor;local aba={}local bba={}
-for i=0,15 do aba[dc(i)]=c_a[i]
-if caa[i]then bba[i]=i;if
-_ba and self.overridden[i]then local aca=ad[i]_ba(2 ^i,aca[1],aca[2],aca[3])self.overridden[i]=
-nil end end end;local cba={}
-for aca in pairs(caa)do if aca>15 then cba[#cba+1]=aca end end
-if#cba>0 then table.sort(cba)local aca={}
-if _ba then
-local function bca(_da,ada)bba[ada]=_da
-self.prevSlot[_da]=ada
-if self.overridden[ada]~=_da then local bda=ad[_da]
-_ba(2 ^ada,bda[1],bda[2],bda[3])self.overridden[ada]=_da end;aba[dc(_da)]=c_a[ada]end;local cca={}
-for _da,ada in ipairs(cba)do local bda=self.prevSlot[ada]if
-bda and bba[bda]==nil then bca(ada,bda)else cca[#cca+1]=ada end end;local dca=0
-for _da,ada in ipairs(cca)do local bda;while dca<=15 do if bba[dca]==nil then bda=dca;break end
-dca=dca+1 end;if bda then bca(ada,bda)else
-aca[#aca+1]=ada end end else aca=cba end
-for bca,cca in ipairs(aca)do local dca=ad[cca]local _da,ada=15,math.huge
-for s=0,15 do local bda=bba[s]
-local cda=bda and ad[bda]or(not
-_ba and ad[s]or nil)
-if cda then local dda=baa(dca,cda)if dda<ada then _da,ada=s,dda end end end;aba[dc(cca)]=c_a[_da]end end;local dba=false;local _ca=self.prevMap
-for aca,bca in pairs(aba)do if
-_ca[aca]~=nil and _ca[aca]~=bca then dba=true;break end end;self.prevMap=aba;return aba,dba end
-function aaa:restore()local caa=self.term
-local daa=caa.setPaletteColour or caa.setPaletteColor
-if daa then for _ba in pairs(self.overridden)do local aba=ad[_ba]
-daa(2 ^_ba,aba[1],aba[2],aba[3])end end;self.overridden,self.prevSlot,self.prevMap={},{},{}end;return bc
-]=]
-sources["core/reactive"] = [=[
-local _a=...local aa=_a("core/palette")local ba={}
-local ca={colors=colors,math=math,rgb=aa.rgb,tostring=tostring,tonumber=tonumber,clamp=function(da,_b,ab)return
-math.min(math.max(da,_b),ab)end,round=function(da)
-return math.floor(da+0.5)end,floor=math.floor,ceil=math.ceil,abs=math.abs,min=math.min,max=math.max}
-function ba.compile(da,_b)local ab=da:sub(2,-2)
-local bb=setmetatable({},{__index=function(_c,ac)if ac=="self"then return _b end;if
-ac=="parent"then return rawget(_b,"parent")end;local bc=ca[ac]if bc~=nil then
-return bc end;local cc=_b:getRoot()
-if cc.find then return cc:find(ac)end;return nil end})
-local cb,db=load("return "..ab,"reactive"..da,"t",bb)if not cb then
-error("Basalt: invalid reactive expression "..da..": "..tostring(db),3)end;return cb end;return ba
-]=]
-sources["core/render"] = [=[
-local bc=...local cc=bc("core/palette")local dc,_d=string.rep,string.sub
-local ad=math.floor;local bd=cc.charOf;local cd={}local dd={}for mask=0,31 do
-cd[mask]=string.char(128 +mask)end;local __a={}__a.__index=__a;function __a.new(caa)
-local daa=setmetatable({},__a)daa.term=caa;daa.mapper=cc.newMapper(caa)
-daa:resize(caa.getSize())return daa end
-function __a:resize(caa,daa)
-self.width,self.height=caa,daa;self.text,self.fg,self.bg={},{},{}
-self.prevText,self.prevFg,self.prevBg={},{},{}local _ba=dc(" ",caa)local aba=dc("\0",caa)
-local bba=dc(string.char(15),caa)
-for y=1,daa do self.text[y],self.fg[y],self.bg[y]=_ba,aba,bba end;self.dirty=true;self.ox,self.oy=0,0
-self.cx1,self.cy1,self.cx2,self.cy2=1,1,caa,daa;self.stack,self.stackN={},0;return self end
-function __a:push(caa,daa,_ba,aba)local bba,cba=self.stackN,self.stack
-cba[bba+1],cba[bba+2],cba[bba+3]=self.ox,self.oy,self.cx1
-cba[bba+4],cba[bba+5],cba[bba+6]=self.cy1,self.cx2,self.cy2;self.stackN=bba+6
-local dba,_ca=self.ox+caa-1,self.oy+daa-1;self.ox,self.oy=dba,_ca
-if dba+1 >self.cx1 then self.cx1=dba+1 end;if _ca+1 >self.cy1 then self.cy1=_ca+1 end;if
-dba+_ba<self.cx2 then self.cx2=dba+_ba end;if _ca+aba<self.cy2 then
-self.cy2=_ca+aba end;return self end
-function __a:pop()local caa,daa=self.stackN,self.stack;self.ox,self.oy,self.cx1=daa[caa-5],daa[caa-4],daa[
-caa-3]
-self.cy1,self.cx2,self.cy2=daa[caa-2],daa[caa-1],daa[caa]self.stackN=caa-6;return self end;local function a_a(caa,daa,_ba)
-return _d(caa,1,daa-1).._ba.._d(caa,daa+#_ba)end
-local function b_a(caa,daa,_ba)local aba={}
-for i=1,#caa do local bba=_ba and _ba:byte(i)or
-caa:byte(i)aba[i]=bba==0 and _d(daa,i,i)or
-_d(caa,i,i)end;return table.concat(aba)end
-local function c_a(caa,daa,_ba)local aba,bba,cba=cc.getRGB(caa)local dba,_ca,aca=cc.getRGB(daa)
-local bca,cca,dca=cc.getRGB(_ba)
-local _da=(aba-dba)^2 + (bba-_ca)^2 + (cba-aca)^2
-local ada=(aba-bca)^2 + (bba-cca)^2 + (cba-dca)^2;return _da<=ada and 0 or 1 end
-local function d_a(caa,daa,_ba,aba,bba,cba)local dba=caa..daa.._ba..aba..bba..cba
-local _ca=dd[dba]if _ca then return _ca[1],_ca[2],_ca[3]end
-local aca,bca,cca={caa,daa,_ba,aba,bba,cba},{},{}
-for i=1,6 do local a_b=aca[i]if bca[a_b]then bca[a_b]=bca[a_b]+1 else
-bca[a_b],cca[#cca+1]=1,a_b end end;local dca,_da;for a_b,b_b in ipairs(cca)do
-if not dca or bca[b_b]>bca[dca]then _da,dca=dca,b_b elseif
-not _da or bca[b_b]>bca[_da]then _da=b_b end end
-if not _da then
-_ca={" ",dca,dca}dd[dba]=_ca;return _ca[1],_ca[2],_ca[3]end;local ada={}
-for i=1,6 do ada[i]=aca[i]==dca and 0 or
-(aca[i]==_da and 1 or c_a(aca[i],dca,_da))end;local bda,cda=ada[6],0;if ada[1]~=bda then cda=cda+1 end;if ada[2]~=bda then
-cda=cda+2 end;if ada[3]~=bda then cda=cda+4 end;if ada[4]~=bda then
-cda=cda+8 end;if ada[5]~=bda then cda=cda+16 end;local dda,__b;if bda==0 then
-dda,__b=_da,dca else dda,__b=dca,_da end;_ca={cd[cda],dda,__b}
-dd[dba]=_ca;return _ca[1],_ca[2],_ca[3]end
-function __a:write(caa,daa,_ba,aba,bba)local cba=daa+self.oy;if cba<self.cy1 or cba>self.cy2 then
-return self end;local dba=caa+self.ox
-local _ca,aca=dba,dba+#_ba-1;local bca,cca=self.cx1,self.cx2
-if _ca<bca then _ba=_d(_ba,bca-_ca+1)_ca=bca end;if aca>cca then _ba=_d(_ba,1,cca-_ca+1)aca=cca end;if
-_ca>aca then return self end
-self.text[cba]=a_a(self.text[cba],_ca,_ba)if aba then
-self.fg[cba]=a_a(self.fg[cba],_ca,dc(aba,aca-_ca+1))end;if bba then
-self.bg[cba]=a_a(self.bg[cba],_ca,dc(bba,aca-_ca+1))end;self.dirty=true;return self end
-local function _aa(caa)if not caa then return nil end;local daa=bd[caa]if not daa then
-error("Basalt: unknown color value "..
-tostring(caa).." (use colors.* or basalt.rgb)",3)end;return daa end;function __a:blit(caa,daa,_ba,aba,bba)
-return self:write(caa,daa,_ba,_aa(aba),_aa(bba))end
-function __a:colorBlit(caa,daa,_ba,aba,bba)local cba,dba={},{}for i=1,#_ba do
-cba[i]=_aa(aba[i])dba[i]=_aa(bba[i])end;return
-self:rawBlit(caa,daa,_ba,table.concat(cba),table.concat(dba))end
-function __a:drawText(caa,daa,_ba)return self:write(caa,daa,_ba)end
-function __a:rawBlit(caa,daa,_ba,aba,bba)local cba=daa+self.oy;if cba<self.cy1 or cba>self.cy2 then
-return self end;local dba=caa+self.ox
-local _ca,aca=dba,dba+#_ba-1;local bca,cca=self.cx1,self.cx2
-local dca=_ca<bca and(bca-_ca)or 0;local _da=aca>cca and(aca-cca)or 0
-if dca>0 or _da>0 then
-_ca=_ca+dca;aca=aca-_da;if _ca>aca then return self end
-_ba=_d(_ba,1 +dca,#_ba-_da)if aba then aba=_d(aba,1 +dca,#aba-_da)end;if bba then bba=_d(bba,1 +dca,
-#bba-_da)end end;self.text[cba]=a_a(self.text[cba],_ca,_ba)if aba then
-self.fg[cba]=a_a(self.fg[cba],_ca,aba)end;if bba then
-self.bg[cba]=a_a(self.bg[cba],_ca,bba)end;self.dirty=true;return self end
-function __a:maskedBlit(caa,daa,_ba,aba,bba,cba,dba,_ca)local aca,bca=daa+self.oy,caa+self.ox;if aca<self.cy1 or
-aca>self.cy2 then return self end
-local cca,dca=bca,bca+#_ba-1
-local _da=cca<self.cx1 and self.cx1 -cca or 0
-local ada=dca>self.cx2 and dca-self.cx2 or 0
-if _da>0 or ada>0 then cca,dca=cca+_da,dca-ada;if cca>dca then return self end;_ba=_d(_ba,
-1 +_da,#_ba-ada)
-aba=aba and _d(aba,1 +_da,#aba-ada)bba=bba and _d(bba,1 +_da,#bba-ada)cba=cba and _d(cba,1 +_da,#
-cba-ada)dba=dba and
-_d(dba,1 +_da,#dba-ada)
-_ca=_ca and _d(_ca,1 +_da,#_ca-ada)end;local bda=_d(self.text[aca],cca,dca)
-self.text[aca]=a_a(self.text[aca],cca,b_a(_ba,bda,cba))if aba then local cda=_d(self.fg[aca],cca,dca)
-self.fg[aca]=a_a(self.fg[aca],cca,b_a(aba,cda,dba))end;if bba then
-local cda=_d(self.bg[aca],cca,dca)
-self.bg[aca]=a_a(self.bg[aca],cca,b_a(bba,cda,_ca))end;self.dirty=true;return self end
-function __a:drawPixels(caa,daa,_ba,aba,bba,cba)local dba,_ca=math.ceil(_ba/2),math.ceil(aba/3)
-for cellY=1,_ca do
-local aca,bca,cca,dca,_da={},{},{},{},false
-for cellX=1,dba do
-local ada,bda=caa+cellX-1 +self.ox,daa+cellY-1 +self.oy
-local cda=
-ada>=self.cx1 and ada<=self.cx2 and bda>=self.cy1 and bda<=self.cy2;local dda,__b={},false
-if cda then local a_b,b_b={},_d(self.bg[bda],ada,ada)
-local c_b=self.text[bda]:byte(ada)
-if c_b and c_b>=128 and c_b<=159 then
-local d_b,_ab=_d(self.fg[bda],ada,ada),c_b-128;local aab={1,2,4,8,16}
-for slot=1,5 do a_b[slot]=
-ad(_ab/aab[slot])%2 ==1 and d_b or b_b end;a_b[6]=b_b else for slot=1,6 do a_b[slot]=b_b end end
-for py=1,3 do local d_b=(cellY-1)*3 +py
-for px=1,2 do local _ab=(cellX-1)*2 +px;local aab=
-(py-1)*2 +px;local bab=
-d_b<=aba and _ab<=_ba and bba[d_b]:byte(_ab)or 0
-if bab~=0 then
-dda[aab],__b=cba[bab],true;if not dda[aab]then
-error("Basalt: FLIMG palette index "..bab.." is missing",2)end else dda[aab]=a_b[aab]end end end end
-if __b then
-aca[cellX],bca[cellX],cca[cellX]=d_a(dda[1],dda[2],dda[3],dda[4],dda[5],dda[6])dca[cellX],_da="\1",true else
-aca[cellX],bca[cellX],cca[cellX]="\0","\0","\0"dca[cellX]="\0"end end;if _da then local ada=table.concat(dca)
-self:maskedBlit(caa,daa+cellY-1,table.concat(aca),table.concat(bca),table.concat(cca),ada,ada,ada)end end;return self end;local aaa={}for i=0,15 do aaa[("%x"):format(i)]=string.char(i)
-aaa[("%X"):format(i)]=string.char(i)end
-function __a:drawBlit(caa,daa,_ba,aba,bba)return
-self:rawBlit(caa,daa,_ba,aba and
-(aba:gsub(".",aaa)),bba and(bba:gsub(".",aaa)))end
-function __a:fill(caa,daa,_ba,aba,bba,cba,dba)local _ca=dc(bba,_ba)local aca,bca=_aa(cba),_aa(dba)for dy=0,aba-1 do
-self:write(caa,daa+dy,_ca,aca,bca)end;return self end
-function __a:setCursor(caa,daa,_ba,aba)self.cursorX,self.cursorY,self.cursorBlink=caa,daa,_ba
-self.cursorColor=aba;self.dirty=true;return self end
-local function baa(caa,daa)for i=1,#caa do daa[caa:byte(i)]=true end end
-function __a:flush()if not self.dirty then return self end;local caa=self.term;local daa,_ba
-if
-cc.hasVirtual()then local dba={}for y=1,self.height do baa(self.fg[y],dba)
-baa(self.bg[y],dba)end
-daa,_ba=self.mapper:build(dba)else daa,_ba=cc.identityMap,false end;local aba,bba,cba=self.prevText,self.prevFg,self.prevBg
-for y=1,self.height do
-local dba,_ca,aca=self.text[y],self.fg[y],self.bg[y]
-if
-_ba or dba~=aba[y]or _ca~=bba[y]or aca~=cba[y]then caa.setCursorPos(1,y)
-caa.blit(dba,(_ca:gsub(".",daa)),(aca:gsub(".",daa)))aba[y],bba[y],cba[y]=dba,_ca,aca end end
-if self.cursorBlink then
-local dba=self.cursorColor and bd[self.cursorColor]local _ca=dba and daa[dba]if _ca then
-caa.setTextColor(2 ^tonumber(_ca,16))end
-caa.setCursorPos(self.cursorX,self.cursorY)caa.setCursorBlink(true)else caa.setCursorBlink(false)end;self.dirty=false;return self end;return __a
-]=]
-sources["core/scroll"] = [=[
-local ba={}
-local function ca(cb,db,_c)if cb<db then return db end;if cb>_c then return _c end;return cb end;local function da(cb)
-return rawget(cb,"_scrollX")or 0,rawget(cb,"_scrollY")or 0 end;local function _b(cb)
-return math.max(0,
-(rawget(cb,"_contentWidth")or 0)-cb.width),math.max(0,(
-rawget(cb,"_contentHeight")or 0)-cb.height)end
-local function ab(cb)
-local db=cb.scrollbar;if db~="auto"and db~="always"and db~="hidden"then
-error("Basalt scroll: scrollbar must be 'auto', 'always' or 'hidden'",3)end;return db end
-function ba.disable(cb)rawset(cb,"_scrollX",0)rawset(cb,"_scrollY",0)
-rawset(cb,"_showScrollX",false)rawset(cb,"_showScrollY",false)
-rawset(cb,"_scrollDrag",nil)rawset(cb,"_viewportDirty",true)end
-function ba.setup(cb)rawset(cb,"_scrollX",0)rawset(cb,"_scrollY",0)
-rawset(cb,"_contentWidth",0)rawset(cb,"_contentHeight",0)
-cb:on("drag",function(db,_c,ac,bc)ba.drag(db,ac,bc)end)
-cb:on("clickUp",function(db)rawset(db,"_scrollDrag",nil)end)end
-function ba.update(cb)local db=cb:getChildren()local _c,ac=0,0
-for i=1,#db do local dd=db[i]if dd.visible then _c=math.max(_c,dd.x+
-dd.width-1)
-ac=math.max(ac,dd.y+dd.height-1)end end;rawset(cb,"_contentWidth",_c)
-rawset(cb,"_contentHeight",ac)if not cb.scrollable then ba.disable(cb)return end
-local bc=ab(cb)local cc=cb.scrollXEnabled and _c>cb.width;local dc=cb.scrollYEnabled and
-ac>cb.height
-rawset(cb,"_showScrollX",
-bc~="hidden"and cb.scrollXEnabled and(bc=="always"or cc))
-rawset(cb,"_showScrollY",bc~="hidden"and cb.scrollYEnabled and(bc=="always"or dc))local _d,ad=_b(cb)local bd,cd=da(cb)
-rawset(cb,"_scrollX",cb.scrollXEnabled and ca(bd,0,_d)or 0)
-rawset(cb,"_scrollY",cb.scrollYEnabled and ca(cd,0,ad)or 0)rawset(cb,"_viewportDirty",true)end
-local function bb(cb,db,_c,ac,bc)if cb<=0 then return 1,0 end
-local cc=math.max(1,math.floor(cb*db/math.max(_c,db)))cc=math.min(cb,cc)local dc=cb-cc;local _d=bc>0 and
-math.floor(dc*ac/bc+0.5)or 0;return cc,_d end
-function ba.geometry(cb)local db=rawget(cb,"_showScrollX")==true;local _c=
-rawget(cb,"_showScrollY")==true;local ac,bc=da(cb)local cc,dc=_b(cb)local _d=math.max(0,
-cb.width- (_c and 1 or 0))local ad=math.max(0,
-cb.height- (db and 1 or 0))
-local bd,cd=bb(_d,cb.width,
-rawget(cb,"_contentWidth")or 0,ac,cc)
-local dd,__a=bb(ad,cb.height,rawget(cb,"_contentHeight")or 0,bc,dc)
-return
-{showX=db,showY=_c,horizontalLength=_d,verticalLength=ad,horizontalThumbSize=bd,horizontalThumbPos=cd,verticalThumbSize=dd,verticalThumbPos=__a,maxX=cc,maxY=dc}end
-function ba.draw(cb,db)if not cb.scrollable then return end;local _c=ba.geometry(cb)
-local ac,bc=cb.scrollbarColor,cb.scrollbarThumbColor
-if _c.showY and _c.verticalLength>0 then
-db:fill(cb.width,1,1,_c.verticalLength," ",cb.foreground,ac)
-db:fill(cb.width,_c.verticalThumbPos+1,1,_c.verticalThumbSize," ",cb.foreground,bc)end
-if _c.showX and _c.horizontalLength>0 then
-db:fill(1,cb.height,_c.horizontalLength,1," ",cb.foreground,ac)
-db:fill(_c.horizontalThumbPos+1,cb.height,_c.horizontalThumbSize,1," ",cb.foreground,bc)end;if _c.showX and _c.showY then
-db:fill(cb.width,cb.height,1,1," ",cb.foreground,ac)end end
-function ba.set(cb,db,_c,ac)if not cb.scrollable then return false end;local bc,cc=da(cb)
-local dc,_d=_b(cb)db=
-cb.scrollXEnabled and ca(math.floor(db or bc),0,dc)or 0
-_c=cb.scrollYEnabled and ca(math.floor(
-_c or cc),0,_d)or 0;if db==bc and _c==cc then return false end
-rawset(cb,"_scrollX",db)rawset(cb,"_scrollY",_c)
-rawset(cb,"_viewportDirty",true)cb:markRenderDirty()if ac~=false then
-cb:fire("scrollChange",db,_c)end;return true end
-function ba.wheel(cb,db)if not cb.scrollable then return false end;local _c,ac=da(cb)local bc=db*
-math.max(1,math.floor(cb.scrollStep))
-if
-cb.scrollYEnabled and(
-rawget(cb,"_contentHeight")or 0)>cb.height then return ba.set(cb,_c,ac+bc)elseif cb.scrollXEnabled then
-return ba.set(cb,_c+bc,ac)end;return false end
-function ba.isBarPoint(cb,db,_c)if not cb.scrollable then return false end
-local ac=ba.geometry(cb)if
-ac.showY and db==cb.width and _c<=ac.verticalLength then return"y",ac end
-if
-ac.showX and _c==cb.height and db<=ac.horizontalLength then return"x",ac end;if
-ac.showX and ac.showY and db==cb.width and _c==cb.height then return"corner",ac end;return false,ac end
-function ba.pointerDown(cb,db,_c)local ac,bc=ba.isBarPoint(cb,db,_c)if ac=="corner"or not ac then return ac==
-"corner"end;local cc=ac=="y"
-local dc=cc and _c or db
-local _d=cc and bc.verticalThumbPos or bc.horizontalThumbPos
-local ad=cc and bc.verticalThumbSize or bc.horizontalThumbSize
-local bd=cc and bc.verticalLength or bc.horizontalLength;local cd=cc and bc.maxY or bc.maxX;local dd=_d+1
-if
-dc>=dd and dc<dd+ad then rawset(cb,"_scrollDrag",{axis=ac,grab=dc-dd})else local __a=math.max(1,
-bd-ad)
-local a_a=math.floor((dc-1 -ad/2)/__a*cd+0.5)local b_a,c_a=da(cb)
-ba.set(cb,cc and b_a or a_a,cc and a_a or c_a)end;return true end
-function ba.drag(cb,db,_c)local ac=rawget(cb,"_scrollDrag")if not ac then return false end
-local bc=ba.geometry(cb)local cc=ac.axis=="y"local dc=cc and _c or db;local _d=cc and bc.verticalThumbSize or
-bc.horizontalThumbSize;local ad=
-cc and bc.verticalLength or bc.horizontalLength;local bd=
-cc and bc.maxY or bc.maxX;local cd=math.max(1,ad-_d)local dd=ca(dc-1 -
-ac.grab,0,cd)
-local __a=math.floor(dd/cd*bd+0.5)local a_a,b_a=da(cb)return
-ba.set(cb,cc and a_a or __a,cc and __a or b_a)end;return ba
-]=]
-sources["core/state"] = [=[
-local ba={}local ca=table.unpack or unpack;local da=nil;local _b={}_b.__index=_b
-_b.__basaltStateValue=true;local ab={}ab.__index=ab;ab.__basaltStateValue=true
-local function bb(cb,db)db=db or da
-if
-db and db.markDirty then cb._watchers[db]=true
-local _c=rawget(db,"_stateDependencies")if not _c then _c=setmetatable({},{__mode="k"})
-rawset(db,"_stateDependencies",_c)end;_c[cb]=true end end
-function ba.clearWatcher(cb)local db=rawget(cb,"_stateDependencies")
-if not db then return end
-for _c in pairs(db)do _c._watchers[cb]=nil;db[_c]=nil end end
-function ba.withWatcher(cb,db,...)local _c=da;da=cb or _c
-local ac=table.pack(pcall(db,...))da=_c;if not ac[1]then error(ac[2],0)end;return ca(ac,2,ac.n)end;function ba.is(cb)
-local db=type(cb)=="table"and getmetatable(cb)
-return db and db.__basaltStateValue==true or false end;function ba.read(cb,db)
-return cb:get(db)end
-function ba.isWritable(cb)return getmetatable(cb)==_b end;function _b:get(cb)bb(self,cb)return self._value end
-function _b:set(cb)
-local db=self._value;if db==cb then return self end;self._value=cb
-for _c in pairs(self._watchers)do if _c.markLayoutDirty then
-_c:markLayoutDirty()else _c:markDirty()end end;for _c in pairs(self._listeners)do _c(cb,db)end;return self end;function _b:update(cb)if type(cb)~="function"then
-error("Basalt state: update expects a function",2)end
-return self:set(cb(self._value))end
-function _b:touch()for cb in
-pairs(self._watchers)do
-if cb.markLayoutDirty then cb:markLayoutDirty()else cb:markDirty()end end
-for cb in
-pairs(self._listeners)do cb(self._value,self._value)end;return self end
-function _b:subscribe(cb,db)if type(cb)~="function"then
-error("Basalt state: subscribe expects a function",2)end
-self._listeners[cb]=true;if db then cb(self._value,nil)end;local _c=true;return
-function()if _c then self._listeners[cb]=
-nil;_c=false end end end
-function _b:map(cb)if type(cb)~="function"then
-error("Basalt state: map expects a function",2)end;local db=self;return ba.computed(function()
-return cb(db:get())end)end;function _b:__tostring()return tostring(self._value)end;function ab:get(cb)return
-ba.withWatcher(cb,self._compute)end
-function ab:map(cb)
-if
-type(cb)~="function"then error("Basalt state: map expects a function",2)end;local db=self;return
-ba.computed(function()return cb(db:get())end)end;function ab:__tostring()return tostring(self:get())end
-function ba.create(cb)return
-setmetatable({_value=cb,_watchers=setmetatable({},{__mode="k"}),_listeners={}},_b)end;function ba.computed(cb)if type(cb)~="function"then
-error("Basalt computed: expected a function",2)end
-return setmetatable({_compute=cb},ab)end
-return ba
-]=]
-sources["core/text"] = [=[
-local b={}
-function b.wrap(c,d)d=math.max(1,d)local _a={}
-for aa in
-(tostring(c).."\n"):gmatch("(.-)\n")do local ba=""
-for ca in aa:gmatch("%S+")do if#ba==0 then ba=ca elseif#ba+1 +#ca<=d then ba=ba.." "..ca else _a[#
-_a+1]=ba;ba=ca end
-while#ba>d do _a[
-#_a+1]=ba:sub(1,d)ba=ba:sub(d+1)end end;_a[#_a+1]=ba end
-if#_a>1 and _a[#_a]==""then table.remove(_a)end;if#_a==0 then _a={""}end;return _a end;return b
-]=]
-sources["elements/Button"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("Button",ba)aa.property(ca,"text","Button")
-aa.property(ca,"width",10)aa.property(ca,"height",3)
-aa.property(ca,"background",colors.gray)
-function ca:render(da)local _b,ab=self.foreground,self.background;if
-self:hasState("pressed")and ab then _b,ab=ab,_b end;local bb,cb=self.width,self.height;if ab then
-da:fill(1,1,bb,cb," ",_b,ab)end;local db=tostring(self.text)
-da:blit(
-math.floor((bb-#db)/2)+1,math.floor((cb-1)/2)+1,db,_b,ab or nil)end;function ca:measure()
-return math.max(3,#tostring(self.text)+2),3 end;return ca
-]=]
-sources["elements/Canvas"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("Canvas",ba)aa.property(ca,"draw",false,{rawFunction=true})
-function ca:render(da)
-ba.render(self,da)local _b=self.draw;if _b then _b(self,da)end end;return ca
-]=]
-sources["elements/Checkbox"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("Checkbox",ba)
-aa.property(ca,"checked",false,{state="checked",styleable=false})aa.property(ca,"text","")
-aa.property(ca,"checkedSymbol","x")aa.property(ca,"uncheckedSymbol"," ")
-aa.property(ca,"width",function(da)return#
-tostring(da.text)+4 end)aa.event(ca,"change")function ca:setup()ba.setup(self)
-self:on("click",function(da)da.checked=not
-da.checked;da:fire("change",da.checked)end)end
-function ca:render(da)
-ba.render(self,da)
-local _b=self.checked and self.checkedSymbol or self.uncheckedSymbol
-da:blit(1,1,"["..
-tostring(_b):sub(1,1).."] "..tostring(self.text),self.foreground,nil)end;return ca
-]=]
-sources["elements/Collection"] = [=[
-local aa=...local ba=aa("core/class")local ca=aa("core/element")
-local da=aa("core/collection")local _b=ba.create("Collection",ca)da.install(_b)function _b:setup()
-ca.setup(self)da.setup(self)end;return _b
-]=]
-sources["elements/Column"] = [=[
-local aa=...local ba=aa("core/class")local ca=aa("core/layout")
-local da=aa("elements/Flex")local _b=ba.create("Column",da)
-ba.property(_b,"direction","column")ba.property(_b,"width",ca.fill())
-ba.property(_b,"height",ca.auto())return _b
-]=]
-sources["elements/ComboBox"] = [=[
-local da=...local _b=da("core/class")local ab=da("elements/Input")
-local bb=da("core/itemview")local cb=da("core/collection")local db=_b.create("ComboBox",ab)
-cb.install(db,{changeEvent="selectionChange"})_b.property(db,"dropHeight",6)
-_b.property(db,"autoComplete",false)_b.property(db,"offset",0)
-_b.property(db,"dropBackground",colors.black)_b.property(db,"dropForeground",colors.white)
-_b.property(db,"scrollbar","auto")_b.property(db,"scrollbarColor",colors.gray)
-_b.property(db,"scrollbarThumbColor",colors.lightGray)_b.property(db,"width",14)
-_b.property(db,"height",function(bc)if bc.open then
-return 1 +math.min(#
-bc:getDisplayItems(),bc.dropHeight)end;return 1 end)
-_b.property(db,"open",false,{onChange=function(bc,cc)
-if cc then rawset(bc,"_zBefore",bc.z)bc.z=999
-rawset(bc,"_highlighted",1)bc.offset=0 else bc.z=rawget(bc,"_zBefore")or bc.z end end})
-function db:getDisplayItems()local bc=self.items;local cc={}local dc=
-self.autoComplete and self.text:lower()or""
-for i=1,#bc do
-local _d=tostring(bc[i])if#dc==0 or _d:lower():sub(1,#dc)==dc then
-cc[#cc+1]={index=i,text=_d,item=bc[i]}end end;return cc end;local function _c(bc,cc)
-return math.min(#cc,math.max(0,bc.dropHeight))end;local function ac(bc,cc)return
-bb.geometry(#cc,_c(bc,cc),bc.offset,bc.scrollbar)end
-function db:selectDisplayed(bc)
-local cc=self:getDisplayItems()local dc=cc[bc]if not dc then return self end
-rawset(self,"_selecting",true)self.text=dc.text;rawset(self,"_selecting",nil)self:_moveCursor(#
-dc.text+1)self.open=false
-self:activateItem(dc.index)return self end;function db:clear()cb.methods.clear(self)self.open=false;self.offset=0
-self:markDirty()return self end
-function db:setup()
-ab.setup(self)cb.setup(self)
-self:on("click",function(bc,cc,dc,_d)if _d==1 then
-if dc==bc.width then bc.open=not bc.open end;return end;local ad=bc:getDisplayItems()
-local bd=ac(bc,ad)if bd.show and dc==bc.width then local cd,dd=bb.pointerDown(_d-1,bd)
-bc.offset=cd
-if dd~=nil then rawset(bc,"_itemScrollDrag",dd)end;return end;bc:selectDisplayed(
-bc.offset+_d-1)end)
-self:on("drag",function(bc,cc,dc,_d)local ad=rawget(bc,"_itemScrollDrag")if ad~=nil then
-bc.offset=bb.drag(_d-1,ad,ac(bc,bc:getDisplayItems()))end end)
-self:on("clickUp",function(bc)rawset(bc,"_itemScrollDrag",nil)end)
-self:on("change",function(bc)
-if
-bc.autoComplete and not rawget(bc,"_selecting")then
-bc.open=#bc:getDisplayItems()>0 and#bc.text>0;rawset(bc,"_highlighted",1)bc.offset=0 end end)
-self:on("blur",function(bc)bc.open=false end)end
-function db:handleMouse(bc,cc,dc,_d)
-if bc=="mouse_scroll"and self.open then
-if self.disabled then return nil end;local ad=self:getDisplayItems()
-self.offset=bb.clampOffset(self.offset+cc,#ad,_c(self,ad))return self end;return ab.handleMouse(self,bc,cc,dc,_d)end
-function db:handleKey(bc,cc,dc)
-if bc=="key"then
-if self.open then local _d=self:getDisplayItems()local ad=
-rawget(self,"_highlighted")or 1
-if cc==keys.escape then self.open=false;return elseif cc==
-keys.enter then self:selectDisplayed(ad)return elseif
-cc==keys.up or cc==keys.down then local bd=cc==keys.down and 1 or-1
-ad=math.max(1,math.min(#_d,ad+bd))rawset(self,"_highlighted",ad)
-self.offset=bb.ensureVisible(self.offset,ad,#_d,_c(self,_d))self:markDirty()return end elseif
-cc==keys.down and#self:getDisplayItems()>0 then self.open=true;return end end;ab.handleKey(self,bc,cc,dc)end
-function db:render(bc)ab.render(self,bc)local cc=self.width
-bc:blit(cc,1,self.open and"\30"or"\31",self.foreground,self.background)
-if self.open then local dc=self:getDisplayItems()local _d=ac(self,dc)
-rawget(self,"_p").offset=_d.offset;local ad=rawget(self,"_highlighted")
-local bd=math.max(0,cc- (_d.show and 1 or 0))
-for row=1,self.height-1 do local cd=dc[_d.offset+row]if not cd then break end;local dd=(_d.offset+
-row)==ad;local __a=dd and self.selectionForeground or
-self.dropForeground;local a_a=
-dd and self.selectionBackground or self.dropBackground;bc:fill(1,
-1 +row,bd,1," ",__a,a_a)
-bc:blit(1,1 +row,cd.text:sub(1,bd),__a,a_a)end
-bb.draw(bc,cc,2,_d,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end end;return db
-]=]
-sources["elements/ContextMenu"] = [=[
-local aa=...local ba=aa("core/class")
-local ca=aa("elements/Collection")local da=ba.create("ContextMenu",ca)
-ba.property(da,"background",colors.black)ba.property(da,"separatorColor",colors.gray)
-ba.property(da,"visible",false)
-ba.property(da,"width",function(ab)local bb=4
-for cb,db in ipairs(ab.items)do if not
-(type(db)=="table"and db.separator)then
-bb=math.max(bb,#tostring(db)+2)end end;return bb end)
-ba.property(da,"height",function(ab)return math.max(1,#ab.items)end)local function _b(ab)
-return type(ab)=="table"and ab.separator==true end
-function da:setup()ca.setup(self)self.z=1000
-self:on("click",function(ab,bb,cb,db)
-local _c=ab.items[db]if _c~=nil and not _b(_c)and not _c.disabled then
-ab:activateItem(db)ab:close()end end)
-self:on("blur",function(ab)ab:close()end)end
-function da:openAt(ab,bb)local cb=rawget(self,"parent")if cb then
-ab=math.max(1,math.min(ab,
-cb.width-self.width+1))
-bb=math.max(1,math.min(bb,cb.height-self.height+1))end
-self.x,self.y=ab,bb;self.visible=true;self:focus()return self end;function da:close()self.visible=false;return self end
-function da:handleKey(ab,bb,cb)
-if ab=="key"then
-if bb==
-keys.escape then self:close()elseif bb==keys.enter then
-local db=rawget(self,"_highlighted")local _c=db and self.items[db]
-if
-_c and not _b(_c)and not _c.disabled then self:activateItem(db)self:close()end elseif bb==keys.up or bb==keys.down then local db=#self.items;local _c=
-rawget(self,"_highlighted")or 0
-local ac=bb==keys.down and 1 or-1;for _=1,db do _c=_c+ac;if _c<1 then _c=db elseif _c>db then _c=1 end
-if
-not _b(self.items[_c])and not self.items[_c].disabled then break end end
-rawset(self,"_highlighted",_c)self:markDirty()end end;ca.handleKey(self,ab,bb,cb)end
-function da:render(ab)local bb=self.width;local cb,db=self.foreground,self.background
-local _c=rawget(self,"_highlighted")
-for ac,bc in ipairs(self.items)do
-if _b(bc)then
-ab:fill(1,ac,bb,1,"\140",self.separatorColor,db)elseif ac==_c and not bc.disabled then
-ab:fill(1,ac,bb,1," ",self.selectionForeground,self.selectionBackground)
-ab:blit(2,ac,tostring(bc):sub(1,bb-2),self.selectionForeground,self.selectionBackground)else local cc=bc.fg or cb;ab:fill(1,ac,bb,1," ",cb,db)ab:blit(2,ac,tostring(bc):sub(1,
-bb-2),cc,db)end end end;return da
-]=]
-sources["elements/Dialog"] = [=[
-local da=...local _b=da("core/class")local ab=da("core/container")
-local bb=da("core/text")local cb=_b.create("Dialog",ab)_b.property(cb,"title","")
-_b.property(cb,"titleBackground",colors.blue)_b.property(cb,"titleForeground",colors.white)
-_b.property(cb,"boxBackground",colors.lightGray)_b.property(cb,"boxForeground",colors.black)
-_b.property(cb,"boxWidth",26)_b.property(cb,"visible",false)
-_b.property(cb,"background",false)
-_b.property(cb,"width",function(bc)local cc=rawget(bc,"parent")
-return cc and cc.width or 1 end)
-_b.property(cb,"height",function(bc)local cc=rawget(bc,"parent")
-return cc and cc.height or 1 end)_b.event(cb,"close")
-function cb:setup()ab.setup(self)self.x,self.y=1,1
-self.z=950;self:on("click",function()end)end;local function db(bc)local cc=bc:getChildren()
-for i=#cc,1,-1 do bc:removeChild(cc[i])end end
-function cb:close(bc)db(self)
-self.visible=false;self:fire("close",bc)return self end
-local function _c(bc,cc,dc,_d)db(bc)bc.title=tostring(cc or"")bc.visible=true;local ad=math.min(bc.boxWidth,math.max(10,
-bc.width-2))local bd=bb.wrap(dc or"",
-ad-2)
-local cd=1 +1 +#bd+ (_d or 0)+2
-local dd=bc:addFrame({x=math.max(1,math.floor((bc.width-ad)/2)+1),y=math.max(1,math.floor((
-bc.height-cd)/2)+1),width=ad,height=cd,background=bc.boxBackground,foreground=bc.boxForeground})
-dd:addLabel({x=1,y=1,width=ad,height=1,text=bc.title,background=bc.titleBackground,foreground=bc.titleForeground})for __a,a_a in ipairs(bd)do
-dd:addLabel({x=2,y=2 +__a,text=a_a,foreground=bc.boxForeground})end;return dd,2 +#bd+1 end
-local function ac(bc,cc,dc,_d)local ad=0;for cd,dd in ipairs(dc)do ad=ad+#dd[1]+2 +1 end
-local bd=math.max(2,math.floor((
-cc.width-ad+1)/2)+1)
-for cd,dd in ipairs(dc)do local __a,a_a=dd[1],dd[2]
-cc:addButton({x=bd,y=_d+1,width=#__a+2,height=1,text=__a}):onClick(function()
-a_a()end)bd=bd+#__a+3 end end
-function cb:alert(bc,cc,dc)local _d,ad=_c(self,bc,cc,0)
-ac(self,_d,{{"OK",function()self:close(true)
-if dc then dc()end end}},ad)return self end
-function cb:confirm(bc,cc,dc)local _d,ad=_c(self,bc,cc,0)
-ac(self,_d,{{"Yes",function()self:close(true)if dc then
-dc(true)end end},{"No",function()
-self:close(false)if dc then dc(false)end end}},ad)return self end
-function cb:prompt(bc,cc,dc,_d)local ad,bd=_c(self,bc,cc,2)
-local cd=ad:addInput({x=2,y=bd+1,width=ad.width-2,text=tostring(dc or"")})
-local function dd()local __a=cd.text;self:close(__a)if _d then _d(__a)end end;cd:onEnter(dd)
-ac(self,ad,{{"OK",dd},{"Cancel",function()self:close(nil)
-if _d then _d(nil)end end}},
-bd+2)cd:focus()return self end;return cb
-]=]
-sources["elements/Dropdown"] = [=[
-local ba=...local ca=ba("core/class")
-local da=ba("elements/Collection")local _b=ba("core/itemview")local ab=ca.create("Dropdown",da)
-ca.property(ab,"text","Select...")ca.property(ab,"dropHeight",6)
-ca.property(ab,"offset",0)ca.property(ab,"background",colors.gray)
-ca.property(ab,"dropBackground",colors.black)ca.property(ab,"width",14)
-ca.property(ab,"scrollbar","auto")ca.property(ab,"scrollbarColor",colors.gray)
-ca.property(ab,"scrollbarThumbColor",colors.lightGray)
-ca.property(ab,"height",function(cb)if cb.open then
-return 1 +math.min(#cb.items,cb.dropHeight)end;return 1 end)
-ca.property(ab,"open",false,{onChange=function(cb,db)
-if db then rawset(cb,"_zBefore",cb.z)cb.z=999
-local _c=cb.selected or(
-#cb.items>0 and 1 or false)rawset(cb,"_highlighted",_c)
-cb.offset=_b.ensureVisible(cb.offset,_c,#cb.items,math.min(
-#cb.items,cb.dropHeight))else cb.z=rawget(cb,"_zBefore")or cb.z
-rawset(cb,"_itemScrollDrag",nil)end end})local function bb(cb)
-return math.min(#cb.items,math.max(0,cb.dropHeight))end
-function ab:getScrollInfo()return
-_b.geometry(#self.items,bb(self),self.offset,self.scrollbar)end;function ab:setOffset(cb)
-self.offset=_b.clampOffset(cb,#self.items,bb(self))return self end;function ab:scrollToItem(cb)
-self.offset=_b.ensureVisible(self.offset,cb,
-#self.items,bb(self))return self end
-function ab:select(cb,db)if not cb or
-self.items[cb]==nil then return self end
-da.select(self,cb,db)rawset(self,"_highlighted",cb)
-self:scrollToItem(cb)self.open=false;return self end
-function ab:setup()da.setup(self)
-self:on("click",function(cb,db,_c,ac)
-if ac==1 then cb.open=not cb.open else
-local bc=cb:getScrollInfo()
-if bc.show and _c==cb.width then local dc,_d=_b.pointerDown(ac-1,bc)
-cb:setOffset(dc)
-if _d~=nil then rawset(cb,"_itemScrollDrag",_d)end;return end;local cc=cb.offset+ac-1
-if cb.items[cc]~=nil then cb:select(cc)end end end)
-self:on("drag",function(cb,db,_c,ac)local bc=rawget(cb,"_itemScrollDrag")if bc~=nil then
-cb:setOffset(_b.drag(ac-1,bc,cb:getScrollInfo()))end end)
-self:on("clickUp",function(cb)rawset(cb,"_itemScrollDrag",nil)end)
-self:on("blur",function(cb)cb.open=false end)end
-function ab:clear()da.clear(self)self.open=false;self.offset=0
-rawset(self,"_highlighted",nil)self:markDirty()return self end
-function ab:removeItem(cb)da.removeItem(self,cb)
-self:setOffset(self.offset)self:markDirty()return self end
-function ab:handleMouse(cb,db,_c,ac)
-if cb=="mouse_scroll"and not self.open then return nil end
-if cb=="mouse_scroll"then if self.disabled then return nil end;local bc=self.offset;self:setOffset(
-bc+db)local cc=self:fire("scroll",db,_c,ac)if
-self.offset~=bc or cc then return self end;return nil end;return da.handleMouse(self,cb,db,_c,ac)end
-function ab:handleKey(cb,db,_c)
-if cb=="key"then
-if not self.open then if
-db==keys.enter or db==keys.space or db==
-keys.down or db==keys.up then self.open=true end else
-local ac=#self.items;local bc=rawget(self,"_highlighted")or 0
-if
-db==keys.escape then self.open=false elseif db==keys.enter or db==keys.space then if bc>0 then
-self:select(bc)end elseif ac>0 then
-if db==keys.up then
-bc=math.max(1,bc>0 and bc-1 or 1)elseif db==keys.down then
-bc=math.min(ac,bc>0 and bc+1 or 1)elseif db==keys.home then bc=1 elseif db==keys["end"]then bc=ac elseif db==keys.pageUp then
-bc=math.max(1,bc-bb(self))elseif db==keys.pageDown then bc=math.min(ac,bc+bb(self))end;rawset(self,"_highlighted",bc)
-self:scrollToItem(bc)self:markDirty()end end end;da.handleKey(self,cb,db,_c)end
-function ab:render(cb)local db=self.width;local _c,ac=self.foreground,self.background
-local bc,cc=self.items,self.selected;local dc=_b.clampOffset(self.offset,#bc,bb(self))
-rawget(self,"_p").offset=dc;cb:fill(1,1,db,1," ",_c,ac)
-local _d=(cc and bc[cc]~=nil)and
-tostring(bc[cc])or tostring(self.text)cb:blit(1,1,_d:sub(1,db-2),_c,ac)cb:blit(db,1,
-self.open and"\30"or"\31",_c,ac)
-if self.open then
-local ad=self:getScrollInfo()local bd=rawget(self,"_highlighted")
-local cd=math.max(0,db- (ad.show and 1 or 0))
-for row=1,self.height-1 do local dd=dc+row;local __a=bc[dd]
-local a_a=bd==dd or(not bd and cc==dd)
-local b_a=
-a_a and(__a and __a.selectedFg or self.selectionForeground)or(__a and __a.fg or _c)
-local c_a=
-a_a and(__a and __a.selectedBg or self.selectionBackground)or(__a and __a.bg or self.dropBackground)cb:fill(1,1 +row,cd,1," ",b_a,c_a)
-cb:blit(1,1 +row,tostring(__a or""):sub(1,cd),b_a,c_a)end
-_b.draw(cb,db,2,ad,_c,self.scrollbarColor,self.scrollbarThumbColor)end end;return ab
-]=]
-sources["elements/Flex"] = [=[
-local ca=...local da=ca("core/class")local _b=ca("core/layout")
-local ab=ca("core/container")local bb=da.create("Flex",ab)
-da.property(bb,"direction","row")da.property(bb,"gap",0)da.property(bb,"padding",0)
-da.property(bb,"align","start")da.property(bb,"justify","start")
-da.property(bb,"overflow","clip")da.property(bb,"background",false)local function cb(_c)
-local ac=math.max(0,math.floor(
-tonumber(_c.padding)or 0))
-return ac,math.max(0,_c.width-ac*2),math.max(0,_c.height-ac*2)end
-local function db(_c,ac,bc,cc,dc)if
-_b.is(bc)and(bc.kind=="auto"or bc.kind=="fill")then
-local _d,ad=_b.measure(_c,cc,dc)
-return _b.constrain(_c,ac,ac=="width"and _d or ad)end;return
-_b.resolveSize(_c,ac,bc,cc,dc)end
-function bb:measure(_c,ac)_c=_c or 1;ac=ac or 1;local bc=self.direction;local cc=bc=="row"if not cc and
-bc~="column"then
-error("Basalt layout: direction must be 'row' or 'column'",2)end
-local dc=math.max(0,math.floor(
-tonumber(self.padding)or 0))
-local _d=math.max(0,math.floor(tonumber(self.gap)or 0))local ad,bd,cd=0,0,0;local dd=self:getChildren()
-for i=1,#dd do local __a=dd[i]
-if __a.visible and __a.position~=
-"absolute"then local a_a=_b.spec(__a,"width")
-local b_a=_b.spec(__a,"height")local c_a=db(__a,"width",a_a,_c,ac)
-local d_a=db(__a,"height",b_a,_c,ac)ad=ad+ (cc and c_a or d_a)
-bd=math.max(bd,cc and d_a or c_a)cd=cd+1 end end;if cd>1 then ad=ad+_d* (cd-1)end;ad,bd=ad+dc*2,bd+dc*2;return
-cc and ad or bd,cc and bd or ad end
-function bb:layoutChildren()local _c=self.direction;local ac=_c=="row"if not ac and _c~="column"then
-error("Basalt layout: direction must be 'row' or 'column'",2)end;local bc,cc,dc=cb(self)
-local _d=ac and cc or dc;local ad=ac and dc or cc
-local bd=math.max(0,math.floor(tonumber(self.gap)or 0))local cd={}local dd,__a,a_a=0,0,nil;local b_a=self:getChildren()
-for i=1,#b_a do local cba=b_a[i]
-if
-cba.position=="absolute"then _b.resolveFreeChild(self,cba)elseif cba.visible then local dba=
-ac and"width"or"height"
-local _ca=ac and"height"or"width"local aca=_b.spec(cba,dba)local bca=_b.spec(cba,_ca)
-local cca={child=cba,mainSpec=aca,crossSpec=bca,fill=_b.is(aca)and
-aca.kind=="fill",weight=
-_b.is(aca)and aca.kind=="fill"and aca.value or 0}local dca=cba.shrink
-if dca==false then
-cca.shrink=_b.is(aca)and 1 or 0 else cca.shrink=math.max(0,tonumber(dca)or 0)end;if cca.fill then dd=dd+cca.weight;a_a=#cd+1 else
-cca.main=db(cba,dba,aca,cc,dc)__a=__a+cca.main end
-cca.cross=_b.resolveSize(cba,_ca,bca,cc,dc)cd[#cd+1]=cca else rawset(cba,"_layoutBox",nil)end end;local c_a=bd*math.max(0,#cd-1)
-local d_a=math.max(0,_d-__a-c_a)local _aa=0
-for i=1,#cd do local cba=cd[i]
-if cba.fill then local dba;if i==a_a then dba=d_a-_aa else
-dba=math.floor(d_a*cba.weight/dd)_aa=_aa+dba end
-local _ca=ac and"width"or"height"cba.main=_b.constrain(cba.child,_ca,dba)end end;local aaa=c_a;for i=1,#cd do aaa=aaa+cd[i].main end
-local baa=math.max(0,aaa-_d)
-while baa>0 do local cba=0
-for i=1,#cd do local _ca=cd[i]
-local aca=ac and"minWidth"or"minHeight"local bca=_ca.child[aca]if bca==false then bca=0 end;_ca.minimum=math.max(0,
-tonumber(bca)or 0)
-if _ca.shrink>0 and
-_ca.main>_ca.minimum then cba=cba+_ca.shrink end end;if cba==0 then break end;local dba=0
-for i=1,#cd do local _ca=cd[i]
-if _ca.shrink>0 and
-_ca.main>_ca.minimum then
-local aca=math.max(1,math.floor(baa*_ca.shrink/cba))
-local bca=math.min(aca,_ca.main-_ca.minimum,baa-dba)_ca.main=_ca.main-bca;dba=dba+bca;if dba>=baa then break end end end;if dba==0 then break end;baa=baa-dba end;aaa=c_a;for i=1,#cd do aaa=aaa+cd[i].main end
-local caa=math.max(0,_d-aaa)local daa,_ba,aba=self.justify,0,bd;if self.overflow~="clip"then
-error("Basalt layout: only overflow='clip' is currently supported",2)end
-if daa=="center"then
-_ba=math.floor(caa/2)elseif daa=="end"then _ba=caa elseif daa=="spaceBetween"and#cd>1 then aba=bd+
-math.floor(caa/ (#cd-1))elseif daa~="start"then
-error("Basalt layout: invalid justify '"..
-tostring(daa).."'",2)end;local bba=bc+_ba+1
-for i=1,#cd do local cba,dba=cd[i],cd[i].child
-local _ca=dba.alignSelf~=false and
-dba.alignSelf or self.align;local aca=cba.cross
-if _ca=="stretch"and _b.is(cba.crossSpec)and
-cba.crossSpec.kind=="auto"then aca=ad end;local bca=0
-if _ca=="center"then bca=math.floor((ad-aca)/2)elseif _ca=="end"then bca=ad-
-aca elseif _ca~="start"and _ca~="stretch"then
-error("Basalt layout: invalid align '"..
-tostring(_ca).."'",2)end;bca=math.max(0,bca)
-if ac then
-_b.setBox(dba,bba,bc+bca+1,cba.main,aca)else _b.setBox(dba,bc+bca+1,bba,aca,cba.main)end;bba=bba+cba.main+aba end end;return bb
-]=]
-sources["elements/Frame"] = [=[
-local aa=...local ba=aa("core/class")local ca=aa("core/container")
-local da=ba.create("Frame",ca)ba.property(da,"background",colors.gray)
-ba.property(da,"width",20)ba.property(da,"height",8)
-ba.property(da,"draggable",false)
-ba.property(da,"draggingMap",false,{visual=false})
-local function _b(ab,bb,cb)local db=ab.draggingMap;if not db then
-db={{x=1,y=1,width="full",height=1}}end
-for i=1,#db do local _c=db[i]local ac=
-_c.width=="full"and ab.width or(_c.width or 1)
-local bc=
-_c.height=="full"and ab.height or(_c.height or 1)if
-bb>=_c.x and bb<_c.x+ac and cb>=_c.y and cb<_c.y+bc then return true end end;return false end
-function da:setup()ca.setup(self)
-self:on("click",function(ab,bb,cb,db)if ab.draggable and _b(ab,cb,db)then
-rawset(ab,"_dragFrom",{x=cb,y=db})end end)
-self:on("drag",function(ab,bb,cb,db)local _c=rawget(ab,"_dragFrom")if _c then ab.x=ab.x+cb-_c.x;ab.y=
-ab.y+db-_c.y end end)
-self:on("clickUp",function(ab)rawset(ab,"_dragFrom",nil)end)end
-function da:toFront()local ab=rawget(self,"parent")if not ab then return self end
-local bb=self.z
-for cb,db in ipairs(ab:getChildren())do if db.z>bb then bb=db.z end end;if bb>=self.z then self.z=bb+1 end;return self end;return da
-]=]
-sources["elements/Input"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("Input",ba)
-aa.property(ca,"text","",{rawString=true,onChange=function(da,_b)local ab=rawget(da,"_cursor")if ab and ab>#_b+1 then rawset(da,"_cursor",
-#_b+1)
-rawset(da,"_scroll",math.max(0,#_b+1 -da.width))end end})aa.property(ca,"placeholder","")
-aa.property(ca,"placeholderColor",colors.gray)aa.property(ca,"maxLength",false)
-aa.property(ca,"replaceChar",false)aa.property(ca,"pattern",false)
-aa.property(ca,"width",12)aa.property(ca,"height",1)
-aa.property(ca,"background",colors.lightGray)aa.property(ca,"foreground",colors.black)
-aa.event(ca,"change")aa.event(ca,"enter")
-function ca:setup()ba.setup(self)
-rawset(self,"_cursor",1)rawset(self,"_scroll",0)
-self:on("click",function(da,_b,ab,bb)if bb~=1 then return end;da:_moveCursor(
-da._scroll+ab)end)
-self:on("focus",function(da)da:markDirty()end)
-self:on("blur",function(da)da:markDirty()end)end
-function ca:_moveCursor(da)local _b=#self.text;if da<1 then da=1 end
-if da>_b+1 then da=_b+1 end;rawset(self,"_cursor",da)local ab,bb=self.width,self._scroll;if
-da-bb>ab then bb=da-ab end;if da-bb<1 then bb=da-1 end
-rawset(self,"_scroll",bb)self:markDirty()end
-function ca:_insert(da)local _b=self.pattern;if _b then
-da=da:gsub(".",function(db)
-return db:match(_b)and db or""end)if#da==0 then return end end
-local ab=self.text;local bb=self.maxLength;if bb and#ab+#da>bb then return end
-local cb=self._cursor;self.text=ab:sub(1,cb-1)..da..ab:sub(cb)self:_moveCursor(
-cb+#da)
-self:fire("change",self.text)end
-function ca:handleKey(da,_b,ab)
-if da=="char"or da=="paste"then self:_insert(_b)elseif da=="key"then
-local bb=self._cursor;local cb=self.text
-if _b==keys.backspace then if bb>1 then
-self.text=cb:sub(1,bb-2)..cb:sub(bb)self:_moveCursor(bb-1)
-self:fire("change",self.text)end elseif _b==keys.delete then if bb<=#cb then self.text=cb:sub(1,
-bb-1)..cb:sub(bb+1)
-self:fire("change",self.text)end elseif _b==keys.left then
-self:_moveCursor(bb-1)elseif _b==keys.right then self:_moveCursor(bb+1)elseif _b==keys.home then
-self:_moveCursor(1)elseif _b==keys["end"]then self:_moveCursor(#cb+1)elseif _b==keys.enter then
-self:fire("enter",cb)end end;ba.handleKey(self,da,_b,ab)end
-function ca:render(da)ba.render(self,da)local _b=self:getRoot()local ab=_b.getFocused and
-_b:getFocused()==self;local bb=self.text
-local cb=self.width
-if#bb==0 and not ab then
-da:blit(1,1,self.placeholder:sub(1,cb),self.placeholderColor,nil)else
-local db=bb:sub(self._scroll+1,self._scroll+cb)local _c=self.replaceChar;if _c then
-db=tostring(_c):sub(1,1):rep(#db)end
-da:blit(1,1,db,self.foreground,nil)end;if ab then
-self:setCursor(self._cursor-self._scroll,1,true,self.foreground)end end
-function ca:measure()return
-math.max(1,#tostring(self.text),#tostring(self.placeholder)),1 end;return ca
-]=]
-sources["elements/Label"] = [=[
-local ba=...local ca=ba("core/class")local da=ba("core/element")
-local _b=ba("core/text")local ab=ca.create("Label",da)
-local function bb(cb)local db=rawget(cb,"_p")
-if
-rawget(cb,"_autoSize")then if type(db.width)~="function"then
-db.width=math.max(#tostring(cb.text),1)end;return end
-if
-rawget(cb,"_autoHeight")and type(db.height)~="function"and type(db.width)~="function"then db.height=
-#_b.wrap(cb.text,cb.width)end end
-ca.property(ab,"text","",{onChange=function(cb)bb(cb)end})
-ca.property(ab,"width",1,{onChange=function(cb)rawset(cb,"_autoSize",false)bb(cb)end})
-ca.property(ab,"height",1,{onChange=function(cb)rawset(cb,"_autoHeight",false)end})function ab:setup()da.setup(self)rawset(self,"_autoSize",true)
-rawset(self,"_autoHeight",true)end
-function ab:render(cb)
-da.render(self,cb)local db=tostring(self.text)
-if
-rawget(self,"_autoSize")or self.height==1 then cb:blit(1,1,db,self.foreground,nil)else
-local _c=_b.wrap(db,self.width)for i=1,math.min(#_c,self.height)do
-cb:blit(1,i,_c[i],self.foreground,nil)end end end;function ab:measure()
-return math.max(1,#tostring(self.text)),1 end;return ab
-]=]
-sources["elements/List"] = [=[
-local ba=...local ca=ba("core/class")
-local da=ba("elements/Collection")local _b=ba("core/itemview")local ab=ca.create("List",da)
-ca.property(ab,"offset",0)ca.property(ab,"emptyText","")
-ca.property(ab,"emptyTextColor",colors.gray)ca.property(ab,"background",colors.black)
-ca.property(ab,"width",16)ca.property(ab,"height",8)
-ca.property(ab,"scrollbar","auto")ca.property(ab,"scrollbarColor",colors.gray)
-ca.property(ab,"scrollbarThumbColor",colors.lightGray)
-local function bb(cb)return _b.maxOffset(#cb.items,cb.height)end
-function ab:getScrollInfo()return
-_b.geometry(#self.items,self.height,self.offset,self.scrollbar)end;function ab:setOffset(cb)
-self.offset=_b.clampOffset(cb,#self.items,self.height)return self end;function ab:scrollToItem(cb)
-self.offset=_b.ensureVisible(self.offset,cb,
-#self.items,self.height)return self end
-function ab:selectItem(cb,db)
-da.selectItem(self,cb,db)
-local _c=self:indexOfItem(cb)or self:getSelectedIndex()if _c then self:scrollToItem(_c)end;return self end
-function ab:setup()da.setup(self)
-self:on("click",function(cb,db,_c,ac)local bc=cb:getScrollInfo()
-if bc.show and _c==
-cb.width then local dc,_d=_b.pointerDown(ac,bc)
-cb:setOffset(dc)
-if _d~=nil then rawset(cb,"_itemScrollDrag",_d)end;return end;local cc=cb.offset+ac
-if cb.items[cc]~=nil then cb:select(cc)end end)
-self:on("drag",function(cb,db,_c,ac)local bc=rawget(cb,"_itemScrollDrag")if bc~=nil then
-cb:setOffset(_b.drag(ac,bc,cb:getScrollInfo()))end end)
-self:on("clickUp",function(cb)rawset(cb,"_itemScrollDrag",nil)end)end
-function ab:handleMouse(cb,db,_c,ac)
-if cb=="mouse_scroll"then if self.disabled then return nil end
-local bc=self.offset;self:setOffset(bc+db)
-local cc=self:fire("scroll",db,_c,ac)if self.offset~=bc or cc then return self end;return nil end;return da.handleMouse(self,cb,db,_c,ac)end
-function ab:removeItem(cb)da.removeItem(self,cb)if self.offset>bb(self)then
-self.offset=bb(self)end;self:markDirty()return self end
-function ab:handleKey(cb,db,_c)
-if cb=="key"and#self.items>0 then
-local ac=self.selected or 0
-if db==keys.up then
-self:selectItem(ac>1 and ac-1 or 1)elseif db==keys.down then
-self:selectItem(
-ac>0 and math.min(#self.items,ac+1)or 1)elseif db==keys.home then self:selectItem(1)elseif db==keys["end"]then self:selectItem(#
-self.items)elseif db==keys.pageUp then
-self:selectItem(math.max(1,(
-ac>0 and ac or 1)-self.height))elseif db==keys.pageDown then
-self:selectItem(math.min(#self.items,(ac>0 and ac or 1)+self.height))elseif db==keys.enter and ac>0 then self:activateItem(ac)end end;da.handleKey(self,cb,db,_c)end
-function ab:clear()da.clear(self)self.offset=0;return self end
-function ab:render(cb)da.render(self,cb)local db=self.items
-local _c,ac=self.width,self.height
-if
-#db==0 and#tostring(self.emptyText)>0 then
-local ad=tostring(self.emptyText):sub(1,_c)
-cb:blit(math.floor((_c-#ad)/2)+1,math.floor((ac-1)/2)+1,ad,self.emptyTextColor,
-nil)return end;local bc=_b.clampOffset(self.offset,#db,ac)
-rawget(self,"_p").offset=bc;local cc=self:getScrollInfo()
-local dc=math.max(0,_c- (cc.show and 1 or 0))
-local function _d(ad,bd,cd,dd)local __a=ad.iconChar
-if type(__a)=="number"then __a=string.char(__a)end;if type(__a)~="string"or#__a==0 then return end;local a_a=math.floor(
-tonumber(ad.iconX)or 1)
-if a_a<1 or a_a>dc then return end
-local b_a=cd and ad.selectedIconForeground or ad.iconForeground or dd
-local c_a=cd and ad.selectedIconBackground or ad.iconBackground;cb:blit(a_a,bd,__a:sub(1,1),b_a,c_a)end
-for row=1,ac do local ad=bc+row;local bd=db[ad]if bd==nil then break end;local cd=tostring(bd)
-if
-bd.separator then local dd=cd~=""and cd:sub(1,1)or"-"
-cb:blit(1,row,dd:rep(dc),
-bd.fg or self.foreground,bd.bg)elseif self:isSelected(ad)then
-local dd=bd.selectedFg or self.selectionForeground;local __a=bd.selectedBg or self.selectionBackground
-cb:fill(1,row,dc,1," ",dd,__a)cb:blit(1,row,cd:sub(1,dc),dd,__a)
-_d(bd,row,true,__a)else local dd=bd.fg or self.foreground;local __a=bd.bg;if __a then
-cb:fill(1,row,dc,1," ",dd,__a)end
-cb:blit(1,row,cd:sub(1,dc),dd,__a)_d(bd,row,false,__a or self.background)end end
-_b.draw(cb,_c,1,cc,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end;return ab
-]=]
-sources["elements/Menu"] = [=[
-local bb=...local cb=bb("core/class")
-local db=bb("elements/Collection")local _c=cb.create("Menu",db)
-local function ac(cd)if type(cd)=="table"then
-if cd.separator then return"\149"end;return tostring(cd.text)end;return
-tostring(cd)end;local function bc(cd)
-return type(cd)=="table"and cd.separator==true end;local function cc(cd)
-return type(cd)=="table"and
-(cd.items or cd.dropdown)or nil end
-local function dc(cd)local dd={}local __a=1;for a_a,b_a in ipairs(cd.items)do
-local c_a=
-bc(b_a)and ac(b_a)or(" "..ac(b_a).." ")dd[a_a]={__a,__a+#c_a-1,c_a}
-__a=__a+#c_a+cd.spacing end;return dd,math.max(1,
-__a-cd.spacing-1)end
-local function _d(cd)local dd=rawget(cd,"_openIndex")if not dd then return nil end
-local __a=cd.items[dd]local a_a=cc(__a)if not a_a then return nil end;local b_a=dc(cd)local c_a=1
-for _aa,aaa in ipairs(a_a)do c_a=math.max(c_a,
-#tostring(aaa)+2)end
-local d_a=math.min(b_a[dd][1],math.max(1,cd.width-c_a+1))return{x=d_a,width=c_a,items=a_a,parent=dd}end;cb.property(_c,"spacing",1)
-cb.property(_c,"background",colors.gray)
-cb.property(_c,"separatorColor",colors.lightGray)cb.property(_c,"dropBackground",colors.black)
-cb.property(_c,"width",function(cd)
-local dd,__a=dc(cd)return __a end)
-cb.property(_c,"height",function(cd)local dd=_d(cd)
-return dd and(1 +#dd.items)or 1 end)local function ad(cd)
-if rawget(cd,"_openIndex")then rawset(cd,"_openIndex",nil)cd.z=
-rawget(cd,"_zBefore")or cd.z;cd:markDirty()end end
-local function bd(cd,dd)
-rawset(cd,"_zBefore",cd.z)rawset(cd,"_openIndex",dd)cd.z=999;cd:markDirty()end
-function _c:select(cd,dd)local __a=self.items[cd]
-if __a==nil or bc(__a)then return self end;if cc(__a)then
-if rawget(self,"_openIndex")==cd then ad(self)else bd(self,cd)end;return self end;ad(self)
-db.select(self,cd,dd)return self end
-function _c:setup()db.setup(self)
-self:on("click",function(cd,dd,__a,a_a)
-if a_a==1 then
-for b_a,c_a in ipairs(dc(cd))do if __a>=c_a[1]and
-__a<=c_a[2]then cd:select(b_a)return end end;ad(cd)else local b_a=_d(cd)
-if
-b_a and __a>=b_a.x and __a<b_a.x+b_a.width and b_a.items[a_a-1]~=nil then
-local c_a=a_a-1;local d_a=b_a.items[c_a]ad(cd)
-if type(d_a)=="table"and type(d_a.callback)==
-"function"then d_a.callback(cd,d_a)end;cd:fire("select",c_a,tostring(d_a),b_a.parent)else
-ad(cd)end end end)self:on("blur",function(cd)ad(cd)end)end
-function _c:handleKey(cd,dd,__a)
-if cd=="key"and#self.items>0 then
-local a_a=self.selected or 0
-if dd==keys.left then
-self:select(math.max(1,a_a>0 and a_a-1 or 1),false)elseif dd==keys.right then
-self:select(
-a_a>0 and math.min(#self.items,a_a+1)or 1,false)elseif dd==keys.escape then ad(self)elseif dd==keys.enter and a_a>0 then
-self:select(a_a)end end;db.handleKey(self,cd,dd,__a)end
-function _c:clear()db.clear(self)ad(self)self:markDirty()return self end;function _c:measure()local cd,dd=dc(self)return dd,1 end
-function _c:render(cd)
-local dd,__a=self.foreground,self.background;cd:fill(1,1,self.width,1," ",dd,__a)local a_a=self.selected
-local b_a=rawget(self,"_openIndex")
-for d_a,_aa in ipairs(dc(self))do local aaa=self.items[d_a]
-if bc(aaa)then
-cd:blit(_aa[1],1,_aa[3],self.separatorColor,__a)elseif d_a==a_a or d_a==b_a then
-cd:blit(_aa[1],1,_aa[3],self.selectionForeground,self.selectionBackground)else cd:blit(_aa[1],1,_aa[3],dd,__a)end end;local c_a=_d(self)
-if c_a then
-for d_a,_aa in ipairs(c_a.items)do
-cd:fill(c_a.x,1 +d_a,c_a.width,1," ",dd,self.dropBackground)
-cd:blit(c_a.x+1,1 +d_a,tostring(_aa):sub(1,c_a.width-2),dd,self.dropBackground)end end end;return _c
-]=]
-sources["elements/Program"] = [=[
-local _c=...local ac=_c("core/class")local bc=_c("core/element")
-local cc=_c("core/errors")local dc=_c("core/palette")local _d=ac.create("Program",bc)
-local ad={mouse_click=true,mouse_up=true,mouse_drag=true,mouse_scroll=true,mouse_move=true,key=true,key_up=true,char=true,paste=true}local bd
-local function cd(d_a,_aa,aaa)if not _aa or not _aa.window then return false end
-local baa=math.max(1,math.floor(
-tonumber(d_a.width)or 1))
-local caa=math.max(1,math.floor(tonumber(d_a.height)or 1))local daa,_ba=_aa.window.getSize()if daa==baa and _ba==caa then
-return false end
-_aa.window.reposition(1,1,baa,caa)if aaa and bd then bd(d_a,_aa,"term_resize")end;return true end
-local function dd(d_a)local _aa=rawget(d_a,"_proc")if _aa then cd(d_a,_aa,true)end end;ac.property(_d,"path","",{visual=false})
-ac.property(_d,"running",false,{visual=false,styleable=false})ac.property(_d,"env",false,{visual=false})
-ac.property(_d,"background",colors.black)ac.property(_d,"width",30,{onChange=dd})
-ac.property(_d,"height",12,{onChange=dd})ac.event(_d,"done")ac.event(_d,"error")
-local function __a(d_a,_aa,aaa,baa)if rawget(d_a,"_proc")==
-_aa then rawset(d_a,"_proc",nil)end
-d_a.running=false;d_a:fire("done",aaa,baa)end
-local function a_a(d_a)local _aa=tostring(d_a or"")return _aa=="Terminated"or
-_aa:match(": Terminated$")~=nil end
-local function b_a(d_a,_aa,aaa,baa,caa)
-if not aaa then
-if caa and a_a(baa)then __a(d_a,_aa,true,nil)return end;local daa=debug.traceback(_aa.co)or""
-__a(d_a,_aa,false,baa)if d_a._handlers.error then d_a:fire("error",baa,daa)else
-error(cc.wrap(baa,daa),0)end;return end;_aa.filter=baa;if coroutine.status(_aa.co)=="dead"then
-__a(d_a,_aa,true,baa)end;d_a:markDirty()end
-bd=function(d_a,_aa,aaa,...)local baa=_aa.co;if
-not baa or coroutine.status(baa)=="dead"then return end
-if aaa~="term_resize"then cd(d_a,_aa,true)if
-
-rawget(d_a,"_proc")~=_aa or coroutine.status(baa)=="dead"then return end end;if
-_aa.filter~=nil and aaa~=_aa.filter and aaa~="terminate"then return end;_aa.filter=nil
-local caa=term.redirect(_aa.term)local daa,_ba=coroutine.resume(baa,aaa,...)
-_aa.term=term.current()term.redirect(caa)
-b_a(d_a,_aa,daa,_ba,aaa=="terminate")end
-local function c_a(d_a,_aa,aaa)aaa.native=function()return aaa end;aaa.current=term.current
-aaa.redirect=term.redirect;local baa=setmetatable({},{__index=_ENV})baa.term=aaa;if shell then
-baa.shell,baa.multishell=shell,multishell end
-if fs.exists("rom/modules/main/cc/require.lua")then
-local daa=dofile("rom/modules/main/cc/require.lua").make;baa.require,baa.package=daa(baa,fs.getDir(_aa))end;local caa=d_a.env;if type(caa)=="table"then
-for daa,_ba in pairs(caa)do baa[daa]=_ba end end;return baa end
-function _d:execute(d_a,...)self:stop()local _aa
-if
-fs.exists(d_a)and not fs.isDir(d_a)then _aa=d_a elseif shell then _aa=shell.resolveProgram(d_a)end;if not _aa then
-error("Basalt Program: program not found: "..tostring(d_a),2)end;local aaa=self:getRoot()
-local baa=rawget(aaa,"term")if not baa then
-error("Basalt Program: element must be inside a frame before execute()",2)end;local caa=fs.open(_aa,"r")
-local daa=caa.readAll()caa.close()
-local _ba=window.create(baa,1,1,self.width,self.height,false)
-local aba,bba=load(daa,"@/".._aa,nil,c_a(self,_aa,_ba))if not aba then
-error("Basalt Program: failed to load ".._aa..": "..tostring(bba),2)end
-local cba={window=_ba,term=_ba,args=table.pack(...),filter=nil}cba.co=coroutine.create(aba)
-rawset(self,"_proc",cba)self.path=_aa;self.running=true;local dba=term.redirect(_ba)
-local _ca,aca=coroutine.resume(cba.co,table.unpack(cba.args,1,cba.args.n))cba.term=term.current()term.redirect(dba)
-b_a(self,cba,_ca,aca)
-if rawget(self,"_proc")==cba then local bca=_c("main")
-bca.schedule(function()
-while
-
-rawget(self,"_proc")==cba and coroutine.status(cba.co)~="dead"do local cca=table.pack(os.pullEventRaw())
-if
-not ad[cca[1]]then bd(self,cba,table.unpack(cca,1,cca.n))end end end)end;return self end
-function _d:stop()local d_a=rawget(self,"_proc")if not d_a then return self end
-rawset(self,"_proc",nil)
-if d_a.co and coroutine.close and
-coroutine.status(d_a.co)~="dead"then coroutine.close(d_a.co)end;self.running=false;return self end
-function _d:terminate()local d_a=rawget(self,"_proc")if not d_a then return self end
-bd(self,d_a,"terminate")if rawget(self,"_proc")==d_a then self:stop()end;return
-self end;function _d:sendEvent(d_a,...)local _aa=rawget(self,"_proc")
-if _aa then bd(self,_aa,d_a,...)end;return self end
-function _d:setup()
-bc.setup(self)
-self:on("click",function(d_a,_aa,aaa,baa)local caa=rawget(d_a,"_proc")if caa then
-bd(d_a,caa,"mouse_click",_aa,aaa,baa)end end)
-self:on("clickUp",function(d_a,_aa,aaa,baa)local caa=rawget(d_a,"_proc")if caa then
-bd(d_a,caa,"mouse_up",_aa,aaa,baa)end end)
-self:on("drag",function(d_a,_aa,aaa,baa)local caa=rawget(d_a,"_proc")if caa then
-bd(d_a,caa,"mouse_drag",_aa,aaa,baa)end end)
-self:on("scroll",function(d_a,_aa,aaa,baa)local caa=rawget(d_a,"_proc")if caa then
-bd(d_a,caa,"mouse_scroll",_aa,aaa,baa)end end)end
-function _d:handleKey(d_a,_aa,aaa)local baa=rawget(self,"_proc")
-if baa then bd(self,baa,d_a,_aa,aaa)end;bc.handleKey(self,d_a,_aa,aaa)end
-function _d:destroy()self:terminate()return bc.destroy(self)end
-function _d:render(d_a)bc.render(self,d_a)local _aa=rawget(self,"_proc")
-if not _aa then return end;cd(self,_aa,true)
-if rawget(self,"_proc")~=_aa then return end;local aaa=_aa.window;local baa,caa=aaa.getSize()
-local daa=dc.windowTranslation(aaa)
-for y=1,caa do local aba,bba,cba=aaa.getLine(y)if aba then
-if daa then
-d_a:rawBlit(1,y,aba,(bba:gsub(".",daa)),(cba:gsub(".",daa)))else d_a:drawBlit(1,y,aba,bba,cba)end end end;local _ba=self:getRoot()if
-_ba.getFocused and _ba:getFocused()==self then local aba,bba=aaa.getCursorPos()
-self:setCursor(aba,bba,aaa.getCursorBlink(),aaa.getTextColor())end end;return _d
-]=]
-sources["elements/ProgressBar"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("ProgressBar",ba)
-aa.property(ca,"progress",0,{onChange=function(da,_b)local ab=rawget(da,"_p")if _b<0 then ab.progress=0 elseif _b>100 then
-ab.progress=100 end end})aa.property(ca,"barColor",colors.lime)
-aa.property(ca,"background",colors.gray)aa.property(ca,"width",16)
-aa.property(ca,"direction","right")aa.property(ca,"showPercentage",false)
-function ca:render(da)
-ba.render(self,da)local _b,ab=self.width,self.height
-local bb=math.min(100,math.max(0,self.progress))local cb=self.direction
-if cb=="up"or cb=="down"then
-local db=math.floor(ab*bb/100 +0.5)if db>0 then
-da:fill(1,cb=="up"and(ab-db+1)or 1,_b,db," ",self.foreground,self.barColor)end else
-local db=math.floor(_b*bb/100 +0.5)if db>0 then
-da:fill(cb=="left"and(_b-db+1)or 1,1,db,ab," ",self.foreground,self.barColor)end end;if self.showPercentage then local db=math.floor(bb+0.5).."%"
-da:drawText(math.floor((
-_b-#db)/2)+1,math.floor((ab-1)/2)+1,db)end end;return ca
-]=]
-sources["elements/Row"] = [=[
-local aa=...local ba=aa("core/class")local ca=aa("core/layout")
-local da=aa("elements/Flex")local _b=ba.create("Row",da)
-ba.property(_b,"direction","row")ba.property(_b,"width",ca.fill())
-ba.property(_b,"height",ca.auto())return _b
-]=]
-sources["elements/Slider"] = [=[
-local ba=...local ca=ba("core/class")local da=ba("core/element")
-local _b=ca.create("Slider",da)ca.property(_b,"min",0)ca.property(_b,"max",100)
-ca.property(_b,"step",1)ca.property(_b,"value",0)
-ca.property(_b,"horizontal",true)ca.property(_b,"barColor",colors.gray)
-ca.property(_b,"knobColor",colors.blue)ca.property(_b,"width",10)ca.event(_b,"change")
-local function ab(cb)return
-cb.horizontal and cb.width or cb.height end
-local function bb(cb,db,_c)local ac=ab(cb)local bc=cb.horizontal and db or _c
-local cc,dc,_d=cb.min,cb.max,cb.step;if dc<=cc or ac<2 then return end;local ad=(bc-1)/ (ac-1)if ad<0 then ad=0 elseif ad>1 then
-ad=1 end;local bd=cc+ad* (dc-cc)bd=cc+
-math.floor((bd-cc)/_d+0.5)*_d
-if bd<cc then bd=cc elseif bd>dc then bd=dc end
-if bd~=cb.value then cb.value=bd;cb:fire("change",bd)end end;function _b:setup()da.setup(self)
-self:on("click",function(cb,db,_c,ac)bb(cb,_c,ac)end)
-self:on("drag",function(cb,db,_c,ac)bb(cb,_c,ac)end)end
-function _b:handleMouse(cb,db,_c,ac)
-if
-cb=="mouse_scroll"then if self.disabled then return nil end
-local bc=self.value+db*self.step
-if bc<self.min then bc=self.min elseif bc>self.max then bc=self.max end
-if bc~=self.value then self.value=bc;self:fire("change",bc)end;return self end;return da.handleMouse(self,cb,db,_c,ac)end
-function _b:render(cb)da.render(self,cb)local db=ab(self)local _c,ac=self.min,self.max
-local bc=1
-if ac>_c then bc=1 +
-math.floor((self.value-_c)/ (ac-_c)* (db-1)+0.5)end
-if self.horizontal then
-cb:blit(1,1,string.rep("\140",db),self.barColor,nil)
-cb:fill(bc,1,1,1," ",self.foreground,self.knobColor)else
-for row=1,db do cb:blit(1,row,"\149",self.barColor,nil)end
-cb:fill(1,bc,1,1," ",self.foreground,self.knobColor)end end;return _b
-]=]
-sources["elements/Switch"] = [=[
-local _a=...local aa=_a("core/class")local ba=_a("core/element")
-local ca=aa.create("Switch",ba)
-aa.property(ca,"checked",false,{state="checked",styleable=false})aa.property(ca,"onColor",colors.green)
-aa.property(ca,"offColor",colors.gray)aa.property(ca,"knobColor",colors.white)
-aa.property(ca,"width",4)aa.event(ca,"change")function ca:setup()ba.setup(self)
-self:on("click",function(da)da.checked=not
-da.checked;da:fire("change",da.checked)end)end
-function ca:render(da)
-local _b,ab=self.width,self.height;local bb=self.checked
-da:fill(1,1,_b,ab," ",self.foreground,bb and self.onColor or self.offColor)local cb=math.max(1,math.floor(_b/2))
-da:fill(
-bb and(_b-cb+1)or 1,1,cb,ab," ",self.foreground,self.knobColor)end;return ca
-]=]
-sources["elements/TabControl"] = [=[
-local ba=...local ca=ba("core/class")local da=ba("core/container")
-local _b=ba("elements/Frame")local ab=ca.create("TabControl",da)
-ca.property(ab,"active",0,{onChange=function(cb)
-local db=rawget(cb,"_tabs")if not db then return end;local _c=cb.active
-for i=1,#db do db[i].frame.visible=(i==_c)end end})ca.property(ab,"headerBackground",colors.gray)
-ca.property(ab,"activeBackground",colors.blue)ca.property(ab,"activeForeground",colors.white)
-ca.property(ab,"background",colors.black)ca.property(ab,"width",24)
-ca.property(ab,"height",10)ca.event(ab,"change")
-local function bb(cb)local db={}local _c=1;for ac,bc in
-ipairs(rawget(cb,"_tabs"))do local cc=" "..bc.title.." "db[ac]={_c,_c+#cc-1,cc}_c=
-_c+#cc end;return db end
-function ab:setup()da.setup(self)rawset(self,"_tabs",{})
-self:on("click",function(cb,db,_c,ac)
-if ac~=1 then return end
-for bc,cc in ipairs(bb(cb))do if _c>=cc[1]and _c<=cc[2]then cb:setActiveTab(bc)
-return end end end)end
-function ab:addTab(cb)
-local db=_b.new({x=1,y=2,width=function(ac)local bc=rawget(ac,"parent")
-return bc and bc.width or 1 end,height=function(ac)local bc=rawget(ac,"parent")return bc and math.max(1,
-bc.height-1)or 1 end,background=false,visible=false})self:addChild(db)local _c=rawget(self,"_tabs")
-_c[#_c+1]={title=tostring(cb),frame=db}if self.active==0 then self.active=#_c end
-self:markDirty()return db end
-function ab:setActiveTab(cb,db)local _c=rawget(self,"_tabs")if
-not _c[cb]or self.active==cb then return self end;self.active=cb;if db~=false then
-self:fire("change",cb,_c[cb].title)end;return self end;function ab:getTab(cb)local db=rawget(self,"_tabs")[cb]return
-db and db.frame or nil end;function ab:getTabCount()return#
-rawget(self,"_tabs")end
-function ab:handleKey(cb,db,_c)
-if cb=="key"then local ac=#
-rawget(self,"_tabs")
-if ac>0 then if db==keys.left then
-self:setActiveTab(math.max(1,self.active-1))elseif db==keys.right then
-self:setActiveTab(math.min(ac,self.active+1))end end end;da.handleKey(self,cb,db,_c)end
-function ab:render(cb)da.render(self,cb)
-cb:fill(1,1,self.width,1," ",self.foreground,self.headerBackground)local db=self.active
-for _c,ac in ipairs(bb(self))do if _c==db then
-cb:blit(ac[1],1,ac[3],self.activeForeground,self.activeBackground)else
-cb:blit(ac[1],1,ac[3],self.foreground,self.headerBackground)end end end;return ab
-]=]
-sources["elements/Table"] = [=[
-local bb=...local cb=bb("core/class")local db=bb("core/element")
-local _c=bb("core/itemview")local ac=cb.create("Table",db)
-local function bc(cd)rawset(cd,"_viewOrder",nil)end
-local function cc(cd)if type(cd)~="table"then
-error("Basalt Table: columns must be a table",3)end;local dd={}
-for __a,a_a in ipairs(cd)do
-if type(a_a)=="string"then dd[__a]={title=a_a,name=a_a,width=
-#a_a+1}elseif type(a_a)=="table"then local b_a=a_a.title or
-a_a.name or""
-dd[__a]={title=b_a,name=a_a.name or b_a,width=a_a.width,minWidth=
-a_a.minWidth or 1,maxWidth=a_a.maxWidth}else
-error("Basalt Table: column "..__a.." must be a string or table",3)end end;return dd end
-cb.property(ac,"columns",false,{onChange=function(cd,dd)rawget(cd,"_p").columns=cc(dd)bc(cd)end})cb.property(ac,"data",false,{onChange=bc})
-cb.property(ac,"selected",false,{state="selected",stateWhen=function(cd)return
-cd~=false and cd~=nil end,styleable=false})cb.property(ac,"offset",0)
-cb.property(ac,"sortable",true)
-cb.property(ac,"sortColumn",false,{styleable=false})
-cb.property(ac,"sortDirection","asc",{styleable=false})cb.property(ac,"background",colors.black)
-cb.property(ac,"headerBackground",colors.gray)cb.property(ac,"gridColor",colors.gray)
-cb.property(ac,"selectionBackground",colors.blue)
-cb.property(ac,"selectionForeground",colors.white)cb.property(ac,"width",26)
-cb.property(ac,"height",8)cb.property(ac,"scrollbar","auto")
-cb.property(ac,"scrollbarColor",colors.gray)
-cb.property(ac,"scrollbarThumbColor",colors.lightGray)cb.property(ac,"scrollBarSymbol"," ")
-cb.property(ac,"scrollBarBackground","\127")cb.event(ac,"select")cb.event(ac,"rowSelect")
-cb.event(ac,"change")cb.event(ac,"sort")
-local function dc(cd)return math.max(0,cd.height-1)end;local function _d(cd)
-return _c.geometry(#cd.data,dc(cd),cd.offset,cd.scrollbar)end
-local function ad(cd)local dd=cd.data
-local __a=rawget(cd,"_viewOrder")if __a and#__a==#dd then return __a end;__a={}
-for i=1,#dd do __a[i]=i end;local a_a=rawget(cd,"_sortCol")
-if a_a then local b_a=rawget(cd,"_sortAsc")
-local c_a=rawget(cd,"_columnSorters")[a_a]
-table.sort(__a,function(d_a,_aa)local aaa=rawget(cd,"_sortValues")
-local baa=aaa[dd[d_a]]and
-aaa[dd[d_a]][a_a]or dd[d_a][a_a]
-local caa=aaa[dd[_aa]]and aaa[dd[_aa]][a_a]or dd[_aa][a_a]
-if c_a then return c_a(baa,caa,b_a,dd[d_a],dd[_aa])end
-if type(baa)=="number"and type(caa)=="number"then if b_a then
-return baa<caa end;return baa>caa end;baa,caa=tostring(baa),tostring(caa)if b_a then return baa<caa end;return
-baa>caa end)end;rawset(cd,"_viewOrder",__a)return __a end
-local function bd(cd,dd)local __a=cd.columns;local a_a=math.max(0,#__a-1)
-local b_a=math.max(0,dd-a_a)local c_a,d_a=0,{}local _aa={}
-for i=1,#__a do local daa=__a[i].width;local _ba
-if type(daa)=="number"then
-_ba=daa elseif type(daa)=="string"then
-local aba=tonumber(daa:match("^(%-?[%d%.]+)%%$"))if aba then _ba=math.floor(b_a*aba/100)end end
-if _ba then
-_ba=math.max(__a[i].minWidth or 1,math.floor(_ba))
-if __a[i].maxWidth then _ba=math.min(_ba,__a[i].maxWidth)end;_aa[i],c_a=_ba,c_a+_ba else d_a[#d_a+1]=i end end;local aaa=math.max(0,b_a-c_a)
-for daa,_ba in ipairs(d_a)do local aba=math.floor(aaa/
-math.max(1,#d_a-daa+1))aba=math.max(
-__a[_ba].minWidth or 1,aba)if __a[_ba].maxWidth then
-aba=math.min(aba,__a[_ba].maxWidth)end
-_aa[_ba],aaa=aba,math.max(0,aaa-aba)end;local baa={}local caa=1
-for i=1,#__a do
-local daa=math.max(0,math.min(_aa[i]or 0,dd-caa+1))baa[i]={x=caa,width=daa}caa=caa+daa+1 end;return baa end
-function ac:sortBy(cd,dd)if self.columns[cd]==nil then return self end;if dd==nil then
-dd=
-rawget(self,"_sortCol")~=cd or not rawget(self,"_sortAsc")end
-rawset(self,"_sortCol",cd)rawset(self,"_sortAsc",dd and true or false)
-rawget(self,"_p").sortColumn=cd
-rawget(self,"_p").sortDirection=dd and"asc"or"desc"bc(self)self:fire("sort",cd,dd)self:markDirty()
-return self end
-function ac:select(cd,dd)local __a=self.selected
-local a_a=__a and self.data[__a]or nil
-if cd==false or cd==nil then self.selected=false;if __a then
-self:fire("change",false,nil,__a,a_a)end;return self end;if self.data[cd]==nil then return self end;self.selected=cd
-local b_a=ad(self)
-for viewIndex=1,#b_a do if b_a[viewIndex]==cd then
-self.offset=_c.ensureVisible(self.offset,viewIndex,#b_a,dc(self))break end end;if __a~=cd then
-self:fire("change",cd,self.data[cd],__a or false,a_a)end
-if dd~=false then
-self:fire("select",cd,self.data[cd])self:fire("rowSelect",cd,self.data[cd])end;return self end
-function ac:addRow(...)local cd=select("#",...)local dd=cd==1 and type((...))=="table"and
-(...)or{...}
-local __a=self.data;__a[#__a+1]=dd
-rawget(self,"_sortValues")[dd]=dd;bc(self)self:markDirty()return self end
-function ac:removeRow(cd)local dd=self.data;if dd[cd]==nil then return self end
-local __a=self.selected;local a_a=__a and dd[__a]or nil
-local b_a=table.remove(dd,cd)rawget(self,"_sortValues")[b_a]=nil
-if
-self.selected==cd then self.selected=false;self:fire("change",false,nil,__a,a_a)elseif
-self.selected and self.selected>cd then self.selected=self.selected-1
-self:fire("change",self.selected,self.data[self.selected],__a,a_a)end;bc(self)self:markDirty()return self end;function ac:getRow(cd)return self.data[cd]end
-function ac:updateCell(cd,dd,__a)
-local a_a=self.data[cd]if a_a==nil then return self end;a_a[dd]=__a
-local b_a=rawget(self,"_sortValues")if b_a[a_a]then b_a[a_a][dd]=__a end;bc(self)
-self:markDirty()return self end
-function ac:setColumnSort(cd,dd)local __a=rawget(self,"_columnSorters")__a[cd]=dd
-bc(self)self:markDirty()return self end
-function ac:setColumnSortFunction(cd,dd)
-if dd==nil then return self:setColumnSort(cd,nil)end;return
-self:setColumnSort(cd,function(__a,a_a,b_a,c_a,d_a)return dd(c_a,d_a,b_a and"asc"or"desc")end)end;function ac:sortByColumn(cd,dd)
-if dd then self:setColumnSortFunction(cd,dd)end
-return self:sortBy(cd,self.sortDirection~="desc")end
-function ac:setSortColumn(cd)
-if
-cd==false or cd==nil then rawset(self,"_sortCol",nil)
-rawget(self,"_p").sortColumn=false;bc(self)self:markDirty()return self end
-return self:sortBy(cd,self.sortDirection~="desc")end
-function ac:setSortDirection(cd)if cd~="asc"and cd~="desc"then
-error("Basalt Table: sortDirection must be 'asc' or 'desc'",2)end
-rawget(self,"_p").sortDirection=cd
-if self.sortColumn then self:sortBy(self.sortColumn,cd=="asc")end;return self end;function ac:getSelectedRow()return
-self.selected and self.data[self.selected]or nil end;function ac:clearData()return
-self:clear()end
-function ac:addColumn(cd,dd)local __a={}for a_a,b_a in ipairs(self.columns)do
-__a[a_a]=b_a end
-__a[#__a+1]={name=cd,title=cd,width=dd}self.columns=__a;return self end
-function ac:setData(cd,dd)if type(cd)~="table"then
-error("Basalt Table: data must be a table",2)end;self:clear()
-local __a,a_a={},rawget(self,"_sortValues")
-for b_a,c_a in ipairs(cd)do local d_a,_aa={},{}
-for aaa,baa in ipairs(c_a)do _aa[aaa]=baa;d_a[aaa]=dd and dd[aaa]and
-dd[aaa](baa)or baa end;__a[b_a],a_a[d_a]=d_a,_aa end;rawget(self,"_p").data=__a;bc(self)
-self:markDirty()return self end
-function ac:calculateColumnWidths(cd,dd)local __a=self.columns
-rawget(self,"_p").columns=cc(cd)local a_a=bd(self,dd)rawget(self,"_p").columns=__a;local b_a={}
-for c_a,d_a in
-ipairs(cd)do
-b_a[c_a]={name=type(d_a)=="table"and(d_a.name or d_a.title)or d_a,width=
-type(d_a)=="table"and d_a.width or nil,visibleWidth=a_a[c_a].width}end;return b_a end
-function ac:setHeaderColor(cd)self.headerBackground=cd;return self end;function ac:getHeaderColor()return self.headerBackground end;function ac:setSelectedForeground(cd)
-self.selectionForeground=cd;return self end;function ac:getSelectedForeground()
-return self.selectionForeground end;function ac:setSelectedBackground(cd)
-self.selectionBackground=cd;return self end;function ac:getSelectedBackground()
-return self.selectionBackground end;function ac:setSelectionColor(cd,dd)
-self.selectionForeground,self.selectionBackground=cd,dd;return self end
-function ac:getSelectionColor()return
-self.selectionForeground,self.selectionBackground end
-function ac:setShowScrollBar(cd)self.scrollbar=cd and"auto"or"hidden"return self end
-function ac:getShowScrollBar()return self.scrollbar~="hidden"end
-function ac:setScrollBarColor(cd)self.scrollbarThumbColor=cd;return self end;function ac:getScrollBarColor()return self.scrollbarThumbColor end;function ac:setScrollBarBackgroundColor(cd)
-self.scrollbarColor=cd;return self end;function ac:getScrollBarBackgroundColor()return
-self.scrollbarColor end
-function ac:clear()local cd=self.selected;local dd=cd and
-self.data[cd]or nil
-rawget(self,"_p").data={}
-rawset(self,"_sortValues",setmetatable({},{__mode="k"}))self.selected=false;self.offset=0;bc(self)self:markDirty()if cd then self:fire("change",false,
-nil,cd,dd)end;return self end
-function ac:setup()db.setup(self)local cd=rawget(self,"_p")cd.columns={}
-cd.data={}rawset(self,"_columnSorters",{})
-rawset(self,"_sortValues",setmetatable({},{__mode="k"}))
-self:on("click",function(dd,__a,a_a,b_a)local c_a=_d(dd)
-if b_a==1 then if not dd.sortable then return end;local _aa=dd.width- (
-c_a.show and 1 or 0)for aaa,baa in ipairs(bd(dd,_aa))do
-if
-a_a>=baa.x and a_a<baa.x+baa.width then dd:sortBy(aaa)return end end;return end
-if c_a.show and a_a==dd.width then
-local _aa,aaa=_c.pointerDown(b_a-1,c_a)dd.offset=_aa
-if aaa~=nil then rawset(dd,"_itemScrollDrag",aaa)end;return end;local d_a=ad(dd)[c_a.offset+b_a-1]if d_a then
-dd:select(d_a)end end)
-self:on("drag",function(dd,__a,a_a,b_a)local c_a=rawget(dd,"_itemScrollDrag")if c_a~=nil then
-dd.offset=_c.drag(b_a-1,c_a,_d(dd))end end)
-self:on("clickUp",function(dd)rawset(dd,"_itemScrollDrag",nil)end)end
-function ac:handleMouse(cd,dd,__a,a_a)
-if cd=="mouse_scroll"then if self.disabled then return nil end
-local b_a=self.offset
-self.offset=_c.clampOffset(b_a+dd,#self.data,dc(self))local c_a=self:fire("scroll",dd,__a,a_a)if
-self.offset~=b_a or c_a then return self end;return nil end;return db.handleMouse(self,cd,dd,__a,a_a)end
-function ac:handleKey(cd,dd,__a)
-if cd=="key"and#self.data>0 then local a_a=ad(self)local b_a=0
-for viewIndex=1,#a_a do if
-a_a[viewIndex]==self.selected then b_a=viewIndex;break end end
-if dd==keys.up then
-self:select(a_a[math.max(1,b_a>0 and b_a-1 or 1)],false)elseif dd==keys.down then
-self:select(a_a[b_a>0 and math.min(#a_a,b_a+1)or 1],false)elseif dd==keys.home then self:select(a_a[1],false)elseif dd==keys["end"]then self:select(a_a[
-#a_a],false)elseif dd==keys.enter and b_a>0 then
-self:fire("select",self.selected,self.data[self.selected])
-self:fire("rowSelect",self.selected,self.data[self.selected])end end;db.handleKey(self,cd,dd,__a)end
-function ac:measure()local cd=0;for i=1,#self.columns do cd=
-cd+ (self.columns[i].width or 8)+1 end;return math.max(1,
-cd-1),math.max(2,#self.data+1)end
-function ac:render(cd)db.render(self,cd)local dd=self.width;local __a=_d(self)
-rawget(self,"_p").offset=__a.offset;local a_a=dd- (__a.show and 1 or 0)
-local b_a=bd(self,a_a)local c_a,d_a=rawget(self,"_sortCol"),rawget(self,"_sortAsc")
-cd:fill(1,1,dd,1," ",self.foreground,self.headerBackground)
-for caa,daa in ipairs(b_a)do
-local _ba=tostring(
-self.columns[caa].title or self.columns[caa].name or"")
-if caa==c_a then _ba=_ba:sub(1,math.max(0,daa.width-1))..
-(d_a and"\30"or"\31")end
-cd:blit(daa.x,1,_ba:sub(1,daa.width),self.foreground,self.headerBackground)end;local _aa,aaa,baa=self.data,ad(self),self.selected
-for row=1,dc(self)do
-local caa=aaa[__a.offset+row]if not caa then break end;local daa=_aa[caa]local _ba=caa==baa;local aba=
-_ba and self.selectionForeground or self.foreground;local bba=_ba and
-self.selectionBackground or nil;if _ba then
-cd:fill(1,row+1,a_a,1," ",aba,bba)end
-for cba,dba in ipairs(b_a)do local _ca=daa[cba]if _ca~=nil then
-cd:blit(dba.x,row+1,tostring(_ca):sub(1,dba.width),aba,bba)end end end
-_c.draw(cd,dd,2,__a,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end;return ac
-]=]
-sources["elements/TextBox"] = [=[
-local dc=...local _d=dc("core/class")local ad=dc("core/element")
-local bd=dc("core/itemview")local cd=_d.create("TextBox",ad)local dd=""
-_d.property(cd,"text","",{rawString=true,onChange=function(bba,cba)if
-rawget(bba,"_syncing")then return end;local dba={}for aca in(cba.."\n"):gmatch("(.-)\n")do
-dba[#dba+1]=aca end;if#dba==0 then dba={""}end
-rawset(bba,"_lines",dba)
-local _ca=math.min(rawget(bba,"_curLine")or 1,#dba)rawset(bba,"_curLine",_ca)
-rawset(bba,"_curCol",math.min(rawget(bba,"_curCol")or 1,
-#dba[_ca]+1))rawset(bba,"_selLine",nil)rawset(bba,"_selCol",nil)end})_d.property(cd,"background",colors.black)
-_d.property(cd,"width",20)_d.property(cd,"height",8)
-_d.property(cd,"scrollbar","auto")_d.property(cd,"scrollbarColor",colors.gray)
-_d.property(cd,"scrollbarThumbColor",colors.lightGray)
-_d.property(cd,"selectionBackground",colors.blue)
-_d.property(cd,"selectionForeground",colors.white)_d.event(cd,"change")
-local function __a(bba)return
-bd.geometry(#bba._lines,bba.height,bba._viewY,bba.scrollbar)end;local function a_a(bba)return
-math.max(1,bba.width- (__a(bba).show and 1 or 0))end
-local function b_a(bba)
-rawset(bba,"_viewY",bd.ensureVisible(bba._viewY,bba._curLine,
-#bba._lines,bba.height))local cba=a_a(bba)local dba,_ca=bba._viewX,bba._curCol
-if _ca-dba>cba then dba=_ca-cba end;if _ca-dba<1 then dba=_ca-1 end;rawset(bba,"_viewX",dba)end
-local function c_a(bba)rawset(bba,"_syncing",true)
-bba.text=table.concat(bba._lines,"\n")rawset(bba,"_syncing",false)b_a(bba)
-bba:fire("change",bba.text)end
-local function d_a(bba)local cba,dba=rawget(bba,"_selLine"),rawget(bba,"_selCol")if not cba then return
-nil end;local _ca,aca=bba._curLine,bba._curCol;if
-cba==_ca and dba==aca then return nil end;if
-_ca<cba or(_ca==cba and aca<dba)then return _ca,aca,cba,dba end;return cba,dba,_ca,aca end
-local function _aa(bba)if rawget(bba,"_selLine")then rawset(bba,"_selLine",nil)
-rawset(bba,"_selCol",nil)bba:markDirty()end end;local function aaa(bba)
-if not rawget(bba,"_selLine")then
-rawset(bba,"_selLine",bba._curLine)rawset(bba,"_selCol",bba._curCol)end end
-local function baa(bba,cba,dba)
-local _ca=bba._lines;cba=math.max(1,math.min(#_ca,cba))dba=math.max(1,math.min(#
-_ca[cba]+1,dba))
-rawset(bba,"_curLine",cba)rawset(bba,"_curCol",dba)b_a(bba)bba:markDirty()end
-function cd:getSelection()local bba,cba,dba,_ca=d_a(self)if not bba then return nil end
-local aca=self._lines
-if bba==dba then return aca[bba]:sub(cba,_ca-1)end;local bca={aca[bba]:sub(cba)}for i=bba+1,dba-1 do
-bca[#bca+1]=aca[i]end
-bca[#bca+1]=aca[dba]:sub(1,_ca-1)return table.concat(bca,"\n")end
-function cd:deleteSelection()local bba,cba,dba,_ca=d_a(self)if not bba then return false end
-local aca=self._lines
-aca[bba]=aca[bba]:sub(1,cba-1)..aca[dba]:sub(_ca)for i=dba,bba+1,-1 do table.remove(aca,i)end
-rawset(self,"_curLine",bba)rawset(self,"_curCol",cba)_aa(self)c_a(self)return true end;function cd:selectAll()rawset(self,"_selLine",1)
-rawset(self,"_selCol",1)local bba=self._lines;baa(self,#bba,#bba[#bba]+1)
-return self end;function cd:copy()
-local bba=self:getSelection()if bba then dd=bba end;return bba end
-function cd:cut()
-local bba=self:copy()if bba then self:deleteSelection()end;return bba end;function cd:getClipboard()return dd end
-local function caa(bba,cba)bba:deleteSelection()
-local dba=bba._lines;local _ca,aca=bba._curLine,bba._curCol;local bca=dba[_ca]dba[_ca]=bca:sub(1,aca-1)..
-cba..bca:sub(aca)rawset(bba,"_curCol",aca+
-#cba)c_a(bba)end
-local function daa(bba,cba,dba)local _ca=__a(bba)
-local aca=math.max(1,math.min(#bba._lines,_ca.offset+dba))
-local bca=math.max(1,math.min(#bba._lines[aca]+1,bba._viewX+cba))return aca,bca end
-function cd:setup()ad.setup(self)rawset(self,"_lines",{""})
-rawset(self,"_curLine",1)rawset(self,"_curCol",1)rawset(self,"_viewX",0)
-rawset(self,"_viewY",0)
-self:on("click",function(bba,cba,dba,_ca)local aca=__a(bba)
-if aca.show and dba==bba.width then
-local dca,_da=bd.pointerDown(_ca,aca)rawset(bba,"_viewY",dca)if _da~=nil then
-rawset(bba,"_itemScrollDrag",_da)end;bba:markDirty()return end;_aa(bba)local bca,cca=daa(bba,dba,_ca)
-rawset(bba,"_mouseAnchor",{line=bca,col=cca})baa(bba,bca,cca)end)
-self:on("drag",function(bba,cba,dba,_ca)local aca=rawget(bba,"_itemScrollDrag")if aca~=nil then
-rawset(bba,"_viewY",bd.drag(_ca,aca,__a(bba)))bba:markDirty()return end
-local bca=rawget(bba,"_mouseAnchor")
-if bca then rawset(bba,"_selLine",bca.line)
-rawset(bba,"_selCol",bca.col)baa(bba,daa(bba,dba,_ca))end end)
-self:on("clickUp",function(bba)rawset(bba,"_itemScrollDrag",nil)
-rawset(bba,"_mouseAnchor",nil)end)
-self:on("blur",function(bba)rawset(bba,"_shift",false)
-rawset(bba,"_ctrl",false)end)end
-function cd:handleMouse(bba,cba,dba,_ca)
-if bba=="mouse_scroll"then if self.disabled then return nil end
-local aca=self._viewY
-rawset(self,"_viewY",bd.clampOffset(aca+cba,#self._lines,self.height))local bca=self:fire("scroll",cba,dba,_ca)if
-self._viewY~=aca or bca then self:markDirty()return self end;return nil end;return ad.handleMouse(self,bba,cba,dba,_ca)end;local _ba
-local function aba()
-_ba={[keys.left]=function(bba,cba,dba)if dba>1 then return cba,dba-1 end;if cba>1 then return cba-1,#
-bba._lines[cba-1]+1 end;return cba,dba end,[keys.right]=function(bba,cba,dba,_ca)if
-dba<=#_ca then return cba,dba+1 end
-if cba<#bba._lines then return cba+1,1 end;return cba,dba end,[keys.up]=function(bba,cba,dba)return
-cba-1,dba end,[keys.down]=function(bba,cba,dba)return cba+1,dba end,[keys.home]=function(bba,cba)return
-cba,1 end,[keys["end"]]=function(bba,cba,dba,_ca)return cba,#_ca+1 end,[keys.pageUp]=function(bba,cba,dba)return
-cba-bba.height,dba end,[keys.pageDown]=function(bba,cba,dba)return
-cba+bba.height,dba end}end
-function cd:handleKey(bba,cba,dba)
-if bba=="char"or bba=="paste"then caa(self,cba)elseif bba=="key_up"then
-if cba==
-keys.leftShift or cba==keys.rightShift then
-rawset(self,"_shift",false)elseif cba==keys.leftCtrl or cba==keys.rightCtrl then
-rawset(self,"_ctrl",false)end elseif bba=="key"then if not _ba then aba()end;local _ca=self._lines
-local aca,bca=self._curLine,self._curCol;local cca=_ca[aca]
-if
-cba==keys.leftShift or cba==keys.rightShift then rawset(self,"_shift",true)elseif cba==keys.leftCtrl or
-cba==keys.rightCtrl then rawset(self,"_ctrl",true)elseif rawget(self,"_ctrl")and
-cba==keys.a then self:selectAll()elseif rawget(self,"_ctrl")and cba==
-keys.c then self:copy()elseif
-rawget(self,"_ctrl")and cba==keys.x then self:cut()elseif _ba[cba]then
-if rawget(self,"_shift")then aaa(self)else _aa(self)end;baa(self,_ba[cba](self,aca,bca,cca))elseif
-cba==keys.escape then _aa(self)elseif cba==keys.enter then if self:deleteSelection()then _ca=self._lines
-aca,bca=self._curLine,self._curCol;cca=_ca[aca]end;_ca[aca]=cca:sub(1,
-bca-1)
-table.insert(_ca,aca+1,cca:sub(bca))rawset(self,"_curLine",aca+1)
-rawset(self,"_curCol",1)c_a(self)elseif cba==keys.backspace then
-if self:deleteSelection()then elseif bca>1 then _ca[aca]=
-cca:sub(1,bca-2)..cca:sub(bca)
-rawset(self,"_curCol",bca-1)c_a(self)elseif aca>1 then local dca=_ca[aca-1]
-rawset(self,"_curLine",aca-1)rawset(self,"_curCol",#dca+1)_ca[aca-1]=dca..cca
-table.remove(_ca,aca)c_a(self)end elseif cba==keys.delete then
-if self:deleteSelection()then elseif bca<=#cca then _ca[aca]=cca:sub(1,bca-1)..cca:sub(
-bca+1)c_a(self)elseif aca<#_ca then _ca[aca]=
-cca.._ca[aca+1]table.remove(_ca,aca+1)
-c_a(self)end end end;ad.handleKey(self,bba,cba,dba)end
-function cd:measure()local bba=1
-for cba,dba in ipairs(self._lines)do bba=math.max(bba,#dba)end;return bba+1,math.max(1,#self._lines)end
-function cd:render(bba)ad.render(self,bba)local cba=self._lines;local dba=__a(self)
-rawset(self,"_viewY",dba.offset)
-local _ca=math.max(0,self.width- (dba.show and 1 or 0))local aca=self._viewX;for row=1,self.height do local bda=cba[dba.offset+row]
-if not bda then break end
-bba:blit(1,row,bda:sub(aca+1,aca+_ca),self.foreground,nil)end
-local bca,cca,dca,_da=d_a(self)
-if bca then
-for row=1,self.height do local bda=dba.offset+row;local cda=cba[bda]
-if cda and bda>=bca and
-bda<=dca then local dda=(bda==bca)and cca or 1;local __b=
-(bda==dca)and(_da-1)or(#cda+1)
-local a_b=math.max(dda,aca+1)local b_b=math.min(__b,aca+_ca)
-if b_b>=a_b then
-local c_b=cda:sub(a_b,b_b)
-c_b=c_b..string.rep(" ",(b_b-a_b+1)-#c_b)
-bba:blit(a_b-aca,row,c_b,self.selectionForeground,self.selectionBackground)end end end end
-bd.draw(bba,self.width,1,dba,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)local ada=self:getRoot()if
-ada.getFocused and ada:getFocused()==self then
-self:setCursor(self._curCol-aca,self._curLine-dba.offset,true,self.foreground)end end;return cd
-]=]
-sources["elements/Toast"] = [=[
-local aa=...local ba=aa("core/class")local ca=aa("core/element")
-local da=aa("core/text")local _b=ba.create("Toast",ca)
-ba.property(_b,"message","")ba.property(_b,"duration",3)
-ba.property(_b,"maxWidth",24)ba.property(_b,"visible",false)
-ba.property(_b,"toastColors",false)
-ba.property(_b,"width",function(ab)local bb=1;for cb,db in ipairs(rawget(ab,"_lines")or{""})do bb=math.max(bb,
-#db)end;return bb+2 end)
-ba.property(_b,"height",function(ab)return
-math.max(1,# (rawget(ab,"_lines")or{""}))end)
-ba.property(_b,"x",function(ab)local bb=rawget(ab,"parent")return bb and
-math.max(1,bb.width-ab.width)or 1 end)ba.property(_b,"y",2)ba.event(_b,"hide")
-function _b:setup()
-ca.setup(self)self.z=900
-rawget(self,"_p").toastColors={default={bg=colors.gray,fg=colors.white},success={bg=colors.green,fg=colors.white},error={bg=colors.red,fg=colors.white},warning={bg=colors.orange,fg=colors.black},info={bg=colors.blue,fg=colors.white}}
-self:on("click",function(ab)ab:hide()end)end
-function _b:show(ab,bb,cb)self.message=tostring(ab)
-rawset(self,"_lines",da.wrap(self.message,self.maxWidth-2))
-local db=self.toastColors[bb or"default"]or self.toastColors.default;self.background=db.bg;self.foreground=db.fg;self.visible=true
-self:markDirty()cb=cb or self.duration
-local _c=(rawget(self,"_showToken")or 0)+1;rawset(self,"_showToken",_c)if cb and cb>0 then local ac=aa("main")
-ac.schedule(function()
-sleep(cb)
-if rawget(self,"_showToken")==_c then self:hide()end end)end;return self end;function _b:hide()if not self.visible then return self end;self.visible=false
-self:fire("hide")return self end;function _b:success(ab,bb)return
-self:show(ab,"success",bb)end;function _b:error(ab,bb)return
-self:show(ab,"error",bb)end;function _b:warning(ab,bb)return
-self:show(ab,"warning",bb)end;function _b:info(ab,bb)
-return self:show(ab,"info",bb)end
-function _b:render(ab)ca.render(self,ab)local bb=
-rawget(self,"_lines")or{""}for i=1,#bb do
-ab:blit(2,i,bb[i],self.foreground,self.background)end end;return _b
-]=]
-sources["elements/Tree"] = [=[
-local da=...local _b=da("core/class")local ab=da("core/element")
-local bb=da("core/itemview")local cb=_b.create("Tree",ab)
-_b.property(cb,"nodes",false,{onChange=function(bc,cc)if type(cc)~="table"then
-error("Basalt Tree: nodes must be a table",3)end;local dc=bc.selected;bc.offset=0
-bc.horizontalOffset=0;bc.selected=false
-if dc then bc:fire("change",false,dc)end;if cc[1]and cc[1].children and cc[1].expanded==nil then
-cc[1].expanded=true end end})
-_b.property(cb,"selected",false,{state="selected",stateWhen=function(bc)return bc~=false and bc~=nil end,styleable=false})_b.property(cb,"offset",0)
-_b.property(cb,"horizontalOffset",0)_b.property(cb,"background",colors.black)
-_b.property(cb,"selectionBackground",colors.blue)
-_b.property(cb,"selectionForeground",colors.white)_b.property(cb,"width",16)
-_b.property(cb,"height",8)_b.property(cb,"scrollbar","auto")
-_b.property(cb,"scrollbarColor",colors.gray)
-_b.property(cb,"scrollbarThumbColor",colors.lightGray)_b.property(cb,"scrollBarSymbol"," ")
-_b.property(cb,"scrollBarBackground","\127")_b.event(cb,"select")_b.event(cb,"change")
-_b.event(cb,"toggle")
-local function db(bc)local cc={}
-local function dc(_d,ad,bd)for i=1,#_d do local cd=_d[i]cc[#cc+1]={node=cd,depth=ad,parent=bd}
-if cd.children and
-cd.expanded then dc(cd.children,ad+1,cd)end end end;dc(bc.nodes,0,nil)return cc end;local function _c(bc,cc)for i=1,#bc do if bc[i].node==cc then return i end end
-return nil end;local function ac(bc,cc)return
-bb.geometry(#cc,bc.height,bc.offset,bc.scrollbar)end
-function cb:toggle(bc,cc)if not
-bc or not bc.children then return self end;if cc==nil then
-cc=not bc.expanded end;bc.expanded=cc and true or false
-local dc=db(self)
-self.offset=bb.clampOffset(self.offset,#dc,self.height)self:fire("toggle",bc,bc.expanded)
-self:markDirty()return self end
-function cb:select(bc,cc)local dc=self.selected
-if bc==false or bc==nil then self.selected=false;if dc then
-self:fire("change",false,dc)end;return self end;self.selected=bc;local _d=db(self)local ad=_c(_d,bc)
-if ad then self.offset=bb.ensureVisible(self.offset,ad,
-#_d,self.height)end
-if dc~=bc then self:fire("change",bc,dc or false)end;if cc~=false then self:fire("select",bc)end;return self end;function cb:expandNode(bc)return self:toggle(bc,true)end;function cb:collapseNode(bc)return
-self:toggle(bc,false)end;function cb:toggleNode(bc)
-return self:toggle(bc)end
-function cb:setSelectedNode(bc)return self:select(bc,false)end;function cb:getSelectedNode()return self.selected or nil end
-function cb:getExpandedNodes()
-local bc={}
-local function cc(dc)for _d,ad in ipairs(dc)do if ad.expanded then bc[ad]=true end
-if ad.children then cc(ad.children)end end end;cc(self.nodes)return bc end
-function cb:setExpandedNodes(bc)if type(bc)~="table"then
-error("Basalt Tree: expandedNodes must be a table",2)end;local function cc(dc)
-for _d,ad in ipairs(dc)do if ad.children then
-ad.expanded=bc[ad]==true;cc(ad.children)end end end
-cc(self.nodes)
-self.offset=bb.clampOffset(self.offset,#db(self),self.height)self:markDirty()return self end
-function cb:getNodeSize()local bc=db(self)local cc=1;for dc,_d in ipairs(bc)do
-cc=math.max(cc,_d.depth+2 +#
-tostring(_d.node.text or"Node"))end;return cc,#bc end
-function cb:setHorizontalOffset(bc)local cc=self:getNodeSize()
-rawget(self,"_p").horizontalOffset=math.max(0,math.min(math.floor(
-bc or 0),math.max(0,cc-self.width)))self:markDirty()return self end
-function cb:setSelectedForegroundColor(bc)self.selectionForeground=bc;return self end
-function cb:getSelectedForegroundColor()return self.selectionForeground end
-function cb:setSelectedBackgroundColor(bc)self.selectionBackground=bc;return self end
-function cb:getSelectedBackgroundColor()return self.selectionBackground end;function cb:setSelectionColor(bc,cc)self.selectionForeground,self.selectionBackground=bc,cc
-return self end
-function cb:getSelectionColor()return
-self.selectionForeground,self.selectionBackground end
-function cb:setShowScrollBar(bc)self.scrollbar=bc and"auto"or"hidden"return self end
-function cb:getShowScrollBar()return self.scrollbar~="hidden"end
-function cb:setScrollBarColor(bc)self.scrollbarThumbColor=bc;return self end;function cb:getScrollBarColor()return self.scrollbarThumbColor end;function cb:setScrollBarBackgroundColor(bc)
-self.scrollbarColor=bc;return self end;function cb:getScrollBarBackgroundColor()return
-self.scrollbarColor end
-function cb:expandAll()local function bc(cc)
-for i=1,#cc do if cc[i].children then
-cc[i].expanded=true;bc(cc[i].children)end end end
-bc(self.nodes)self:markDirty()return self end
-function cb:collapseAll()
-local function bc(cc)for i=1,#cc do if cc[i].children then cc[i].expanded=false
-bc(cc[i].children)end end end;bc(self.nodes)self:markDirty()return self end
-function cb:setup()ab.setup(self)rawget(self,"_p").nodes={}
-self:on("click",function(bc,cc,dc,_d)
-local ad=db(bc)local bd=ac(bc,ad)if bd.show and dc==bc.width then
-local dd,__a=bb.pointerDown(_d,bd)bc.offset=dd
-if __a~=nil then rawset(bc,"_itemScrollDrag",__a)end;return end;local cd=ad[
-bd.offset+_d]if not cd then return end
-if cd.node.children and
-dc>=cd.depth+1 and dc<=cd.depth+2 then
-bc:toggle(cd.node)else bc:select(cd.node)end end)
-self:on("drag",function(bc,cc,dc,_d)local ad=rawget(bc,"_itemScrollDrag")if ad~=nil then
-bc.offset=bb.drag(_d,ad,ac(bc,db(bc)))end end)
-self:on("clickUp",function(bc)rawset(bc,"_itemScrollDrag",nil)end)end
-function cb:handleMouse(bc,cc,dc,_d)
-if bc=="mouse_scroll"then if self.disabled then return nil end;local ad=db(self)
-local bd=self.offset;self.offset=bb.clampOffset(bd+cc,#ad,self.height)
-local cd=self:fire("scroll",cc,dc,_d)if self.offset~=bd or cd then return self end;return nil end;return ab.handleMouse(self,bc,cc,dc,_d)end
-function cb:handleKey(bc,cc,dc)
-if bc=="key"then local _d=db(self)
-if#_d>0 then
-local ad=_c(_d,self.selected)or 0
-if cc==keys.up then
-self:select(_d[math.max(1,ad>0 and ad-1 or 1)].node,false)elseif cc==keys.down then
-self:select(_d[ad>0 and math.min(#_d,ad+1)or 1].node,false)elseif cc==keys.right and ad>0 then local bd=_d[ad].node
-if
-bd.children and not bd.expanded then self:toggle(bd,true)elseif
-bd.children and bd.expanded and bd.children[1]then self:select(bd.children[1],false)end elseif cc==keys.left and ad>0 then local bd=_d[ad]if
-bd.node.children and bd.node.expanded then self:toggle(bd.node,false)elseif bd.parent then
-self:select(bd.parent,false)end elseif
-cc==keys.enter and ad>0 then self:fire("select",_d[ad].node)end end end;ab.handleKey(self,bc,cc,dc)end
-function cb:measure()local bc=db(self)local cc=1;for i=1,#bc do
-cc=math.max(cc,bc[i].depth+3 +#
-tostring(bc[i].node.text))end;return cc,math.max(1,#bc)end
-function cb:render(bc)ab.render(self,bc)local cc=db(self)local dc=ac(self,cc)
-rawget(self,"_p").offset=dc.offset
-local _d=math.max(0,self.width- (dc.show and 1 or 0))local ad=self.selected
-for row=1,self.height do local bd=cc[dc.offset+row]
-if not bd then break end;local cd=bd.node;local dd=cd.children and(cd.expanded and"- "or"+ ")or
-"  "
-local __a=
-string.rep(" ",bd.depth)..dd..tostring(cd.text)
-__a=__a:sub(self.horizontalOffset+1,self.horizontalOffset+_d)
-if cd==ad then
-bc:fill(1,row,_d,1," ",self.selectionForeground,self.selectionBackground)
-bc:blit(1,row,__a:sub(1,_d),self.selectionForeground,self.selectionBackground)else
-bc:blit(1,row,__a:sub(1,_d),self.foreground,nil)end end
-bb.draw(bc,self.width,1,dc,self.foreground,self.scrollbarColor,self.scrollbarThumbColor)end;return cb
-]=]
-sources["modules/animation"] = [=[
-local da=...local _b=da("main")local ab=da("core/element")local bb={}
-local cb={linear=function(bc)return bc end,easeIn=function(bc)return
-bc*bc end,easeOut=function(bc)return bc* (2 -bc)end,easeInOut=function(bc)if bc<0.5 then return
-2 *bc*bc end;return-1 + (4 -2 *bc)*bc end}bb.easings=cb;local db={}local _c=false
-local function ac()if _c then return end;_c=true
-_b.schedule(function()
-while#db>0 do
-sleep(0.05)local bc=os.clock()
-for i=#db,1,-1 do local cc=db[i]
-local dc=(bc-cc.start)/cc.duration
-if dc>=1 then for _d,ad in pairs(cc.to)do cc.el[_d]=ad end
-table.remove(db,i)if cc.onDone then cc.onDone(cc.el)end else local _d=cc.easing(dc)for ad,bd in
-pairs(cc.to)do local cd=cc.from[ad]
-cc.el[ad]=math.floor(cd+ (bd-cd)*_d+0.5)end end end end;_c=false end)end
-function bb.to(bc,cc,dc,_d,ad)
-local bd={el=bc,to=cc,from={},start=os.clock(),duration=dc or 0.3,easing=cb[_d or"easeInOut"]or error("Basalt animation: unknown easing '"..
-tostring(_d).."'",2),onDone=ad}
-for cd in pairs(cc)do local dd=bc[cd]if type(dd)~="number"then
-error("Basalt animation: property '"..
-cd.."' is not a number",2)end;bd.from[cd]=dd end;db[#db+1]=bd;ac()return
-{cancel=function()for i=1,#db do
-if db[i]==bd then table.remove(db,i)break end end end}end;function ab:animate(bc,cc,dc,_d)return bb.to(self,bc,cc,dc,_d)end;return
-bb
-]=]
-sources["modules/bigfont"] = [=[
-local cb=...local db=cb("core/class")local _c=cb("core/element")
-local ac=cb("core/container")local bc=cb("core/palette")local cc=bc.charOf
-local dc={{"\32\32\32\137\156\148\158\159\148\135\135\144\159\139\32\136\157\32\159\139\32\32\143\32\32\143\32\32\32\32\32\32\32\32\147\148\150\131\148\32\32\32\151\140\148\151\140\147","\32\32\32\149\132\149\136\156\149\144\32\133\139\159\129\143\159\133\143\159\133\138\32\133\138\32\133\32\32\32\32\32\32\150\150\129\137\156\129\32\32\32\133\131\129\133\131\132","\32\32\32\130\131\32\130\131\32\32\129\32\32\32\32\130\131\32\130\131\32\32\32\32\143\143\143\32\32\32\32\32\32\130\129\32\130\135\32\32\32\32\131\32\32\131\32\131","\139\144\32\32\143\148\135\130\144\149\32\149\150\151\149\158\140\129\32\32\32\135\130\144\135\130\144\32\149\32\32\139\32\159\148\32\32\32\32\159\32\144\32\148\32\147\131\132","\159\135\129\131\143\149\143\138\144\138\32\133\130\149\149\137\155\149\159\143\144\147\130\132\32\149\32\147\130\132\131\159\129\139\151\129\148\32\32\139\131\135\133\32\144\130\151\32","\32\32\32\32\32\32\130\135\32\130\32\129\32\129\129\131\131\32\130\131\129\140\141\132\32\129\32\32\129\32\32\32\32\32\32\32\131\131\129\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\159\154\133\133\133\144\152\141\132\133\151\129\136\153\32\32\154\32\159\134\129\130\137\144\159\32\144\32\148\32\32\32\32\32\32\32\32\32\32\32\151\129","\32\32\32\32\133\32\32\32\32\145\145\132\141\140\132\151\129\144\150\146\129\32\32\32\138\144\32\32\159\133\136\131\132\131\151\129\32\144\32\131\131\129\32\144\32\151\129\32","\32\32\32\32\129\32\32\32\32\130\130\32\32\129\32\129\32\129\130\129\129\32\32\32\32\130\129\130\129\32\32\32\32\32\32\32\32\133\32\32\32\32\32\129\32\129\32\32","\150\156\148\136\149\32\134\131\148\134\131\148\159\134\149\136\140\129\152\131\32\135\131\149\150\131\148\150\131\148\32\148\32\32\148\32\32\152\129\143\143\144\130\155\32\134\131\148","\157\129\149\32\149\32\152\131\144\144\131\148\141\140\149\144\32\149\151\131\148\32\150\32\150\131\148\130\156\133\32\144\32\32\144\32\130\155\32\143\143\144\32\152\129\32\134\32","\130\131\32\131\131\129\131\131\129\130\131\32\32\32\129\130\131\32\130\131\32\32\129\32\130\131\32\130\129\32\32\129\32\32\133\32\32\32\129\32\32\32\130\32\32\32\129\32","\150\140\150\137\140\148\136\140\132\150\131\132\151\131\148\136\147\129\136\147\129\150\156\145\138\143\149\130\151\32\32\32\149\138\152\129\149\32\32\157\152\149\157\144\149\150\131\148","\149\143\142\149\32\149\149\32\149\149\32\144\149\32\149\149\32\32\149\32\32\149\32\149\149\32\149\32\149\32\144\32\149\149\130\148\149\32\32\149\32\149\149\130\149\149\32\149","\130\131\129\129\32\129\131\131\32\130\131\32\131\131\32\131\131\129\129\32\32\130\131\32\129\32\129\130\131\32\130\131\32\129\32\129\131\131\129\129\32\129\129\32\129\130\131\32","\136\140\132\150\131\148\136\140\132\153\140\129\131\151\129\149\32\149\149\32\149\149\32\149\137\152\129\137\152\129\131\156\133\149\131\32\150\32\32\130\148\32\152\137\144\32\32\32","\149\32\32\149\159\133\149\32\149\144\32\149\32\149\32\149\32\149\150\151\129\138\155\149\150\130\148\32\149\32\152\129\32\149\32\32\32\150\32\32\149\32\32\32\32\32\32\32","\129\32\32\130\129\129\129\32\129\130\131\32\32\129\32\130\131\32\32\129\32\129\32\129\129\32\129\32\129\32\131\131\129\130\131\32\32\32\129\130\131\32\32\32\32\140\140\132","\32\154\32\159\143\32\149\143\32\159\143\32\159\144\149\159\143\32\159\137\145\159\143\144\149\143\32\32\145\32\32\32\145\149\32\144\32\149\32\143\159\32\143\143\32\159\143\32","\32\32\32\152\140\149\151\32\149\149\32\145\149\130\149\157\140\133\32\149\32\154\143\149\151\32\149\32\149\32\144\32\149\149\153\32\32\149\32\149\133\149\149\32\149\149\32\149","\32\32\32\130\131\129\131\131\32\130\131\32\130\131\129\130\131\129\32\129\32\140\140\129\129\32\129\32\129\32\137\140\129\130\32\129\32\130\32\129\32\129\129\32\129\130\131\32","\144\143\32\159\144\144\144\143\32\159\143\144\159\138\32\144\32\144\144\32\144\144\32\144\144\32\144\144\32\144\143\143\144\32\150\129\32\149\32\130\150\32\134\137\134\134\131\148","\136\143\133\154\141\149\151\32\129\137\140\144\32\149\32\149\32\149\154\159\133\149\148\149\157\153\32\154\143\149\159\134\32\130\148\32\32\149\32\32\151\129\32\32\32\32\134\32","\133\32\32\32\32\133\129\32\32\131\131\32\32\130\32\130\131\129\32\129\32\130\131\129\129\32\129\140\140\129\131\131\129\32\130\129\32\129\32\130\129\32\32\32\32\32\129\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32\32\32\32\32\149\32\32\149\32\32\32\32","\32\32\32\32\32\32\32\32\32\32\32\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\32\32\32\32\32\32\32\32\32\32\32","\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32\32\149\32","\32\32\32\32\145\32\159\139\32\151\131\132\155\143\132\134\135\145\32\149\32\158\140\129\130\130\32\152\147\155\157\134\32\32\144\144\32\32\32\32\32\32\152\131\155\131\131\129","\32\32\32\32\149\32\149\32\145\148\131\32\149\32\149\140\157\132\32\148\32\137\155\149\32\32\32\149\154\149\137\142\32\153\153\32\131\131\149\131\131\129\149\135\145\32\32\32","\32\32\32\32\129\32\130\135\32\131\131\129\134\131\132\32\129\32\32\129\32\131\131\32\32\32\32\130\131\129\32\32\32\32\129\129\32\32\32\32\32\32\130\131\129\32\32\32","\150\150\32\32\148\32\134\32\32\132\32\32\134\32\32\144\32\144\150\151\149\32\32\32\32\32\32\145\32\32\152\140\144\144\144\32\133\151\129\133\151\129\132\151\129\32\145\32","\130\129\32\131\151\129\141\32\32\142\32\32\32\32\32\149\32\149\130\149\149\32\143\32\32\32\32\142\132\32\154\143\133\157\153\132\151\150\148\151\158\132\151\150\148\144\130\148","\32\32\32\140\140\132\32\32\32\32\32\32\32\32\32\151\131\32\32\129\129\32\32\32\32\134\32\32\32\32\32\32\32\129\129\32\129\32\129\129\130\129\129\32\129\130\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\150\151\129\150\131\132\140\143\144\143\141\145\137\140\148\141\141\144\157\142\32\159\140\32\151\134\32\157\141\32","\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\157\140\149\151\151\32\154\143\132\157\140\32\157\140\32\157\140\32\157\140\32\32\149\32\32\149\32\32\149\32\32\149\32","\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\32\129\129\131\129\32\134\32\131\131\129\131\131\129\131\131\129\131\131\129\130\131\32\130\131\32\130\131\32\130\131\32","\151\131\148\152\137\145\155\140\144\152\142\145\153\140\132\153\137\32\154\142\144\155\159\132\150\156\148\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\136\32\151\140\132","\151\32\149\151\155\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\152\137\144\157\129\149\149\32\149\149\32\149\149\32\149\149\32\149\130\150\32\32\157\129\149\32\149","\131\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\129\32\130\131\32\133\131\32","\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\159\142\32\159\159\144\152\140\144\156\143\32\159\141\129\153\140\132\157\141\32\130\145\32\32\147\32\136\153\32\130\146\32","\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\152\140\149\149\157\134\154\143\132\157\140\133\157\140\133\157\140\133\157\140\133\32\149\32\32\149\32\32\149\32\32\149\32","\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\131\129\130\130\131\32\134\32\130\131\129\130\131\129\130\131\129\130\131\129\32\129\32\32\129\32\32\129\32\32\129\32","\159\134\144\137\137\32\156\143\32\159\141\129\153\140\132\153\137\32\157\141\32\32\132\32\159\143\32\147\32\144\144\130\145\136\137\32\146\130\144\144\130\145\130\138\32\146\130\144","\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\149\32\149\131\147\129\138\134\149\149\32\149\149\32\149\149\32\149\149\32\149\154\143\149\32\157\129\154\143\149","\130\131\32\129\32\129\130\131\32\130\131\32\130\131\32\130\131\32\130\131\32\32\32\32\130\131\32\130\131\129\130\131\129\130\131\129\130\131\129\140\140\129\130\131\32\140\140\129"},{"000110000110110000110010101000000010000000100101","000000110110000000000010101000000010000000100101","000000000000000000000000000000000000000000000000","100010110100000010000110110000010100000100000110","000000110000000010110110000110000000000000110000","000000000000000000000000000000000000000000000000","000000110110000010000000100000100000000000000010","000000000110110100010000000010000000000000000100","000000000000000000000000000000000000000000000000","010000000000100110000000000000000000000110010000","000000000000000000000000000010000000010110000000","000000000000000000000000000000000000000000000000","011110110000000100100010110000000100000000000000","000000000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110000110110000000000000000000010100100010000000","000010000000000000110110000000000100010010000000","000000000000000000000000000000000000000000000000","010110010110100110110110010000000100000110110110","000000000000000000000110000000000110000000000000","000000000000000000000000000000000000000000000000","010100010110110000000000000000110000000010000000","110110000000000000110000110110100000000010000000","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","000000000000000000000000000000000000000000000000","000100011111000100011111000100011111000100011111","000000000000100100100100011011011011111111111111","100100100100100100100100100100100100100100100100","000000110100110110000010000011110000000000011000","000000000100000000000010000011000110000000001000","000000000000000000000000000000000000000000000000","010000100100000000000000000100000000010010110000","000000000000000000000000000000110110110110110000","000000000000000000000000000000000000000000000000","110110110110110110000000110110110110110110110110","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","000000000000110110000110010000000000000000010010","000010000000000000000000000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110110110110000000000000","000000000000000000000110000000000000000000000000","000000000000000000000000000000000000000000000000","110110110110110110110000110000000000000000010000","000000000000000000000000100000000000000110000110","000000000000000000000000000000000000000000000000"}}local _d={}local ad={}
-do local __a=0;local a_a=#dc[1]local b_a=#dc[1][1]
-for i=1,a_a,3 do
-for j=1,b_a,3 do
-local c_a=string.char(__a)local d_a={}d_a[1]=dc[1][i]:sub(j,j+2)d_a[2]=dc[1][i+1]:sub(j,
-j+2)
-d_a[3]=dc[1][i+2]:sub(j,j+2)local _aa={}_aa[1]=dc[2][i]:sub(j,j+2)_aa[2]=dc[2][i+1]:sub(j,
-j+2)
-_aa[3]=dc[2][i+2]:sub(j,j+2)ad[c_a]={d_a,_aa}__a=__a+1 end end;_d[1]=ad end
-local function bd(__a,a_a)local b_a={["0"]="1",["1"]="0"}if __a<=#_d then return true end
-for f=#_d+1,__a do
-local c_a={}local d_a=_d[f-1]
-for char=0,255 do local _aa=string.char(char)local aaa={}local baa={}
-local caa=d_a[_aa][1]local daa=d_a[_aa][2]
-for i=1,#caa do local _ba,aba,bba,cba,dba,_ca={},{},{},{},{},{}
-for j=1,#caa[1]do
-local aca=ad[caa[i]:sub(j,j)][1]table.insert(_ba,aca[1])
-table.insert(aba,aca[2])table.insert(bba,aca[3])
-local bca=ad[caa[i]:sub(j,j)][2]
-if daa[i]:sub(j,j)=="1"then
-table.insert(cba,(bca[1]:gsub("[01]",b_a)))
-table.insert(dba,(bca[2]:gsub("[01]",b_a)))
-table.insert(_ca,(bca[3]:gsub("[01]",b_a)))else table.insert(cba,bca[1])
-table.insert(dba,bca[2])table.insert(_ca,bca[3])end end;table.insert(aaa,table.concat(_ba))
-table.insert(aaa,table.concat(aba))table.insert(aaa,table.concat(bba))
-table.insert(baa,table.concat(cba))table.insert(baa,table.concat(dba))
-table.insert(baa,table.concat(_ca))end;c_a[_aa]={aaa,baa}if a_a then a_a="Font"..f.."Yeld"..char
-os.queueEvent(a_a)os.pullEvent(a_a)end end;_d[f]=c_a end;return true end
-local function cd(__a,a_a,b_a,c_a,d_a)
-if not type(a_a)=="string"then error("Not a String",3)end
-local _aa=
-type(b_a)=="string"and b_a:sub(1,1)or cc[b_a]or error("Wrong Front Color",3)
-local aaa=
-type(c_a)=="string"and c_a:sub(1,1)or cc[c_a]or error("Wrong Back Color",3)if(_d[__a]==nil)then bd(3,false)end;local baa=_d[__a]or
-error("Wrong font size selected",3)if a_a==""then
-return{{""},{""},{""}}end;local caa={}
-for _ca in a_a:gmatch('.')do table.insert(caa,_ca)end;local daa={}local _ba=#baa[caa[1]][1]
-for nLine=1,_ba do local _ca={}for i=1,#caa do
-_ca[i]=
-baa[caa[i]]and baa[caa[i]][1][nLine]or""end;daa[nLine]=table.concat(_ca)end;local aba={}local bba={}local cba={["0"]=_aa,["1"]=aaa}
-local dba={["0"]=aaa,["1"]=_aa}
-for nLine=1,_ba do local _ca={}local aca={}
-for i=1,#caa do local bca=
-baa[caa[i]]and baa[caa[i]][2][nLine]or""
-_ca[i]=bca:gsub("[01]",d_a and
-{["0"]=b_a:sub(i,i),["1"]=c_a:sub(i,i)}or cba)
-aca[i]=bca:gsub("[01]",
-d_a and{["0"]=c_a:sub(i,i),["1"]=b_a:sub(i,i)}or dba)end;aba[nLine]=table.concat(_ca)
-bba[nLine]=table.concat(aca)end;return{daa,aba,bba}end;local dd=db.create("BigFont",_c)
-db.property(dd,"text","BigFont")
-db.property(dd,"fontSize",1,{onChange=function(__a,a_a)if a_a<1 or a_a>3 or a_a%1 ~=0 then
-error("Basalt bigfont: fontSize must be 1, 2 or 3",3)end end})
-db.property(dd,"width",function(__a)local a_a=__a:getBigText()[1]return
-math.max(1,# (a_a[1]or""))end)
-db.property(dd,"height",function(__a)
-return math.max(1,#__a:getBigText()[1])end)
-function dd:getBigText()local __a=self.foreground
-local a_a=self.background or colors.black
-local b_a=self.fontSize..
-"\0"..tostring(self.text).."\0"..
-tostring(__a).."\0"..tostring(a_a)local c_a=rawget(self,"_big")
-if c_a and c_a.key==b_a then return c_a.data end
-bd(math.min(3,math.max(1,self.fontSize)),false)
-local d_a=cd(self.fontSize,tostring(self.text),__a,a_a)rawset(self,"_big",{key=b_a,data=d_a})return d_a end
-function dd:measure()local __a=self:getBigText()return
-math.max(1,# (__a[1][1]or"")),math.max(1,#__a[1])end
-function dd:render(__a)local a_a=self:getBigText()for i=1,#a_a[1]do
-__a:rawBlit(1,i,a_a[1][i],a_a[2][i],a_a[3][i])end end;ac.register("BigFont",dd)return{BigFont=dd}
-]=]
-sources["modules/charts"] = [=[
-local _c=...local ac=_c("core/class")local bc=_c("core/element")
-local cc=_c("core/container")local dc=_c("core/palette")local _d={}local function ad(d_a)if d_a<0 then return 0 end
-if d_a>1 then return 1 end;return d_a end
-local function bd(d_a,_aa,aaa,baa)local caa=aaa>_aa and
-ad((d_a-_aa)/ (aaa-_aa))or 0;return baa-math.floor(caa* (baa-
-1)+0.5)end;local cd=ac.create("Graph",bc)
-ac.property(cd,"minValue",0)ac.property(cd,"maxValue",100)
-ac.property(cd,"background",colors.black)ac.property(cd,"width",20)
-ac.property(cd,"height",8)
-function cd:setup()bc.setup(self)rawset(self,"_series",{})end
-function cd:addSeries(d_a,_aa)_aa=_aa or{}local aaa=rawget(self,"_series")
-aaa[#aaa+1]={name=d_a,symbol=(
-_aa.symbol or" "):sub(1,1),fg=_aa.fg or colors.white,bg=_aa.bg or
-colors.white,pointCount=_aa.pointCount or self.width,visible=_aa.visible~=false,points={}}self:markDirty()return self end
-function cd:getSeries(d_a)for _aa,aaa in ipairs(rawget(self,"_series"))do
-if aaa.name==d_a then return aaa end end;return nil end
-function cd:removeSeries(d_a)local _aa=rawget(self,"_series")for i=1,#_aa do if _aa[i].name==d_a then
-table.remove(_aa,i)break end end
-self:markDirty()return self end
-function cd:setSeriesVisible(d_a,_aa)local aaa=self:getSeries(d_a)if aaa then aaa.visible=_aa~=false
-self:markDirty()end;return self end
-function cd:addPoint(d_a,_aa)local aaa=self:getSeries(d_a)if not aaa then
-error("Basalt charts: unknown series '"..
-tostring(d_a).."'",2)end;local baa=aaa.points
-baa[#baa+1]=_aa
-while#baa>aaa.pointCount do table.remove(baa,1)end;self:markDirty()return self end
-function cd:clear(d_a)
-if d_a then local _aa=self:getSeries(d_a)if _aa then _aa.points={}end else for _aa,aaa in
-ipairs(rawget(self,"_series"))do aaa.points={}end end;self:markDirty()return self end
-function cd:render(d_a)bc.render(self,d_a)local _aa,aaa=self.width,self.height
-local baa,caa=self.minValue,self.maxValue
-for daa,_ba in ipairs(rawget(self,"_series"))do
-if _ba.visible then local aba=_ba.points
-local bba=math.max(_ba.pointCount,2)
-for i=1,#aba do local cba=1 +
-math.floor((i-1)/ (bba-1)* (_aa-1)+0.5)
-local dba=bd(aba[i],baa,caa,aaa)d_a:blit(cba,dba,_ba.symbol,_ba.fg,_ba.bg)end end end end;local dd=ac.create("BarChart",bc)
-ac.property(dd,"data",false)ac.property(dd,"barColor",colors.lime)
-ac.property(dd,"minValue",0)ac.property(dd,"maxValue",false)
-ac.property(dd,"background",colors.black)ac.property(dd,"width",20)
-ac.property(dd,"height",8)
-function dd:setup()bc.setup(self)rawget(self,"_p").data={}end
-function dd:render(d_a)bc.render(self,d_a)local _aa=self.data;local aaa=#_aa
-if aaa==0 then return end;local baa,caa=self.width,self.height;local daa=self.maxValue
-if not daa then
-daa=-math.huge;for i=1,aaa do daa=math.max(daa,_aa[i])end end;local _ba=self.minValue
-local aba=math.max(1,math.floor((baa- (aaa-1))/aaa))local bba=1
-for i=1,aaa do if bba>baa then break end;local cba=bd(_aa[i],_ba,daa,caa)
-d_a:fill(bba,cba,math.min(aba,
-baa-bba+1),caa-cba+1," ",self.foreground,self.barColor)bba=bba+aba+1 end end;local __a=ac.create("LineChart",bc)
-ac.property(__a,"data",false)ac.property(__a,"lineColor",colors.lime)
-ac.property(__a,"minValue",0)ac.property(__a,"maxValue",100)
-ac.property(__a,"background",colors.black)ac.property(__a,"width",20)
-ac.property(__a,"height",8)
-function __a:setup()bc.setup(self)rawget(self,"_p").data={}end
-function __a:render(d_a)bc.render(self,d_a)local _aa=self.data;local aaa=#_aa
-if aaa==0 then return end;local baa,caa=self.width,self.height;local daa,_ba=self.minValue,self.maxValue
-for col=1,baa do
-local aba=
-aaa>1 and( (col-1)/ (baa-1)* (aaa-1)+1)or 1;local bba=math.floor(aba)local cba=math.min(aaa,bba+1)
-local dba=_aa[bba]+ (
-_aa[cba]-_aa[bba])* (aba-bba)local _ca=bd(dba,daa,_ba,caa)
-d_a:fill(col,_ca,1,1," ",self.foreground,self.lineColor)end end
-local function a_a(d_a,_aa,aaa,baa,caa,daa)
-if baa<1 or baa>_aa or caa<1 or caa>aaa then return end;d_a[caa][baa]=daa end
-local function b_a(d_a,_aa,aaa,baa,caa,daa,_ba,aba)
-local bba,cba=math.abs(daa-baa),-math.abs(_ba-caa)local dba=baa<daa and 1 or-1
-local _ca=caa<_ba and 1 or-1;local aca=bba+cba;local bca,cca=baa,caa
-while true do a_a(d_a,_aa,aaa,bca,cca,aba)if
-bca==daa and cca==_ba then break end;local dca=2 *aca;if dca>=cba then
-aca,bca=aca+cba,bca+dba end
-if dca<=bba then aca,cca=aca+bba,cca+_ca end end end;local c_a=ac.create("PixelGraph",bc)
-ac.property(c_a,"minValue",0)ac.property(c_a,"maxValue",100)
-ac.property(c_a,"background",colors.black)ac.property(c_a,"width",20)
-ac.property(c_a,"height",8)
-function c_a:setup()bc.setup(self)rawset(self,"_series",{})end
-function c_a:addSeries(d_a,_aa)_aa=_aa or{}local aaa=rawget(self,"_series")
-aaa[#aaa+1]={name=d_a,color=
-_aa.color or colors.white,pointCount=_aa.pointCount or self.width*2,visible=_aa.visible~=false,points={}}self:markDirty()return self end
-function c_a:getSeries(d_a)for _aa,aaa in ipairs(rawget(self,"_series"))do
-if aaa.name==d_a then return aaa end end;return nil end
-function c_a:removeSeries(d_a)local _aa=rawget(self,"_series")for i=1,#_aa do if _aa[i].name==d_a then
-table.remove(_aa,i)break end end
-self:markDirty()return self end
-function c_a:setSeriesVisible(d_a,_aa)local aaa=self:getSeries(d_a)if aaa then aaa.visible=_aa~=false
-self:markDirty()end;return self end
-function c_a:addPoint(d_a,_aa)local aaa=self:getSeries(d_a)if not aaa then
-error("Basalt charts: unknown series '"..
-tostring(d_a).."'",2)end;local baa=aaa.points
-baa[#baa+1]=_aa
-while#baa>aaa.pointCount do table.remove(baa,1)end;self:markDirty()return self end
-function c_a:clear(d_a)
-if d_a then local _aa=self:getSeries(d_a)if _aa then _aa.points={}end else for _aa,aaa in
-ipairs(rawget(self,"_series"))do aaa.points={}end end;self:markDirty()return self end
-function c_a:render(d_a)bc.render(self,d_a)
-local _aa,aaa=self.width*2,self.height*3;local baa,caa=self.minValue,self.maxValue;local daa={}for y=1,aaa do daa[y]={}end
-local _ba,aba,bba,cba={},{},1,false
-for _ca,aca in ipairs(rawget(self,"_series"))do
-if
-aca.visible and#aca.points>0 then local bca=aba[aca.color]if not bca then bca=bba;bba=bba+1;aba[aca.color]=bca
-_ba[bca]=dc.charOf[aca.color]end;local cca=aca.points
-local dca=math.max(aca.pointCount,2)local _da,ada
-for i=1,#cca do local bda=1 +
-math.floor((i-1)/ (dca-1)* (_aa-1)+0.5)
-local cda=bd(cca[i],baa,caa,aaa)if _da then b_a(daa,_aa,aaa,_da,ada,bda,cda,bca)else
-a_a(daa,_aa,aaa,bda,cda,bca)end;_da,ada=bda,cda end;cba=true end end;if not cba then return end;local dba={}
-for y=1,aaa do local _ca,aca={},daa[y]for x=1,_aa do
-_ca[x]=string.char(aca[x]or 0)end;dba[y]=table.concat(_ca)end;d_a:drawPixels(1,1,_aa,aaa,dba,_ba)end;cc.register("Graph",cd)cc.register("BarChart",dd)
-cc.register("LineChart",__a)cc.register("PixelGraph",c_a)_d.Graph=cd;_d.BarChart=dd
-_d.LineChart=__a;_d.PixelGraph=c_a;return _d
-]=]
-sources["modules/debug"] = [=[
-local cb=...local db=cb("main")local _c={}local ac=8;local bc={}local cc=40;local dc,_d,ad;local bd=keys.f12
-local function cd()if
-not dc or not dc.visible then return end;local __a=ac-1
-local a_a=math.max(0,#bc-__a)for i=1,__a do ad[i].text=bc[a_a+i]or""end end
-local function dd()if dc then return end;local __a=db.getMainFrame()
-dc=__a:addFrame({x=1,y="{parent.height - ".. (ac-1).."}",width="{parent.width}",height=ac,z=1000,visible=false,background=colors.black,name="basalt_debug_overlay"})
-_d=dc:addLabel({x=2,y=1,text="Basalt Debug",foreground=colors.orange})ad={}for i=1,ac-1 do
-ad[i]=dc:addLabel({x=2,y=i+1,text="",foreground=colors.lime})end end
-function _c.log(...)local __a={}
-for i=1,select("#",...)do __a[i]=tostring((select(i,...)))end;bc[#bc+1]=table.concat(__a," ")if#bc>cc then
-table.remove(bc,1)end;cd()end;function _c.show(__a)dd()if __a==nil then __a=not dc.visible end;dc.visible=__a
-cd()end
-function _c.setToggleKey(__a)bd=__a end;function _c.getOverlay()dd()return dc end;function _c.clear()bc={}cd()end;dd()
-db.schedule(function()
-while
-true do local __a,a_a=os.pullEvent("key")if a_a==bd then _c.show()end end end)db.debug=_c.log;return _c
-]=]
-sources["modules/image"] = [=[
-local bc,cc=...local dc=bc("core/class")local _d=bc("core/element")
-local ad=bc("core/container")local bd=bc("core/palette")
-local cd=fs.combine(fs.getDir(cc),"flimg.lua")local dd,__a=loadfile(cd)if not dd then
-error("Basalt image: cannot load FLIMG codec: "..tostring(__a),0)end;local a_a=dd()local b_a={}
-local function c_a(caa)
-if caa and
-caa.format=="FLIMG"then if caa.mode=="pixel"then return math.ceil(caa.width/2),
-math.ceil(caa.height/3)end;return caa.width,
-caa.height end;if not caa or not caa[1]then return 0,0 end
-return#caa[1][1],#caa end;local function d_a(caa)
-return caa and caa.format=="FLIMG"and#caa.frames or(
-caa and#caa or 0)end
-local function _aa(caa)
-if caa._basaltPalette then return caa end;local daa={}for i=1,#caa.palette do local _ba=bd.rgb(caa.palette[i])
-daa[i]=bd.charOf[_ba]end;caa._basaltPalette=daa;caa._composedFrames=
-caa._composedFrames or{}return caa end;local aaa=dc.create("Image",_d)
-dc.property(aaa,"bimg",false,{onChange=function(caa,daa)
-rawget(caa,"_p").currentFrame=1;rawset(caa,"_frameDirection",1)
-if caa.autoSize and daa and(daa[1]or daa.format==
-"FLIMG")then
-local _ba,aba=c_a(daa.format=="FLIMG"and
-daa or daa[1])local bba=rawget(caa,"_p")
-bba.width,bba.height=math.max(1,_ba),math.max(1,aba)end end})dc.property(aaa,"currentFrame",1)
-dc.property(aaa,"autoSize",true)dc.property(aaa,"width",8)
-dc.property(aaa,"height",4)function aaa:getFrameCount()return d_a(self.bimg)end
-local function baa(caa)
-local daa=caa:getFrameCount()if daa<=0 then return false end;local _ba,aba=caa.bimg,caa.currentFrame
-if
-_ba.format=="FLIMG"and _ba.pingPong and daa>1 then local bba=
-rawget(caa,"_frameDirection")or 1
-if bba>0 and aba>=daa then bba=-1 elseif bba<0 and
-aba<=1 then if _ba.loop==false then return false end;bba=1 end;rawset(caa,"_frameDirection",bba)
-caa.currentFrame=aba+bba;return true end
-if aba<daa then caa.currentFrame=aba+1 elseif
-_ba.format=="FLIMG"and _ba.loop==false then return false else caa.currentFrame=1 end;return true end;function aaa:nextFrame()baa(self)return self end
-function aaa:play(caa)local daa=self.bimg;if
-not daa or d_a(daa)<2 then return self end;local _ba=(
-rawget(self,"_playToken")or 0)+1
-rawset(self,"_playToken",_ba)local aba=bc("main")
-aba.schedule(function()
-while rawget(self,"_playToken")==_ba do local bba
-if caa then bba=1 /
-caa elseif daa.format=="FLIMG"then
-local cba=daa.frames[self.currentFrame]bba=(cba and cba.duration or 200)/1000 else bba=
-daa.secondsPerFrame or 0.2 end;sleep(bba)
-if rawget(self,"_playToken")==_ba then if not baa(self)then rawset(self,"_playToken",
-_ba+1)break end end end end)return self end;function aaa:stop()
-rawset(self,"_playToken",(rawget(self,"_playToken")or 0)+1)return self end
-function aaa:measure()
-local caa=self.bimg
-local daa,_ba=c_a(caa and caa.format=="FLIMG"and caa or caa and caa[1])return math.max(1,daa),math.max(1,_ba)end
-function aaa:render(caa)_d.render(self,caa)local daa=self.bimg;if not daa then return end
-if
-daa.format=="FLIMG"then _aa(daa)
-local aba=math.max(1,math.min(#daa.frames,self.currentFrame))local bba=daa._composedFrames[aba]
-if not bba then
-bba=a_a.compose(daa,aba)daa._composedFrames[aba]=bba end
-if daa.mode=="pixel"then
-caa:drawPixels(1,1,daa.width,daa.height,bba,daa._basaltPalette)else
-for y=1,math.min(#bba,self.height)do local cba=bba[y]local dba,_ca={},{}
-for x=1,#cba[1]do
-local aca,bca=cba[2]:byte(x),cba[3]:byte(x)
-dba[x]=aca==0 and"\0"or daa._basaltPalette[aca]
-_ca[x]=bca==0 and"\0"or daa._basaltPalette[bca]end
-caa:maskedBlit(1,y,cba[1],table.concat(dba),table.concat(_ca),cba[1],cba[2],cba[3])end end;return end
-local _ba=daa[math.max(1,math.min(#daa,self.currentFrame))]if not _ba then return end;for y=1,math.min(#_ba,self.height)do local aba=_ba[y]
-caa:drawBlit(1,y,aba[1],aba[2],aba[3])end end
-function b_a.load(caa)
-local daa=fs.open(caa,"rb")or fs.open(caa,"r")if not daa then
-error("Basalt image: cannot open "..tostring(caa),2)end;local _ba=daa.readAll()
-daa.close()
-if _ba:sub(1,4)==a_a.MAGIC then return _aa(a_a.decode(_ba))end;local aba=textutils.unserialize(_ba)if type(aba)~="table"then
-error(
-"Basalt image: "..caa.." is not a valid bimg file",2)end;return aba end
-function b_a.saveFlimg(caa,daa,_ba)return a_a.save(caa,daa,_ba)end;ad.register("Image",aaa)b_a.Image=aaa;b_a.flimg=a_a;return b_a
-]=]
-sources["modules/responsive"] = [=[
-local ab=...local bb=ab("core/element")local cb={}local db={}db.__index=db
-local _c={"<=",">=","==","~=","<",">"}local function ac(ad)return ad:match("^%s*(.-)%s*$")end
-local function bc(ad,bd)
-local cd=tonumber(ad)if cd~=nil then return cd end
-local dd,__a=ad:match("^([%a_][%w_]*)%.([%a_][%w_]*)$")if dd~="self"and dd~="parent"then
-error("Basalt responsive: unsupported operand '"..ad.."'",3)end;if
-__a~="width"and __a~="height"then
-error("Basalt responsive: only width and height can be read",3)end;local a_a=dd=="self"and bd or
-rawget(bd,"parent")
-return a_a and a_a[__a]or nil end
-local function cc(ad,bd,cd)if ad==nil or cd==nil then return false end
-if bd=="<"then return ad<cd end;if bd==">"then return ad>cd end;if bd=="<="then return ad<=cd end;if bd==">="then return ad>=
-cd end;if bd=="=="then return ad==cd end;return ad~=cd end
-local function dc(ad)if type(ad)=="function"then return ad end;if type(ad)~="string"or
-ac(ad)==""then
-error("Basalt responsive: condition must be a non-empty string or function",3)end;ad=ac(ad)
-local bd,cd,dd;for i=1,#_c do local a_a=_c[i]local b_a=ad:find(a_a,1,true)
-if b_a then
-bd=ac(ad:sub(1,b_a-1))cd=a_a;dd=ac(ad:sub(b_a+#a_a))break end end;if not cd or
-bd==""or dd==""then
-error("Basalt responsive: expected '<operand> <operator> <operand>'",3)end
-local function __a(a_a)if
-tonumber(a_a)~=nil then return end
-local b_a,c_a=a_a:match("^([%a_][%w_]*)%.([%a_][%w_]*)$")if(b_a~="self"and b_a~="parent")or
-(c_a~="width"and c_a~="height")then
-error("Basalt responsive: unsupported operand '"..a_a.."'",4)end end;__a(bd)__a(dd)return
-function(a_a)return cc(bc(bd,a_a),cd,bc(dd,a_a))end end
-local function _d(ad,bd,cd,dd)if ad.minWidth and cd<ad.minWidth then return false end;if
-ad.maxWidth and cd>ad.maxWidth then return false end;if ad.minHeight and dd<
-ad.minHeight then return false end;if ad.maxHeight and dd>
-ad.maxHeight then return false end;if ad.when and not
-ad.when(bd,cd,dd)then return false end;return true end
-function cb.apply(ad,bd,cd)if type(bd)~="table"then
-error("Basalt responsive: rules must be a table",2)end;if not ad.getChildren then
-error("Basalt responsive: target must be a container",2)end
-local dd=rawget(ad,"_responsiveController")if dd then dd:destroy()end;local __a,a_a={},{}
-for i=1,#bd do local c_a=bd[i]if
-type(c_a)~="table"then
-error("Basalt responsive: rule "..i.." must be a table",2)end;if c_a.when~=nil and type(c_a.when)~=
-"function"then
-error("Basalt responsive: rule.when must be a function",2)end;if c_a.props~=nil and
-type(c_a.props)~="table"then
-error("Basalt responsive: rule.props must be a table",2)end
-if c_a.name then if type(c_a.name)~=
-"string"or c_a.name==""then
-error("Basalt responsive: rule.name must be a non-empty string",2)end;if a_a[c_a.name]then
-error(
-"Basalt responsive: duplicate state name '"..c_a.name.."'",2)end;a_a[c_a.name]=true end;local d_a="__responsive_"..i
-ad:setStateStyle(d_a,c_a.props or{},-1000 +i)__a[i]={rule=c_a,internalState=d_a,active=false}end
-local b_a={element=ad,rules=__a,exclusive=cd and cd.exclusive==true}
-function b_a:refresh()local c_a=self.element;local d_a,_aa=c_a.width,c_a.height;local aaa=false
-for i=1,#self.rules
-do local baa=self.rules[i]local caa=(not self.exclusive or not aaa)and
-_d(baa.rule,c_a,d_a,_aa)
-if caa then aaa=true end;baa.active=caa;c_a:setState(baa.internalState,caa)
-if
-baa.rule.name then c_a:setState(baa.rule.name,caa)end end;return self end
-function b_a:destroy()local c_a=self.element;if not c_a then return end;if self.handler then
-c_a:off("layout",self.handler)end;for i=1,#self.rules do local d_a=self.rules[i]
-c_a:setState(d_a.internalState,false)
-if d_a.rule.name then c_a:setState(d_a.rule.name,false)end end;if
-rawget(c_a,"_responsiveController")==self then
-rawset(c_a,"_responsiveController",nil)end;self.element=nil end;b_a.handler=function()b_a:refresh()end
-ad:on("layout",b_a.handler)rawset(ad,"_responsiveController",b_a)b_a:refresh()return
-b_a end;function db:_sync()
-cb.apply(self.element,self.rules,{exclusive=true})return self end
-function db:when(ad)if self.finished then
-error("Basalt responsive: otherwise() must be the final rule",2)end;if self.pending then
-error("Basalt responsive: call apply() before the next when()",2)end
-self.pending={when=dc(ad)}return self end
-function db:apply(ad)if not self.pending then
-error("Basalt responsive: apply() requires a preceding when()",2)end;if type(ad)~="table"then
-error("Basalt responsive: apply() expects a property table",2)end;self.pending.props=ad;self.rules[
-#self.rules+1]=self.pending
-self.pending=nil;return self:_sync()end
-function db:otherwise(ad)if self.pending then
-error("Basalt responsive: call apply() before otherwise()",2)end;if self.finished then
-error("Basalt responsive: otherwise() can only be used once",2)end;if type(ad)~="table"then
-error("Basalt responsive: otherwise() expects a property table",2)end
-self.rules[#self.rules+1]={props=ad}self.finished=true;self:_sync()return self.element end;function db:done()if self.pending then
-error("Basalt responsive: call apply() before done()",2)end;self:_sync()
-return self.element end
-function cb.builder(ad)if not
-ad.getChildren then
-error("Basalt responsive: target must be a container",2)end;return
-setmetatable({element=ad,rules={}},db)end
-function cb.get(ad)return rawget(ad,"_responsiveController")end;function bb:setResponsive(ad)cb.apply(self,ad)return self end;function bb:responsive()return
-cb.builder(self)end
-function bb:clearResponsive()
-local ad=rawget(self,"_responsiveController")if ad then ad:destroy()end;return self end;return cb
-]=]
-sources["modules/theme"] = [=[
-local ca=...local da=ca("core/palette")local _b={}
-local function ab(db,_c,ac,bc)if type(bc)~="table"then
-error(
-"Basalt theme: state '"..ac.."' for ".._c.." must be a table",3)end
-for cc,dc in pairs(bc)do
-local _d=db.__props[cc]if not _d then
-error("Basalt theme: unknown property '"..
-cc.."' for ".._c.." state "..ac,3)end;if not _d.styleable then
-error(
-"Basalt theme: property '"..cc.."' cannot be state-styled",3)end
-if type(dc)=="string"and
-dc:sub(1,1)=="{"then
-error("Basalt theme: reactive strings are not allowed in set() "..
-"state styles; use a function instead",3)end end end
-_b.classes={Element=ca("core/element"),Container=ca("core/container"),BaseFrame=ca("core/baseframe"),Label=ca("elements/Label"),Button=ca("elements/Button"),Frame=ca("elements/Frame"),Input=ca("elements/Input"),Checkbox=ca("elements/Checkbox"),Switch=ca("elements/Switch"),ProgressBar=ca("elements/ProgressBar"),Slider=ca("elements/Slider"),Collection=ca("elements/Collection"),List=ca("elements/List"),Dropdown=ca("elements/Dropdown"),Flex=ca("elements/Flex"),Row=ca("elements/Row"),Column=ca("elements/Column"),TextBox=ca("elements/TextBox"),Menu=ca("elements/Menu"),TabControl=ca("elements/TabControl"),Tree=ca("elements/Tree"),Table=ca("elements/Table"),Program=ca("elements/Program"),ComboBox=ca("elements/ComboBox"),ContextMenu=ca("elements/ContextMenu"),Dialog=ca("elements/Dialog"),Toast=ca("elements/Toast")}
-function _b.set(db)
-for _c,ac in pairs(db)do local bc=_b.classes[_c]if not bc then
-error("Basalt theme: unknown element type '".._c.."'",2)end
-for cc,dc in pairs(ac)do
-if cc=="states"then if type(dc)~="table"then
-error(
-"Basalt theme: states for ".._c.." must be a table",2)end;for _d,ad in pairs(dc)do ab(bc,_c,_d,ad)
-bc.__stateStyles[_d]=ad end elseif bc.__props[cc]==nil then
-error(
-"Basalt theme: unknown property '"..cc.."' for ".._c,2)elseif type(dc)=="string"and dc:sub(1,1)=="{"then
-error(
-"Basalt theme: reactive strings are not allowed in ".."set() (defaults are shared); use a function instead",2)else bc.__defaults[cc]=dc end end end end
-local bb={bg=da.rgb("#14161B"),surface=da.rgb("#22262E"),raised=da.rgb("#2E333D"),border=da.rgb("#3D434F"),text=da.rgb("#E8E6E1"),muted=da.rgb("#9AA0AB"),lava=da.rgb("#E8703A"),ember=da.rgb("#F49058"),selection=da.rgb("#3E5F82"),success=da.rgb("#8FBB56"),warning=da.rgb("#E5B95C"),danger=da.rgb("#D9534F"),info=da.rgb("#5E9BD6")}
-_b.presets={basalt={colors=bb,styles={Element={foreground=bb.text},BaseFrame={background=bb.bg},Frame={background=bb.surface},Button={background=bb.raised,states={hover={background=bb.border}}},Input={background=bb.raised,foreground=bb.text,placeholderColor=bb.muted},Switch={onColor=bb.success,offColor=bb.border,knobColor=bb.text},ProgressBar={background=bb.border,barColor=bb.lava},Slider={barColor=bb.border,knobColor=bb.lava},List={background=bb.surface,selectionBackground=bb.lava,selectionForeground=bb.bg,emptyTextColor=bb.muted,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},Dropdown={background=bb.raised,dropBackground=bb.surface,selectionBackground=bb.lava,selectionForeground=bb.bg,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},ComboBox={background=bb.raised,foreground=bb.text,placeholderColor=bb.muted,dropBackground=bb.surface,dropForeground=bb.text,selectionBackground=bb.lava,selectionForeground=bb.bg,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},Menu={background=bb.surface,selectionBackground=bb.lava,selectionForeground=bb.bg,separatorColor=bb.muted,dropBackground=bb.raised},TabControl={background=bb.bg,headerBackground=bb.surface,activeBackground=bb.lava,activeForeground=bb.bg},Tree={background=bb.surface,selectionBackground=bb.lava,selectionForeground=bb.bg,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},Table={background=bb.surface,headerBackground=bb.raised,selectionBackground=bb.lava,selectionForeground=bb.bg,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},TextBox={background=bb.surface,selectionBackground=bb.selection,selectionForeground=bb.text,scrollbarColor=bb.raised,scrollbarThumbColor=bb.border},ContextMenu={background=bb.raised,selectionBackground=bb.lava,selectionForeground=bb.bg,separatorColor=bb.muted},Dialog={boxBackground=bb.surface,boxForeground=bb.text,titleBackground=bb.lava,titleForeground=bb.bg},Program={background=bb.bg}}}}
-function _b.applyPreset(db)
-local _c=type(db)=="table"and db or _b.presets[db]if not _c then
-error("Basalt theme: unknown preset '"..tostring(db).."'",2)end;_b.set(_c.styles)
-return _c.colors end
-local function cb(db,_c)if type(db)~="string"then return db end
-if db:sub(1,1)=="$"then
-local ac=_c[db:sub(2)]if ac==nil then
-error("Basalt theme: unknown color token '"..db.."'",0)end;return ac end;if db:sub(1,1)=="#"then return da.rgb(db)end;if
-type(colors[db])=="number"then return colors[db]end;return db end
-function _b.load(db)local _c=fs.open(db,"r")if not _c then
-error("Basalt theme: cannot open "..tostring(db),2)end;local ac=_c.readAll()_c.close()
-local bc
-if db:match("%.json$")then
-local cd=textutils.unserialiseJSON or textutils.unserializeJSON;bc=cd(ac)else bc=textutils.unserialize(ac)end;if type(bc)~="table"then
-error("Basalt theme: "..db.." is not a valid theme file",2)end;local cc={}local dc=bc.colors or{}
-for cd,dd in
-pairs(dc)do if
-not(type(dd)=="string"and dd:sub(1,1)=="$")then cc[cd]=cb(dd,cc)end end
-for cd,dd in pairs(dc)do if type(dd)=="string"and dd:sub(1,1)=="$"then
-cc[cd]=cb(dd,cc)end end;local _d={}
-for cd,dd in pairs(bc.styles or{})do local __a={}
-for a_a,b_a in pairs(dd)do
-if a_a=="states"then local c_a={}for d_a,_aa in
-pairs(b_a)do local aaa={}for baa,caa in pairs(_aa)do aaa[baa]=cb(caa,cc)end
-c_a[d_a]=aaa end;__a.states=c_a else
-__a[a_a]=cb(b_a,cc)end end;_d[cd]=__a end
-local ad=bc.name or fs.getName(db):gsub("%.%w+$","")local bd={colors=cc,styles=_d}_b.presets[ad]=bd;return ad,bd end
-function _b.apply(db,_c)local ac=_c[db.__name]
-if ac then for bc,cc in pairs(ac)do
-if bc=="states"then for dc,_d in pairs(cc)do
-db:setStateStyle(dc,_d)end else db[bc]=cc end end end;if db.getChildren then local bc=db:getChildren()
-for i=1,#bc do _b.apply(bc[i],_c)end end end;return _b
-]=]
-sources["modules/xml"] = [==[
-local ba=...local ca=ba("core/palette")local da={}local function _b(cb)
-return cb:match("^%s*(.-)%s*$")end
-function da.parse(cb)local db={tag=nil,children={}}local _c={db}
-local ac=1
-while true do local bc=cb:find("<",ac,true)if not bc then break end
-local cc=_b(cb:sub(ac,bc-1))if#cc>0 then local dc=_c[#_c]
-dc.text=dc.text and(dc.text.." "..cc)or cc end
-if cb:sub(bc+1,bc+3)=="!--"then local dc=cb:find("-->",
-bc+4,true)if not dc then
-error("Basalt XML: unclosed comment",2)end;ac=dc+3 elseif cb:sub(bc+1,bc+1)=="/"then
-local dc=cb:find(">",bc,true)
-if not dc then error("Basalt XML: malformed closing tag",2)end;local _d=_b(cb:sub(bc+2,dc-1))local ad=_c[#_c]if ad.tag~=_d then
-error(
-"Basalt XML: unexpected </".._d..">"..
-(ad.tag and(", open tag is <"..ad.tag..">")or""),2)end;_c[#_c]=nil;ac=
-dc+1 else local dc=cb:find(">",bc,true)if not dc then
-error("Basalt XML: unclosed tag",2)end;local _d=cb:sub(bc+1,dc-1)
-local ad=_d:sub(-1)=="/"if ad then _d=_d:sub(1,-2)end;local bd=_d:match("^([%w_]+)")if
-not bd then
-error("Basalt XML: malformed tag near pos "..bc,2)end;local cd={tag=bd,attrs={},children={}}for __a,a_a,b_a in
-_d:gmatch([=[([%w_]+)%s*=%s*(["'])(.-)%2]=])do cd.attrs[__a]=b_a end
-local dd=_c[#_c]dd.children[#dd.children+1]=cd;if not ad then
-_c[#_c+1]=cd end;ac=dc+1 end end;if#_c~=1 then
-error("Basalt XML: unclosed <".._c[#_c].tag..">",2)end;return db.children end
-local function ab(cb)local db=tonumber(cb)if db then return db end;if cb=="true"then return true end;if cb==
-"false"then return false end
-if cb:sub(1,1)=="#"then return ca.rgb(cb)end;return cb end
-local function bb(cb,db,_c)local ac={}
-for bc,cc in ipairs(db)do local dc="add"..
-cc.tag:sub(1,1):upper()..cc.tag:sub(2)local _d=cb[dc]if not _d then
-error(
-"Basalt XML: unknown element <"..cc.tag..">",2)end;local ad=_d(cb)
-for bd,cd in pairs(cc.attrs)do
-if
-bd:find("^on%u")then local dd=_c and _c[cd]if type(dd)~="function"then
-error("Basalt XML: scope has no handler '"..cd.."' for "..bd..
-" on <"..cc.tag..">",2)end
-ad[bd](ad,dd)else ad[bd]=ab(cd)end end;if cc.text and ad.text~=nil and cc.attrs.text==nil then
-ad.text=cc.text end;if#cc.children>0 then
-bb(ad,cc.children,_c)end;ac[#ac+1]=ad end;return ac end;function da.load(cb,db,_c)return bb(cb,da.parse(db),_c)end
-function da.loadFile(cb,db,_c)
-local ac=fs.open(db,"r")
-if not ac then error("Basalt XML: cannot open "..db,2)end;local bc=ac.readAll()ac.close()return da.load(cb,bc,_c)end;return da
-]==]
-local loaded = {}
-local function loader(name)
-    local cached = loaded[name]
-    if cached ~= nil then return cached end
-
-    local source = sources[name]
-        or error("Basalt: module not bundled: " .. tostring(name), 0)
-    local chunk = assert(load(source, "@basalt/" .. name .. ".lua"))
-    local result = chunk(loader, "basalt")
-    loaded[name] = result == nil and true or result
-    return loaded[name]
+local function packValues(...)
+    return { n = select("#", ...), ... }
 end
-return loader("main")
+
+local function loadWithEnvironment(source, chunkName, environment)
+    if _VERSION == "Lua 5.1" and loadstring and setfenv then
+        local chunk, message = loadstring(source, chunkName)
+        if chunk then setfenv(chunk, environment) end
+        return chunk, message
+    end
+    return load(source, chunkName, "t", environment)
+end
+
+local environment = setmetatable({}, { __index = hostEnvironment })
+environment._G = environment
+
+local loadedById = {}
+local loadingById = {}
+local packageLoaded = setmetatable({}, {
+    __index = nativePackage and nativePackage.loaded or nil,
+})
+local packageProxy = {}
+if nativePackage then
+    for key, value in pairs(nativePackage) do packageProxy[key] = value end
+end
+packageProxy.loaded = packageLoaded
+environment.package = packageProxy
+
+local function normalizeBundlePath(path)
+    if type(path) ~= "string" then
+        error("bundle path must be a string", 3)
+    end
+    path = path:gsub("\\", "/"):gsub("/+", "/"):gsub("^%./", "")
+    if path:sub(1, 1) == "/" or path:match("^%a:/") then
+        error("bundle path must be relative", 3)
+    end
+    for part in path:gmatch("[^/]+") do
+        if part == ".." then
+            error("bundle path cannot leave the project root", 3)
+        end
+    end
+    return path
+end
+
+local bundleApi = {}
+
+function bundleApi.exists(path)
+    return assetSources[normalizeBundlePath(path)] ~= nil
+end
+
+function bundleApi.read(path)
+    path = normalizeBundlePath(path)
+    local contents = assetSources[path]
+    if contents == nil then
+        error("asset does not exist in bundle: " .. path, 2)
+    end
+    return contents
+end
+
+function bundleApi.files()
+    local result = {}
+    for index = 1, #assetPaths do result[index] = assetPaths[index] end
+    return result
+end
+
+function bundleApi.entry()
+    return modulePaths[entryId]
+end
+
+local bundledRequire
+
+local function loadBundledModule(id, requestedName)
+    local cached = loadedById[id]
+    if cached ~= nil then return cached end
+    if loadingById[id] then
+        error("loop or previous error loading bundled module '"
+            .. requestedName .. "'", 2)
+    end
+
+    local source = moduleSources[id]
+    local path = modulePaths[id]
+    local chunk, message = loadWithEnvironment(
+        source,
+        "@shale/" .. path,
+        environment
+    )
+    if not chunk then error(message, 2) end
+
+    loadingById[id] = true
+    local ok, result
+    if requireAsArgument[id] then
+        ok, result = pcall(chunk, bundledRequire, requestedName, path)
+    else
+        ok, result = pcall(chunk, requestedName, path)
+    end
+    loadingById[id] = nil
+    if not ok then error(result, 0) end
+
+    if result == nil then result = true end
+    loadedById[id] = result
+    packageLoaded[requestedName] = result
+    return result
+end
+
+bundledRequire = function(name)
+    if type(name) ~= "string" then
+        error("bad argument #1 to 'require' (string expected)", 2)
+    end
+    if name == "shale.bundle" then return bundleApi end
+
+    local id = moduleNames[name]
+    if id then return loadBundledModule(id, name) end
+    if nativeRequire then return nativeRequire(name) end
+    error("module '" .. name .. "' not found in Shale bundle", 2)
+end
+
+environment.require = bundledRequire
+environment.__SHALE = bundleApi
+
+local entrySource = moduleSources[entryId]
+local entryPath = modulePaths[entryId]
+local entryChunk, entryError = loadWithEnvironment(
+    entrySource,
+    "@shale/" .. entryPath,
+    environment
+)
+if not entryChunk then error(entryError, 0) end
+
+loadingById[entryId] = true
+local entryResults
+if requireAsArgument[entryId] then
+    entryResults = packValues(pcall(
+        entryChunk,
+        bundledRequire,
+        entryPath,
+        entryPath,
+        ...
+    ))
+else
+    entryResults = packValues(pcall(entryChunk, ...))
+end
+loadingById[entryId] = nil
+if not entryResults[1] then error(entryResults[2], 0) end
+
+-- Modules may require the entry later (Basalt extensions do this for
+-- `main`). Cache the direct program result so every alias receives the same
+-- instance instead of executing the entry a second time.
+local cachedEntry = entryResults[2]
+if cachedEntry == nil then cachedEntry = true end
+loadedById[entryId] = cachedEntry
+packageLoaded[entryPath] = cachedEntry
+
+return unpackValues(entryResults, 2, entryResults.n)

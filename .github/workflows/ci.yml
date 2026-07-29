@@ -55,11 +55,11 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/basalt-output"
           lua5.4 tools/bundle-host.lua \
-            --no-minify "$RUNNER_TEMP/basalt-output/basalt.lua"
-          lua5.4 tools/bundle-host.lua \
-            "$RUNNER_TEMP/basalt-output/basalt.min.lua"
+            "$RUNNER_TEMP/basalt-output/basalt.lua"
           lua5.4 .shale/tools/run-host.lua \
-            src "$RUNNER_TEMP/basalt-output/basalt.compressed.lua"
+            src "$RUNNER_TEMP/basalt-output/basalt.min.lua" --no-compress
+          lua5.4 .shale/tools/run-host.lua \
+            src "$RUNNER_TEMP/basalt-output/basalt.compressed.lua" --compress
 
       - name: Smoke-test release bundles
         run: |
