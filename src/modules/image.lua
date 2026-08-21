@@ -9,16 +9,12 @@
 -- blit triples. FLIMG stores RGB palette indices and either terminal cells or
 -- unbaked 2x3 pixels. Both render through the retained Render buffer.
 
-local require, basaltDir = ...
+local require = ...
 local class = require("core/class")
 local Element = require("core/element")
 local Container = require("core/container")
 local palette = require("core/palette")
-
-local codecPath = fs.combine(fs.getDir(basaltDir), "flimg.lua")
-local codecChunk, codecError = loadfile(codecPath)
-if not codecChunk then error("Basalt image: cannot load FLIMG codec: " .. tostring(codecError), 0) end
-local flimg = codecChunk()
+local flimg = require("flimg")
 
 ---@class image
 ---@field Image Image Registered Image element class

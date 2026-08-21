@@ -95,7 +95,7 @@ local function defaultRoot()
 end
 
 local function collect(srcDir)
-    local names = { "main" }
+    local names = { "main", "flimg" }
     for _, folder in ipairs({ "core", "elements", "modules" }) do
         local path = fs.combine(srcDir, folder)
         if fs.exists(path) then
