@@ -4878,46 +4878,35 @@ local class = require("core/class")
 local Element = require("core/element")
 local textutil = require("core/text")
 local Label = class.create("Label", Element)
-local function reflow(self)
-    local p = rawget(self, "_p")
-    if rawget(self, "_autoSize") then
-        if type(p.width) ~= "function" then
-            p.width = math.max(#tostring(self.text), 1)
-        end
-        return
-    end
-    if rawget(self, "_autoHeight") and type(p.height) ~= "function"
-        and type(p.width) ~= "function" then
-        p.height = #textutil.wrap(self.text, self.width)
-    end
+class.property(Label, "text", "")
+class.property(Label, "width", function(self)
+    return math.max(#tostring(self.text), 1)
+end)
+local textWidth = Label.__defaults.width
+local function followsText(self)
+    return rawget(self, "_p").width == textWidth
 end
-class.property(Label, "text", "", {
-    onChange = function(self) reflow(self) end,
-})
-class.property(Label, "width", 1, {
-    onChange = function(self)
-        rawset(self, "_autoSize", false)
-        reflow(self)
-    end,
-})
-class.property(Label, "height", 1, {
-    onChange = function(self)
-        rawset(self, "_autoHeight", false)
-    end,
-})
-function Label:setup()
-    Element.setup(self)
-    rawset(self, "_autoSize", true)
-    rawset(self, "_autoHeight", true)
+local function wrappedLines(self)
+    local text, width = tostring(self.text), self.width
+    if rawget(self, "_wrapText") ~= text or rawget(self, "_wrapWidth") ~= width then
+        rawset(self, "_wrapText", text)
+        rawset(self, "_wrapWidth", width)
+        rawset(self, "_wrapLines", textutil.wrap(text, width))
+    end
+    return rawget(self, "_wrapLines")
 end
+class.property(Label, "height", function(self)
+    if followsText(self) then return 1 end
+    return #wrappedLines(self)
+end)
 function Label:render(buf)
     Element.render(self, buf)
-    local str = tostring(self.text)
-    if rawget(self, "_autoSize") or self.height == 1 then
-        buf:blit(1, 1, str, self.foreground, nil)
+    local height = self.height
+    if followsText(self) or height == 1 then
+        buf:blit(1, 1, tostring(self.text), self.foreground, nil)
     else
-        local lines = textutil.wrap(str, self.width)
-        for i = 1, math.min(#lines, self.height) do
+        local lines = wrappedLines(self)
+        for i = 1, math.min(#lines, height) do
             buf:blit(1, i, lines[i], self.foreground, nil)
         end
     end
